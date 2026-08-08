@@ -1,0 +1,31 @@
+{
+  "name": "browser-pilot",
+  "version": "0.1.0",
+  "description": "Agent-in-the-loop Playwright CLI: one natural-language instruction in, one concise structured result out.",
+  "type": "module",
+  "bin": {
+    "browser-pilot": "bin/browser-pilot.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "playwright-core": "^1.53.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  }
+}

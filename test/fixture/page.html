@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>browser-pilot fixture</title></head>
+<body>
+  <h1>Fixture form</h1>
+  <form id="form">
+    <label>Name <input id="name" type="text" /></label>
+    <label>Qty <input id="qty" type="number" value="3" /></label>
+    <label>Colour
+      <select id="colour">
+        <option value="r">Red</option>
+        <option value="g">Green</option>
+      </select>
+    </label>
+    <button id="submit" type="button">Submit</button>
+    <button id="confirm-btn" type="button">Delete</button>
+  </form>
+  <div id="banner" hidden>Saved!</div>
+  <div id="events"></div>
+
+  <!-- read_all: a list of rows -->
+  <ul id="rows">
+    <li class="row" data-name="alpha">Row Alpha</li>
+    <li class="row" data-name="beta">Row Beta</li>
+    <li class="row" data-name="gamma">Row Gamma</li>
+  </ul>
+
+  <!-- strict-mode: duplicate matches for one selector -->
+  <button class="dup" type="button">Dup A</button>
+  <button class="dup" type="button">Dup B</button>
+
+  <!-- robust click: a zero-size button. A normal click can't land (not visible)
+       and a force click throws (size 0), so only the dispatched-DOM-event
+       fallback reaches the handler. -->
+  <button id="covered-btn" type="button" style="width:0; height:0; padding:0; border:0; overflow:hidden;">Covered</button>
+  <div id="covered-result"></div>
+
+  <script>
+    document.getElementById('covered-btn').addEventListener('click', () => {
+      document.getElementById('covered-result').textContent = 'covered-clicked';
+    });
+  </script>
+  <script>
+    // mimic a React controlled input: only trust values seen via input events
+    const seen = [];
+    const name = document.getElementById('name');
+    const qty = document.getElementById('qty');
+    for (const el of [name, qty]) {
+      el.addEventListener('input', () => seen.push(el.id + ':' + el.value));
+      el.addEventListener('change', () => seen.push(el.id + ':change:' + el.value));
+    }
+    window.__seenEvents = seen;
+
+    document.getElementById('submit').addEventListener('click', () => {
+      setTimeout(() => {
+        const banner = document.getElementById('banner');
+        banner.hidden = false;
+        banner.textContent = 'Saved ' + name.value + '!';
+      }, 300); // async, so tests must actually wait
+    });
+
+    document.getElementById('confirm-btn').addEventListener('click', () => {
+      const ok = confirm('Really delete?');
+      document.getElementById('events').textContent = ok ? 'deleted' : 'kept';
+    });
+  </script>
+</body>
+</html>
