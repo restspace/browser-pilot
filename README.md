@@ -71,7 +71,7 @@ browser-pilot do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' a
 
 # housekeeping
 browser-pilot session list
-browser-pilot stop [--all]
+browser-pilot stop [--all]                          # prints video paths if --record was used
 browser-pilot config
 ```
 
@@ -151,6 +151,7 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 | `BROWSER_PILOT_EXECUTABLE` | — | explicit browser binary |
 | `BROWSER_PILOT_HEADED=1`, `--headed` | headless | visible window (first call of a session) |
 | `BROWSER_PILOT_HOME` | `~/.browser-pilot` | sessions + config root |
+| `BROWSER_PILOT_RECORD=1`, `--record` | off | record the session to webm, one file per tab, under `<session dir>/video` (first call of a session). Playwright only writes video out when the browser context closes, so the paths are printed by `stop` — nothing is readable mid-session, and killing the daemon without `stop` loses the recording. |
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
 | `--turn-timeout` | 90 | wall-clock seconds for a single LLM call; a turn that produces no tool call by then is aborted and retried with a nudge, and three such turns in a row end the instruction. Stops a model from spending the whole `--timeout` reasoning inside one request. |

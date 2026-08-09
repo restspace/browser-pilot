@@ -1,7 +1,9 @@
 import path from 'node:path';
-import { chromium, type BrowserContext, type Page } from 'playwright-core';
+import { chromium, type BrowserContext, type Page, type Video } from 'playwright-core';
 import { ensureSessionDir } from '../shared/paths.js';
 import { DialogManager } from './dialogs.js';
+
+const VIEWPORT = { width: 1280, height: 900 };
 
 export interface BrowserOptions {
   session: string;
@@ -11,6 +13,13 @@ export interface BrowserOptions {
   executablePath?: string;
   /** Persist cookies/localStorage in the session profile dir (default true). */
   persist?: boolean;
+  /**
+   * Record the whole session to webm, one file per tab. Playwright only offers
+   * video as a context-creation option and only finalises the files on context
+   * close, so this is fixed when the browser launches and the paths come back
+   * from close() — there is no mid-session start/stop.
+   */
+  record?: boolean;
 }
 
 /**
@@ -20,6 +29,8 @@ export interface BrowserOptions {
 export class BrowserSession {
   private context: BrowserContext | null = null;
   private activePage: Page | null = null;
+  /** Videos of every page adopted this session, kept so close() can resolve their paths. */
+  private videos = new Set<Video>();
   readonly dialogs = new DialogManager();
 
   constructor(private opts: BrowserOptions) {}
@@ -27,6 +38,9 @@ export class BrowserSession {
   private async launch(): Promise<BrowserContext> {
     const headless = !(this.opts.headed || process.env.BROWSER_PILOT_HEADED === '1');
     const executablePath = this.opts.executablePath || process.env.BROWSER_PILOT_EXECUTABLE || undefined;
+    const recordVideo = this.recording
+      ? { dir: path.join(ensureSessionDir(this.opts.session), 'video'), size: VIEWPORT }
+      : undefined;
     const channels = executablePath
       ? [undefined]
       : [this.opts.channel || process.env.BROWSER_PILOT_CHANNEL || 'chrome', 'msedge', 'chromium'];
@@ -36,14 +50,15 @@ export class BrowserSession {
       try {
         if (this.opts.persist === false) {
           const browser = await chromium.launch({ headless, channel: channel as string | undefined, executablePath });
-          return await browser.newContext();
+          return await browser.newContext({ viewport: VIEWPORT, recordVideo });
         }
         const userDataDir = path.join(ensureSessionDir(this.opts.session), 'profile');
         return await chromium.launchPersistentContext(userDataDir, {
           headless,
           channel: channel as string | undefined,
           executablePath,
-          viewport: { width: 1280, height: 900 },
+          viewport: VIEWPORT,
+          recordVideo,
         });
       } catch (err) {
         lastErr = err;
@@ -70,6 +85,8 @@ export class BrowserSession {
 
   private adoptPage(page: Page): void {
     this.dialogs.attach(page);
+    const video = page.video();
+    if (video) this.videos.add(video);
     this.activePage = page;
     page.on('close', () => {
       if (this.activePage === page) this.activePage = null;
@@ -79,6 +96,11 @@ export class BrowserSession {
   /** Whether a context is already live — so callers can look without launching one. */
   get isOpen(): boolean {
     return this.context !== null;
+  }
+
+  /** Whether this session records video (flag or env; fixed at construction). */
+  get recording(): boolean {
+    return Boolean(this.opts.record || process.env.BROWSER_PILOT_RECORD === '1');
   }
 
   /** Current page, creating one if none is open. */
@@ -110,7 +132,12 @@ export class BrowserSession {
     return page;
   }
 
-  async close(): Promise<void> {
+  /**
+   * Close the context and return the recorded video paths (empty unless
+   * recording). Videos are only written out on context close, so this is the
+   * one moment they can be reported. Idempotent.
+   */
+  async close(): Promise<string[]> {
     const context = this.context;
     if (context) {
       this.context = null;
@@ -119,5 +146,9 @@ export class BrowserSession {
       await context.close().catch(() => {});
       if (browser) await browser.close().catch(() => {});
     }
+    const videos = [...this.videos];
+    this.videos.clear();
+    const paths = await Promise.all(videos.map((v) => v.path().catch(() => null)));
+    return paths.filter((p): p is string => Boolean(p));
   }
 }

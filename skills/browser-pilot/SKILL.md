@@ -32,7 +32,7 @@ browser-pilot do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' a
 
 # housekeeping — answered immediately, even while a `do` is running
 browser-pilot session list
-browser-pilot stop [--all]
+browser-pilot stop [--all]                     # prints video paths if the session was recorded
 browser-pilot config
 ```
 
@@ -92,6 +92,25 @@ unattributed claim in a summary as an inference rather than an observation.
 under `~/.browser-pilot/sessions/<name>/` — logins and conversation history survive daemon
 restarts. `brief` and `note` content survives history trimming. `stop` kills the daemon; the
 profile stays.
+
+## Recording a session
+
+`--record` on the first call of a session (the one that launches the browser) records the whole
+session to webm, one file per tab, under `~/.browser-pilot/sessions/<name>/video/`:
+
+```sh
+browser-pilot open http://localhost:5173 --session run1 --record
+browser-pilot do "..." --session run1
+browser-pilot stop --session run1              # prints:  video: .../video/page@<hash>.webm
+```
+
+Playwright only writes the video out when the browser context closes, so: it cannot be started or
+stopped mid-session, nothing is readable until `stop`, and killing the daemon any other way loses
+the recording entirely. `browser-pilot config` reports `recording` so you can check which mode a
+running session is actually in — passing `--record` to an already-running session does nothing.
+
+Use it when you need to show a human what happened, or to debug a flow that fails intermittently.
+For a single moment, `screenshot` is cheaper and readable immediately.
 
 ## Design boundary — this tool is app-agnostic
 

@@ -27,6 +27,8 @@ Global flags:
   --verbose          stream the internal agent's actions + token accounting while it works
   --progress         stream the agent's actions to stderr (composes with --json)
   --headed           launch the browser with a visible window (first call only)
+  --record           record the session to webm, one file per tab; paths are printed
+                     on stop, which is when Playwright writes them (first call only)
   --json             machine-readable output
 
 Providers (presets; each field overridable by flag > env > config file):
@@ -42,6 +44,7 @@ Environment:
   BROWSER_PILOT_API_KEY         API key (works with any provider)
   BROWSER_PILOT_CHANNEL         browser channel (default chrome, falls back to msedge)
   BROWSER_PILOT_HEADED=1        headed browser
+  BROWSER_PILOT_RECORD=1        record session video to <session dir>/video
 
 Exit codes: 0 instruction succeeded · 1 failed/blocked · 2 infra error`;
 
@@ -114,7 +117,10 @@ async function connectValidated(sock: string): Promise<net.Socket> {
   }
 }
 
-async function connectOrSpawn(session: string, headed: boolean): Promise<net.Socket> {
+async function connectOrSpawn(
+  session: string,
+  opts: { headed: boolean; record: boolean },
+): Promise<net.Socket> {
   const sock = socketPath(session);
   try {
     return await connectValidated(sock);
@@ -123,7 +129,8 @@ async function connectOrSpawn(session: string, headed: boolean): Promise<net.Soc
   }
   const serverPath = fileURLToPath(new URL('./daemon/server.js', import.meta.url));
   const args = [serverPath, '--session', session];
-  if (headed) args.push('--headed');
+  if (opts.headed) args.push('--headed');
+  if (opts.record) args.push('--record');
   const child = spawn(process.execPath, args, {
     detached: true,
     stdio: 'ignore',
@@ -262,8 +269,9 @@ async function main(): Promise<void> {
         // unwind before closing the browser. Reachable-but-unresponsive is a
         // real failure worth reporting, not a silent "not running".
         const res = await request(conn, 'stop', {}, undefined, 20_000);
-        const preempted = (res.data as { preempted?: boolean } | undefined)?.preempted;
-        console.log(`stopped: ${name}${preempted ? ' (interrupted a running instruction)' : ''}`);
+        const data = res.data as { preempted?: boolean; videos?: string[] } | undefined;
+        console.log(`stopped: ${name}${data?.preempted ? ' (interrupted a running instruction)' : ''}`);
+        for (const video of data?.videos ?? []) console.log(`  video: ${video}`);
       } catch (err) {
         console.error(`browser-pilot: could not stop ${name}: ${(err as Error).message}`);
       } finally {
@@ -273,7 +281,10 @@ async function main(): Promise<void> {
     return;
   }
 
-  const conn = await connectOrSpawn(session, flags.has('headed')).catch((err) => fail(err.message));
+  const conn = await connectOrSpawn(session, {
+    headed: flags.has('headed'),
+    record: flags.has('record'),
+  }).catch((err) => fail(err.message));
 
   try {
     switch (command) {

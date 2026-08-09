@@ -2,6 +2,7 @@
  * Browser-backed primitive tests. Need an installed Chrome/Edge, so they are
  * opt-in:  BP_BROWSER_TESTS=1 npx vitest run test/browser.test.ts
  */
+import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
@@ -30,6 +31,22 @@ d('browser primitives (fixture page)', () => {
 
   afterAll(async () => {
     await session?.close();
+  });
+
+  it('records the session to webm when asked, resolving paths on close', async () => {
+    const recorded = new BrowserSession({ session: 'video', persist: false, record: true });
+    const page = await recorded.getPage();
+    await page.goto(fixtureUrl);
+    await page.waitForTimeout(500);
+
+    const videos = await recorded.close();
+    expect(videos).toHaveLength(1);
+    expect(videos[0]).toMatch(/.webm$/);
+    expect(fs.statSync(videos[0]).size).toBeGreaterThan(0);
+  }, 60_000);
+
+  it('reports no videos when recording is off', async () => {
+    expect(await new BrowserSession({ session: 'novideo', persist: false }).close()).toEqual([]);
   });
 
   it('snapshot returns the form with refs or roles', async () => {

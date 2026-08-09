@@ -12,6 +12,7 @@ import { SessionState } from './state.js';
 interface DaemonOptions {
   session: string;
   headed?: boolean;
+  record?: boolean;
 }
 
 /**
@@ -36,7 +37,7 @@ export class Daemon {
   private inflight: AbortController | null = null;
 
   constructor(private opts: DaemonOptions) {
-    this.browser = new BrowserSession({ session: opts.session, headed: opts.headed });
+    this.browser = new BrowserSession({ session: opts.session, headed: opts.headed, record: opts.record });
     this.state = new SessionState(opts.session);
   }
 
@@ -174,6 +175,7 @@ export class Daemon {
           apiKeyEnvVars: cfg.keyEnvVars,
           sessionDir: ensureSessionDir(this.opts.session),
           briefingChars: this.state.briefing.length,
+          recording: this.browser.recording,
           notes: this.state.notes,
           usage: this.state.usage,
           historyMessages: this.state.messages.length,
@@ -189,7 +191,12 @@ export class Daemon {
         if (preempted) {
           await Promise.race([this.queue.catch(() => {}), delay(STOP_DRAIN_MS)]);
         }
-        return { stopping: true, preempted };
+        // Close the browser here rather than leaving it to shutdown(): a
+        // recorded video is only written out when the context closes, so the
+        // files must exist before this result frame goes out. close() is
+        // idempotent, so shutdown()'s call becomes a no-op.
+        const videos = await this.browser.close();
+        return { stopping: true, preempted, videos };
       }
 
       default:
@@ -216,7 +223,11 @@ if (isMain) {
   const argv = process.argv.slice(2);
   const sessionIdx = argv.indexOf('--session');
   const session = validateSessionName(sessionIdx >= 0 ? argv[sessionIdx + 1] : 'default');
-  const daemon = new Daemon({ session, headed: argv.includes('--headed') });
+  const daemon = new Daemon({
+    session,
+    headed: argv.includes('--headed'),
+    record: argv.includes('--record'),
+  });
   daemon
     .listen()
     .then(() => {
