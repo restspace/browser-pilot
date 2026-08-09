@@ -54,9 +54,19 @@ export interface Completion {
   usage: Usage;
 }
 
+export interface CompleteOptions {
+  /**
+   * Aborts the in-flight HTTP request. The loop's per-turn watchdog and the
+   * daemon's `stop` preemption both drive this — without it a model that
+   * reasons without emitting a tool call can consume the whole instruction
+   * budget in one uninterruptible request.
+   */
+  signal?: AbortSignal;
+}
+
 export interface Provider {
   readonly model: string;
-  complete(messages: ChatMessage[], tools: ToolDef[]): Promise<Completion>;
+  complete(messages: ChatMessage[], tools: ToolDef[], opts?: CompleteOptions): Promise<Completion>;
 }
 
 export interface ProviderConfig {
@@ -190,7 +200,7 @@ export class OpenAICompatProvider implements Provider {
     this.model = config.model;
   }
 
-  async complete(messages: ChatMessage[], tools: ToolDef[]): Promise<Completion> {
+  async complete(messages: ChatMessage[], tools: ToolDef[], opts: CompleteOptions = {}): Promise<Completion> {
     if (!this.config.apiKey) {
       throw new Error(
         `no API key for provider "${this.config.provider}": set ${this.config.keyEnvVars.join(' or ')} ` +
@@ -211,6 +221,7 @@ export class OpenAICompatProvider implements Provider {
     const url = this.config.baseUrl.replace(/\/$/, '') + '/chat/completions';
     let lastErr: Error | null = null;
     for (let attempt = 0; attempt < 3; attempt++) {
+      if (opts.signal?.aborted) throw new Error('LLM request aborted');
       try {
         const res = await fetch(url, {
           method: 'POST',
@@ -219,10 +230,11 @@ export class OpenAICompatProvider implements Provider {
             authorization: `Bearer ${this.config.apiKey}`,
           },
           body: JSON.stringify(body),
+          signal: opts.signal,
         });
         if (res.status === 429 || res.status >= 500) {
           lastErr = new Error(`LLM HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
-          await sleep(1000 * (attempt + 1));
+          await sleep(1000 * (attempt + 1), opts.signal);
           continue;
         }
         if (!res.ok) {
@@ -230,9 +242,11 @@ export class OpenAICompatProvider implements Provider {
         }
         return parseCompletion((await res.json()) as Record<string, any>);
       } catch (err) {
+        // An abort is a decision, not a transport failure — never retry it.
+        if (opts.signal?.aborted) throw new Error('LLM request aborted');
         if (err instanceof Error && err.message.startsWith('LLM HTTP 4')) throw err;
         lastErr = err as Error;
-        await sleep(1000 * (attempt + 1));
+        await sleep(1000 * (attempt + 1), opts.signal);
       }
     }
     throw lastErr ?? new Error('LLM request failed');
@@ -279,6 +293,15 @@ function parseCompletion(json: Record<string, any>): Completion {
   };
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
+/** Backoff sleep that gives up early if the request is aborted mid-wait. */
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(done, ms);
+    function done() {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', done);
+      resolve();
+    }
+    signal?.addEventListener('abort', done, { once: true });
+  });
 }

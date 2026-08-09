@@ -2,6 +2,7 @@
  * Browser-backed primitive tests. Need an installed Chrome/Edge, so they are
  * opt-in:  BP_BROWSER_TESTS=1 npx vitest run test/browser.test.ts
  */
+import http from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -130,5 +131,60 @@ d('browser primitives (fixture page)', () => {
     });
     expect(out.isError).toBe(true);
     expect(out.result).toMatch(/never changed/);
+  });
+});
+
+/**
+ * Server response vs live DOM. The page below server-renders an island that its
+ * own script then removes — a failed hydration. Reading the live DOM and calling
+ * it "the server-rendered HTML" is exactly the conflation fetch_source exists to
+ * prevent, so the two views must be observably different here.
+ */
+d('fetch_source (server response vs live DOM)', () => {
+  let session: BrowserSession;
+  let origin: string;
+  let server: http.Server;
+  const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, os.tmpdir());
+
+  const BODY = `<!doctype html><title>SSR</title><div id="root">
+<p>Hello world</p>
+<button id="island">Simulate a submission</button>
+</div>
+<script>document.getElementById('island').remove()</script>`;
+
+  beforeAll(async () => {
+    process.env.BROWSER_PILOT_HOME = path.join(os.tmpdir(), `bp-fetch-test-${Date.now()}`);
+    server = http.createServer((_req, res) => {
+      res.writeHead(200, { 'content-type': 'text/html' });
+      res.end(BODY);
+    });
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    origin = `http://127.0.0.1:${(server.address() as { port: number }).port}/`;
+    session = new BrowserSession({ session: 'fetch-src', persist: false });
+    await (await session.getPage()).goto(origin);
+  }, 60_000);
+
+  afterAll(async () => {
+    await session?.close();
+    await new Promise<void>((r) => server?.close(() => r()));
+  });
+
+  it('returns the raw server response, which differs from the hydrated DOM', async () => {
+    const live = await run('read', { target: '#island', what: 'count' });
+    expect(live.result).toBe('0'); // client script stripped it — nothing to see live
+
+    const source = await run('fetch_source', {});
+    expect(source.isError).toBe(false);
+    expect(source.result).toMatch(/HTTP 200/);
+    expect(source.result).toMatch(/NOT the live DOM/);
+    expect(source.result).toContain('Simulate a submission'); // but the server DID send it
+  });
+
+  it('contains: narrows a large document to the matching lines', async () => {
+    const out = await run('fetch_source', { url: '/', contains: 'Simulate a submission' });
+    expect(out.isError).toBe(false);
+    expect(out.result).toMatch(/1 line\(s\) contain/);
+    expect(out.result).toContain('<button id="island">');
+    expect(out.result).not.toContain('Hello world');
   });
 });

@@ -76,6 +76,11 @@ export class BrowserSession {
     });
   }
 
+  /** Whether a context is already live — so callers can look without launching one. */
+  get isOpen(): boolean {
+    return this.context !== null;
+  }
+
   /** Current page, creating one if none is open. */
   async getPage(): Promise<Page> {
     const context = await this.getContext();

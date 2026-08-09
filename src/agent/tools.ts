@@ -184,6 +184,22 @@ export const TOOL_DEFS: ToolDef[] = [
     },
   },
   {
+    name: 'fetch_source',
+    description:
+      "Fetch the raw HTTP response body for a URL (default: the current page's URL) using the browser's cookies, WITHOUT executing JavaScript. This is the SERVER-RENDERED source — every other tool shows the live post-hydration DOM instead. Use it before making any claim about what the server sent, and to tell an SSR bug (element missing from the source) apart from a hydration bug (present in the source, absent live).",
+    parameters: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'Absolute or page-relative URL; defaults to the current page URL.' },
+        contains: {
+          type: 'string',
+          description:
+            'Return only the lines containing this substring (plus a match count) instead of the whole body — use it on large documents to check for a specific element.',
+        },
+      },
+    },
+  },
+  {
     name: 'goto',
     description: 'Navigate the current tab to a URL and wait for load.',
     parameters: { type: 'object', required: ['url'], properties: { url: { type: 'string' } } },
@@ -294,9 +310,11 @@ export async function executeTool(
   name: string,
   args: Record<string, unknown>,
   screenshotDir: string,
+  /** Cancels cooperative waits (wait_for polling) when the caller's deadline expires. */
+  signal?: AbortSignal,
 ): Promise<ToolExecution> {
   try {
-    const result = await dispatch(session, name, args, screenshotDir);
+    const result = await dispatch(session, name, args, screenshotDir, signal);
     const dialogs = session.dialogs.drain();
     const dialogNote = dialogs.length
       ? '\n[native dialogs: ' +
@@ -323,7 +341,9 @@ async function dispatch(
   name: string,
   args: Record<string, unknown>,
   screenshotDir: string,
+  signal?: AbortSignal,
 ): Promise<string> {
+  if (signal?.aborted) throw new Error('cancelled before starting: instruction budget exhausted');
   const page = await session.getPage();
   const t = (key = 'target') => resolveTarget(page, String(args[key]));
   const timeout = 10_000;
@@ -387,7 +407,7 @@ async function dispatch(
     }
 
     case 'wait_for':
-      return waitFor(page, args);
+      return waitFor(page, args, signal);
 
     case 'read': {
       const loc = t().first();
@@ -432,6 +452,19 @@ async function dispatch(
         return (0, eval)(expr);
       }, expression);
       return JSON.stringify(value) ?? 'undefined';
+    }
+
+    case 'fetch_source': {
+      const url = new URL(args.url ? String(args.url) : page.url(), page.url()).toString();
+      const res = await page.request.fetch(url, { timeout: 15_000 });
+      const body = await res.text();
+      const header = `HTTP ${res.status()} ${res.headers()['content-type'] ?? ''} — RAW SERVER RESPONSE for ${url} (${body.length} chars, no JavaScript executed; this is NOT the live DOM)`;
+      if (args.contains) {
+        const needle = String(args.contains);
+        const hits = body.split('\n').filter((line) => line.includes(needle));
+        return `${header}\n${hits.length} line(s) contain ${JSON.stringify(needle)}${hits.length ? ':\n' + hits.join('\n') : ''}`;
+      }
+      return `${header}\n${body}`;
     }
 
     case 'goto':
@@ -531,7 +564,11 @@ async function robustClick(loc: Locator, opts: { timeout: number; dbl?: boolean 
   }
 }
 
-async function waitFor(page: Page, args: Record<string, unknown>): Promise<string> {
+async function waitFor(
+  page: Page,
+  args: Record<string, unknown>,
+  signal?: AbortSignal,
+): Promise<string> {
   const loc = resolveTarget(page, String(args.target));
   const timeout = typeof args.timeout_ms === 'number' ? args.timeout_ms : 10_000;
   const state = String(args.state);
@@ -541,10 +578,15 @@ async function waitFor(page: Page, args: Record<string, unknown>): Promise<strin
     return `condition met: ${state}`;
   }
 
+  const cancelled = () => {
+    throw new Error('wait_for cancelled: instruction budget exhausted');
+  };
+
   const deadline = Date.now() + timeout;
   let last = '';
   let firstObserved: string | null = null;
   while (Date.now() < deadline) {
+    if (signal?.aborted) cancelled();
     if (state === 'count') {
       const count = await loc.count();
       last = `count=${count}`;
@@ -556,8 +598,19 @@ async function waitFor(page: Page, args: Record<string, unknown>): Promise<strin
       if (state === 'text_contains' && text.includes(String(args.text))) return `condition met: ${last}`;
     }
     if (firstObserved === null) firstObserved = last;
-    await new Promise((r) => setTimeout(r, 250));
+    // Wake early on cancellation so an abandoned wait stops polling the page
+    // instead of ticking on in the background for the rest of its own timeout.
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(done, 250);
+      function done() {
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', done);
+        resolve();
+      }
+      signal?.addEventListener('abort', done, { once: true });
+    });
   }
+  if (signal?.aborted) cancelled();
   // If the observed value never budged, the condition is likely unsatisfiable
   // (e.g. a count wait against a virtualised list) rather than merely slow.
   const stableHint =

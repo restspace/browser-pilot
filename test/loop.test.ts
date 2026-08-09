@@ -47,6 +47,23 @@ function scriptedProvider(script: Array<Partial<Completion> & { toolCalls?: Comp
   };
 }
 
+/**
+ * Provider that never answers until aborted — stands in for a model burning the
+ * whole budget on reasoning without emitting a tool call.
+ */
+function hangingProvider(onCall?: () => void): Provider {
+  return {
+    model: 'stub',
+    complete(_messages, _tools, opts) {
+      onCall?.();
+      return new Promise((_resolve, reject) => {
+        if (opts?.signal?.aborted) return reject(new Error('LLM request aborted'));
+        opts?.signal?.addEventListener('abort', () => reject(new Error('LLM request aborted')), { once: true });
+      });
+    },
+  };
+}
+
 function reportCall(args: Record<string, unknown>) {
   return { id: 'c1', name: 'report', args, rawArgs: JSON.stringify(args) };
 }
@@ -98,7 +115,8 @@ describe('agent loop', () => {
 
   it('declares blocked at the turn cap, warns near it, and flags possible partial completion', async () => {
     const state = new SessionState('t-cap');
-    const provider = scriptedProvider([{ text: 'thinking out loud, no tools' }]);
+    // acts every turn but never reports → runs out of turns rather than stalling
+    const provider = scriptedProvider([{ toolCalls: [{ id: 'c1', name: 'snapshot', args: {}, rawArgs: '{}' }] }]);
     const result = await runInstruction(provider, browserStub, state, 'x', { ...loopOpts, maxTurns: 3 });
     expect(result.report.status).toBe('blocked');
     expect(result.report.summary).toMatch(/turn cap \(3\)/i);
@@ -128,6 +146,102 @@ describe('agent loop', () => {
       loopOpts,
     );
     expect(okResult.actions).toBeUndefined();
+  });
+});
+
+describe('turn watchdog', () => {
+  it('aborts a turn that produces no tool call and nudges the model into acting', async () => {
+    const state = new SessionState('t-watchdog');
+    let calls = 0;
+    const provider: Provider = {
+      model: 'stub',
+      complete(messages, tools, opts) {
+        // first turn hangs (pure reasoning), the retry after the nudge reports
+        if (calls++ === 0) return hangingProvider().complete(messages, tools, opts);
+        return scriptedProvider([{ toolCalls: [reportCall({ status: 'success', summary: 'done' })] }]).complete(
+          messages,
+          tools,
+          opts,
+        );
+      },
+    };
+    const result = await runInstruction(provider, browserStub, state, 'x', { ...loopOpts, turnTimeoutMs: 50 });
+    expect(result.report.status).toBe('success');
+    expect(calls).toBe(2);
+    const nudge = state.messages.find(
+      (m) => m.role === 'user' && typeof m.content === 'string' && /aborted after \d+s/.test(m.content),
+    );
+    expect(nudge).toBeTruthy();
+  });
+
+  it('gives up quickly instead of burning the whole budget when every turn stalls', async () => {
+    const state = new SessionState('t-stall');
+    let calls = 0;
+    const started = Date.now();
+    const result = await runInstruction(hangingProvider(() => calls++), browserStub, state, 'x', {
+      ...loopOpts,
+      maxTurns: 30,
+      timeoutMs: 60_000,
+      turnTimeoutMs: 50,
+    });
+    expect(result.report.status).toBe('blocked');
+    expect(result.report.summary).toMatch(/stalled/i);
+    // bailed after a handful of turns, nowhere near the 60s instruction budget
+    expect(calls).toBe(3);
+    expect(Date.now() - started).toBeLessThan(5_000);
+    // and it says plainly that nothing ran, rather than pointing at an empty log
+    expect(result.actions).toEqual([]);
+    expect(result.report.summary).toMatch(/no tool call ran/i);
+    expect(result.transcriptTail?.join('\n')).toMatch(/no tool call issued/);
+  });
+
+  it('reports a timeout, not a stall, when the instruction deadline is what expired', async () => {
+    const state = new SessionState('t-deadline');
+    const result = await runInstruction(hangingProvider(), browserStub, state, 'x', {
+      ...loopOpts,
+      timeoutMs: 100,
+      turnTimeoutMs: 60_000,
+    });
+    expect(result.report.status).toBe('blocked');
+    expect(result.report.summary).toMatch(/timed out after/i);
+    expect(result.report.summary).toMatch(/0 tool call/);
+  });
+
+  it('abandons a wedged tool call at the deadline instead of waiting it out', async () => {
+    const state = new SessionState('t-wedged');
+    // getPage never settles — stands in for any tool that hangs inside Playwright
+    const wedgedBrowser = {
+      dialogs: { drain: () => [] },
+      isOpen: false,
+      getPage: () => new Promise(() => {}),
+    } as unknown as BrowserSession;
+    const provider = scriptedProvider([
+      { toolCalls: [{ id: 'c1', name: 'click', args: { target: '#x' }, rawArgs: '{"target":"#x"}' }] },
+    ]);
+    const started = Date.now();
+    const result = await runInstruction(provider, wedgedBrowser, state, 'x', {
+      ...loopOpts,
+      timeoutMs: 300,
+    });
+    expect(Date.now() - started).toBeLessThan(3_000);
+    expect(result.report.status).toBe('blocked');
+    expect(result.report.summary).toMatch(/timed out after/i);
+    // the abandoned call is on the record, so a resume knows the page was touched
+    expect(result.actions).toEqual([{ tool: 'click', args: '{"target":"#x"}', ok: false }]);
+    expect(result.transcriptTail?.some((line) => /abandoned/.test(line))).toBe(true);
+  });
+
+  it('stops promptly when the caller aborts mid-turn', async () => {
+    const state = new SessionState('t-abort');
+    const controller = new AbortController();
+    const running = runInstruction(hangingProvider(() => setTimeout(() => controller.abort(), 10)), browserStub, state, 'x', {
+      ...loopOpts,
+      timeoutMs: 60_000,
+      signal: controller.signal,
+    });
+    const result = await running;
+    expect(result.report.status).toBe('blocked');
+    expect(result.report.summary).toMatch(/was stopped/i);
   });
 });
 

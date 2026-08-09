@@ -4,7 +4,7 @@ import path from 'node:path';
 import { OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runInstruction } from '../agent/loop.js';
 import { snapshot } from './refs.js';
-import { encodeFrame, LineDecoder, type Frame, type Request } from '../shared/protocol.js';
+import { encodeFrame, LineDecoder, type CommandName, type Frame, type Request } from '../shared/protocol.js';
 import { ensureSessionDir, socketPath, validateSessionName } from '../shared/paths.js';
 import { BrowserSession } from './browser.js';
 import { SessionState } from './state.js';
@@ -14,12 +14,26 @@ interface DaemonOptions {
   headed?: boolean;
 }
 
+/**
+ * Served immediately instead of queued behind the command in flight. These are
+ * exactly the commands an operator needs *while* a `do` is misbehaving — if
+ * they queue, observing and killing a stuck run is impossible precisely when
+ * it matters. All of them are read-only w.r.t. the agent's history; `screenshot`
+ * touches the page, which Playwright already serialises internally.
+ */
+const UNQUEUED_COMMANDS = new Set<CommandName>(['ping', 'config', 'screenshot', 'stop']);
+
+/** How long `stop` lets an aborted instruction unwind before tearing down. */
+const STOP_DRAIN_MS = 3_000;
+
 export class Daemon {
   private browser: BrowserSession;
   private state: SessionState;
   private server: net.Server | null = null;
   /** Serialise commands: the browser and the history are single-threaded resources. */
   private queue: Promise<unknown> = Promise.resolve();
+  /** Aborts the instruction currently running, so `stop` can preempt it. */
+  private inflight: AbortController | null = null;
 
   constructor(private opts: DaemonOptions) {
     this.browser = new BrowserSession({ session: opts.session, headed: opts.headed });
@@ -51,7 +65,8 @@ export class Daemon {
         return;
       }
       for (const req of requests) {
-        this.queue = this.queue.then(() => this.serve(conn, req)).catch(() => {});
+        if (UNQUEUED_COMMANDS.has(req.command)) void this.serve(conn, req).catch(() => {});
+        else this.queue = this.queue.then(() => this.serve(conn, req)).catch(() => {});
       }
     });
     conn.on('error', () => {});
@@ -130,13 +145,21 @@ export class Daemon {
           model: a.model ? String(a.model) : undefined,
           baseUrl: a.baseUrl ? String(a.baseUrl) : undefined,
         });
-        const result = await runInstruction(provider, this.browser, this.state, String(a.instruction), {
-          maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
-          timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
-          screenshotDir: path.join(ensureSessionDir(this.opts.session), 'screenshots'),
-          onProgress: progress,
-        });
-        return { ...result, model: provider.model };
+        const controller = new AbortController();
+        this.inflight = controller;
+        try {
+          const result = await runInstruction(provider, this.browser, this.state, String(a.instruction), {
+            maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
+            timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
+            ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
+            screenshotDir: path.join(ensureSessionDir(this.opts.session), 'screenshots'),
+            signal: controller.signal,
+            onProgress: progress,
+          });
+          return { ...result, model: provider.model };
+        } finally {
+          if (this.inflight === controller) this.inflight = null;
+        }
       }
 
       case 'config': {
@@ -157,8 +180,17 @@ export class Daemon {
         };
       }
 
-      case 'stop':
-        return { stopping: true };
+      case 'stop': {
+        // Preempt rather than wait: an operator reaching for `stop` wants the
+        // run dead now. The aborted instruction still returns a blocked report
+        // (with its actions log) to whoever asked for it.
+        const preempted = Boolean(this.inflight);
+        this.inflight?.abort();
+        if (preempted) {
+          await Promise.race([this.queue.catch(() => {}), delay(STOP_DRAIN_MS)]);
+        }
+        return { stopping: true, preempted };
+      }
 
       default:
         throw new Error(`unknown command: ${(req as Request).command}`);
@@ -172,6 +204,10 @@ export class Daemon {
     await new Promise((r) => setTimeout(r, 150));
     process.exit(0);
   }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 // --- entrypoint: node dist/daemon/server.js --session <name> [--headed] ---

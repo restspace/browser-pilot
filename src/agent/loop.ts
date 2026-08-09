@@ -3,15 +3,29 @@ import type { SessionState } from '../daemon/state.js';
 import type { ChatMessage, Provider } from './llm.js';
 import { buildSystemPrompt } from './prompt.js';
 import { validateReport, type Report } from './report.js';
-import { executeTool, TOOL_DEFS } from './tools.js';
+import { executeTool, TOOL_DEFS, type ToolExecution } from './tools.js';
 
 /** Tools that change the page URL, staleing every existing snapshot's refs. */
 const NAVIGATION_TOOLS = new Set(['goto', 'back', 'tabs']);
+
+/** Per-turn LLM watchdog: a turn that hasn't produced a tool call by now is aborted. */
+export const DEFAULT_TURN_TIMEOUT_MS = 90_000;
+
+/**
+ * Consecutive turns allowed to end without a tool call (watchdog abort or
+ * prose-only reply) before the loop gives up. Bailing here turns a silent
+ * multi-minute stall into a fast, explicit failure.
+ */
+const MAX_UNPRODUCTIVE_TURNS = 3;
 
 export interface LoopOptions {
   maxTurns: number;
   timeoutMs: number;
   screenshotDir: string;
+  /** Watchdog for a single LLM call; also clamped by the instruction deadline. */
+  turnTimeoutMs?: number;
+  /** Preempts the instruction (daemon `stop`); yields a blocked report, not a throw. */
+  signal?: AbortSignal;
   onProgress?: (message: string) => void;
 }
 
@@ -34,6 +48,12 @@ export interface InstructionResult {
    * whether to resume. Omitted on a clean report to keep results lean.
    */
   actions?: ActionRecord[];
+  /**
+   * Where the browser was left on bail-out. Included even when nothing ran, so
+   * a timed-out instruction still hands back something observable rather than
+   * an empty actions log.
+   */
+  finalState?: { url: string; title?: string };
 }
 
 /**
@@ -54,13 +74,22 @@ export async function runInstruction(
   const actions: ActionRecord[] = [];
   let reportRetried = false;
   let capWarned = false;
+  let unproductiveTurns = 0;
 
   state.trimHistory();
   state.messages.push({ role: 'user', content: instruction });
 
   const system: ChatMessage = { role: 'system', content: buildSystemPrompt(state) };
 
-  const finish = (report: Report, turns: number, blockedTail = false): InstructionResult => {
+  /** Resume advice differs sharply depending on whether anything actually ran. */
+  const resumeHint = () =>
+    actions.length
+      ? 'Work may be partially complete — check the actions log and verify current state before resuming.'
+      : 'No tool call ran, so the browser was not touched — nothing to undo.';
+  /** Only for the failure modes where the agent never got going by itself. */
+  const narrowHint = ' Re-run with one concrete artifact per instruction.';
+
+  const finish = async (report: Report, turns: number, blockedTail = false): Promise<InstructionResult> => {
     state.messages.push({
       role: 'assistant',
       content: `[report] ${report.status}: ${report.summary}`,
@@ -69,25 +98,84 @@ export async function runInstruction(
     state.usage.completionTokens += usage.completionTokens;
     state.usage.cachedTokens += usage.cachedTokens;
     state.usage.instructions += 1;
+    const finalState = blockedTail ? await captureFinalState(browser) : undefined;
     return {
       report,
       turns,
       usage,
       ...(blockedTail ? { transcriptTail: transcript.slice(-12), actions: actions.slice(-40) } : {}),
+      ...(finalState ? { finalState } : {}),
     };
   };
 
+  const timedOut = (turns: number) =>
+    finish(
+      {
+        status: 'blocked',
+        summary: `Instruction timed out after ${Math.round(opts.timeoutMs / 1000)}s (${turns} turns, ${actions.length} tool call(s)). ${resumeHint()}${actions.length ? '' : narrowHint}`,
+      },
+      turns,
+      true,
+    );
+
+  const stalled = (turns: number) =>
+    finish(
+      {
+        status: 'blocked',
+        summary: `Agent stalled: ${MAX_UNPRODUCTIVE_TURNS} consecutive turns produced no tool call — it reasoned without driving the browser. ${resumeHint()}${narrowHint} Raise --turn-timeout if the model legitimately needs longer per step.`,
+      },
+      turns,
+      true,
+    );
+
+  /**
+   * Run one tool call, bounded by the instruction deadline (and by `stop`).
+   * Playwright actions have their own internal timeouts, but some can exceed
+   * the remaining budget or wedge entirely (a drag against a blocked renderer),
+   * which would otherwise let a single call run past `--timeout` unchecked.
+   * On expiry we abandon the call — the cooperative signal stops wait_for's
+   * polling, anything still in flight inside Playwright is left to settle
+   * unobserved — and hand back an error result so the loop bails out with the
+   * same blocked report a timeout produces.
+   */
+  const runTool = async (name: string, args: Record<string, unknown>): Promise<ToolExecution> => {
+    const abort = new AbortController();
+    const abortTool = () => abort.abort();
+    const timer = setTimeout(abortTool, Math.max(0, deadline - Date.now()));
+    opts.signal?.addEventListener('abort', abortTool, { once: true });
+    try {
+      return await Promise.race([
+        executeTool(browser, name, args, opts.screenshotDir, abort.signal),
+        new Promise<ToolExecution>((resolve) => {
+          abort.signal.addEventListener(
+            'abort',
+            () =>
+              resolve({
+                result: `ERROR: ${name} was abandoned — it did not finish within the remaining instruction budget. The page may be mid-action; verify state before repeating it.`,
+                isError: true,
+              }),
+            { once: true },
+          );
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+      opts.signal?.removeEventListener('abort', abortTool);
+    }
+  };
+
   for (let turn = 1; turn <= opts.maxTurns; turn++) {
-    if (Date.now() > deadline) {
+    if (opts.signal?.aborted) {
       return finish(
         {
           status: 'blocked',
-          summary: `Instruction timed out after ${Math.round(opts.timeoutMs / 1000)}s (${turn - 1} turns). Work may be partially complete — check the actions log and verify current state before resuming.`,
+          summary: `Instruction was stopped after ${turn - 1} turns and ${actions.length} tool call(s). ${resumeHint()}`,
         },
         turn - 1,
         true,
       );
     }
+    if (Date.now() > deadline) return timedOut(turn - 1);
 
     // Near the cap, tell the agent to stop acting and report now — otherwise a
     // completed-but-unreported instruction is misreported as blocked/failed.
@@ -99,7 +187,45 @@ export async function runInstruction(
       });
     }
 
-    const completion = await provider.complete([system, ...state.messages], TOOL_DEFS);
+    // Watchdog the LLM call itself: a model that reasons without emitting a tool
+    // call would otherwise spend the entire instruction budget inside one
+    // request, returning zero actions. Never wait past the instruction deadline.
+    // Floor keeps a nearly-expired deadline from producing a zero-length budget;
+    // the abort then falls through to the deadline check and reports a timeout.
+    const turnBudgetMs = Math.max(
+      250,
+      Math.min(opts.turnTimeoutMs ?? DEFAULT_TURN_TIMEOUT_MS, deadline - Date.now()),
+    );
+    const watchdog = new AbortController();
+    const abortTurn = () => watchdog.abort();
+    const timer = setTimeout(abortTurn, turnBudgetMs);
+    opts.signal?.addEventListener('abort', abortTurn, { once: true });
+
+    let completion;
+    try {
+      completion = await provider.complete([system, ...state.messages], TOOL_DEFS, {
+        signal: watchdog.signal,
+      });
+    } catch (err) {
+      if (!watchdog.signal.aborted) throw err;
+      // Aborted: the assistant message never arrived, so history stays consistent.
+      if (opts.signal?.aborted) continue; // stop requested — reported at the top of the next pass
+      if (Date.now() > deadline) return timedOut(turn - 1);
+      unproductiveTurns++;
+      const secs = Math.round(turnBudgetMs / 1000);
+      transcript.push(`turn ${turn}: aborted after ${secs}s — still reasoning, no tool call issued`);
+      opts.onProgress?.(`[turn ${turn}/${opts.maxTurns}] watchdog: no tool call within ${secs}s, retrying`);
+      if (unproductiveTurns >= MAX_UNPRODUCTIVE_TURNS) return stalled(turn);
+      state.messages.push({
+        role: 'user',
+        content: `Your previous turn was aborted after ${secs}s because it produced no tool call. Stop planning and issue exactly ONE tool call now — the smallest observation that moves the instruction forward (snapshot, read, or eval). You will get another turn after you see its result.`,
+      });
+      continue;
+    } finally {
+      clearTimeout(timer);
+      opts.signal?.removeEventListener('abort', abortTurn);
+    }
+
     usage.promptTokens += completion.usage.promptTokens;
     usage.completionTokens += completion.usage.completionTokens;
     usage.cachedTokens += completion.usage.cachedTokens;
@@ -108,6 +234,8 @@ export async function runInstruction(
 
     if (completion.toolCalls.length === 0) {
       // Model replied with prose only — remind it of the contract once per occurrence.
+      unproductiveTurns++;
+      if (unproductiveTurns >= MAX_UNPRODUCTIVE_TURNS) return stalled(turn);
       state.messages.push({
         role: 'user',
         content:
@@ -115,6 +243,7 @@ export async function runInstruction(
       });
       continue;
     }
+    unproductiveTurns = 0;
 
     for (const call of completion.toolCalls) {
       if (Date.now() > deadline) break;
@@ -157,7 +286,7 @@ export async function runInstruction(
 
       const summary = summarizeArgs(call.args);
       opts.onProgress?.(`[turn ${turn}/${opts.maxTurns}] ${call.name} ${summary}`);
-      const execution = await executeTool(browser, call.name, call.args, opts.screenshotDir);
+      const execution = await runTool(call.name, call.args);
       actions.push({ tool: call.name, args: summary, ok: !execution.isError });
       state.messages.push({ role: 'tool', tool_call_id: call.id, content: execution.result });
 
@@ -179,7 +308,7 @@ export async function runInstruction(
   return finish(
     {
       status: 'blocked',
-      summary: `Turn cap (${opts.maxTurns}) reached without a final report. The instruction may be partially complete — check the actions log and verify current state before resuming (do not blindly repeat state-changing actions like submit/delete/move).`,
+      summary: `Turn cap (${opts.maxTurns}) reached without a final report. ${resumeHint()} Do not blindly repeat state-changing actions like submit/delete/move.`,
     },
     opts.maxTurns,
     true,
@@ -189,4 +318,26 @@ export async function runInstruction(
 function summarizeArgs(args: Record<string, unknown>): string {
   const s = JSON.stringify(args);
   return s.length > 120 ? s.slice(0, 120) + '…' : s;
+}
+
+/**
+ * Best-effort "where did this leave the browser" for bail-out results. Bounded
+ * and never throws: this runs on the failure path, where a wedged page must not
+ * turn a blocked report into no report at all.
+ */
+async function captureFinalState(
+  browser: BrowserSession,
+): Promise<{ url: string; title?: string } | undefined> {
+  try {
+    if (!browser.isOpen) return undefined; // never launch a browser just to report on one
+    const page = await browser.getPage();
+    const url = page.url();
+    const title = await Promise.race([
+      page.title().catch(() => undefined),
+      new Promise<undefined>((r) => setTimeout(() => r(undefined), 2_000)),
+    ]);
+    return title ? { url, title } : { url };
+  } catch {
+    return undefined;
+  }
 }

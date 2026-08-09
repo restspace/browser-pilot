@@ -11,7 +11,7 @@ import { sessionsDir, socketPath, validateSessionName } from './shared/paths.js'
 const USAGE = `browser-pilot — agent-in-the-loop Playwright CLI
 
 Usage:
-  browser-pilot do "<instruction>" [--json] [--max-turns N] [--timeout S] [--provider P] [--model M]
+  browser-pilot do "<instruction>" [--json] [--max-turns N] [--timeout S] [--turn-timeout S] [--provider P] [--model M]
   browser-pilot open <url>
   browser-pilot brief <file.md> [--append]
   browser-pilot note "<text>"
@@ -54,7 +54,16 @@ interface ParsedArgs {
 function parseArgv(argv: string[]): ParsedArgs {
   const positional: string[] = [];
   const flags = new Map<string, string | boolean>();
-  const valueFlags = new Set(['session', 'max-turns', 'timeout', 'provider', 'model', 'base-url', 'selector']);
+  const valueFlags = new Set([
+    'session',
+    'max-turns',
+    'timeout',
+    'turn-timeout',
+    'provider',
+    'model',
+    'base-url',
+    'selector',
+  ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg.startsWith('--')) {
@@ -97,7 +106,7 @@ function connect(sock: string, timeoutMs = 1000): Promise<net.Socket> {
 async function connectValidated(sock: string): Promise<net.Socket> {
   const conn = await connect(sock);
   try {
-    await request(conn, 'ping', {});
+    await request(conn, 'ping', {}, undefined, 5_000);
     return conn;
   } catch (err) {
     conn.destroy();
@@ -136,16 +145,29 @@ async function connectOrSpawn(session: string, headed: boolean): Promise<net.Soc
   throw new Error(`daemon did not come up for session "${session}": ${(lastErr as Error)?.message}`);
 }
 
+/**
+ * `timeoutMs` guards the control commands (ping/stop): a daemon that is wedged
+ * — rather than merely busy — must not hang the CLI indefinitely. `do` passes
+ * no timeout; the daemon enforces its own instruction deadline.
+ */
 function request(
   conn: net.Socket,
   command: Request['command'],
   args: Record<string, unknown>,
   onProgress?: (m: string) => void,
+  timeoutMs?: number,
 ): Promise<ResultFrame> {
   return new Promise((resolve, reject) => {
     const req: Request = { id: Date.now() % 1_000_000, command, args };
     const decoder = new LineDecoder<Frame>();
+    const timer = timeoutMs
+      ? setTimeout(() => {
+          cleanup();
+          reject(new Error(`${command} timed out after ${timeoutMs}ms — daemon not responding`));
+        }, timeoutMs)
+      : undefined;
     const cleanup = () => {
+      clearTimeout(timer);
       conn.removeListener('data', onData);
       conn.removeListener('error', onError);
       conn.removeListener('close', onClose);
@@ -228,13 +250,24 @@ async function main(): Promise<void> {
   if (command === 'stop') {
     const names = flags.has('all') ? allSessionNames() : [session];
     for (const name of names) {
+      let conn: net.Socket;
       try {
-        const conn = await connect(socketPath(name));
-        await request(conn, 'stop', {});
-        conn.destroy();
-        console.log(`stopped: ${name}`);
+        conn = await connect(socketPath(name));
       } catch {
         if (!flags.has('all')) console.log(`not running: ${name}`);
+        continue;
+      }
+      try {
+        // Generous: the daemon aborts any in-flight instruction and lets it
+        // unwind before closing the browser. Reachable-but-unresponsive is a
+        // real failure worth reporting, not a silent "not running".
+        const res = await request(conn, 'stop', {}, undefined, 20_000);
+        const preempted = (res.data as { preempted?: boolean } | undefined)?.preempted;
+        console.log(`stopped: ${name}${preempted ? ' (interrupted a running instruction)' : ''}`);
+      } catch (err) {
+        console.error(`browser-pilot: could not stop ${name}: ${(err as Error).message}`);
+      } finally {
+        conn.destroy();
       }
     }
     return;
@@ -254,6 +287,7 @@ async function main(): Promise<void> {
             instruction,
             maxTurns: flags.has('max-turns') ? Number(flags.get('max-turns')) : undefined,
             timeoutS: flags.has('timeout') ? Number(flags.get('timeout')) : undefined,
+            turnTimeoutS: flags.has('turn-timeout') ? Number(flags.get('turn-timeout')) : undefined,
             provider: flags.get('provider') || undefined,
             model: flags.get('model') || undefined,
             baseUrl: flags.get('base-url') || undefined,
@@ -267,6 +301,7 @@ async function main(): Promise<void> {
           usage: { promptTokens: number; completionTokens: number; cachedTokens: number };
           transcriptTail?: string[];
           actions?: { tool: string; args: string; ok: boolean }[];
+          finalState?: { url: string; title?: string };
           model: string;
         };
         if (json) {
@@ -286,9 +321,14 @@ async function main(): Promise<void> {
             // before resuming rather than blindly repeating them.
             console.log('--- actions taken (verify before resuming) ---');
             for (const a of data.actions) console.log(`  ${a.ok ? '✓' : '✗'} ${a.tool} ${a.args}`);
-          } else if (data.transcriptTail?.length) {
-            console.log('--- last actions ---');
+          }
+          if (data.transcriptTail?.length && !data.actions?.length) {
+            // Nothing ran — the agent's own reasoning is the only evidence there is.
+            console.log('--- transcript tail (no tool calls ran) ---');
             for (const line of data.transcriptTail) console.log(`  ${line}`);
+          }
+          if (data.finalState) {
+            console.log(`--- browser left at: ${data.finalState.url}${data.finalState.title ? ` — "${data.finalState.title}"` : ''}`);
           }
         }
         if (verbose) {
@@ -388,7 +428,7 @@ async function listSessions(json: boolean): Promise<void> {
   for (const name of names) {
     try {
       const conn = await connect(socketPath(name), 500);
-      const res = await request(conn, 'ping', {});
+      const res = await request(conn, 'ping', {}, undefined, 5_000);
       conn.destroy();
       const data = res.data as { pid: number };
       rows.push({ session: name, running: true, pid: data.pid });

@@ -40,6 +40,21 @@ browser-pilot config set provider novita   # persist your default provider
 export NOVITA_API_KEY=...                  # key via env (preferred) or `config set apiKey ...`
 ```
 
+`npm link` symlinks the global `browser-pilot` at this checkout, so a rebuild here is immediately
+live in every other repo — no re-link needed after `npm run build`.
+
+### Claude Code skill
+
+`skills/browser-pilot/SKILL.md` is the canonical copy of the bundled skill. Claude Code loads
+skills from `~/.claude/skills/`, so install (or refresh after editing) with:
+
+```sh
+mkdir -p ~/.claude/skills/browser-pilot
+cp skills/browser-pilot/SKILL.md ~/.claude/skills/browser-pilot/SKILL.md
+```
+
+Edit the repo copy, never the installed one — otherwise changes are lost on the next refresh.
+
 ## The outer-agent usage contract
 
 ```sh
@@ -88,6 +103,10 @@ agent keeps one running conversation per session, so instruction N+1 knows what 
 1..N created and discovered; `brief` and `note` content survives history trimming and daemon
 restarts. `stop` kills the daemon; the profile stays.
 
+`session list`, `stop`, `config` and `screenshot` are served without queueing behind the command in
+flight, so a misbehaving `do` can always be observed and killed — `stop` aborts it, and the caller
+waiting on that `do` gets a blocked report with its actions log rather than a hang.
+
 ## What the internal agent gets
 
 Typed in-process tools (no shell, no quoting): `snapshot` (a11y tree with `@ref` handles),
@@ -95,7 +114,8 @@ Typed in-process tools (no shell, no quoting): `snapshot` (a11y tree with `@ref`
 value setter + input/change events, clear-then-set on number inputs), `type`, `press`, `select`,
 `check`, `hover`, `scroll_into_view`, `drag` (mouse drag with synthetic HTML5-DnD fallback),
 `wait_for` (visible/hidden/text/count — networkidle deliberately not offered), `read`, `eval`,
-`goto`, `back`, `tabs`, `upload`, `download`, `set_viewport`, `set_offline`, `screenshot`,
+`fetch_source` (raw HTTP response body, no JS — the server-rendered source, which every other tool
+is not), `goto`, `back`, `tabs`, `upload`, `download`, `set_viewport`, `set_offline`, `screenshot`,
 `dialog_expect` (native confirm/alert/prompt policy + capture), and the mandatory terminal
 `report` — validated against a JSON schema, with one retry turn on invalid output.
 
@@ -133,6 +153,7 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 | `BROWSER_PILOT_HOME` | `~/.browser-pilot` | sessions + config root |
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
+| `--turn-timeout` | 90 | wall-clock seconds for a single LLM call; a turn that produces no tool call by then is aborted and retried with a nudge, and three such turns in a row end the instruction. Stops a model from spending the whole `--timeout` reasoning inside one request. |
 
 ## Development
 
