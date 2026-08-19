@@ -2,6 +2,7 @@ import path from 'node:path';
 import { chromium, type BrowserContext, type Page, type Video } from 'playwright-core';
 import { ensureSessionDir } from '../shared/paths.js';
 import { DialogManager } from './dialogs.js';
+import { ScriptRecorder } from './recorder.js';
 
 const VIEWPORT = { width: 1280, height: 900 };
 
@@ -20,6 +21,12 @@ export interface BrowserOptions {
    * from close() — there is no mid-session start/stop.
    */
   record?: boolean;
+  /**
+   * Record every action as a replayable Playwright step (see ScriptRecorder).
+   * Unlike video this costs a page round trip per action (resolving a durable
+   * selector), so it is opt-in and fixed for the life of the session.
+   */
+  script?: boolean;
 }
 
 /**
@@ -32,8 +39,13 @@ export class BrowserSession {
   /** Videos of every page adopted this session, kept so close() can resolve their paths. */
   private videos = new Set<Video>();
   readonly dialogs = new DialogManager();
+  /** Non-null only when script recording is on; tools feed it every action. */
+  readonly script: ScriptRecorder | null;
 
-  constructor(private opts: BrowserOptions) {}
+  constructor(private opts: BrowserOptions) {
+    this.script =
+      opts.script || process.env.BROWSER_PILOT_SCRIPT === '1' ? new ScriptRecorder(opts.session) : null;
+  }
 
   private async launch(): Promise<BrowserContext> {
     const headless = !(this.opts.headed || process.env.BROWSER_PILOT_HEADED === '1');

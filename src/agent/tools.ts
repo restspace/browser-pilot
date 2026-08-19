@@ -2,8 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Locator, Page } from 'playwright-core';
 import type { BrowserSession } from '../daemon/browser.js';
+import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
 import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
 import { resolveTarget, snapshot, truncate } from '../daemon/refs.js';
+import { isRecordable } from '../daemon/recorder.js';
 import type { ToolDef } from './llm.js';
 
 const TARGET = {
@@ -12,6 +14,41 @@ const TARGET = {
 } as const;
 
 const TOOL_RESULT_BUDGET = 4000;
+
+/**
+ * Tools whose result gets a `[state: …]` summary of what the action changed on
+ * the page, so the agent does not spend a turn observing what it just did.
+ * goto/back already report the new url and title; read-only tools change
+ * nothing worth diffing.
+ */
+const STATE_CHANGING = new Set([
+  'click', 'dblclick', 'modifier_click', 'right_click', 'fill', 'type', 'press',
+  'select', 'check', 'drag', 'upload',
+]);
+
+/** Beat given to async renders (React, in-flight fetches) before the after-capture. */
+const SETTLE_MS = 150;
+
+const MAX_BATCH_STEPS = 10;
+
+/**
+ * Tools a batch may contain: mechanical actions and cheap checks whose outcome
+ * the agent does not need to see before choosing the next step. Everything else
+ * (navigation, snapshot/eval/screenshot output, report, nested batch) either
+ * feeds a decision or produces output that only makes sense on its own turn.
+ */
+const BATCHABLE = new Set([
+  'click', 'dblclick', 'modifier_click', 'right_click', 'fill', 'type', 'press',
+  'select', 'check', 'hover', 'scroll_into_view', 'wait_for', 'read', 'read_all',
+  'upload', 'dialog_expect',
+]);
+
+/** Per-step lines stay short so a long batch still reads at a glance. */
+const BATCH_STEP_CHARS = 160;
+const BATCH_STEP_ERROR_CHARS = 300;
+
+/** A combined diff spans several actions, so it may list more churn than one action's. */
+const BATCH_LINE_BUDGET = 20;
 
 export const TOOL_DEFS: ToolDef[] = [
   {
@@ -272,6 +309,30 @@ export const TOOL_DEFS: ToolDef[] = [
     },
   },
   {
+    name: 'batch',
+    description:
+      'Execute several actions in ONE call when you already know each next step with certainty (e.g. filling a form you have just seen, then submitting it). Steps run in order and stop at the first error; the result lists each step\'s outcome, which steps did not run, and ONE combined [state: …] summary. Do not batch across a judgment point — anything whose outcome you must see before deciding the next action.',
+    parameters: {
+      type: 'object',
+      required: ['steps'],
+      properties: {
+        steps: {
+          type: 'array',
+          minItems: 2,
+          description: `Ordered steps, 2-${MAX_BATCH_STEPS}. A single-step batch is pointless — call the tool directly instead.`,
+          items: {
+            type: 'object',
+            required: ['tool', 'args'],
+            properties: {
+              tool: { type: 'string', enum: [...BATCHABLE] },
+              args: { type: 'object', description: "That tool's own arguments." },
+            },
+          },
+        },
+      },
+    },
+  },
+  {
     name: 'report',
     description:
       'REQUIRED final call: report the outcome of the instruction. Nothing after this is executed. Keep summary to one short paragraph.',
@@ -313,26 +374,188 @@ export async function executeTool(
   /** Cancels cooperative waits (wait_for polling) when the caller's deadline expires. */
   signal?: AbortSignal,
 ): Promise<ToolExecution> {
+  if (name === 'batch') return executeBatch(session, args, screenshotDir, signal);
   try {
-    const result = await dispatch(session, name, args, screenshotDir, signal);
-    const dialogs = session.dialogs.drain();
-    const dialogNote = dialogs.length
-      ? '\n[native dialogs: ' +
+    const diffing = STATE_CHANGING.has(name) ? await session.getPage().catch(() => null) : null;
+    const before: PageSignature | null = diffing ? await captureSignature(diffing) : null;
+    const result = await runStep(session, name, args, screenshotDir, signal);
+    const stateNote = diffing && before ? await stateDiff(diffing, before) : '';
+    return {
+      result: truncate(result + stateNote + dialogNote(session), TOOL_RESULT_BUDGET + 8200),
+      isError: false,
+    };
+  } catch (err) {
+    return { result: truncate(`ERROR: ${explainError(err, args)}`, TOOL_RESULT_BUDGET), isError: true };
+  }
+}
+
+/**
+ * One tool call with its recording, and nothing else: no diff, no dialog
+ * drain. Shared by the single-tool path and by every step of a batch, which
+ * needs the same recording behaviour but only ONE combined diff at the end.
+ */
+async function runStep(
+  session: BrowserSession,
+  name: string,
+  args: Record<string, unknown>,
+  screenshotDir: string,
+  signal?: AbortSignal,
+): Promise<string> {
+  // Describe the targets BEFORE acting: a click can navigate or unmount the
+  // element, and a recorder that runs afterwards has nothing left to describe.
+  // Recording never fails a run — a broken capture just means a missing step.
+  const recorder = session.script;
+  const pending =
+    recorder && isRecordable(name)
+      ? await recorder.prepare(await session.getPage(), name, args).catch(() => null)
+      : null;
+  const result = await dispatch(session, name, args, screenshotDir, signal);
+  recorder?.commit(pending, result);
+  return result;
+}
+
+function explainError(err: unknown, args: Record<string, unknown>): string {
+  const message = err instanceof Error ? err.message.split('\nCall log:')[0] : String(err);
+  if (/strict mode violation/i.test(message)) {
+    // Playwright's raw strict-mode error dumps every matched element; replace
+    // it with a concise, one-step-fixable hint so the agent disambiguates
+    // instead of burning a turn discovering the syntax.
+    const n = /resolved to (\d+) elements/.exec(message)?.[1] ?? 'multiple';
+    const sel = JSON.stringify(args.target ?? args.source ?? '');
+    return `selector ${sel} matched ${n} elements — refine it, or append " >> nth=0" (nth=N for another) to target exactly one.`;
+  }
+  return message;
+}
+
+/** Dialogs captured since the last drain, as a trailing note (or ''). */
+function dialogNote(session: BrowserSession): string {
+  const dialogs = session.dialogs.drain();
+  return dialogs.length
+    ? '\n[native dialogs: ' +
         dialogs.map((d) => `${d.type}(${JSON.stringify(d.message)}) → ${d.action}`).join('; ') +
         ']'
-      : '';
-    return { result: truncate(result + dialogNote, TOOL_RESULT_BUDGET + 8200), isError: false };
-  } catch (err) {
-    let message = err instanceof Error ? err.message.split('\nCall log:')[0] : String(err);
-    if (/strict mode violation/i.test(message)) {
-      // Playwright's raw strict-mode error dumps every matched element; replace
-      // it with a concise, one-step-fixable hint so the agent disambiguates
-      // instead of burning a turn discovering the syntax.
-      const n = /resolved to (\d+) elements/.exec(message)?.[1] ?? 'multiple';
-      const sel = JSON.stringify(args.target ?? args.source ?? '');
-      message = `selector ${sel} matched ${n} elements — refine it, or append " >> nth=0" (nth=N for another) to target exactly one.`;
+    : '';
+}
+
+interface BatchStep {
+  tool: string;
+  args: Record<string, unknown>;
+}
+
+/**
+ * Run an ordered list of known-next actions in one turn, stopping at the first
+ * error, with a single combined state diff. Validation is total and happens
+ * before anything runs, so a typo in step 4 cannot leave steps 1-3 applied.
+ *
+ * isError is true only when NOTHING ran: a batch that got partway through has
+ * changed the page, and flagging that as an error would read to the agent as
+ * "no effect" — the per-step lines carry the partial outcome instead.
+ */
+async function executeBatch(
+  session: BrowserSession,
+  args: Record<string, unknown>,
+  screenshotDir: string,
+  signal?: AbortSignal,
+): Promise<ToolExecution> {
+  const fail = (message: string): ToolExecution => ({
+    result: truncate(`ERROR: ${message}`, TOOL_RESULT_BUDGET),
+    isError: true,
+  });
+
+  const raw = args.steps;
+  if (!Array.isArray(raw)) return fail('batch requires a "steps" array.');
+  if (raw.length < 2) {
+    return fail('batch requires at least 2 steps — for a single action, call that tool directly.');
+  }
+  if (raw.length > MAX_BATCH_STEPS) {
+    return fail(
+      `batch accepts at most ${MAX_BATCH_STEPS} steps (got ${raw.length}) — split it into several batches. Nothing was executed.`,
+    );
+  }
+
+  const steps: BatchStep[] = [];
+  for (const [i, entry] of raw.entries()) {
+    const step = entry as { tool?: unknown; args?: unknown };
+    const tool = typeof step?.tool === 'string' ? step.tool : '';
+    if (!BATCHABLE.has(tool)) {
+      return fail(
+        `step ${i + 1}: ${tool ? `"${tool}" cannot be used inside a batch` : 'missing "tool"'} — allowed tools are ${[...BATCHABLE].join(', ')}. Nothing was executed; re-issue without that step.`,
+      );
     }
-    return { result: truncate(`ERROR: ${message}`, TOOL_RESULT_BUDGET), isError: true };
+    const stepArgs = step.args;
+    if (stepArgs !== undefined && (typeof stepArgs !== 'object' || stepArgs === null || Array.isArray(stepArgs))) {
+      return fail(`step ${i + 1}: "args" must be an object. Nothing was executed.`);
+    }
+    steps.push({ tool, args: (stepArgs ?? {}) as Record<string, unknown> });
+  }
+
+  const page = await session.getPage().catch(() => null);
+  const before: PageSignature | null = page ? await captureSignature(page) : null;
+
+  const lines: string[] = [];
+  const notes: string[] = [];
+  let ran = 0;
+  let failedAt = -1;
+
+  for (const [i, step] of steps.entries()) {
+    if (signal?.aborted) {
+      notes.push(`[batch stopped: instruction budget exhausted; ${notRun(i, steps.length)}]`);
+      break;
+    }
+    const head = `${i + 1}. ${step.tool} ${summarize(step.args)} → `;
+    try {
+      const result = await runStep(session, step.tool, step.args, screenshotDir, signal);
+      lines.push(head + clip(result, BATCH_STEP_CHARS) + dialogNote(session).replace(/^\n/, ' '));
+      ran++;
+    } catch (err) {
+      lines.push(
+        head + 'ERROR: ' + clip(explainError(err, step.args), BATCH_STEP_ERROR_CHARS) +
+          dialogNote(session).replace(/^\n/, ' '),
+      );
+      failedAt = i;
+      const remaining = notRun(i + 1, steps.length);
+      notes.push(`[stopped at step ${i + 1}${remaining ? `; ${remaining}` : ''}]`);
+      break;
+    }
+  }
+
+  const stateNote = page && before && (ran || failedAt >= 0) ? await stateDiff(page, before, BATCH_LINE_BUDGET) : '';
+  const body = [...lines, ...notes].join('\n') + stateNote;
+  // Nothing ran at all — either the first step failed or the budget expired
+  // before it started; that IS an error result.
+  if (!ran) return { result: truncate(body || 'ERROR: batch ran no steps.', TOOL_RESULT_BUDGET + 8200), isError: true };
+  return { result: truncate(body, TOOL_RESULT_BUDGET + 8200), isError: false };
+}
+
+/** "steps 4-5 not run" for the tail starting at index `from`, or '' if none. */
+function notRun(from: number, total: number): string {
+  if (from >= total) return '';
+  return from === total - 1 ? `step ${total} not run` : `steps ${from + 1}-${total} not run`;
+}
+
+function summarize(args: Record<string, unknown>): string {
+  return clip(JSON.stringify(args), 80);
+}
+
+function clip(text: string, maxChars: number): string {
+  return text.length <= maxChars ? text : text.slice(0, maxChars) + '…';
+}
+
+/**
+ * Summary of what the just-executed action changed, as `\n[state: …]`, or ''
+ * if it could not be determined. The action already succeeded by the time this
+ * runs, so nothing here may throw — a missing diff is the failure mode.
+ */
+async function stateDiff(page: Page, before: PageSignature, lineBudget?: number): Promise<string> {
+  try {
+    // One settle beat: DOM updates are usually async. Genuinely slow updates
+    // are still wait_for's job — the diff is a hint, not proof.
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForTimeout(SETTLE_MS);
+    const after = await captureSignature(page);
+    return after ? `\n[state: ${diffSignatures(before, after, lineBudget)}]` : '';
+  } catch {
+    return '';
   }
 }
 
@@ -509,11 +732,17 @@ async function dispatch(
       return args.offline ? 'offline' : 'online';
 
     case 'screenshot': {
+      // Always encode as JPEG, regardless of what extension args.path uses —
+      // callers that attach these to a vision model typically assume a fixed
+      // image/jpeg media type, and Playwright infers encoding from the path
+      // extension unless `type` is given explicitly, so a model choosing its
+      // own filename (e.g. "confirmation.png") would otherwise silently write
+      // real PNG bytes under a caller-controlled name.
       const file = args.path
         ? path.resolve(String(args.path))
-        : path.join(screenshotDir, `shot-${Date.now()}.png`);
+        : path.join(screenshotDir, `shot-${Date.now()}.jpg`);
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      await page.screenshot({ path: file, fullPage: Boolean(args.full_page) });
+      await page.screenshot({ path: file, type: 'jpeg', fullPage: Boolean(args.full_page) });
       return `screenshot saved: ${file}`;
     }
 

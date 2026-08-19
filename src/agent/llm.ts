@@ -108,6 +108,14 @@ export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
     defaultModel: 'gpt-5-mini',
     keyEnvVars: ['OPENAI_API_KEY'],
   },
+  // Not OpenAI-compatible — see AnthropicProvider. A stronger, pricier fallback
+  // tier: useful for escalating specific instructions that a cheaper model
+  // couldn't complete, without paying Anthropic prices for the whole session.
+  anthropic: {
+    baseUrl: 'https://api.anthropic.com',
+    defaultModel: 'claude-sonnet-5',
+    keyEnvVars: ['ANTHROPIC_API_KEY'],
+  },
 };
 
 export const DEFAULT_PROVIDER = 'zhipu';
@@ -289,6 +297,180 @@ function parseCompletion(json: Record<string, any>): Completion {
       completionTokens: json.usage?.completion_tokens ?? 0,
       // Both OpenAI and z.ai/novita nest the cache hit here; absent → 0.
       cachedTokens: json.usage?.prompt_tokens_details?.cached_tokens ?? 0,
+    },
+  };
+}
+
+/**
+ * Anthropic Messages API adapter. A genuinely different wire format from the
+ * OpenAI-compatible providers above (system is a top-level field, not a
+ * message; tool calls/results are typed content blocks, not a role:'tool'
+ * message; usage splits fresh vs. cache-write vs. cache-read tokens instead
+ * of reporting one total with a cached subset) — so this translates rather
+ * than reusing OpenAICompatProvider. No SDK dependency: same thin-fetch style
+ * as the rest of this file.
+ */
+export class AnthropicProvider implements Provider {
+  readonly model: string;
+  private baseUrl: string;
+
+  constructor(private config: ProviderConfig) {
+    this.model = config.model;
+    this.baseUrl = config.baseUrl.replace(/\/$/, '');
+  }
+
+  async complete(messages: ChatMessage[], tools: ToolDef[], opts: CompleteOptions = {}): Promise<Completion> {
+    if (!this.config.apiKey) {
+      throw new Error(
+        `no API key for provider "${this.config.provider}": set ${this.config.keyEnvVars.join(' or ')} ` +
+          `(or \`browser-pilot config set apiKey <key>\`)`,
+      );
+    }
+    const system = messages
+      .filter((m) => m.role === 'system')
+      .map((m) => m.content)
+      .join('\n\n');
+    const anthMessages = toAnthropicMessages(messages.filter((m) => m.role !== 'system'));
+    // Prompt caching: unlike the OpenAI-compatible providers above (which cache
+    // automatically server-side), Anthropic only caches up to an explicit
+    // cache_control breakpoint. Without one, every turn re-bills the entire
+    // growing conversation at full price. Two breakpoints: the system prompt
+    // (large, stable across the whole session) and the last content block of
+    // the latest message (so each turn's identical prefix — everything before
+    // this turn's new content — hits cache on the next call).
+    const lastMsg = anthMessages[anthMessages.length - 1];
+    const lastBlock = lastMsg?.content[lastMsg.content.length - 1];
+    if (lastBlock) lastBlock.cache_control = { type: 'ephemeral' };
+
+    const body = {
+      model: this.config.model,
+      max_tokens: 8192,
+      ...(system ? { system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }] } : {}),
+      messages: anthMessages,
+      tools: tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.parameters })),
+      tool_choice: { type: 'auto' },
+    };
+
+    let lastErr: Error | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (opts.signal?.aborted) throw new Error('LLM request aborted');
+      try {
+        const res = await fetch(`${this.baseUrl}/v1/messages`, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': this.config.apiKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify(body),
+          signal: opts.signal,
+        });
+        if (res.status === 429 || res.status >= 500) {
+          lastErr = new Error(`LLM HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
+          await sleep(1000 * (attempt + 1), opts.signal);
+          continue;
+        }
+        if (!res.ok) {
+          throw new Error(`LLM HTTP ${res.status}: ${(await res.text()).slice(0, 500)}`);
+        }
+        return parseAnthropicCompletion((await res.json()) as Record<string, any>);
+      } catch (err) {
+        if (opts.signal?.aborted) throw new Error('LLM request aborted');
+        if (err instanceof Error && err.message.startsWith('LLM HTTP 4')) throw err;
+        lastErr = err as Error;
+        await sleep(1000 * (attempt + 1), opts.signal);
+      }
+    }
+    throw lastErr ?? new Error('LLM request failed');
+  }
+}
+
+/**
+ * Our internal history is OpenAI-shaped (role:'tool' per call, tool_calls on
+ * the assistant message). Anthropic instead wants tool_use/tool_result as
+ * typed content blocks, with all of one assistant turn's tool_results merged
+ * into a single following user message — so consecutive role:'tool' entries
+ * (one per call in that turn) are collapsed here rather than sent as
+ * separate messages.
+ */
+function toAnthropicMessages(messages: ChatMessage[]): Array<{ role: 'user' | 'assistant'; content: any[] }> {
+  const out: Array<{ role: 'user' | 'assistant'; content: any[] }> = [];
+  for (const m of messages) {
+    if (m.role === 'tool') {
+      const block = { type: 'tool_result', tool_use_id: m.tool_call_id, content: m.content };
+      const prev = out[out.length - 1];
+      if (prev && prev.role === 'user' && prev.content.every((b) => b.type === 'tool_result')) {
+        prev.content.push(block);
+      } else {
+        out.push({ role: 'user', content: [block] });
+      }
+      continue;
+    }
+    if (m.role === 'user') {
+      out.push({ role: 'user', content: [{ type: 'text', text: m.content }] });
+      continue;
+    }
+    if (m.role !== 'assistant') continue; // 'system' — caller already strips these; defensive only
+    const content: any[] = [];
+    if (m.content) content.push({ type: 'text', text: m.content });
+    for (const tc of m.tool_calls ?? []) {
+      let input: Record<string, unknown> = {};
+      try {
+        input = tc.function.arguments ? JSON.parse(tc.function.arguments) : {};
+      } catch {
+        /* malformed args — send empty input rather than fail the whole request */
+      }
+      content.push({ type: 'tool_use', id: tc.id, name: tc.function.name, input });
+    }
+    out.push({ role: 'assistant', content });
+  }
+  return out;
+}
+
+function parseAnthropicCompletion(json: Record<string, any>): Completion {
+  const blocks: any[] = json.content ?? [];
+  if (!blocks.length && !json.usage) {
+    throw new Error(`LLM returned no content: ${JSON.stringify(json).slice(0, 300)}`);
+  }
+  const textBlocks = blocks.filter((b) => b.type === 'text');
+  const toolUseBlocks = blocks.filter((b) => b.type === 'tool_use');
+  const text = textBlocks.length ? textBlocks.map((b) => b.text).join('\n') : null;
+
+  const toolCalls: ToolCall[] = toolUseBlocks.map((b) => ({
+    id: b.id,
+    name: b.name,
+    args: (b.input ?? {}) as Record<string, unknown>,
+    rawArgs: JSON.stringify(b.input ?? {}),
+  }));
+
+  const assistantMessage: ChatMessage = {
+    role: 'assistant',
+    content: text,
+    ...(toolUseBlocks.length
+      ? {
+          tool_calls: toolUseBlocks.map((b) => ({
+            id: b.id,
+            type: 'function' as const,
+            function: { name: b.name, arguments: JSON.stringify(b.input ?? {}) },
+          })),
+        }
+      : {}),
+  };
+
+  const u = json.usage ?? {};
+  return {
+    text,
+    toolCalls,
+    assistantMessage,
+    usage: {
+      // Our Usage.promptTokens is documented as the TOTAL prompt (OpenAI
+      // convention); Anthropic's input_tokens is only the fresh portion, so
+      // fold cache writes/reads back in to keep that contract, and surface
+      // reads (the cheap-billed subset) as cachedTokens same as the other
+      // providers.
+      promptTokens: (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0),
+      completionTokens: u.output_tokens ?? 0,
+      cachedTokens: u.cache_read_input_tokens ?? 0,
     },
   };
 }

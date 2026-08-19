@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
-import { OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
+import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runInstruction } from '../agent/loop.js';
+import { generateScript } from './codegen.js';
 import { snapshot } from './refs.js';
+import { ScriptRecorder } from './recorder.js';
 import { encodeFrame, LineDecoder, type CommandName, type Frame, type Request } from '../shared/protocol.js';
 import { ensureSessionDir, socketPath, validateSessionName } from '../shared/paths.js';
 import { BrowserSession } from './browser.js';
@@ -13,6 +15,7 @@ interface DaemonOptions {
   session: string;
   headed?: boolean;
   record?: boolean;
+  script?: boolean;
 }
 
 /**
@@ -37,12 +40,18 @@ export class Daemon {
   private inflight: AbortController | null = null;
 
   constructor(private opts: DaemonOptions) {
-    this.browser = new BrowserSession({ session: opts.session, headed: opts.headed, record: opts.record });
+    this.browser = new BrowserSession({
+      session: opts.session,
+      headed: opts.headed,
+      record: opts.record,
+      script: opts.script,
+    });
     this.state = new SessionState(opts.session);
   }
 
   private provider(overrides: { provider?: string; model?: string; baseUrl?: string } = {}): Provider {
-    return new OpenAICompatProvider(resolveProviderConfig(overrides));
+    const config = resolveProviderConfig(overrides);
+    return config.provider === 'anthropic' ? new AnthropicProvider(config) : new OpenAICompatProvider(config);
   }
 
   async listen(): Promise<void> {
@@ -107,6 +116,11 @@ export class Daemon {
       case 'open': {
         const page = await this.browser.getPage();
         await page.goto(String(a.url), { waitUntil: 'load', timeout: 30_000 });
+        // `open` drives the page directly rather than through a tool call, so
+        // it has to record its own navigation or a recorded script would start
+        // wherever the first instruction happened to find the browser.
+        const recorder = this.browser.script;
+        if (recorder) recorder.commit(await recorder.prepare(page, 'goto', { url: String(a.url) }), 'ok');
         return { url: page.url(), title: await page.title() };
       }
 
@@ -126,9 +140,9 @@ export class Daemon {
         const page = await this.browser.getPage();
         const file = a.path
           ? path.resolve(String(a.path))
-          : path.join(ensureSessionDir(this.opts.session), 'screenshots', `shot-${Date.now()}.png`);
+          : path.join(ensureSessionDir(this.opts.session), 'screenshots', `shot-${Date.now()}.jpg`);
         fs.mkdirSync(path.dirname(file), { recursive: true });
-        await page.screenshot({ path: file, fullPage: Boolean(a.fullPage) });
+        await page.screenshot({ path: file, type: 'jpeg', fullPage: Boolean(a.fullPage) });
         return { path: file };
       }
 
@@ -139,6 +153,17 @@ export class Daemon {
       case 'note':
         this.state.addNote(String(a.text ?? ''));
         return { notes: this.state.notes.length };
+
+      case 'reset': {
+        // Clears the LLM conversation only — browser page, cookies, briefing,
+        // and notes are untouched. Lets a caller that tracks its own compact
+        // progress summary (e.g. via `note`) avoid resending the full raw
+        // tool-call history on every subsequent `do`, without losing login
+        // state or restarting the browser.
+        const before = this.state.messages.length;
+        this.state.messages = [];
+        return { clearedMessages: before };
+      }
 
       case 'do': {
         const provider = this.provider({
@@ -163,6 +188,40 @@ export class Daemon {
         }
       }
 
+      case 'script': {
+        // Fall back to a disk-backed recorder so a session that recorded and
+        // then restarted (or that is being read by a second CLI call) can still
+        // generate — script.jsonl is the source of truth, not process memory.
+        const recorder = this.browser.script ?? new ScriptRecorder(this.opts.session);
+        const steps = recorder.entries.filter((e) => e.k === 'step').length;
+        if (a.clear && !a.path) {
+          recorder.clear();
+          return { cleared: true, steps };
+        }
+        if (!steps) {
+          throw new Error(
+            'nothing recorded for this session — start it with --script (or BROWSER_PILOT_SCRIPT=1) before running instructions',
+          );
+        }
+        const file = a.path
+          ? path.resolve(String(a.path))
+          : path.join(ensureSessionDir(this.opts.session), 'recorded.spec.ts');
+        const source = generateScript(recorder.entries, {
+          session: this.opts.session,
+          title: a.title ? String(a.title) : undefined,
+        });
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, source);
+        if (a.clear) recorder.clear();
+        return {
+          path: file,
+          steps,
+          instructions: recorder.entries.filter((e) => e.k === 'instruction').length,
+          recording: Boolean(this.browser.script),
+          cleared: Boolean(a.clear),
+        };
+      }
+
       case 'config': {
         const cfg = resolveProviderConfig();
         return {
@@ -176,6 +235,8 @@ export class Daemon {
           sessionDir: ensureSessionDir(this.opts.session),
           briefingChars: this.state.briefing.length,
           recording: this.browser.recording,
+          scriptRecording: Boolean(this.browser.script),
+          scriptSteps: this.browser.script?.entries.filter((e) => e.k === 'step').length ?? 0,
           notes: this.state.notes,
           usage: this.state.usage,
           historyMessages: this.state.messages.length,
@@ -227,6 +288,7 @@ if (isMain) {
     session,
     headed: argv.includes('--headed'),
     record: argv.includes('--record'),
+    script: argv.includes('--script'),
   });
   daemon
     .listen()

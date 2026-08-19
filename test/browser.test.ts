@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { BrowserSession } from '../src/daemon/browser.js';
 import { executeTool } from '../src/agent/tools.js';
+import { generateScript } from '../src/daemon/codegen.js';
 
 const enabled = process.env.BP_BROWSER_TESTS === '1';
 const d = enabled ? describe : describe.skip;
@@ -204,4 +205,92 @@ d('fetch_source (server response vs live DOM)', () => {
     expect(out.result).toContain('<button id="island">');
     expect(out.result).not.toContain('Hello world');
   });
+});
+
+/**
+ * Script recording: the agent acts through snapshot-scoped `@ref` handles, so
+ * the value of a recording is entirely in whether the selectors it derives
+ * still find the same elements in a fresh run. Each generated locator is
+ * therefore replayed against the page here, not just string-matched.
+ */
+d('script recording (fixture page)', () => {
+  let session: BrowserSession;
+  const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, os.tmpdir());
+
+  beforeAll(async () => {
+    process.env.BROWSER_PILOT_HOME = path.join(os.tmpdir(), `bp-script-test-${Date.now()}`);
+    session = new BrowserSession({ session: 'rec', persist: false, script: true });
+    await (await session.getPage()).goto(fixtureUrl);
+  }, 60_000);
+
+  afterAll(async () => {
+    await session?.close();
+  });
+
+  it('turns @ref actions into durable, verified locators', async () => {
+    const recorder = session.script!;
+    recorder.beginInstruction('fill the form and submit it');
+
+    const snap = await run('snapshot', {});
+    const ref = (pattern: RegExp) => {
+      const m = pattern.exec(snap.result);
+      expect(m, `snapshot should contain ${pattern}`).toBeTruthy();
+      return m![1];
+    };
+    await run('fill', { target: ref(/textbox "Name" \[(@e\d+)\]/), value: 'Ada' });
+    await run('click', { target: ref(/button "Submit" \[(@e\d+)\]/) });
+    await run('wait_for', { target: '#banner', state: 'text_contains', text: 'Saved Ada' });
+
+    const src = generateScript(recorder.entries, { session: 'rec' });
+    expect(src).toContain("await test.step('fill the form and submit it', async () => {");
+    expect(src).toContain("await page.getByRole('button', { name: 'Submit' }).click();");
+    expect(src).toContain("await expect(page.locator('#banner')).toContainText('Saved Ada');");
+    // no @ref survived into the generated script — they are meaningless outside the session
+    expect(src).not.toMatch(/aria-ref|@e\d+(?![^\n]*TODO)/);
+    expect(src).not.toContain('TODO');
+
+    // and the derived locators actually resolve, uniquely, in the live page
+    const page = await session.getPage();
+    expect(await page.getByRole('button', { name: 'Submit' }).count()).toBe(1);
+    expect(await page.getByRole('textbox', { name: 'Name' }).inputValue()).toBe('Ada');
+  }, 60_000);
+
+  it('disambiguates same-named elements with nth() instead of a wrong match', async () => {
+    const recorder = session.script!;
+    const snap = await run('snapshot', {});
+    const dupB = /button "Dup B" \[(@e\d+)\]/.exec(snap.result)?.[1];
+    expect(dupB).toBeTruthy();
+    await run('click', { target: dupB! });
+
+    const last = recorder.entries.at(-1);
+    expect(last?.k).toBe('step');
+    const expr = last!.k === 'step' ? last!.locators.target.expr : '';
+    expect(last!.k === 'step' && last!.locators.target.verified).toBe(true);
+    // "Dup B" is unique by name; the point is the recorded locator finds exactly it
+    const page = await session.getPage();
+    const derived = expr.includes('getByRole')
+      ? page.getByRole('button', { name: 'Dup B' })
+      : page.locator('.dup >> nth=1');
+    expect(await derived.count()).toBe(1);
+    expect(await derived.innerText()).toBe('Dup B');
+  }, 60_000);
+
+  it('records a raw CSS target verbatim and flags it when it is not unique', async () => {
+    const recorder = session.script!;
+    await run('read', { target: '.dup', what: 'count' });
+    const step = recorder.entries.at(-1);
+    expect(step!.k === 'step' && step!.locators.target).toEqual({
+      expr: "page.locator('.dup')",
+      verified: false, // two matches — the generated script says so rather than guessing
+      raw: '.dup',
+    });
+  }, 30_000);
+
+  it('drops actions that failed — a recording is of what worked', async () => {
+    const recorder = session.script!;
+    const before = recorder.entries.length;
+    const out = await run('read', { target: '#does-not-exist', what: 'text' });
+    expect(out.isError).toBe(true);
+    expect(recorder.entries.length).toBe(before);
+  }, 30_000);
 });

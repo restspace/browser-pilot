@@ -69,6 +69,9 @@ browser-pilot screenshot [path]
 browser-pilot do "log in as admin@example.com / pw123"
 browser-pilot do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' and confirm it appears in the Organisations list with the count incremented" --json
 
+# recording (opt-in, see below)
+browser-pilot script tests/flow.spec.ts                # emit a Playwright spec from what was done
+
 # housekeeping
 browser-pilot session list
 browser-pilot stop [--all]                          # prints video paths if --record was used
@@ -94,6 +97,45 @@ an over-packed one risks exhausting it mid-way. The agent reports as soon as the
 are answered, so smaller steps also mean tighter, cheaper reports. Deterministic sub-actions
 (navigation, a screenshot, a spot-check) belong on the `open`/`peek`/`screenshot` verbs, which spend
 no agent tokens at all.
+
+## Recording a Playwright script
+
+Start a session with `--script` (or `BROWSER_PILOT_SCRIPT=1`) and every action the internal agent
+takes is captured as a replayable step; `browser-pilot script [out.spec.ts]` writes them out as a
+standalone `@playwright/test` spec — one `test.step` per `do` instruction, in order.
+
+```sh
+browser-pilot --session flow --script open http://localhost:5173
+browser-pilot --session flow do "log in as admin@example.com / pw123"
+browser-pilot --session flow do "create an organisation named 'Acme' and confirm it lists"
+browser-pilot --session flow script tests/acme.spec.ts     # → a spec you can run and commit
+```
+
+The hard part is that the agent drives the page through `@ref` handles from its own a11y snapshot,
+which mean nothing outside that session. So each target is re-described against the live DOM
+**before** the action runs (afterwards the element may be gone), preferring `data-testid` →
+role+name → label → placeholder → a hand-written `id` → text → a structural CSS path, and the
+resulting expression is then replayed against the page to confirm it resolves to exactly the element
+that was acted on. That costs one round trip per action, which is why recording is opt-in.
+
+What that buys you, and what it doesn't:
+
+- Actions that **failed** are not recorded — a recording is of what worked.
+- `wait_for` becomes a real assertion (`toBeVisible`, `toHaveText`, `toHaveCount`, …).
+- `read`/`read_all` become **commented-out** assertions carrying the value observed at record time.
+  The agent reads to orient itself as often as to verify, so which of those you want to assert is a
+  judgment call the generator leaves to you.
+- Anything it could not pin down is a `TODO` comment, never a silently-wrong selector: an
+  unverified locator, an element it could not describe, and tab switches (which need a real second
+  page handle).
+- Steps are appended to `<session dir>/script.jsonl` as they happen, so a recording survives a
+  daemon restart or a hard kill. `script --clear` discards them; `script <path> --clear` writes then
+  discards, which is how you record several independent specs in one session.
+- The output is a **starting point, not a finished test**. Review it: it replays the path the agent
+  happened to take, exploratory detours included.
+
+`--script` and `--record` are independent — video is a recording of what happened, this is a
+recording you can re-run.
 
 ## Sessions
 
@@ -152,6 +194,7 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 | `BROWSER_PILOT_HEADED=1`, `--headed` | headless | visible window (first call of a session) |
 | `BROWSER_PILOT_HOME` | `~/.browser-pilot` | sessions + config root |
 | `BROWSER_PILOT_RECORD=1`, `--record` | off | record the session to webm, one file per tab, under `<session dir>/video` (first call of a session). Playwright only writes video out when the browser context closes, so the paths are printed by `stop` — nothing is readable mid-session, and killing the daemon without `stop` loses the recording. |
+| `BROWSER_PILOT_SCRIPT=1`, `--script` | off | record every action as a replayable Playwright step (first call of a session); write the spec with `browser-pilot script [out.spec.ts]`. Costs one page round trip per action to resolve a durable selector. |
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
 | `--turn-timeout` | 90 | wall-clock seconds for a single LLM call; a turn that produces no tool call by then is aborted and retried with a nudge, and three such turns in a row end the instruction. Stops a model from spending the whole `--timeout` reasoning inside one request. |

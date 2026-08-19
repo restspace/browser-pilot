@@ -12,6 +12,8 @@ export type CommandName =
   | 'peek'
   | 'screenshot'
   | 'config'
+  | 'reset'
+  | 'script'
   | 'stop';
 
 export interface Request {

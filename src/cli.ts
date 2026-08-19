@@ -15,7 +15,9 @@ Usage:
   browser-pilot open <url>
   browser-pilot brief <file.md> [--append]
   browser-pilot note "<text>"
+  browser-pilot reset                       # clear the LLM conversation only (browser/cookies/briefing/notes kept)
   browser-pilot peek [--selector <sel>] [--interactive]
+  browser-pilot script [out.spec.ts] [--title T] [--clear]   # emit a Playwright spec from the recorded actions
   browser-pilot screenshot [path]
   browser-pilot session list
   browser-pilot stop [--all]
@@ -29,6 +31,8 @@ Global flags:
   --headed           launch the browser with a visible window (first call only)
   --record           record the session to webm, one file per tab; paths are printed
                      on stop, which is when Playwright writes them (first call only)
+  --script           record every action as a replayable Playwright step (first call
+                     only); write the spec out later with "browser-pilot script"
   --json             machine-readable output
 
 Providers (presets; each field overridable by flag > env > config file):
@@ -36,6 +40,8 @@ Providers (presets; each field overridable by flag > env > config file):
   novita             zai-org/glm-5.2 @ novita.ai   key: NOVITA_API_KEY
   openrouter         z-ai/glm-5.2 @ openrouter.ai  key: OPENROUTER_API_KEY
   openai             gpt-5-mini @ api.openai.com   key: OPENAI_API_KEY
+  anthropic          claude-sonnet-5 @ api.anthropic.com (native Messages API, not
+                     OpenAI-compatible — its own adapter)   key: ANTHROPIC_API_KEY
 
 Environment:
   BROWSER_PILOT_PROVIDER        provider preset name
@@ -45,6 +51,7 @@ Environment:
   BROWSER_PILOT_CHANNEL         browser channel (default chrome, falls back to msedge)
   BROWSER_PILOT_HEADED=1        headed browser
   BROWSER_PILOT_RECORD=1        record session video to <session dir>/video
+  BROWSER_PILOT_SCRIPT=1        record actions as a Playwright script (see the script command)
 
 Exit codes: 0 instruction succeeded · 1 failed/blocked · 2 infra error`;
 
@@ -66,6 +73,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'model',
     'base-url',
     'selector',
+    'title',
   ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -119,7 +127,7 @@ async function connectValidated(sock: string): Promise<net.Socket> {
 
 async function connectOrSpawn(
   session: string,
-  opts: { headed: boolean; record: boolean },
+  opts: { headed: boolean; record: boolean; script: boolean },
 ): Promise<net.Socket> {
   const sock = socketPath(session);
   try {
@@ -131,6 +139,7 @@ async function connectOrSpawn(
   const args = [serverPath, '--session', session];
   if (opts.headed) args.push('--headed');
   if (opts.record) args.push('--record');
+  if (opts.script) args.push('--script');
   const child = spawn(process.execPath, args, {
     detached: true,
     stdio: 'ignore',
@@ -284,6 +293,7 @@ async function main(): Promise<void> {
   const conn = await connectOrSpawn(session, {
     headed: flags.has('headed'),
     record: flags.has('record'),
+    script: flags.has('script'),
   }).catch((err) => fail(err.message));
 
   try {
@@ -313,6 +323,7 @@ async function main(): Promise<void> {
           transcriptTail?: string[];
           actions?: { tool: string; args: string; ok: boolean }[];
           finalState?: { url: string; title?: string };
+          screenshots: string[];
           model: string;
         };
         if (json) {
@@ -326,6 +337,10 @@ async function main(): Promise<void> {
           }
           if (data.report.evidence?.capturedDialogs?.length) {
             console.log(`  dialogs: ${data.report.evidence.capturedDialogs.join(' | ')}`);
+          }
+          if (data.screenshots.length) {
+            console.log(`  screenshots: ${data.screenshots.length}`);
+            for (const s of data.screenshots) console.log(`    ${s}`);
           }
           if (data.actions?.length) {
             // On bail-out: the state-changing actions that ran, so you can verify
@@ -383,6 +398,12 @@ async function main(): Promise<void> {
         break;
       }
 
+      case 'reset': {
+        const data = printResult(await request(conn, 'reset', {}), json) as { clearedMessages: number };
+        if (!json) console.log(`conversation reset (${data.clearedMessages} message(s) cleared; browser, briefing, and notes kept)`);
+        break;
+      }
+
       case 'peek': {
         const data = printResult(
           await request(conn, 'peek', {
@@ -394,6 +415,29 @@ async function main(): Promise<void> {
         if (!json) {
           console.log(`${data.title} — ${data.url}`);
           console.log(data.snapshot);
+        }
+        break;
+      }
+
+      case 'script': {
+        const data = printResult(
+          await request(conn, 'script', {
+            path: positional[0],
+            title: flags.get('title') || undefined,
+            clear: flags.has('clear'),
+          }),
+          json,
+        ) as { path?: string; steps: number; instructions?: number; recording?: boolean; cleared?: boolean };
+        if (!json) {
+          if (data.path) {
+            console.log(`${data.path} (${data.steps} action(s), ${data.instructions ?? 0} instruction(s))`);
+            if (data.cleared) console.log('recording cleared');
+            if (!data.recording) {
+              console.log('note: this session is not recording — generated from previously recorded actions');
+            }
+          } else {
+            console.log(`recording cleared (${data.steps} action(s) discarded)`);
+          }
         }
         break;
       }

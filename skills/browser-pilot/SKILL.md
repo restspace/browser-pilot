@@ -48,6 +48,23 @@ browser-pilot config
 | `--timeout` | 300 | wall-clock seconds for the whole instruction |
 | `--turn-timeout` | 90 | wall-clock seconds for one LLM call — see below |
 
+## Turning a run into a Playwright spec
+
+If the point of the run is to end up with a committed test, start the session with `--script`:
+
+```sh
+browser-pilot --session flow --script open http://localhost:5173
+browser-pilot --session flow do "log in as admin@example.com / pw123"
+browser-pilot --session flow script tests/login.spec.ts   # standalone @playwright/test spec
+```
+
+Every successful action is captured with a durable locator resolved from the live DOM (testid →
+role+name → label → id → text → CSS path) and verified against the page, so no `@ref` handles leak
+into the output. One `test.step` per `do`. `wait_for` becomes a real assertion; `read` becomes a
+commented-out one; anything unresolvable is a `TODO`, never a wrong selector. Review before
+committing — it replays the path the agent took, detours included. `script --clear` discards the
+recording; adding `--clear` to a write starts a fresh one.
+
 ## When a `do` misbehaves
 
 Control commands do **not** queue behind the running instruction, so you can always look and

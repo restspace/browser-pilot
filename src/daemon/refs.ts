@@ -36,11 +36,13 @@ export function normalizeRefs(snapshotText: string): string {
 const INTERACTIVE_ROLES =
   /\b(button|link|textbox|searchbox|combobox|checkbox|radio|switch|slider|spinbutton|menuitem|option|tab|listbox|grid|row|cell|dialog|alertdialog|heading|alert|status)\b/;
 
+/** The per-line heuristic behind filterInteractive; shared with signature capture. */
+export function isInteractiveLine(line: string): boolean {
+  return line.includes('[@e') || INTERACTIVE_ROLES.test(line);
+}
+
 export function filterInteractive(snapshotText: string): string {
-  return snapshotText
-    .split('\n')
-    .filter((line) => line.includes('[@e') || INTERACTIVE_ROLES.test(line))
-    .join('\n');
+  return snapshotText.split('\n').filter(isInteractiveLine).join('\n');
 }
 
 export function truncate(text: string, maxChars: number): string {

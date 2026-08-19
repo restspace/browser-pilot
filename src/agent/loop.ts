@@ -54,6 +54,14 @@ export interface InstructionResult {
    * an empty actions log.
    */
   finalState?: { url: string; title?: string };
+  /**
+   * Paths of every screenshot the agent saved during this instruction, in the
+   * order taken. Tracked by the loop from actual tool results (not the
+   * model's self-report), and always included — screenshots are often the
+   * caller's only evidence, so they must survive a run whether the report is
+   * a clean success or a bail-out.
+   */
+  screenshots: string[];
 }
 
 /**
@@ -72,12 +80,16 @@ export async function runInstruction(
   const usage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 };
   const transcript: string[] = [];
   const actions: ActionRecord[] = [];
+  const screenshots: string[] = [];
   let reportRetried = false;
   let capWarned = false;
   let unproductiveTurns = 0;
 
   state.trimHistory();
   state.messages.push({ role: 'user', content: instruction });
+  // Script recording (opt-in) groups this instruction's actions under one
+  // test.step, so a generated spec reads as the plan that produced it.
+  browser.script?.beginInstruction(instruction);
 
   const system: ChatMessage = { role: 'system', content: buildSystemPrompt(state) };
 
@@ -103,6 +115,7 @@ export async function runInstruction(
       report,
       turns,
       usage,
+      screenshots,
       ...(blockedTail ? { transcriptTail: transcript.slice(-12), actions: actions.slice(-40) } : {}),
       ...(finalState ? { finalState } : {}),
     };
@@ -290,6 +303,11 @@ export async function runInstruction(
       actions.push({ tool: call.name, args: summary, ok: !execution.isError });
       state.messages.push({ role: 'tool', tool_call_id: call.id, content: execution.result });
 
+      if (call.name === 'screenshot' && !execution.isError) {
+        const m = execution.result.match(/^screenshot saved: (.+)$/);
+        if (m) screenshots.push(m[1]);
+      }
+
       // Keep the re-sent context lean: a snapshot's @refs go stale on navigation
       // and when a newer snapshot arrives, so stub superseded snapshots now
       // rather than re-sending them (up to ~2k tokens each) every remaining turn.
@@ -316,6 +334,12 @@ export async function runInstruction(
 }
 
 function summarizeArgs(args: Record<string, unknown>): string {
+  // A batch's raw args are a wall of nested JSON; the step tools are what the
+  // progress line and the actions log actually need to convey.
+  if (Array.isArray(args.steps)) {
+    const tools = args.steps.map((s) => String((s as { tool?: unknown })?.tool ?? '?'));
+    return `[${tools.length} steps: ${tools.join(', ')}]`;
+  }
   const s = JSON.stringify(args);
   return s.length > 120 ? s.slice(0, 120) + '…' : s;
 }
