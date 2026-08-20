@@ -197,20 +197,33 @@ function runCommand(cmd) {
   });
 }
 
-/** browser-pilot reports its inner model's usage in --json output; bill it separately. */
-function harvestInnerUsage(text) {
+/**
+ * Ask browser-pilot's daemon what its inner model(s) actually spent.
+ *
+ * Scraping stdout does not work: the orchestrator is free to call `do` without
+ * `--json`, in which case no usage is printed at all — and forcing `--json`
+ * would change what the orchestrator reads, altering the very thing being
+ * measured. The session keeps authoritative cumulative totals, split per model
+ * because escalation can bill a second, pricier tier within one session.
+ *
+ * Must run before the session is stopped.
+ */
+async function collectInnerUsage() {
   if (args.arm !== 'browser-pilot') return;
-  for (const m of text.matchAll(/"usage"\s*:\s*\{[^}]*\}/g)) {
-    try {
-      const u = JSON.parse(`{${m[0]}}`).usage;
-      if (typeof u?.promptTokens === 'number') {
-        inner.promptTokens += u.promptTokens;
-        inner.cachedTokens += u.cachedTokens ?? 0;
-        inner.completionTokens += u.completionTokens ?? 0;
-      }
-    } catch {
-      /* not the shape we wanted; ignore */
+  const r = await runCommand(`${arm.bin} config --session ${runid}`);
+  try {
+    const cfg = JSON.parse(r.out.slice(r.out.indexOf('{'), r.out.lastIndexOf('}') + 1));
+    if (cfg.usage) {
+      inner.promptTokens = cfg.usage.promptTokens ?? 0;
+      inner.cachedTokens = cfg.usage.cachedTokens ?? 0;
+      inner.completionTokens = cfg.usage.completionTokens ?? 0;
+      inner.instructions = cfg.usage.instructions ?? 0;
     }
+    if (cfg.usageByModel) inner.byModel = cfg.usageByModel;
+    inner.model = cfg.model ?? null;
+    inner.fallbackModel = cfg.fallbackModel ?? null;
+  } catch (err) {
+    log({ k: 'inner-usage-failed', message: String(err), raw: r.out.slice(0, 400) });
   }
 }
 
@@ -374,7 +387,6 @@ try {
         continue;
       }
       const r = await runCommand(call.command);
-      harvestInnerUsage(r.out);
       const bytes = Buffer.byteLength(r.out, 'utf8');
       commands.push({ turn: turns, cmd: call.command, ms: r.ms, bytes, code: r.code, killed: r.killed });
       log({ k: 'cmd', turn: turns, cmd: call.command, ms: r.ms, code: r.code, killed: r.killed, bytes });
@@ -393,6 +405,8 @@ try {
   stopReason = `error: ${err.message}`;
   log({ k: 'error', message: err.message });
 }
+
+await collectInnerUsage();
 
 const result = {
   arm: args.arm,

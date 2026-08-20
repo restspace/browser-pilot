@@ -22,6 +22,34 @@ export class SessionState {
   briefing = '';
   notes: string[] = [];
   usage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0, instructions: 0 };
+  /**
+   * The same totals split by model id. A session can bill against more than one
+   * model — escalation retries a blocked instruction on a stronger (pricier)
+   * tier — and those tiers can differ in price by an order of magnitude, so a
+   * single aggregate cannot be costed. Keyed by the model that produced them.
+   */
+  usageByModel: Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number; instructions: number }> = {};
+
+  /** Fold one instruction's usage into both the session total and its model's bucket. */
+  recordUsage(
+    model: string,
+    usage: { promptTokens: number; completionTokens: number; cachedTokens: number },
+  ): void {
+    this.usage.promptTokens += usage.promptTokens;
+    this.usage.completionTokens += usage.completionTokens;
+    this.usage.cachedTokens += usage.cachedTokens;
+    this.usage.instructions += 1;
+    const bucket = (this.usageByModel[model] ??= {
+      promptTokens: 0,
+      completionTokens: 0,
+      cachedTokens: 0,
+      instructions: 0,
+    });
+    bucket.promptTokens += usage.promptTokens;
+    bucket.completionTokens += usage.completionTokens;
+    bucket.cachedTokens += usage.cachedTokens;
+    bucket.instructions += 1;
+  }
 
   constructor(readonly session: string) {
     this.load();

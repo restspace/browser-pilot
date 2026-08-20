@@ -382,6 +382,30 @@ describe('escalate-on-blocked', () => {
     expect(result.escalation?.firstAttempt.status).toBe('blocked');
   });
 
+  it('splits session usage per model so a two-tier run can be costed', async () => {
+    const state = new SessionState('t-esc-bymodel');
+    await runEscalatingInstruction(
+      named('cheap', blocks()),
+      named('smart', succeeds()),
+      browserStub,
+      state,
+      'do it',
+      loopOpts,
+    );
+    // one instruction each, at the stub's 100 prompt / 40 cached / 10 completion
+    expect(Object.keys(state.usageByModel).sort()).toEqual(['cheap', 'smart']);
+    expect(state.usageByModel.cheap).toEqual({
+      promptTokens: 100,
+      cachedTokens: 40,
+      completionTokens: 10,
+      instructions: 1,
+    });
+    expect(state.usageByModel.smart.instructions).toBe(1);
+    // the split must reconcile with the session total, or costing it is guesswork
+    const sum = Object.values(state.usageByModel).reduce((n, b) => n + b.promptTokens, 0);
+    expect(sum).toBe(state.usage.promptTokens);
+  });
+
   it('bills BOTH attempts so escalation cannot hide its cost', async () => {
     const state = new SessionState('t-esc-usage');
     const result = await runEscalatingInstruction(

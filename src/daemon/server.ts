@@ -256,6 +256,7 @@ export class Daemon {
           scriptSteps: this.browser.script?.entries.filter((e) => e.k === 'step').length ?? 0,
           notes: this.state.notes,
           usage: this.state.usage,
+          usageByModel: this.state.usageByModel,
           historyMessages: this.state.messages.length,
         };
       }

@@ -175,10 +175,7 @@ export async function runInstruction(
       role: 'assistant',
       content: `[report] ${report.status}: ${report.summary}${facts}`,
     });
-    state.usage.promptTokens += usage.promptTokens;
-    state.usage.completionTokens += usage.completionTokens;
-    state.usage.cachedTokens += usage.cachedTokens;
-    state.usage.instructions += 1;
+    state.recordUsage(provider.model, usage);
     // Any blocked outcome carries its evidence, not just loop-enforced bail-outs:
     // an agent that declares itself stuck is exactly when a caller — or the
     // escalation model — needs to know what already ran. Clean successes stay lean.
