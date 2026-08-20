@@ -163,6 +163,25 @@ is not), `goto`, `back`, `tabs`, `upload`, `download`, `set_viewport`, `set_offl
 `dialog_expect` (native confirm/alert/prompt policy + capture), and the mandatory terminal
 `report` — validated against a JSON schema, with one retry turn on invalid output.
 
+Near-miss report payloads are **repaired rather than rejected**: a list of ids where the schema
+wants one scalar, a stray extra key, a status differing only in case, an over-long summary. These
+are presentational slips, and rejecting one is expensive out of all proportion — it costs a retry
+turn, then a blocked bail-out, then (with escalation on) a paid retry of the whole instruction on a
+pricier model, over a value the agent had already correctly obtained. Repairs are never silent: the
+result lists what was changed. Anything needing a guess about *intent* — an unmappable status, a
+missing summary — is still rejected and fed back.
+
+### Session history
+
+Each instruction's raw tool output is elided when the **next** instruction starts. It describes a
+page that has usually moved on, and left in place it is re-sent on every turn of every later
+instruction: measured across a 10-step session, context per turn grew 6.1k → 30.3k tokens,
+plateauing only when the size cap forced the same elision under pressure. What survives is the
+one-line `[report]` entry, which carries the reported `evidence.values` alongside the summary so
+facts established in step 3 are still available in step 4. Use `note` for anything that must
+outlive an instruction verbatim, and `reset` to clear the conversation while keeping the browser,
+cookies, briefing, and notes.
+
 ## Providers
 
 The LLM layer is a generic OpenAI-compatible adapter with named presets:

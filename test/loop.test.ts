@@ -289,6 +289,64 @@ describe('history trimming', () => {
     expect(byId('r1').content).toBe('"Acme Ltd"');
   });
 
+  it('elides earlier instructions\' tool results when the next one starts', async () => {
+    const state = new SessionState('t-boundary');
+    const readCall = { id: 'r1', name: 'read', args: { target: '#a', what: 'text' }, rawArgs: '{}' };
+    await runInstruction(
+      scriptedProvider([
+        { toolCalls: [readCall] },
+        { toolCalls: [reportCall({ status: 'success', summary: 'first' })] },
+      ]),
+      browserStub,
+      state,
+      'first',
+      loopOpts,
+    );
+    const toolMsg = state.messages.find((m) => m.role === 'tool' && m.tool_call_id === 'r1')!;
+    // stand in a realistically fat result, as a snapshot would produce
+    toolMsg.content = 'y'.repeat(4000);
+
+    await runInstruction(
+      scriptedProvider([{ toolCalls: [reportCall({ status: 'success', summary: 'second' })] }]),
+      browserStub,
+      state,
+      'second',
+      loopOpts,
+    );
+    expect(toolMsg.content.length).toBeLessThan(200);
+    // structure survives: the assistant tool_calls message still has its answer
+    const caller = state.messages.find(
+      (m) => m.role === 'assistant' && m.tool_calls?.some((c) => c.id === 'r1'),
+    );
+    expect(caller).toBeTruthy();
+    expect(state.messages.some((m) => m.role === 'tool' && m.tool_call_id === 'r1')).toBe(true);
+  });
+
+  it('carries reported facts into the durable history line so elision does not lose them', async () => {
+    const state = new SessionState('t-facts');
+    await runInstruction(
+      scriptedProvider([
+        {
+          toolCalls: [
+            reportCall({
+              status: 'success',
+              summary: 'created it',
+              evidence: { values: { projectId: 'rq-77', price: 133.33 } },
+            }),
+          ],
+        },
+      ]),
+      browserStub,
+      state,
+      'create the project',
+      loopOpts,
+    );
+    const line = String(state.messages.at(-1)!.content);
+    expect(line).toContain('created it');
+    expect(line).toContain('projectId=rq-77');
+    expect(line).toContain('price=133.33');
+  });
+
   it('notes and briefing persist to disk across state instances', () => {
     const a = new SessionState('t-persist');
     a.setBriefing('the guide', false);

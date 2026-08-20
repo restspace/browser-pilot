@@ -9,6 +9,9 @@ const FAILED_ATTEMPT_STUB =
 const SNAPSHOT_STUB =
   '[snapshot superseded by a newer snapshot or navigation — its @refs are stale; re-snapshot if you need fresh refs]';
 
+/** Every placeholder a tool result may already hold, so passes don't restub each other. */
+const STUBS = new Set([ELIDED, FAILED_ATTEMPT_STUB, SNAPSHOT_STUB]);
+
 /**
  * Per-session agent memory: one running message history (instruction N+1 sees
  * 1..N), the app briefing, and notes. Briefing and notes are persisted to the
@@ -90,15 +93,44 @@ export class SessionState {
    * or the next request is malformed. So results are blanked, never dropped.
    */
   compactToolResults(fromIndex: number): { elided: number; charsSaved: number } {
+    return this.blankToolResults(fromIndex, FAILED_ATTEMPT_STUB);
+  }
+
+  /**
+   * Blank every tool result already in history, at the start of a new
+   * instruction.
+   *
+   * Raw tool output is worth a lot during the instruction that produced it and
+   * very little afterwards: it describes a page state that has usually moved
+   * on, while the durable conclusion survives as the `[report]` line. Left in
+   * place it is re-sent on every turn of every later instruction — measured
+   * across a 10-step session, context per turn grew from 6.1k to 30.3k tokens,
+   * plateauing only when trimHistory's size cap forced the same elision under
+   * pressure. Doing it at the boundary keeps the growth flat instead.
+   */
+  elidePriorToolResults(): { elided: number; charsSaved: number } {
+    return this.blankToolResults(0, ELIDED);
+  }
+
+  /**
+   * Replace tool-result payloads with `stub` from `fromIndex` onward.
+   * Structure is preserved rather than pruned: an assistant message carrying
+   * tool_calls must still be answered by a tool message with the matching id,
+   * or the next request is malformed. Results already at or below the stub's
+   * size are left alone, which also makes repeat calls idempotent.
+   */
+  private blankToolResults(fromIndex: number, stub: string): { elided: number; charsSaved: number } {
     let elided = 0;
     let charsSaved = 0;
     for (let i = Math.max(0, fromIndex); i < this.messages.length; i++) {
       const m = this.messages[i];
       if (m.role !== 'tool') continue;
-      if (m.content === FAILED_ATTEMPT_STUB) continue;
-      if (m.content.length <= FAILED_ATTEMPT_STUB.length) continue; // already cheaper than the stub
-      charsSaved += m.content.length - FAILED_ATTEMPT_STUB.length;
-      m.content = FAILED_ATTEMPT_STUB;
+      // Never restub an existing stub: a later, blunter pass would otherwise
+      // overwrite a more specific explanation with a vaguer one.
+      if (STUBS.has(m.content)) continue;
+      if (m.content.length <= stub.length) continue;
+      charsSaved += m.content.length - stub.length;
+      m.content = stub;
       elided++;
     }
     return { elided, charsSaved };

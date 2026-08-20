@@ -25,6 +25,9 @@ const MAX_UNPRODUCTIVE_TURNS = 3;
  */
 const ESCALATION_BUDGET_MULTIPLIER = 1.5;
 
+/** Cap on the evidence values carried into the durable one-line report entry. */
+const REPORT_FACTS_CHARS = 600;
+
 export interface LoopOptions {
   maxTurns: number;
   timeoutMs: number;
@@ -123,6 +126,16 @@ export async function runInstruction(
   let capWarned = false;
   let unproductiveTurns = 0;
 
+  // Previous instructions' raw tool output describes a page that has usually
+  // moved on; their durable conclusion survives as the `[report]` line below.
+  // Blanking it here keeps per-turn context flat across a long session instead
+  // of letting it grow until trimHistory's size cap forces the same thing.
+  const elided = state.elidePriorToolResults();
+  if (elided.elided) {
+    opts.onProgress?.(
+      `[history] elided ${elided.elided} tool result(s) from earlier instructions (~${Math.round(elided.charsSaved / 4000)}k tokens/turn saved)`,
+    );
+  }
   state.trimHistory();
   state.messages.push({ role: 'user', content: instruction });
   // Script recording (opt-in) groups this instruction's actions under one
@@ -145,9 +158,22 @@ export async function runInstruction(
     blockedTail = false,
     bailReason?: BailReason,
   ): Promise<InstructionResult> => {
+    // This line is what survives once the instruction's tool results are
+    // elided at the next boundary, so the facts the caller asked for ride
+    // along with the prose — otherwise a value read in step 3 would be gone
+    // by step 4 despite having been correctly obtained and reported.
+    const values = report.evidence?.values;
+    const facts =
+      values && Object.keys(values).length
+        ? ' | ' +
+          Object.entries(values)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(', ')
+            .slice(0, REPORT_FACTS_CHARS)
+        : '';
     state.messages.push({
       role: 'assistant',
-      content: `[report] ${report.status}: ${report.summary}`,
+      content: `[report] ${report.status}: ${report.summary}${facts}`,
     });
     state.usage.promptTokens += usage.promptTokens;
     state.usage.completionTokens += usage.completionTokens;
@@ -315,6 +341,12 @@ export async function runInstruction(
       if (call.name === 'report') {
         const validation = call.args ? validateReport(call.args) : { ok: false as const, error: 'arguments were not valid JSON' };
         if (validation.ok) {
+          // A repaired payload is accepted, not silently rewritten: the caller
+          // and the transcript both see what was changed on the agent's behalf.
+          if (validation.coerced?.length) {
+            transcript.push(`report coerced: ${validation.coerced.join('; ')}`);
+            opts.onProgress?.(`[turn ${turn}] report accepted after repair: ${validation.coerced.join('; ')}`);
+          }
           state.messages.push({ role: 'tool', tool_call_id: call.id, content: 'report accepted' });
           return finish(validation.report, turn);
         }
