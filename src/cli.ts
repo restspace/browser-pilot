@@ -12,6 +12,7 @@ const USAGE = `browser-pilot — agent-in-the-loop Playwright CLI
 
 Usage:
   browser-pilot do "<instruction>" [--json] [--max-turns N] [--timeout S] [--turn-timeout S] [--provider P] [--model M]
+                                   [--fallback-model M | --no-escalate]
   browser-pilot open <url>
   browser-pilot brief <file.md> [--append]
   browser-pilot note "<text>"
@@ -22,7 +23,13 @@ Usage:
   browser-pilot session list
   browser-pilot stop [--all]
   browser-pilot config                      # show resolved provider/model/paths
-  browser-pilot config set <key> <value>    # persist a default (provider, model, baseUrl, apiKey)
+  browser-pilot config set <key> <value>    # persist a default (provider, model, fallbackModel, baseUrl, apiKey)
+
+Escalation:
+  When the routine model reports an instruction "blocked", it is retried once on a
+  stronger fallback model, on the same live browser and history (told to verify state
+  before repeating anything). Verified "failure" results are NOT retried. Disable with
+  --no-escalate, or set the fallback model to "none".
 
 Global flags:
   --session <name>   session name (default "default"; one daemon+browser per session)
@@ -37,7 +44,8 @@ Global flags:
 
 Providers (presets; each field overridable by flag > env > config file):
   zhipu (default)    glm-5.2 @ api.z.ai            key: GLM_API_KEY / ZHIPU_API_KEY
-  novita             zai-org/glm-5.2 @ novita.ai   key: NOVITA_API_KEY
+  novita             deepseek/deepseek-v4-flash @ novita.ai   key: NOVITA_API_KEY
+                     escalates to zai-org/glm-5.3 when blocked
   openrouter         z-ai/glm-5.2 @ openrouter.ai  key: OPENROUTER_API_KEY
   openai             gpt-5-mini @ api.openai.com   key: OPENAI_API_KEY
   anthropic          claude-sonnet-5 @ api.anthropic.com (native Messages API, not
@@ -46,6 +54,7 @@ Providers (presets; each field overridable by flag > env > config file):
 Environment:
   BROWSER_PILOT_PROVIDER        provider preset name
   BROWSER_PILOT_MODEL           model id override
+  BROWSER_PILOT_FALLBACK_MODEL  escalation model for blocked instructions ("none" disables)
   BROWSER_PILOT_BASE_URL        any OpenAI-compatible base URL
   BROWSER_PILOT_API_KEY         API key (works with any provider)
   BROWSER_PILOT_CHANNEL         browser channel (default chrome, falls back to msedge)
@@ -71,6 +80,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'turn-timeout',
     'provider',
     'model',
+    'fallback-model',
     'base-url',
     'selector',
     'title',
@@ -251,7 +261,7 @@ async function main(): Promise<void> {
   // Commands that don't need (or must not start) a daemon:
   if (command === 'config' && positional[0] === 'set') {
     const [, key, value] = positional;
-    if (!key || value === undefined) fail('usage: config set <provider|model|baseUrl|apiKey> <value>', 2);
+    if (!key || value === undefined) fail('usage: config set <provider|model|fallbackModel|baseUrl|apiKey> <value>', 2);
     const merged = writeGlobalConfig({ [key]: value });
     const shown = { ...merged, ...(merged.apiKey ? { apiKey: '***' } : {}) };
     console.log(`${globalConfigPath()}: ${JSON.stringify(shown)}`);
@@ -312,6 +322,8 @@ async function main(): Promise<void> {
             provider: flags.get('provider') || undefined,
             model: flags.get('model') || undefined,
             baseUrl: flags.get('base-url') || undefined,
+            fallbackModel: flags.get('fallback-model') || undefined,
+            escalate: flags.has('no-escalate') ? false : undefined,
           },
           onProgress,
         );
@@ -325,12 +337,31 @@ async function main(): Promise<void> {
           finalState?: { url: string; title?: string };
           screenshots: string[];
           model: string;
+          fallbackModel?: string;
+          escalation?: {
+            from: string;
+            to: string;
+            reason: string;
+            firstAttempt: {
+              status: string;
+              turns: number;
+              usage: { promptTokens: number; completionTokens: number; cachedTokens: number };
+            };
+            rescued: boolean;
+          };
         };
         if (json) {
           console.log(JSON.stringify(data, null, 2));
         } else {
           const mark = data.report.status === 'success' ? 'OK' : data.report.status.toUpperCase();
           console.log(`[${mark}] ${data.report.summary}`);
+          if (data.escalation) {
+            const e = data.escalation;
+            console.log(
+              `  escalated: ${e.from} blocked after ${e.firstAttempt.turns} turns → retried on ${e.to} (${e.rescued ? 'rescued' : 'still not resolved'})`,
+            );
+            console.log(`    blocked because: ${e.reason}`);
+          }
           if (data.report.details) console.log(data.report.details);
           if (data.report.evidence?.values) {
             for (const [k, v] of Object.entries(data.report.evidence.values)) console.log(`  ${k}: ${v}`);
@@ -361,8 +392,9 @@ async function main(): Promise<void> {
           const u = data.usage;
           const fresh = u.promptTokens - u.cachedTokens;
           const hit = u.promptTokens ? Math.round((u.cachedTokens / u.promptTokens) * 100) : 0;
+          const models = data.escalation ? `${data.escalation.from} → ${data.escalation.to}` : data.model;
           console.error(
-            `  · ${data.turns} turns, ${u.promptTokens} prompt (${u.cachedTokens} cached / ${fresh} fresh, ${hit}% hit) + ${u.completionTokens} completion tokens (${data.model})`,
+            `  · ${data.turns} turns, ${u.promptTokens} prompt (${u.cachedTokens} cached / ${fresh} fresh, ${hit}% hit) + ${u.completionTokens} completion tokens (${models})`,
           );
         }
         process.exit(data.report.status === 'success' ? 0 : 1);

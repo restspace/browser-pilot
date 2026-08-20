@@ -53,9 +53,34 @@ describe('provider resolution', () => {
     process.env.NOVITA_API_KEY = 'nk-123';
     const cfg = resolveProviderConfig({ provider: 'novita' });
     expect(cfg.baseUrl).toBe('https://api.novita.ai/openai');
-    expect(cfg.model).toBe('zai-org/glm-5.2');
+    expect(cfg.model).toBe('deepseek/deepseek-v4-flash');
     expect(cfg.apiKey).toBe('nk-123');
     expect(cfg.keyEnvVars).toContain('NOVITA_API_KEY');
+  });
+
+  it('novita preset supplies a stronger escalation model than its routine one', () => {
+    const cfg = resolveProviderConfig({ provider: 'novita' });
+    expect(cfg.fallbackModel).toBe('zai-org/glm-5.3');
+    expect(cfg.fallbackModel).not.toBe(cfg.model);
+  });
+
+  it('presets without an escalation tier leave fallbackModel unset', () => {
+    expect(resolveProviderConfig({ provider: 'zhipu' }).fallbackModel).toBeUndefined();
+  });
+
+  it('fallback model follows the same flag > env > file > preset precedence', () => {
+    writeGlobalConfig({ provider: 'novita', fallbackModel: 'file-fallback' });
+    expect(resolveProviderConfig().fallbackModel).toBe('file-fallback');
+    process.env.BROWSER_PILOT_FALLBACK_MODEL = 'env-fallback';
+    expect(resolveProviderConfig().fallbackModel).toBe('env-fallback');
+    expect(resolveProviderConfig({ fallbackModel: 'flag-fallback' }).fallbackModel).toBe('flag-fallback');
+    delete process.env.BROWSER_PILOT_FALLBACK_MODEL;
+  });
+
+  it('"none" disables escalation without needing to clear a config key', () => {
+    for (const off of ['none', 'off', 'FALSE', '  ']) {
+      expect(resolveProviderConfig({ provider: 'novita', fallbackModel: off }).fallbackModel).toBeUndefined();
+    }
   });
 
   it('rejects unknown providers with the available list', () => {

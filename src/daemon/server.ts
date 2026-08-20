@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
-import { runInstruction } from '../agent/loop.js';
+import { runEscalatingInstruction } from '../agent/loop.js';
 import { generateScript } from './codegen.js';
 import { snapshot } from './refs.js';
 import { ScriptRecorder } from './recorder.js';
@@ -50,8 +50,21 @@ export class Daemon {
   }
 
   private provider(overrides: { provider?: string; model?: string; baseUrl?: string } = {}): Provider {
+    return build(resolveProviderConfig(overrides));
+  }
+
+  /**
+   * The escalation tier for a `do`, or null when disabled or when it would
+   * resolve to the same model as the routine one (retrying a blocked
+   * instruction on the model that just blocked buys nothing).
+   */
+  private fallbackProvider(
+    overrides: { provider?: string; model?: string; baseUrl?: string; fallbackModel?: string } = {},
+    primary?: Provider,
+  ): Provider | null {
     const config = resolveProviderConfig(overrides);
-    return config.provider === 'anthropic' ? new AnthropicProvider(config) : new OpenAICompatProvider(config);
+    if (!config.fallbackModel || config.fallbackModel === primary?.model) return null;
+    return build({ ...config, model: config.fallbackModel });
   }
 
   async listen(): Promise<void> {
@@ -166,15 +179,18 @@ export class Daemon {
       }
 
       case 'do': {
-        const provider = this.provider({
+        const overrides = {
           provider: a.provider ? String(a.provider) : undefined,
           model: a.model ? String(a.model) : undefined,
           baseUrl: a.baseUrl ? String(a.baseUrl) : undefined,
-        });
+          fallbackModel: a.fallbackModel ? String(a.fallbackModel) : undefined,
+        };
+        const provider = this.provider(overrides);
+        const fallback = a.escalate === false ? null : this.fallbackProvider(overrides, provider);
         const controller = new AbortController();
         this.inflight = controller;
         try {
-          const result = await runInstruction(provider, this.browser, this.state, String(a.instruction), {
+          const result = await runEscalatingInstruction(provider, fallback, this.browser, this.state, String(a.instruction), {
             maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
             timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
             ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
@@ -182,7 +198,7 @@ export class Daemon {
             signal: controller.signal,
             onProgress: progress,
           });
-          return { ...result, model: provider.model };
+          return { ...result, model: provider.model, ...(fallback ? { fallbackModel: fallback.model } : {}) };
         } finally {
           if (this.inflight === controller) this.inflight = null;
         }
@@ -229,6 +245,7 @@ export class Daemon {
           pid: process.pid,
           provider: cfg.provider,
           model: cfg.model,
+          fallbackModel: cfg.fallbackModel ?? null,
           baseUrl: cfg.baseUrl,
           apiKeySet: Boolean(cfg.apiKey),
           apiKeyEnvVars: cfg.keyEnvVars,
@@ -276,6 +293,11 @@ export class Daemon {
 
 function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Anthropic speaks its own wire format; everything else is OpenAI-compatible. */
+function build(config: ReturnType<typeof resolveProviderConfig>): Provider {
+  return config.provider === 'anthropic' ? new AnthropicProvider(config) : new OpenAICompatProvider(config);
 }
 
 // --- entrypoint: node dist/daemon/server.js --session <name> [--headed] ---

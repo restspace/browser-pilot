@@ -74,6 +74,11 @@ export interface ProviderConfig {
   baseUrl: string;
   apiKey: string;
   model: string;
+  /**
+   * Stronger model used only to retry an instruction the routine model left
+   * blocked (see runEscalatingInstruction). Empty/undefined disables escalation.
+   */
+  fallbackModel?: string;
   temperature?: number;
   /** Env vars that were consulted for the key — for error messages. */
   keyEnvVars: string[];
@@ -82,6 +87,8 @@ export interface ProviderConfig {
 export interface ProviderPreset {
   baseUrl: string;
   defaultModel: string;
+  /** Preset escalation tier; omit where no obviously stronger sibling exists. */
+  fallbackModel?: string;
   keyEnvVars: string[];
 }
 
@@ -93,9 +100,14 @@ export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
     defaultModel: 'glm-5.2',
     keyEnvVars: ['GLM_API_KEY', 'ZHIPU_API_KEY'],
   },
+  // Model picks are benchmarked, not guessed: deepseek-v4-flash drove the real
+  // agent loop ~2x faster and ~12x cheaper than glm-5.2 at the same pass rate,
+  // and glm-5.3 solved the hardest probe in the fewest turns of anything tried
+  // (at glm-5.2's list price), which is what you want on the escalation path.
   novita: {
     baseUrl: 'https://api.novita.ai/openai',
-    defaultModel: 'zai-org/glm-5.2',
+    defaultModel: 'deepseek/deepseek-v4-flash',
+    fallbackModel: 'zai-org/glm-5.3',
     keyEnvVars: ['NOVITA_API_KEY'],
   },
   openrouter: {
@@ -123,11 +135,12 @@ export const DEFAULT_PROVIDER = 'zhipu';
 export interface GlobalConfig {
   provider?: string;
   model?: string;
+  fallbackModel?: string;
   baseUrl?: string;
   apiKey?: string;
 }
 
-const CONFIG_KEYS: (keyof GlobalConfig)[] = ['provider', 'model', 'baseUrl', 'apiKey'];
+const CONFIG_KEYS: (keyof GlobalConfig)[] = ['provider', 'model', 'fallbackModel', 'baseUrl', 'apiKey'];
 
 export function globalConfigPath(): string {
   return path.join(rootDir(), 'config.json');
@@ -165,6 +178,7 @@ export interface ProviderOverrides {
   provider?: string;
   baseUrl?: string;
   model?: string;
+  fallbackModel?: string;
   apiKey?: string;
   temperature?: number;
 }
@@ -195,10 +209,25 @@ export function resolveProviderConfig(overrides: ProviderOverrides = {}): Provid
     provider,
     baseUrl: overrides.baseUrl || process.env.BROWSER_PILOT_BASE_URL || file.baseUrl || preset.baseUrl,
     model: overrides.model || process.env.BROWSER_PILOT_MODEL || file.model || preset.defaultModel,
+    // "none"/"off" is how a caller disables a preset's escalation tier without
+    // having to clear a config key it never set.
+    fallbackModel: normalizeFallback(
+      overrides.fallbackModel ||
+        process.env.BROWSER_PILOT_FALLBACK_MODEL ||
+        file.fallbackModel ||
+        preset.fallbackModel,
+    ),
     apiKey,
     temperature: overrides.temperature ?? 0,
     keyEnvVars,
   };
+}
+
+function normalizeFallback(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || /^(none|off|false)$/i.test(trimmed)) return undefined;
+  return trimmed;
 }
 
 export class OpenAICompatProvider implements Provider {

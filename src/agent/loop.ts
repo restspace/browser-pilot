@@ -62,6 +62,27 @@ export interface InstructionResult {
    * a clean success or a bail-out.
    */
   screenshots: string[];
+  /**
+   * Present only when the routine model left the instruction blocked and a
+   * stronger fallback model retried it. `report`/`turns`/`usage` above are then
+   * the COMBINED result (so cost accounting stays honest); this records what
+   * the first attempt cost and why the retry happened.
+   */
+  escalation?: EscalationRecord;
+}
+
+export interface EscalationRecord {
+  from: string;
+  to: string;
+  /** The blocked summary that triggered the retry. */
+  reason: string;
+  firstAttempt: {
+    status: Report['status'];
+    turns: number;
+    usage: { promptTokens: number; completionTokens: number; cachedTokens: number };
+  };
+  /** Whether the stronger model actually rescued the instruction. */
+  rescued: boolean;
 }
 
 /**
@@ -330,6 +351,87 @@ export async function runInstruction(
     },
     opts.maxTurns,
     true,
+  );
+}
+
+/**
+ * Run an instruction on the routine model and, if it comes back blocked, retry
+ * it once on a stronger fallback model.
+ *
+ * Why blocked only: `failure` is a verified negative answer (the assertion was
+ * checked and did not hold) — retrying it on a better model just buys the same
+ * answer twice. `blocked` means the agent could not determine the answer, which
+ * is precisely the failure mode a stronger model can rescue, and the one this
+ * project measured on a real app (a cheap model abandoned a supplier-autocomplete
+ * step after 29 turns that a stronger model then solved).
+ *
+ * The retry shares the SAME live browser and message history, so the fallback
+ * inherits everything the first attempt discovered — and, critically, is told it
+ * is resuming, so it verifies state before repeating anything destructive.
+ */
+export async function runEscalatingInstruction(
+  primary: Provider,
+  fallback: Provider | null,
+  browser: BrowserSession,
+  state: SessionState,
+  instruction: string,
+  opts: LoopOptions,
+): Promise<InstructionResult> {
+  const first = await runInstruction(primary, browser, state, instruction, opts);
+
+  const blocked = first.report.status === 'blocked';
+  // An operator `stop` also yields a blocked report — escalating there would
+  // restart work the operator just killed, which is the opposite of the ask.
+  const operatorStopped = Boolean(opts.signal?.aborted);
+  if (!fallback || !blocked || operatorStopped || fallback.model === primary.model) return first;
+
+  opts.onProgress?.(
+    `[escalating] ${primary.model} reported blocked — retrying on ${fallback.model}`,
+  );
+
+  const second = await runInstruction(
+    fallback,
+    browser,
+    state,
+    escalationPrompt(instruction, first),
+    opts,
+  );
+
+  return {
+    ...second,
+    turns: first.turns + second.turns,
+    usage: {
+      promptTokens: first.usage.promptTokens + second.usage.promptTokens,
+      completionTokens: first.usage.completionTokens + second.usage.completionTokens,
+      cachedTokens: first.usage.cachedTokens + second.usage.cachedTokens,
+    },
+    screenshots: [...first.screenshots, ...second.screenshots],
+    escalation: {
+      from: primary.model,
+      to: fallback.model,
+      reason: first.report.summary,
+      firstAttempt: { status: first.report.status, turns: first.turns, usage: first.usage },
+      rescued: second.report.status === 'success',
+    },
+  };
+}
+
+function escalationPrompt(instruction: string, first: InstructionResult): string {
+  const ran = first.actions?.length
+    ? `\nActions the previous attempt ran (most recent last):\n${first.actions
+        .map((a) => `  ${a.ok ? 'ok' : 'FAILED'} ${a.tool} ${a.args}`)
+        .join('\n')}`
+    : '';
+  const where = first.finalState ? `\nThe browser was left at: ${first.finalState.url}` : '';
+  return (
+    `You are RESUMING an instruction that a previous, weaker model could not complete. ` +
+    `It gave up with this report:\n"${first.report.summary}"${ran}${where}\n\n` +
+    `The browser session and the conversation above are that same attempt — nothing has been reset. ` +
+    `Before you repeat ANY state-changing action (submit, create, delete, move), observe the current ` +
+    `page and confirm whether it already took effect; the previous attempt may have partially ` +
+    `succeeded. Do not assume its conclusions were correct — it may have been stuck because it ` +
+    `misread the page or probed the wrong values, so re-examine the evidence yourself and look for an ` +
+    `approach it did not try.\n\nThe original instruction to complete is:\n${instruction}`
   );
 }
 

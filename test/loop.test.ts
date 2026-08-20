@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { ChatMessage, Completion, Provider, ToolDef } from '../src/agent/llm.js';
-import { runInstruction } from '../src/agent/loop.js';
+import { runEscalatingInstruction, runInstruction } from '../src/agent/loop.js';
 import type { BrowserSession } from '../src/daemon/browser.js';
 import { SessionState } from '../src/daemon/state.js';
 
@@ -296,5 +296,153 @@ describe('history trimming', () => {
     const b = new SessionState('t-persist');
     expect(b.briefing).toBe('the guide');
     expect(b.notes).toEqual(['runid is k7x2']);
+  });
+});
+
+/** Names the provider so escalation assertions can tell the two tiers apart. */
+function named(model: string, script: Parameters<typeof scriptedProvider>[0]): Provider {
+  return { ...scriptedProvider(script), model };
+}
+
+describe('escalate-on-blocked', () => {
+  const blocks = (summary = 'could not find the supplier') => [
+    { toolCalls: [reportCall({ status: 'blocked', summary })] },
+  ];
+  const succeeds = (summary = 'done on the second tier') => [
+    { toolCalls: [reportCall({ status: 'success', summary })] },
+  ];
+
+  it('retries a blocked instruction on the fallback and returns its result', async () => {
+    const state = new SessionState('t-esc-rescue');
+    const primary = named('cheap', blocks());
+    const fallback = named('smart', succeeds());
+    const result = await runEscalatingInstruction(primary, fallback, browserStub, state, 'do it', loopOpts);
+
+    expect(result.report.status).toBe('success');
+    expect(result.escalation).toMatchObject({ from: 'cheap', to: 'smart', rescued: true });
+    expect(result.escalation?.reason).toMatch(/could not find the supplier/);
+    expect(result.escalation?.firstAttempt.status).toBe('blocked');
+  });
+
+  it('bills BOTH attempts so escalation cannot hide its cost', async () => {
+    const state = new SessionState('t-esc-usage');
+    const result = await runEscalatingInstruction(
+      named('cheap', blocks()),
+      named('smart', succeeds()),
+      browserStub,
+      state,
+      'do it',
+      loopOpts,
+    );
+    // one turn each, at the stub's 100/10/40 per completion
+    expect(result.turns).toBe(2);
+    expect(result.usage.promptTokens).toBe(200);
+    expect(result.usage.completionTokens).toBe(20);
+    expect(result.usage.cachedTokens).toBe(80);
+  });
+
+  it('tells the fallback it is resuming a live session, not starting clean', async () => {
+    const state = new SessionState('t-esc-prompt');
+    await runEscalatingInstruction(
+      named('cheap', blocks('gave up probing the autocomplete')),
+      named('smart', succeeds()),
+      browserStub,
+      state,
+      'create the order',
+      loopOpts,
+    );
+    const handoff = state.messages.find(
+      (m) => m.role === 'user' && typeof m.content === 'string' && m.content.includes('RESUMING'),
+    );
+    expect(handoff).toBeTruthy();
+    const text = String(handoff!.content);
+    // must carry the original ask, the reason it stalled, and the double-apply guard
+    expect(text).toContain('create the order');
+    expect(text).toContain('gave up probing the autocomplete');
+    expect(text).toMatch(/before you repeat any state-changing action/i);
+  });
+
+  it('does NOT retry a verified failure — that is an answer, not a dead end', async () => {
+    const state = new SessionState('t-esc-failure');
+    let fallbackCalled = false;
+    const fallback: Provider = {
+      model: 'smart',
+      async complete() {
+        fallbackCalled = true;
+        throw new Error('fallback must not run');
+      },
+    };
+    const result = await runEscalatingInstruction(
+      named('cheap', [{ toolCalls: [reportCall({ status: 'failure', summary: 'price was 125, expected 133.33' })] }]),
+      fallback,
+      browserStub,
+      state,
+      'check the price',
+      loopOpts,
+    );
+    expect(result.report.status).toBe('failure');
+    expect(fallbackCalled).toBe(false);
+    expect(result.escalation).toBeUndefined();
+  });
+
+  it('does NOT retry after an operator stop — the run was killed on purpose', async () => {
+    const state = new SessionState('t-esc-stopped');
+    let fallbackCalled = false;
+    const fallback: Provider = {
+      model: 'smart',
+      async complete() {
+        fallbackCalled = true;
+        return { text: null, toolCalls: [], assistantMessage: { role: 'assistant', content: null }, usage: { promptTokens: 0, completionTokens: 0, cachedTokens: 0 } };
+      },
+    };
+    const controller = new AbortController();
+    controller.abort();
+    const result = await runEscalatingInstruction(
+      named('cheap', blocks()),
+      fallback,
+      browserStub,
+      state,
+      'do it',
+      { ...loopOpts, signal: controller.signal },
+    );
+    expect(result.report.status).toBe('blocked');
+    expect(fallbackCalled).toBe(false);
+    expect(result.escalation).toBeUndefined();
+  });
+
+  it('skips escalation when there is no fallback, or it is the same model', async () => {
+    const noFallback = await runEscalatingInstruction(
+      named('cheap', blocks()),
+      null,
+      browserStub,
+      new SessionState('t-esc-none'),
+      'do it',
+      loopOpts,
+    );
+    expect(noFallback.escalation).toBeUndefined();
+
+    const sameModel = await runEscalatingInstruction(
+      named('cheap', blocks()),
+      named('cheap', succeeds()),
+      browserStub,
+      new SessionState('t-esc-same'),
+      'do it',
+      loopOpts,
+    );
+    expect(sameModel.escalation).toBeUndefined();
+    expect(sameModel.report.status).toBe('blocked');
+  });
+
+  it('records an unrescued escalation rather than pretending it worked', async () => {
+    const result = await runEscalatingInstruction(
+      named('cheap', blocks()),
+      named('smart', blocks('still stuck')),
+      browserStub,
+      new SessionState('t-esc-nofix'),
+      'do it',
+      loopOpts,
+    );
+    expect(result.report.status).toBe('blocked');
+    expect(result.escalation).toMatchObject({ rescued: false, to: 'smart' });
   });
 });
