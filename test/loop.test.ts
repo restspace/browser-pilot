@@ -466,6 +466,59 @@ describe('escalate-on-blocked', () => {
     expect(result.turns).toBe(1 + 4); // plain cap, not 6
   });
 
+  it('blanks fat tool results without dropping the messages that answer a tool call', () => {
+    const state = new SessionState('t-compact-unit');
+    state.messages.push(
+      { role: 'user', content: 'go' },
+      {
+        role: 'assistant',
+        content: null,
+        tool_calls: [{ id: 'a1', type: 'function', function: { name: 'snapshot', arguments: '{}' } }],
+      },
+      { role: 'tool', tool_call_id: 'a1', content: 'x'.repeat(6000) },
+      { role: 'tool', tool_call_id: 'a2', content: 'ok' }, // already tiny
+    );
+    const { elided, charsSaved } = state.compactToolResults(0);
+    expect(elided).toBe(1);
+    expect(charsSaved).toBeGreaterThan(5000);
+    // structure intact: the tool answer for a1 still exists, just smaller
+    const answer = state.messages.find((m) => m.role === 'tool' && m.tool_call_id === 'a1')!;
+    expect(answer).toBeTruthy();
+    expect(answer.content.length).toBeLessThan(300);
+    // a result already cheaper than the stub is left alone
+    expect(state.messages.find((m) => m.role === 'tool' && m.tool_call_id === 'a2')!.content).toBe('ok');
+    // idempotent — a second pass finds nothing left to shrink
+    expect(state.compactToolResults(0).elided).toBe(0);
+  });
+
+  it('leaves earlier instructions untouched when compacting a failed attempt', async () => {
+    const state = new SessionState('t-esc-scope');
+    // instruction 1 succeeds and leaves a real tool result in history
+    await runInstruction(
+      named('cheap', [
+        { toolCalls: [{ id: 'p1', name: 'read', args: { target: '#a', what: 'text' }, rawArgs: '{}' }] },
+        { toolCalls: [reportCall({ status: 'success', summary: 'first done' })] },
+      ]),
+      browserStub,
+      state,
+      'first instruction',
+      loopOpts,
+    );
+    const earlier = state.messages.find((m) => m.role === 'tool' && m.tool_call_id === 'p1')!;
+    const before = earlier.content;
+
+    // instruction 2 blocks and escalates → only ITS results should be compacted
+    await runEscalatingInstruction(
+      named('cheap', [{ toolCalls: [reportCall({ status: 'blocked', summary: 'stuck' })] }]),
+      named('smart', succeeds()),
+      browserStub,
+      state,
+      'second instruction',
+      loopOpts,
+    );
+    expect(earlier.content).toBe(before);
+  });
+
   it('records an unrescued escalation rather than pretending it worked', async () => {
     const result = await runEscalatingInstruction(
       named('cheap', blocks()),

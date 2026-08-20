@@ -4,6 +4,8 @@ import type { ChatMessage } from '../agent/llm.js';
 import { ensureSessionDir } from '../shared/paths.js';
 
 const ELIDED = '[elided older tool result — re-inspect the page if needed]';
+const FAILED_ATTEMPT_STUB =
+  '[tool result from the previous, unsuccessful attempt — elided; its outcome is summarised in the handoff message, and the page can be re-observed if you need this]';
 const SNAPSHOT_STUB =
   '[snapshot superseded by a newer snapshot or navigation — its @refs are stale; re-snapshot if you need fresh refs]';
 
@@ -71,6 +73,35 @@ export class SessionState {
       this.messages.shift();
       while (this.messages.length && this.messages[0].role === 'tool') this.messages.shift();
     }
+  }
+
+  /**
+   * Replace tool-result payloads from `fromIndex` onward with a short stub.
+   *
+   * Used at the escalation handoff. The retry prompt already carries the
+   * distilled record of the failed attempt (its report, its ordered actions,
+   * where it left the browser), so re-sending the raw transcript underneath
+   * that is pure duplication — and the escalation model re-reads it on EVERY
+   * turn at a much higher cache rate. Measured on a real 10-step run: the
+   * fallback's cached history re-reads alone were 45% of the whole run's cost.
+   *
+   * Structure is preserved rather than pruned: an assistant message carrying
+   * tool_calls must still be answered by a tool message with the matching id,
+   * or the next request is malformed. So results are blanked, never dropped.
+   */
+  compactToolResults(fromIndex: number): { elided: number; charsSaved: number } {
+    let elided = 0;
+    let charsSaved = 0;
+    for (let i = Math.max(0, fromIndex); i < this.messages.length; i++) {
+      const m = this.messages[i];
+      if (m.role !== 'tool') continue;
+      if (m.content === FAILED_ATTEMPT_STUB) continue;
+      if (m.content.length <= FAILED_ATTEMPT_STUB.length) continue; // already cheaper than the stub
+      charsSaved += m.content.length - FAILED_ATTEMPT_STUB.length;
+      m.content = FAILED_ATTEMPT_STUB;
+      elided++;
+    }
+    return { elided, charsSaved };
   }
 
   /**

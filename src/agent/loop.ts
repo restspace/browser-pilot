@@ -98,6 +98,8 @@ export interface EscalationRecord {
   };
   /** Whether the stronger model actually rescued the instruction. */
   rescued: boolean;
+  /** Tool results blanked from the failed attempt before the retry saw it. */
+  compactedToolResults: number;
 }
 
 /**
@@ -151,13 +153,17 @@ export async function runInstruction(
     state.usage.completionTokens += usage.completionTokens;
     state.usage.cachedTokens += usage.cachedTokens;
     state.usage.instructions += 1;
-    const finalState = blockedTail ? await captureFinalState(browser) : undefined;
+    // Any blocked outcome carries its evidence, not just loop-enforced bail-outs:
+    // an agent that declares itself stuck is exactly when a caller — or the
+    // escalation model — needs to know what already ran. Clean successes stay lean.
+    const includeTail = blockedTail || report.status === 'blocked';
+    const finalState = includeTail ? await captureFinalState(browser) : undefined;
     return {
       report,
       turns,
       usage,
       screenshots,
-      ...(blockedTail ? { transcriptTail: transcript.slice(-12), actions: actions.slice(-40) } : {}),
+      ...(includeTail ? { transcriptTail: transcript.slice(-12), actions: actions.slice(-40) } : {}),
       ...(finalState ? { finalState } : {}),
       ...(bailReason ? { bailReason } : {}),
     };
@@ -403,6 +409,10 @@ export async function runEscalatingInstruction(
   instruction: string,
   opts: LoopOptions,
 ): Promise<InstructionResult> {
+  // Where this instruction's history starts, so the failed attempt can be
+  // compacted on handoff without touching earlier instructions (which are
+  // already cached and were not the thing that went wrong).
+  const historyMark = state.messages.length;
   const first = await runInstruction(primary, browser, state, instruction, opts);
 
   const blocked = first.report.status === 'blocked';
@@ -423,9 +433,17 @@ export async function runEscalatingInstruction(
     ...(first.bailReason === 'timeout' ? { timeoutMs: headroom(opts.timeoutMs) } : {}),
   };
 
+  // Hand the stronger model a clean brief, not a transcript of the failure.
+  // escalationPrompt() below already carries what mattered — the blocked
+  // report, the ordered actions log, where the browser was left — so leaving
+  // the raw tool results in place would re-send that same information every
+  // turn at the escalation tier's (much higher) cache rate.
+  const compacted = state.compactToolResults(historyMark);
+
   opts.onProgress?.(
     `[escalating] ${primary.model} reported blocked (${first.bailReason ?? 'agent gave up'}) — ` +
-      `retrying on ${fallback.model}${escalatedOpts.maxTurns !== opts.maxTurns ? ` with ${escalatedOpts.maxTurns} turns` : ''}`,
+      `retrying on ${fallback.model}${escalatedOpts.maxTurns !== opts.maxTurns ? ` with ${escalatedOpts.maxTurns} turns` : ''}` +
+      `${compacted.elided ? `, compacted ${compacted.elided} tool result(s) (~${Math.round(compacted.charsSaved / 4000)}k tokens/turn saved)` : ''}`,
   );
 
   const second = await runInstruction(
@@ -451,6 +469,7 @@ export async function runEscalatingInstruction(
       reason: first.report.summary,
       firstAttempt: { status: first.report.status, turns: first.turns, usage: first.usage },
       rescued: second.report.status === 'success',
+      compactedToolResults: compacted.elided,
     },
   };
 }
@@ -465,7 +484,9 @@ function escalationPrompt(instruction: string, first: InstructionResult): string
   return (
     `You are RESUMING an instruction that a previous, weaker model could not complete. ` +
     `It gave up with this report:\n"${first.report.summary}"${ran}${where}\n\n` +
-    `The browser session and the conversation above are that same attempt — nothing has been reset. ` +
+    `The browser session is that same attempt — nothing has been reset — but the previous attempt's ` +
+    `raw tool output has been elided from the conversation above to keep it small, so treat the ` +
+    `summary and action list here as the record of it and re-observe the page for anything you need. ` +
     `Before you repeat ANY state-changing action (submit, create, delete, move), observe the current ` +
     `page and confirm whether it already took effect; the previous attempt may have partially ` +
     `succeeded. Do not assume its conclusions were correct — it may have been stuck because it ` +

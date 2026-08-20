@@ -197,6 +197,14 @@ Escalation deliberately does **not** fire for:
 - **operator `stop`** — that also produces a blocked report, and restarting work someone just
   killed is the opposite of what they asked for.
 
+The failed attempt's **raw tool results are compacted away** before the fallback sees them. The
+handoff message already carries what mattered — the blocked report, the ordered actions log, where
+the browser was left — so leaving the transcript in place would re-send the same information on
+every turn at the escalation tier's much higher cache rate. (Measured on a real 10-step run: the
+fallback's cached history re-reads alone were 45% of the whole run's cost.) Message *structure* is
+preserved, never pruned — an assistant `tool_calls` message must keep its matching answer — and
+earlier instructions are untouched.
+
 When the first attempt bailed by **exhausting its turn cap or timeout**, the retry gets 1.5× that
 budget. Running out of road is positive evidence that the instruction needs more of it, and handing
 the fallback the same allowance mostly buys a second bail-out at the same wall. An agent that
