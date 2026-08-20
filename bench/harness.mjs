@@ -233,23 +233,45 @@ async function collectInnerUsage() {
   }
 }
 
+/**
+ * Retries transport failures as well as 429/5xx. A benchmark run is long and
+ * expensive — a single dropped connection three-quarters of the way through
+ * otherwise discards the whole run, which is exactly what happened on the first
+ * costed attempt. Only 4xx (a request the server understood and rejected) is
+ * treated as terminal.
+ */
 async function post(body, headers) {
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const res = await fetch(provider.url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', ...headers },
-      body: JSON.stringify(body),
-    });
-    if (res.status === 429 || res.status >= 500) {
-      const wait = 2000 * (attempt + 1);
-      log({ k: 'retry', status: res.status, wait });
+  const ATTEMPTS = 6;
+  let lastErr = null;
+  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+    if (attempt) {
+      const wait = Math.min(30_000, 2000 * 2 ** (attempt - 1));
+      log({ k: 'retry', attempt, wait, reason: lastErr });
       await new Promise((r) => setTimeout(r, wait));
+    }
+    let res;
+    try {
+      res = await fetch(provider.url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...headers },
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      lastErr = `transport: ${err?.message ?? err}`;
+      continue;
+    }
+    if (res.status === 429 || res.status >= 500) {
+      lastErr = `HTTP ${res.status}`;
       continue;
     }
     if (!res.ok) throw new Error(`API ${res.status}: ${(await res.text()).slice(0, 500)}`);
-    return res.json();
+    try {
+      return await res.json();
+    } catch (err) {
+      lastErr = `bad JSON: ${err?.message ?? err}`;
+    }
   }
-  throw new Error('model call failed after retries');
+  throw new Error(`model call failed after ${ATTEMPTS} attempts (last: ${lastErr})`);
 }
 
 /**
@@ -413,6 +435,24 @@ try {
 }
 
 await collectInnerUsage();
+
+/**
+ * Release the run's browser. Each arm keeps its session alive between commands
+ * by design, so a sweep of runs would otherwise leave a daemon and a browser
+ * per run. Runs after usage collection, and failures here are logged rather
+ * than thrown — losing a completed run's results to a cleanup error would be
+ * worse than leaking a process.
+ */
+try {
+  const stop =
+    args.arm === 'browser-pilot'
+      ? `${arm.bin} stop --session ${runid}`
+      : `${arm.bin} --session ${runid} close`;
+  const r = await runCommand(stop);
+  log({ k: 'cleanup', cmd: stop, code: r.code });
+} catch (err) {
+  log({ k: 'cleanup-failed', message: String(err) });
+}
 
 const result = {
   arm: args.arm,
