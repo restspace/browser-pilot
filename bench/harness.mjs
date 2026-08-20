@@ -59,7 +59,13 @@ const PROVIDERS = {
 };
 
 function parseArgs(argv) {
-  const out = { maxTurns: 120, timeoutMs: 180_000 };
+  // The per-command timeout must sit ABOVE the slowest legitimate command in
+  // either arm, or it silently truncates work and looks like a tool failure.
+  // browser-pilot's own default instruction budget is 300s, and an escalated
+  // instruction may take 300 + 1.5x300 before it returns; agent-browser's
+  // commands are seconds, with a 25s worst case. 900s clears both. This is a
+  // backstop against a wedged process, not a budget.
+  const out = { maxTurns: 120, timeoutMs: 900_000 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
