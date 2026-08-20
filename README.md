@@ -197,10 +197,16 @@ Escalation deliberately does **not** fire for:
 - **operator `stop`** — that also produces a blocked report, and restarting work someone just
   killed is the opposite of what they asked for.
 
+When the first attempt bailed by **exhausting its turn cap or timeout**, the retry gets 1.5× that
+budget. Running out of road is positive evidence that the instruction needs more of it, and handing
+the fallback the same allowance mostly buys a second bail-out at the same wall. An agent that
+*chose* to report blocked gets no such bump — that is not evidence more turns would help.
+
 Both attempts are billed into the returned `turns` and `usage`, so escalation cannot hide its
 cost, and an `escalation` object reports what the first attempt spent, why it stalled, and
-whether the retry actually rescued it (`rescued: true|false`). Disable per call with
-`--no-escalate`, or globally by setting the fallback model to `none`.
+whether the retry actually rescued it (`rescued: true|false`). Bail-outs also carry a
+`bailReason` (`turn-cap` | `timeout` | `stalled` | `stopped` | `invalid-report`). Disable per call
+with `--no-escalate`, or globally by setting the fallback model to `none`.
 
 Any other OpenAI-compatible endpoint works by setting `baseUrl` + `model` directly. Mainland Zhipu
 is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use

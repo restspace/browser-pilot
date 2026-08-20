@@ -433,6 +433,39 @@ describe('escalate-on-blocked', () => {
     expect(sameModel.report.status).toBe('blocked');
   });
 
+  it('gives the fallback more turns when the first attempt hit the turn cap', async () => {
+    // primary never reports → exhausts maxTurns; fallback records what cap it got
+    // neither tier ever reports, so each runs to exactly its own cap
+    const acts = [{ toolCalls: [{ id: 'c1', name: 'snapshot', args: {}, rawArgs: '{}' }] }];
+    const result = await runEscalatingInstruction(
+      named('cheap', acts),
+      named('smart', acts),
+      browserStub,
+      new SessionState('t-esc-turns'),
+      'do it',
+      { ...loopOpts, maxTurns: 4 },
+    );
+    expect(result.escalation?.firstAttempt.turns).toBe(4);
+    expect(result.bailReason).toBe('turn-cap');
+    // fallback got ceil(4 * 1.5) = 6, not another flat 4
+    expect(result.turns).toBe(4 + 6);
+  });
+
+  it('does not inflate the budget when the agent chose to report blocked', async () => {
+    // an agent-declared block is not evidence that more turns would have helped
+    const acts = [{ toolCalls: [{ id: 'c1', name: 'snapshot', args: {}, rawArgs: '{}' }] }];
+    const result = await runEscalatingInstruction(
+      named('cheap', blocks()), // reports blocked on turn 1, no cap involved
+      named('smart', acts), // never reports → runs to its own cap
+      browserStub,
+      new SessionState('t-esc-nobump'),
+      'do it',
+      { ...loopOpts, maxTurns: 4 },
+    );
+    expect(result.escalation?.firstAttempt.turns).toBe(1);
+    expect(result.turns).toBe(1 + 4); // plain cap, not 6
+  });
+
   it('records an unrescued escalation rather than pretending it worked', async () => {
     const result = await runEscalatingInstruction(
       named('cheap', blocks()),

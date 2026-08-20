@@ -18,6 +18,13 @@ export const DEFAULT_TURN_TIMEOUT_MS = 90_000;
  */
 const MAX_UNPRODUCTIVE_TURNS = 3;
 
+/**
+ * Extra turn/time budget the escalation attempt gets when the routine model
+ * bailed by exhausting its own. Deliberately modest: the point is to clear a
+ * wall the first attempt proved is there, not to let one instruction run away.
+ */
+const ESCALATION_BUDGET_MULTIPLIER = 1.5;
+
 export interface LoopOptions {
   maxTurns: number;
   timeoutMs: number;
@@ -69,7 +76,15 @@ export interface InstructionResult {
    * the first attempt cost and why the retry happened.
    */
   escalation?: EscalationRecord;
+  /**
+   * Why the loop gave up, when it did. Lets a caller (notably the escalation
+   * path) distinguish "ran out of road" from "decided it was stuck" instead of
+   * pattern-matching the summary prose.
+   */
+  bailReason?: BailReason;
 }
+
+export type BailReason = 'turn-cap' | 'timeout' | 'stalled' | 'stopped' | 'invalid-report';
 
 export interface EscalationRecord {
   from: string;
@@ -122,7 +137,12 @@ export async function runInstruction(
   /** Only for the failure modes where the agent never got going by itself. */
   const narrowHint = ' Re-run with one concrete artifact per instruction.';
 
-  const finish = async (report: Report, turns: number, blockedTail = false): Promise<InstructionResult> => {
+  const finish = async (
+    report: Report,
+    turns: number,
+    blockedTail = false,
+    bailReason?: BailReason,
+  ): Promise<InstructionResult> => {
     state.messages.push({
       role: 'assistant',
       content: `[report] ${report.status}: ${report.summary}`,
@@ -139,6 +159,7 @@ export async function runInstruction(
       screenshots,
       ...(blockedTail ? { transcriptTail: transcript.slice(-12), actions: actions.slice(-40) } : {}),
       ...(finalState ? { finalState } : {}),
+      ...(bailReason ? { bailReason } : {}),
     };
   };
 
@@ -150,6 +171,7 @@ export async function runInstruction(
       },
       turns,
       true,
+      'timeout',
     );
 
   const stalled = (turns: number) =>
@@ -160,6 +182,7 @@ export async function runInstruction(
       },
       turns,
       true,
+      'stalled',
     );
 
   /**
@@ -207,6 +230,7 @@ export async function runInstruction(
         },
         turn - 1,
         true,
+        'stopped',
       );
     }
     if (Date.now() > deadline) return timedOut(turn - 1);
@@ -302,6 +326,7 @@ export async function runInstruction(
             },
             turn,
             true,
+            'invalid-report',
           );
         }
         reportRetried = true;
@@ -351,6 +376,7 @@ export async function runInstruction(
     },
     opts.maxTurns,
     true,
+    'turn-cap',
   );
 }
 
@@ -385,8 +411,21 @@ export async function runEscalatingInstruction(
   const operatorStopped = Boolean(opts.signal?.aborted);
   if (!fallback || !blocked || operatorStopped || fallback.model === primary.model) return first;
 
+  // A first attempt that exhausted its turn/time budget is positive evidence
+  // that the instruction needs MORE of that budget — handing the fallback the
+  // same allowance mostly buys a second bail-out at the same wall. Measured on
+  // a real app: both tiers hit a 30-turn cap on one step that the routine model
+  // then completed in 19 turns once the cap was raised.
+  const headroom = (n: number) => Math.ceil(n * ESCALATION_BUDGET_MULTIPLIER);
+  const escalatedOpts: LoopOptions = {
+    ...opts,
+    ...(first.bailReason === 'turn-cap' ? { maxTurns: headroom(opts.maxTurns) } : {}),
+    ...(first.bailReason === 'timeout' ? { timeoutMs: headroom(opts.timeoutMs) } : {}),
+  };
+
   opts.onProgress?.(
-    `[escalating] ${primary.model} reported blocked — retrying on ${fallback.model}`,
+    `[escalating] ${primary.model} reported blocked (${first.bailReason ?? 'agent gave up'}) — ` +
+      `retrying on ${fallback.model}${escalatedOpts.maxTurns !== opts.maxTurns ? ` with ${escalatedOpts.maxTurns} turns` : ''}`,
   );
 
   const second = await runInstruction(
@@ -394,7 +433,7 @@ export async function runEscalatingInstruction(
     browser,
     state,
     escalationPrompt(instruction, first),
-    opts,
+    escalatedOpts,
   );
 
   return {
