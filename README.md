@@ -83,7 +83,9 @@ browser-pilot config
 - `do` prints a one-line human result, or the full report with `--json`:
   `{report: {status, summary, details?, evidence?}, turns, usage, model}`. On a turn/time-cap
   bail-out the result also carries `actions` — the ordered tool calls that ran, so you can verify
-  state before resuming rather than blindly repeating a mutation.
+  state before resuming rather than blindly repeating a mutation. If a blocked instruction was
+  retried on the escalation model, `escalation` records that handoff and `turns`/`usage` cover
+  both attempts (see [Escalation on blocked](#escalation-on-blocked)).
 - `--verbose` streams the internal agent's actions and a per-instruction token count to stderr;
   `--progress` streams just the actions (turn-numbered) and composes with `--json`.
 - Nothing else lands in your context — the internal agent's snapshots, retries, and tool chatter
@@ -165,21 +167,40 @@ is not), `goto`, `back`, `tabs`, `upload`, `download`, `set_viewport`, `set_offl
 
 The LLM layer is a generic OpenAI-compatible adapter with named presets:
 
-| Preset | Base URL | Default model | Key env var |
-|---|---|---|---|
-| `zhipu` (default) | `https://api.z.ai/api/paas/v4` | `glm-5.2` | `GLM_API_KEY` / `ZHIPU_API_KEY` |
-| `novita` | `https://api.novita.ai/openai` | `zai-org/glm-5.2` | `NOVITA_API_KEY` |
-| `openrouter` | `https://openrouter.ai/api/v1` | `z-ai/glm-5.2` | `OPENROUTER_API_KEY` |
-| `openai` | `https://api.openai.com/v1` | `gpt-5-mini` | `OPENAI_API_KEY` |
+| Preset | Base URL | Default model | Escalation model | Key env var |
+|---|---|---|---|---|
+| `zhipu` (default) | `https://api.z.ai/api/paas/v4` | `glm-5.2` | — | `GLM_API_KEY` / `ZHIPU_API_KEY` |
+| `novita` | `https://api.novita.ai/openai` | `deepseek/deepseek-v4-flash` | `zai-org/glm-5.3` | `NOVITA_API_KEY` |
+| `openrouter` | `https://openrouter.ai/api/v1` | `z-ai/glm-5.2` | — | `OPENROUTER_API_KEY` |
+| `openai` | `https://api.openai.com/v1` | `gpt-5-mini` | — | `OPENAI_API_KEY` |
 
 Every field resolves with the precedence **flag > env > config file > preset**:
 
-- flags: `--provider`, `--model`, `--base-url` (per `do` call)
-- env: `BROWSER_PILOT_PROVIDER`, `BROWSER_PILOT_MODEL`, `BROWSER_PILOT_BASE_URL`,
-  `BROWSER_PILOT_API_KEY` (key accepted for any provider)
-- config file: `browser-pilot config set <provider|model|baseUrl|apiKey> <value>` →
+- flags: `--provider`, `--model`, `--base-url`, `--fallback-model` (per `do` call)
+- env: `BROWSER_PILOT_PROVIDER`, `BROWSER_PILOT_MODEL`, `BROWSER_PILOT_FALLBACK_MODEL`,
+  `BROWSER_PILOT_BASE_URL`, `BROWSER_PILOT_API_KEY` (key accepted for any provider)
+- config file: `browser-pilot config set <provider|model|fallbackModel|baseUrl|apiKey> <value>` →
   `~/.browser-pilot/config.json`, re-read on every instruction (no daemon restart needed);
   `config set <key> ""` clears. Prefer env for the key — `config set apiKey` stores it in plaintext.
+
+### Escalation on blocked
+
+Where a preset defines an escalation model, an instruction the routine model reports as
+**`blocked`** is retried once on that stronger model, sharing the same live browser and message
+history. The fallback is told it is *resuming*, so it re-checks page state before repeating any
+action that could double-apply (submit, delete, move).
+
+Escalation deliberately does **not** fire for:
+
+- **`failure`** — a verified negative answer. The agent checked and the assertion did not hold;
+  paying a stronger model to confirm it buys the same answer twice.
+- **operator `stop`** — that also produces a blocked report, and restarting work someone just
+  killed is the opposite of what they asked for.
+
+Both attempts are billed into the returned `turns` and `usage`, so escalation cannot hide its
+cost, and an `escalation` object reports what the first attempt spent, why it stalled, and
+whether the retry actually rescued it (`rescued: true|false`). Disable per call with
+`--no-escalate`, or globally by setting the fallback model to `none`.
 
 Any other OpenAI-compatible endpoint works by setting `baseUrl` + `model` directly. Mainland Zhipu
 is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
