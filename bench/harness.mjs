@@ -310,11 +310,17 @@ function httpPost(url, body, headers) {
  * treated as terminal.
  */
 async function post(body, headers) {
-  const ATTEMPTS = 6;
+  // Patient by design. A browser-pilot run takes 40+ minutes of wall clock and
+  // real money, and the model API is the one component whose failure discards
+  // ALL of it — the local browser work survives fine. Six attempts capped at
+  // 30s tolerated about a minute of outage, which lost a run to a DNS blip.
+  // This tolerates roughly a quarter of an hour, which is the right trade when
+  // the alternative is throwing away completed work.
+  const ATTEMPTS = 20;
   let lastErr = null;
   for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
     if (attempt) {
-      const wait = Math.min(30_000, 2000 * 2 ** (attempt - 1));
+      const wait = Math.min(60_000, 2000 * 2 ** (attempt - 1));
       log({ k: 'retry', attempt, wait, reason: lastErr });
       await new Promise((r) => setTimeout(r, wait));
     }
