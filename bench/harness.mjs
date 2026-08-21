@@ -25,6 +25,7 @@
  */
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import https from 'node:https';
 import path from 'node:path';
 
 const ARMS = {
@@ -234,6 +235,50 @@ async function collectInnerUsage() {
 }
 
 /**
+ * One request, one TCP connection, explicitly NOT pooled.
+ *
+ * The browser-pilot arm leaves multi-minute gaps between model calls, because a
+ * single `do` is a whole sub-agent run — observed gaps of 439s and 687s here.
+ * A pooled keep-alive socket is long dead by the time the next call reuses it,
+ * and global fetch hands the dead socket back: two long runs died that way,
+ * one of them after six backed-off retries. agent-browser's arm never sees it,
+ * its commands taking seconds — so pooling penalises one arm for the shape of
+ * its work rather than its merits. `keepAlive: false` removes the variable.
+ */
+function httpPost(url, body, headers) {
+  const payload = JSON.stringify(body);
+  const u = new URL(url);
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        method: 'POST',
+        hostname: u.hostname,
+        port: u.port || 443,
+        path: u.pathname + u.search,
+        agent: new https.Agent({ keepAlive: false }),
+        headers: {
+          'content-type': 'application/json',
+          'content-length': Buffer.byteLength(payload),
+          connection: 'close',
+          ...headers,
+        },
+        timeout: 300_000,
+      },
+      (res) => {
+        let text = '';
+        res.setEncoding('utf8');
+        res.on('data', (d) => (text += d));
+        res.on('end', () => resolve({ status: res.statusCode ?? 0, text }));
+      },
+    );
+    req.on('timeout', () => req.destroy(new Error('request timeout')));
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+/**
  * Retries transport failures as well as 429/5xx. A benchmark run is long and
  * expensive — a single dropped connection three-quarters of the way through
  * otherwise discards the whole run, which is exactly what happened on the first
@@ -251,11 +296,7 @@ async function post(body, headers) {
     }
     let res;
     try {
-      res = await fetch(provider.url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', ...headers },
-        body: JSON.stringify(body),
-      });
+      res = await httpPost(provider.url, body, headers);
     } catch (err) {
       lastErr = `transport: ${err?.message ?? err}`;
       continue;
@@ -264,9 +305,9 @@ async function post(body, headers) {
       lastErr = `HTTP ${res.status}`;
       continue;
     }
-    if (!res.ok) throw new Error(`API ${res.status}: ${(await res.text()).slice(0, 500)}`);
+    if (res.status >= 400) throw new Error(`API ${res.status}: ${res.text.slice(0, 500)}`);
     try {
-      return await res.json();
+      return JSON.parse(res.text);
     } catch (err) {
       lastErr = `bad JSON: ${err?.message ?? err}`;
     }
