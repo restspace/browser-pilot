@@ -106,7 +106,31 @@ if (!apiKey) {
 fs.mkdirSync(outDir, { recursive: true });
 const transcriptPath = path.join(outDir, `${runid}-${args.arm}-transcript.jsonl`);
 const transcript = fs.createWriteStream(transcriptPath, { flags: 'w' });
-const log = (obj) => transcript.write(JSON.stringify(obj) + '\n');
+
+/**
+ * Values that must never reach a transcript. The task file substitutes real
+ * credentials in, and the orchestrator then puts them verbatim into commands
+ * ("... sign in with password X ..."), so an unredacted transcript cannot be
+ * published — which defeats the point of keeping raw runs for scrutiny.
+ */
+const SECRETS = ['APP_PASSWORD', 'APP_EMAIL']
+  .map((k) => process.env[k])
+  .filter((v) => v && v.length > 3);
+
+function redact(value) {
+  if (typeof value === 'string') {
+    let out = value;
+    for (const s of SECRETS) out = out.split(s).join('«redacted»');
+    return out;
+  }
+  if (Array.isArray(value)) return value.map(redact);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redact(v)]));
+  }
+  return value;
+}
+
+const log = (obj) => transcript.write(JSON.stringify(redact(obj)) + '\n');
 
 /**
  * Placeholder substitution keeps credentials and hostnames out of the
@@ -305,7 +329,23 @@ async function post(body, headers) {
       lastErr = `HTTP ${res.status}`;
       continue;
     }
-    if (res.status >= 400) throw new Error(`API ${res.status}: ${res.text.slice(0, 500)}`);
+    if (res.status >= 400) {
+      // Record the SHAPE of the rejected request — roles and field names only,
+      // never content. A bare "invalid request error" is undiagnosable without
+      // knowing which message shape provoked it, and message content carries
+      // the app credentials.
+      log({
+        k: 'rejected-request',
+        status: res.status,
+        body: res.text.slice(0, 300),
+        shape: (body.messages ?? []).map((m) => ({
+          role: m.role,
+          keys: Object.keys(m),
+          toolCalls: Array.isArray(m.tool_calls) ? m.tool_calls.length : undefined,
+        })),
+      });
+      throw new Error(`API ${res.status}: ${res.text.slice(0, 500)}`);
+    }
     try {
       return JSON.parse(res.text);
     } catch (err) {
@@ -391,8 +431,26 @@ const adapters = {
       const raw = (msg.tool_calls ?? []).filter((c) => c?.function?.name === TOOL_NAME);
       const u = reply.usage ?? {};
       const cached = u.prompt_tokens_details?.cached_tokens ?? 0;
+      // Rebuild the assistant message from just the fields the wire format
+      // defines, rather than echoing the provider's own object back. Reasoning
+      // models return extra keys (reasoning_content and friends) that the same
+      // endpoint then rejects on the next request with a bare 400 — which
+      // killed a run at turn 2 with no indication of which field was at fault.
+      const assistant = {
+        role: 'assistant',
+        content: msg.content ?? null,
+        ...(raw.length
+          ? {
+              tool_calls: raw.map((c, i) => ({
+                id: c.id || `call_${i}`,
+                type: 'function',
+                function: { name: c.function.name, arguments: c.function.arguments ?? '{}' },
+              })),
+            }
+          : {}),
+      };
       return {
-        assistant: msg,
+        assistant,
         calls: raw.map((c, i) => {
           let command = '';
           try {
@@ -518,7 +576,7 @@ log({ k: 'result', ...result });
 transcript.end();
 
 const resultPath = path.join(outDir, `${runid}-${args.arm}-result.json`);
-fs.writeFileSync(resultPath, JSON.stringify(result, null, 2));
+fs.writeFileSync(resultPath, JSON.stringify(redact(result), null, 2));
 
 console.log(
   [
