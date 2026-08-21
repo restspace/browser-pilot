@@ -27,7 +27,7 @@ run is invalidated by them, but every earlier run's timeout accounting is.
 | `bench/rates.json` | Dated USD rate card |
 | `bench/score.mjs` | Prices runs; orchestrator and inner model costed separately |
 | `bench/verify.mjs` | External success check against the app database. Only objectives 1 and 6 are verifiable — objective 6's cleanup destroys the evidence for 2-5 |
-| `bench/reset.mjs` | Datastore snapshot/restore (`--snapshot`/`--restore`/`--status`), wired into the harness as `--reset`. **Never yet executed** |
+| `bench/reset.mjs` | Datastore snapshot/restore (`--snapshot`/`--restore`/`--status`), wired into the harness as `--reset`. Baseline captured 2026-08-21 (7 projects, 7 items) after clearing 19 bench projects |
 | `bench/splitter.test.mjs` | Tests the shell-operator splitter against every recorded command |
 | `bench/README.md` | Methodology, conflict-of-interest statement, deliberate asymmetries, open gaps |
 
@@ -46,6 +46,17 @@ run is invalidated by them, but every earlier run's timeout accounting is.
 | h12 | browser-pilot | **complete**, obj 1+6 externally verified | 17 | 1658s | 25.5KB | 0.060 | 0.531 |
 | a12 | agent-browser | void: hit turn cap via harness defect 8 | 200 | 748s | 122.8KB | 0.60 | n/a |
 | a13 | agent-browser | genuine fail: turn cap, stuck before obj 2 | 200 | 882s | 38.5KB | 0.39 | n/a |
+
+Re-baseline runs (2026-08-21, after the help/harness changes; `--reset` on all three):
+
+| Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ |
+|---|---|---|---|---|---|---|---|
+| h13 | browser-pilot | complete, but **inner cost lost** (defect 12) | 17 | 648s | 15.5KB | 0.048 | — |
+| h14 | browser-pilot | fail: turn cap, 119 `do`s all retrying sign-in | 120 | 1632s | 178.5KB | 0.130 | 0.781 |
+| a14 | agent-browser | fail: turn cap, 200 `snapshot`s, never filled or clicked | 200 | 703s | 191.1KB | 0.227 | n/a |
+
+**No complete-and-costed run exists on the new baseline.** Three attempts, three
+different failure modes.
 
 Discarded (not in results/): h03 (killed, ran concurrently with a03 — contention), h05 (killed by
 a disconnect at 35 turns, **zero retries**, which is what confirmed the connection-pooling fix),
@@ -81,6 +92,13 @@ h09 (degenerate loop, see below), h10 (killed on request mid-run).
   legitimately re-reads far more than browser-pilot and the task file itself warns that list
   views refresh asynchronously. A false abort corrupts a result; a missed loop wastes ~$0.60 of
   a run that was going to be discarded. Disclose that this is the third guard revision.
+- **The advisory guard fires correctly and is ignored.** a14 issued the same `snapshot` 200 times
+  and took **184 advisories** without changing course, burning its whole cap. That is the
+  accepted cost of advisory-only, but the cost is NOT symmetric: the same failure shape cost
+  $0.23 on agent-browser and $0.91 on browser-pilot (h14), because each wasted turn there is a
+  whole sub-agent run rather than one CLI call. If runs keep looping, the cheap correction is a
+  lower `--maxTurns` for the browser-pilot arm, or a spend ceiling — NOT a return to aborting on
+  repetition, which is what biased earlier versions.
 - **agent-browser completed 1 of 3 attempts.** a03 finished in 70 turns; a12 was void (defect 8);
   a13 genuinely hit the 200-turn cap without reaching objective 2, stuck selecting the project
   when creating a line item. Combined with browser-pilot's h11-vs-h12 split, both arms show
@@ -104,11 +122,21 @@ h09 (degenerate loop, see below), h10 (killed on request mid-run).
   segments, 59 chains, and exactly one previously-run command now refused
   (`... 2>/dev/null`, a top-level redirect, correctly outside the sandbox).
 
+- **Three of the four newest runs stalled at or before login, and the cause is not the backend.**
+  h14 spent 119 `do`s re-issuing sign-in; a14 took 200 snapshots and never once called `fill` or
+  `click`; a13 looped on a dropdown. Measured and ruled out: backend latency right after a
+  restore is 88ms on the first query and ~7ms after, and a manual UI login works with no console
+  errors. One suggestive detail: a14's very first `snapshot -i --compact` returned **27 bytes**
+  (effectively empty) before every later snapshot returned an identical 982, which points at the
+  orchestrator acting on an empty first observation and never re-orienting. Worth capturing
+  command OUTPUT in the transcript — currently only byte counts are stored, which is why this
+  cannot be settled from the recorded runs.
+
 All of the above is n=1 per arm. Do not publish any of it.
 
 ## Harness defects found and fixed
 
-Eleven. Five would have biased the published result **against** browser-pilot, which is worth
+Thirteen. Five would have biased the published result **against** browser-pilot, which is worth
 stating given whose repo this is; defect 8 biased it against agent-browser. Defects 9-11 came
 from a review by a second session and were confirmed by measurement here before being fixed —
 9 and 11 had never fired on a real run, and 10 had been silently mis-measuring every timeout.
@@ -157,6 +185,18 @@ from a review by a second session and were confirmed by measurement here before 
     processing; measured against the live process, the doubled needle matched 0 of 1 mongod and
     the plain path matched 1. `--restore` would have killed rs2-server, left mongod holding the
     datastore, and thrown with the backend half-down and nothing to restart it.
+
+12. **Inner cost was lost whenever the agent stopped its own session** (found in h13, fixed).
+    Usage was read once at the end from `browser-pilot config`, but a task whose last objective is
+    cleanup ends with `browser-pilot stop` — killing the daemon that holds the counters. The
+    later `config` then spawned a FRESH daemon and truthfully reported zero, so h13 finished
+    complete but uncosted. Usage is now sampled after every command while the daemon is alive,
+    keeping the high-water mark and ignoring a drop to zero (a new daemon, not progress).
+    `config` is ~200ms and is not recorded as one of the run's commands.
+13. **The restore corrupted the datastore on its first real execution** (fixed, see commit
+    9352171). Delete-then-copy plus asynchronous Windows handle release left mongo-data with 29
+    of 45 files and the backend down. Restore now renames aside, copies, then deletes, and rolls
+    back on failure. The snapshot taken ninety seconds earlier is what made it recoverable.
 
 ## How to resume
 

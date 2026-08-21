@@ -445,20 +445,40 @@ function runCommand(cmd) {
  *
  * Must run before the session is stopped.
  */
+/**
+ * Sample browser-pilot's own token usage.
+ *
+ * Called after every command, not just at the end, because the end is too late
+ * in two real cases: the run crashes (h11), or the agent stops its own session
+ * as part of cleaning up (h13 issued `browser-pilot stop` on its last turn).
+ * Either way the daemon holding the counters is gone, and a later `config`
+ * silently spawns a FRESH daemon that truthfully reports zero — which is how
+ * h13 finished complete but uncosted.
+ *
+ * Usage within a session only grows, so a reading lower than what we already
+ * have means we are looking at a new daemon, not at progress. Keep the high
+ * water mark and ignore the reset. `config` is cheap (~200ms) and is not
+ * recorded as one of the run's commands, so it does not pollute the metrics.
+ */
 async function collectInnerUsage() {
   if (args.arm !== 'browser-pilot') return;
   const r = await runCommand(`${arm.bin} config --session ${runid}`);
   try {
     const cfg = JSON.parse(r.out.slice(r.out.indexOf('{'), r.out.lastIndexOf('}') + 1));
     if (cfg.usage) {
-      inner.promptTokens = cfg.usage.promptTokens ?? 0;
-      inner.cachedTokens = cfg.usage.cachedTokens ?? 0;
-      inner.completionTokens = cfg.usage.completionTokens ?? 0;
-      inner.instructions = cfg.usage.instructions ?? 0;
+      const prompt = cfg.usage.promptTokens ?? 0;
+      if (prompt >= inner.promptTokens) {
+        inner.promptTokens = prompt;
+        inner.cachedTokens = cfg.usage.cachedTokens ?? 0;
+        inner.completionTokens = cfg.usage.completionTokens ?? 0;
+        inner.instructions = cfg.usage.instructions ?? 0;
+        if (cfg.usageByModel) inner.byModel = cfg.usageByModel;
+      } else {
+        log({ k: 'inner-usage-stale', seen: prompt, kept: inner.promptTokens });
+      }
     }
-    if (cfg.usageByModel) inner.byModel = cfg.usageByModel;
-    inner.model = cfg.model ?? null;
-    inner.fallbackModel = cfg.fallbackModel ?? null;
+    inner.model = cfg.model ?? inner.model ?? null;
+    inner.fallbackModel = cfg.fallbackModel ?? inner.fallbackModel ?? null;
   } catch (err) {
     log({ k: 'inner-usage-failed', message: String(err), raw: r.out.slice(0, 400) });
   }
@@ -789,6 +809,9 @@ try {
         isError: anyKilled || lastCode !== 0,
         content,
       });
+
+      // Sample now, while the daemon still exists. See collectInnerUsage.
+      await collectInnerUsage();
     }
     const followUp = adapter.toolResults(results);
     if (Array.isArray(followUp)) messages.push(...followUp);
