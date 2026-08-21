@@ -1,4 +1,4 @@
-﻿browser-pilot — agent-in-the-loop Playwright CLI
+browser-pilot — agent-in-the-loop Playwright CLI
 
 Usage:
   browser-pilot do "<instruction>" [--json] [--max-turns N] [--timeout S] [--turn-timeout S] [--provider P] [--model M]
@@ -14,6 +14,20 @@ Usage:
   browser-pilot stop [--all]
   browser-pilot config                      # show resolved provider/model/paths
   browser-pilot config set <key> <value>    # persist a default (provider, model, fallbackModel, baseUrl, apiKey)
+
+Sizing an instruction:
+  One `do` = one logical, verifiable step: a goal plus the check that it worked
+  ("create a project named X, fill any required fields, submit, and report the row
+  that appears"). Several UI actions inside one instruction is normal — that is the
+  point of the tool.
+  Too big:   several unrelated goals or assertions in one string. The agent stalls on
+             planning and burns --max-turns. If a result comes back "blocked", split
+             it and retry the halves.
+  Too small: one click, one fill, one read. You pay for a whole agent loop to do what
+             `peek` gives you for free.
+  Do not drive the page by repeated `peek`/`config` polling. `peek` is for orienting
+  ONCE when a `do` reports something you did not expect. If you are about to issue the
+  same read a second time, issue a `do` instead.
 
 Escalation:
   When the routine model reports an instruction "blocked", it is retried once on a
@@ -53,4 +67,3 @@ Environment:
   BROWSER_PILOT_SCRIPT=1        record actions as a Playwright script (see the script command)
 
 Exit codes: 0 instruction succeeded · 1 failed/blocked · 2 infra error
-

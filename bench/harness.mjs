@@ -23,7 +23,7 @@
  *   node bench/harness.mjs --arm browser-pilot --model claude-sonnet-5 \
  *     --task bench/tasks/atelyr-project-flow.md --runid bpX1 --out bench/results
  */
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import https from 'node:https';
 import path from 'node:path';
@@ -200,30 +200,204 @@ const commands = [];
  * unrelated shell work, which would both break the comparison and make the
  * harness an arbitrary code executor.
  */
-/** Nudge at this many identical commands in a row; abandon the run at the higher one. */
+/** Start appending the advisory once a turn's output repeats this many times. */
 const LOOP_NUDGE = 4;
-const LOOP_ABORT = 8;
 
 /**
- * How many times in a row this exact command has just been issued, counting the
- * calls about to run. Compares the command text only: a model re-reading the
- * same page with the same arguments is not making progress regardless of which
- * tool it is driving.
+ * Degenerate-loop detection, advisory only.
+ *
+ * History: this guard has caused two defects and cost each arm a run. v1
+ * compared command text and suppressed the command, which pinned its own tally
+ * and burned a12's whole turn cap. Every version that *terminates* a run is an
+ * intervention that can bias an outcome, and it biases unevenly: agent-browser
+ * legitimately re-reads far more than browser-pilot, and the task file itself
+ * says list views refresh asynchronously, so repeating a read while waiting is
+ * correct behaviour. A false abort corrupts a result; a missed loop wastes
+ * about $0.60 and fifteen minutes of a run that was going to be discarded.
+ * Those costs are not close, so this version cannot abort and cannot suppress.
+ *
+ * It compares OUTPUT, not command text, because identical output means no
+ * information was gained regardless of how the command was worded — which is
+ * what defeated the previous version, when a13 escaped it by changing one
+ * string inside an otherwise identical query. The turn cap is now the only
+ * thing that ends a run.
  */
-function repeatedTail(history, calls) {
-  if (calls.length !== 1) return 0;
-  const cmd = calls[0].command.trim();
-  let n = 1;
-  for (let i = history.length - 1; i >= 0; i--) {
-    if (history[i].cmd.trim() !== cmd) break;
-    n++;
+let lastOutputKey = null;
+let sameOutputRuns = 0;
+
+function repeatedOutput(text) {
+  const key = text.trim();
+  if (key === lastOutputKey) sameOutputRuns++;
+  else {
+    lastOutputKey = key;
+    sameOutputRuns = 1;
   }
-  return n;
+  return sameOutputRuns;
 }
 
+/**
+ * Flags that consume the following token as their value. Needed so that the
+ * `a13` in `agent-browser --session a13 eval ...` is not mistaken for the
+ * subcommand. Union of both CLIs' value-taking flags; a flag listed here but
+ * absent from one tool is harmless.
+ */
+const VALUE_FLAGS = new Set([
+  '--session', '--selector', '--model', '--provider', '--fallback-model',
+  '--timeout', '--turn-timeout', '--max-turns', '--title', '--out',
+]);
+
+/**
+ * Which subcommand each invocation used, counted across every occurrence of the
+ * binary in the command line (chained commands contain several).
+ *
+ * This is the delegation signal. browser-pilot's context advantage only appears
+ * when the orchestrator delegates coarsely — h12 spent 15 of 17 invocations on
+ * `do` and used 25.5KB, while h11 fell back to fine-grained `peek` polling and
+ * used 69.6KB, essentially agent-browser's figure. Reading that off the
+ * transcript by hand is how it was missed; counting it makes "did this run
+ * actually delegate?" a number rather than an impression. Arm-neutral: it just
+ * counts subcommand tokens, whatever the tool.
+ */
+function subcommandCounts(cmds, bin) {
+  const counts = {};
+  for (const c of cmds) {
+    const tokens = String(c.cmd).split(/\s+/).filter(Boolean);
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i].replace(/^["']/, '') !== bin) continue;
+      let j = i + 1;
+      while (j < tokens.length) {
+        const t = tokens[j];
+        if (t.startsWith('-')) {
+          j += VALUE_FLAGS.has(t) ? 2 : 1;
+          continue;
+        }
+        break;
+      }
+      if (j < tokens.length) {
+        const sub = tokens[j].replace(/^["']|["']$/g, '');
+        counts[sub] = (counts[sub] || 0) + 1;
+      }
+    }
+  }
+  return counts;
+}
+
+/**
+ * Split a command line on top-level shell operators, respecting quotes.
+ *
+ * agent-browser chains routinely (`agent-browser X && agent-browser Y`) and
+ * browser-pilot never does, so treating a chain as one "command" made
+ * commands-per-run incomparable across arms — a03 recorded 70 commands but made
+ * 160 real invocations. Splitting restores comparable counting, lets every
+ * segment be checked against the allow-list instead of only the first, and
+ * stops a chain being used to slip past the repeat detector.
+ *
+ * Quote-aware because agent-browser's `eval` payloads are JavaScript, which
+ * uses `&&` and `;` inside string arguments. Splitting those would shred the
+ * command. Observed across 475 recorded commands: `&&` 59, `;` 1, and no
+ * pipes, redirects, backticks or command substitution.
+ */
+function splitSegments(cmd) {
+  const parts = [];
+  const ops = [];
+  let cur = '';
+  let quote = null;
+  let i = 0;
+  while (i < cmd.length) {
+    const ch = cmd[i];
+    if (quote) {
+      cur += ch;
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      cur += ch;
+      i++;
+      continue;
+    }
+    if (cmd.startsWith('&&', i) || cmd.startsWith('||', i)) {
+      ops.push(cmd.slice(i, i + 2));
+      parts.push(cur);
+      cur = '';
+      i += 2;
+      continue;
+    }
+    if (ch === ';') {
+      ops.push(';');
+      parts.push(cur);
+      cur = '';
+      i++;
+      continue;
+    }
+    cur += ch;
+    i++;
+  }
+  parts.push(cur);
+  // An unbalanced quote means the parse is untrustworthy — treat the whole
+  // string as one segment and let the allow-list decide, rather than acting on
+  // a split that may have landed inside a string.
+  if (quote) return { segments: [cmd.trim()].filter(Boolean), ops: [] };
+  return { segments: parts.map((s) => s.trim()).filter(Boolean), ops };
+}
+
+/** Shell syntax that would take a segment outside the sandbox, at top level only. */
+const SHELL_ESCAPES = ['|', '>', '<', '`', '$('];
+
+function hasTopLevelShellEscape(seg) {
+  let quote = null;
+  for (let i = 0; i < seg.length; i++) {
+    const ch = seg[i];
+    if (quote) {
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      continue;
+    }
+    if (SHELL_ESCAPES.some((e) => seg.startsWith(e, i))) return true;
+  }
+  return false;
+}
+
+/**
+ * Only the arm's own binary may run, and only as a plain invocation. Checked
+ * per segment, so a chain cannot smuggle in unrelated work after a valid first
+ * command — which is what made the "not an arbitrary code executor" claim false
+ * while the check was prefix-only.
+ */
 function commandIsAllowed(cmd) {
   const trimmed = cmd.trim();
+  if (hasTopLevelShellEscape(trimmed)) return false;
   return trimmed === arm.bin || trimmed.startsWith(arm.bin + ' ');
+}
+
+/** How long to wait for a killed process tree to close its pipes before giving up. */
+const DRAIN_MS = 10_000;
+
+/**
+ * Kill the whole process tree, not just the shell.
+ *
+ * spawn(cmd, {shell:true}) makes cmd.exe the child and the actual CLI a
+ * grandchild. child.kill() therefore terminates only the shell, leaving the
+ * CLI running and still holding the inherited stdio pipes — and since we
+ * resolve on 'close', which waits for those pipes, the harness would block on
+ * the orphan indefinitely instead of moving on after the timeout.
+ */
+function killTree(pid) {
+  if (process.platform === 'win32') {
+    spawn('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true }).on('error', () => {});
+  } else {
+    try {
+      process.kill(-pid, 'SIGKILL');
+    } catch {
+      try {
+        process.kill(pid, 'SIGKILL');
+      } catch {}
+    }
+  }
 }
 
 function runCommand(cmd) {
@@ -232,19 +406,30 @@ function runCommand(cmd) {
     const child = spawn(cmd, { shell: true, windowsHide: true });
     let out = '';
     let killed = false;
+    let settled = false;
+    let drain = null;
+
+    const finish = (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (drain) clearTimeout(drain);
+      resolve({ out: out.trimEnd(), code, ms: Date.now() - started, killed });
+    };
+
     const timer = setTimeout(() => {
       killed = true;
-      child.kill('SIGKILL');
+      killTree(child.pid);
+      // Backstop: if the tree still holds the pipes, stop waiting on 'close'.
+      drain = setTimeout(() => finish(null), DRAIN_MS);
     }, args.timeoutMs);
+
     child.stdout.on('data', (d) => (out += d.toString()));
     child.stderr.on('data', (d) => (out += d.toString()));
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      resolve({ out: out.trimEnd(), code, ms: Date.now() - started, killed });
-    });
+    child.on('close', (code) => finish(code));
     child.on('error', (err) => {
-      clearTimeout(timer);
-      resolve({ out: String(err), code: -1, ms: Date.now() - started, killed });
+      out += String(err);
+      finish(-1);
     });
   });
 }
@@ -504,13 +689,29 @@ const adapters = {
 
 const adapter = providerName === 'anthropic' ? adapters.anthropic : adapters.openai;
 
+/**
+ * Roll the app datastore back to a captured baseline before the run.
+ *
+ * Without this, state accumulates across runs (the app API has no
+ * delete-project), so list sizes drift and later runs face a different task
+ * than earlier ones. Restoring stops and restarts the backend, so it must
+ * happen before the first command and never while another arm is running.
+ */
+if (args.reset) {
+  console.log('[harness] restoring datastore baseline');
+  execFileSync(process.execPath, [path.join(here, 'reset.mjs'), '--restore'], {
+    stdio: 'inherit',
+  });
+}
+
 const startedAt = Date.now();
 const messages = [adapter.firstMessage(task)];
 let turns = 0;
 let finalText = '';
 let stopReason = 'completed';
+let leftLoopEarly = false;
 
-log({ k: 'meta', arm: args.arm, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, startedAt });
+log({ k: 'meta', arm: args.arm, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), startedAt });
 
 try {
   while (turns < args.maxTurns) {
@@ -526,57 +727,77 @@ try {
 
     if (reply.calls.length === 0) {
       finalText = reply.text;
+      leftLoopEarly = true;
       break;
-    }
-
-    // Degenerate-loop guard. Observed live: an orchestrator issued the SAME
-    // read-only command 119 times, never advancing, and burned the whole turn
-    // cap. Without a guard the benchmark partly measures whether a model got
-    // unlucky rather than how good its tool is. The check is arm-neutral — it
-    // looks only at command repetition — and it nudges before it abandons, so
-    // a model that can recover is given the chance.
-    const repeat = repeatedTail(commands, reply.calls);
-    if (repeat >= LOOP_ABORT) {
-      stopReason = `loop: same command ${repeat}x without progress`;
-      log({ k: 'loop-abort', turn: turns, repeat, cmd: reply.calls[0]?.command });
-      break;
-    }
-    if (repeat === LOOP_NUDGE) {
-      log({ k: 'loop-nudge', turn: turns, repeat });
-      messages.push(
-        adapter.firstMessage(
-          `You have now issued the same command ${repeat} times and its output has not changed, so it is not advancing the goal. Do something different: act on what you have already observed rather than observing again.`,
-        ),
-      );
-      continue;
     }
 
     const results = [];
     for (const call of reply.calls) {
-      if (!commandIsAllowed(call.command)) {
+      const { segments, ops } = splitSegments(call.command);
+      const bad = segments.find((seg) => !commandIsAllowed(seg));
+      if (!segments.length || bad) {
         results.push({
           id: call.id,
           isError: true,
-          content: `Refused: this benchmark only permits "${arm.bin}" commands. You sent: ${call.command.slice(0, 200)}`,
+          content: `Refused: this benchmark only permits plain "${arm.bin}" commands. Offending part: ${String(bad ?? call.command).slice(0, 200)}`,
         });
-        log({ k: 'refused', turn: turns, cmd: call.command });
+        log({ k: 'refused', turn: turns, cmd: call.command, segment: bad ?? null });
         continue;
       }
-      const r = await runCommand(call.command);
-      const bytes = Buffer.byteLength(r.out, 'utf8');
-      commands.push({ turn: turns, cmd: call.command, ms: r.ms, bytes, code: r.code, killed: r.killed });
-      log({ k: 'cmd', turn: turns, cmd: call.command, ms: r.ms, code: r.code, killed: r.killed, bytes });
+
+      // Run each segment as its own invocation, honouring the operator that
+      // joined it. Recording them separately is what makes commands-per-run
+      // mean the same thing in both arms.
+      const outs = [];
+      let lastCode = 0;
+      let anyKilled = false;
+      for (let s = 0; s < segments.length; s++) {
+        if (s > 0) {
+          const op = ops[s - 1];
+          if (op === '&&' && lastCode !== 0) {
+            log({ k: 'skipped', turn: turns, cmd: segments[s], after: op });
+            continue;
+          }
+          if (op === '||' && lastCode === 0) {
+            log({ k: 'skipped', turn: turns, cmd: segments[s], after: op });
+            continue;
+          }
+        }
+        const r = await runCommand(segments[s]);
+        const bytes = Buffer.byteLength(r.out, 'utf8');
+        commands.push({ turn: turns, cmd: segments[s], ms: r.ms, bytes, code: r.code, killed: r.killed });
+        log({ k: 'cmd', turn: turns, cmd: segments[s], ms: r.ms, code: r.code, killed: r.killed, bytes });
+        if (r.out) outs.push(r.out);
+        lastCode = r.code;
+        anyKilled = anyKilled || r.killed;
+      }
+
+      let content = outs.join('\n') || (anyKilled ? '(timed out with no output)' : '(no output)');
+
+      // Advisory only: the real output is always returned, the command is
+      // always run, and the run is never abandoned. See repeatedOutput.
+      const repeat = repeatedOutput(content);
+      if (repeat >= LOOP_NUDGE) {
+        log({ k: 'loop-advice', turn: turns, repeat });
+        content += `\n\n[harness] This is the ${repeat}th turn in a row with byte-identical output, so these commands are not revealing anything new. Consider acting on what you have already observed instead of observing again.`;
+      }
+
       results.push({
         id: call.id,
-        isError: r.code !== 0,
-        content: r.out || (r.killed ? '(timed out with no output)' : '(no output)'),
+        // Explicit: a killed command exits with code null, which is only
+        // "not zero" by accident. Say what is actually being tested.
+        isError: anyKilled || lastCode !== 0,
+        content,
       });
     }
     const followUp = adapter.toolResults(results);
     if (Array.isArray(followUp)) messages.push(...followUp);
     else messages.push(followUp);
   }
-  if (turns >= args.maxTurns) stopReason = 'turn-cap';
+  // Only a run that exhausted the budget is turn-capped. Testing `turns >=
+  // maxTurns` alone mislabels a run that finished exactly on the last turn — it
+  // would overwrite the real reason with 'turn-cap'.
+  if (!leftLoopEarly) stopReason = 'turn-cap';
 } catch (err) {
   stopReason = `error: ${err.message}`;
   log({ k: 'error', message: err.message });
@@ -609,12 +830,15 @@ const result = {
   runid,
   task: args.task,
   briefed: Boolean(briefing),
+  reset: Boolean(args.reset),
   stopReason,
   turns,
   wallMs: Date.now() - startedAt,
   orchestrator: usage,
   inner,
   commandCount: commands.length,
+  subcommands: subcommandCounts(commands, arm.bin),
+  invocationCount: Object.values(subcommandCounts(commands, arm.bin)).reduce((n, v) => n + v, 0),
   commandMs: commands.reduce((n, c) => n + c.ms, 0),
   commandBytes: commands.reduce((n, c) => n + c.bytes, 0),
   timeouts: commands.filter((c) => c.killed).length,
