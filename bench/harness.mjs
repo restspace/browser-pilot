@@ -200,6 +200,27 @@ const commands = [];
  * unrelated shell work, which would both break the comparison and make the
  * harness an arbitrary code executor.
  */
+/** Nudge at this many identical commands in a row; abandon the run at the higher one. */
+const LOOP_NUDGE = 4;
+const LOOP_ABORT = 8;
+
+/**
+ * How many times in a row this exact command has just been issued, counting the
+ * calls about to run. Compares the command text only: a model re-reading the
+ * same page with the same arguments is not making progress regardless of which
+ * tool it is driving.
+ */
+function repeatedTail(history, calls) {
+  if (calls.length !== 1) return 0;
+  const cmd = calls[0].command.trim();
+  let n = 1;
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i].cmd.trim() !== cmd) break;
+    n++;
+  }
+  return n;
+}
+
 function commandIsAllowed(cmd) {
   const trimmed = cmd.trim();
   return trimmed === arm.bin || trimmed.startsWith(arm.bin + ' ');
@@ -506,6 +527,28 @@ try {
     if (reply.calls.length === 0) {
       finalText = reply.text;
       break;
+    }
+
+    // Degenerate-loop guard. Observed live: an orchestrator issued the SAME
+    // read-only command 119 times, never advancing, and burned the whole turn
+    // cap. Without a guard the benchmark partly measures whether a model got
+    // unlucky rather than how good its tool is. The check is arm-neutral — it
+    // looks only at command repetition — and it nudges before it abandons, so
+    // a model that can recover is given the chance.
+    const repeat = repeatedTail(commands, reply.calls);
+    if (repeat >= LOOP_ABORT) {
+      stopReason = `loop: same command ${repeat}x without progress`;
+      log({ k: 'loop-abort', turn: turns, repeat, cmd: reply.calls[0]?.command });
+      break;
+    }
+    if (repeat === LOOP_NUDGE) {
+      log({ k: 'loop-nudge', turn: turns, repeat });
+      messages.push(
+        adapter.firstMessage(
+          `You have now issued the same command ${repeat} times and its output has not changed, so it is not advancing the goal. Do something different: act on what you have already observed rather than observing again.`,
+        ),
+      );
+      continue;
     }
 
     const results = [];
