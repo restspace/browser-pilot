@@ -96,16 +96,63 @@ async function startBackend() {
   say('backend up on 127.0.0.1:3100')
 }
 
+/**
+ * Windows releases a dead process's file handles asynchronously, so a delete
+ * issued the instant the port frees can still fail with EPERM/EBUSY partway
+ * through — which is how a restore once left mongo-data with 29 of its 45
+ * files. Retry until the OS lets go.
+ */
+function rmWithRetry(target, timeoutMs = 60_000) {
+  const deadline = Date.now() + timeoutMs
+  for (;;) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true })
+      return
+    } catch (err) {
+      if (Date.now() > deadline) throw err
+      if (!['EPERM', 'EBUSY', 'ENOTEMPTY', 'EACCES'].includes(err.code)) throw err
+      sleep(500)
+    }
+  }
+}
+
 function copyTree(from, to) {
-  fs.rmSync(to, { recursive: true, force: true })
+  rmWithRetry(to)
   fs.mkdirSync(path.dirname(to), { recursive: true })
   fs.cpSync(from, to, { recursive: true })
+}
+
+/**
+ * Replace `live` with a copy of `from` without ever leaving it half-deleted.
+ *
+ * The obvious implementation — delete then copy — destroys the datastore if it
+ * fails in between, and it did exactly that: a partial delete left mongo-data
+ * unusable and only the snapshot made it recoverable. Renaming first means a
+ * failure at any point leaves either the original or the restored copy intact,
+ * never a mixture.
+ */
+function swapIn(from, live) {
+  const aside = `${live}.replacing`
+  rmWithRetry(aside)
+  if (fs.existsSync(live)) fs.renameSync(live, aside)
+  try {
+    fs.cpSync(from, live, { recursive: true })
+  } catch (err) {
+    // Put the original back rather than leaving nothing behind.
+    rmWithRetry(live)
+    if (fs.existsSync(aside)) fs.renameSync(aside, live)
+    throw err
+  }
+  rmWithRetry(aside)
 }
 
 async function withBackendDown(fn) {
   stopBackend()
   if (!(await waitForPort(27017, false, 30000))) throw new Error('mongod still holding 27017')
   if (!(await waitForPort(3100, false, 30000))) throw new Error('rs2-server still holding 3100')
+  // A free port does not mean the handles are closed; give Windows a moment
+  // before touching the files, so the retry loops are a backstop not the norm.
+  sleep(2000)
   say('backend down')
   fn()
   await startBackend()
@@ -140,7 +187,7 @@ if (mode === '--status') {
   await withBackendDown(() => {
     for (const d of DIRS) {
       say(`restoring ${d}`)
-      copyTree(path.join(SNAPSHOT, d), path.join(INSTANCE, d))
+      swapIn(path.join(SNAPSHOT, d), path.join(INSTANCE, d))
     }
   })
   say('datastore restored to baseline')
