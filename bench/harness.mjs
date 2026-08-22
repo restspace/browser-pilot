@@ -352,6 +352,26 @@ const TOOL_SCHEMA = {
 const usage = { input: 0, cacheWrite: 0, cacheRead: 0, output: 0 };
 const inner = { promptTokens: 0, cachedTokens: 0, completionTokens: 0 };
 const commands = [];
+// OpenRouter tells us which backend actually served each call and (with usage
+// accounting on) the real USD cost. Both are recorded so a run is attributable
+// to a specific backend, the same way the machine block attributes it to a box.
+const servedBackends = new Set();
+let orReportedCostUsd = 0;
+// Optional OpenRouter provider routing: pin with --orOnly a,b (never falls
+// back) or exclude with --orIgnore a,b. Default is unrestricted — the default
+// orchestrator model z-ai/glm-5.3 has a single backend (Z.ai), so there is
+// nothing to route; the served backend is logged and the context-truncated
+// detector validates whatever route is taken.
+const orRouting = (() => {
+  if (providerName !== 'openrouter') return null;
+  const csv = (v) => (typeof v === 'string' ? v.split(',').map((s) => s.trim()).filter(Boolean) : null);
+  const only = csv(args.orOnly);
+  const ignore = csv(args.orIgnore);
+  const p = {};
+  if (only?.length) { p.only = only; p.allow_fallbacks = false; }
+  if (ignore?.length) p.ignore = ignore;
+  return Object.keys(p).length ? p : null;
+})();
 
 /**
  * Only the arm's own binary may run. This keeps an arm from wandering into
@@ -830,21 +850,26 @@ const adapters = {
 
   openai: {
     async send(messages) {
-      const reply = await post(
-        {
-          model,
-          temperature: 0,
-          messages: [{ role: 'system', content: systemText }, ...messages],
-          tools: [
-            {
-              type: 'function',
-              function: { name: TOOL_NAME, description: TOOL_DESC, parameters: TOOL_SCHEMA },
-            },
-          ],
-          tool_choice: 'auto',
-        },
-        { authorization: `Bearer ${apiKey}` },
-      );
+      const body = {
+        model,
+        temperature: 0,
+        messages: [{ role: 'system', content: systemText }, ...messages],
+        tools: [
+          {
+            type: 'function',
+            function: { name: TOOL_NAME, description: TOOL_DESC, parameters: TOOL_SCHEMA },
+          },
+        ],
+        tool_choice: 'auto',
+      };
+      if (providerName === 'openrouter') {
+        // Ask OpenRouter to return usage accounting (real USD cost) and honour
+        // any provider pin/exclude. These fields are OpenRouter-specific, so
+        // they are gated to it — novita would reject the unknown keys.
+        body.usage = { include: true };
+        if (orRouting) body.provider = orRouting;
+      }
+      const reply = await post(body, { authorization: `Bearer ${apiKey}` });
       const msg = reply.choices?.[0]?.message;
       if (!msg) throw new Error(`no choices: ${JSON.stringify(reply).slice(0, 300)}`);
       const raw = (msg.tool_calls ?? []).filter((c) => c?.function?.name === TOOL_NAME);
@@ -886,6 +911,8 @@ const adapters = {
           cacheRead: cached,
           output: u.completion_tokens ?? 0,
         },
+        served: reply.provider ?? null,
+        costUsd: typeof u.cost === 'number' ? u.cost : null,
       };
     },
     toolResults: (results) =>
@@ -972,7 +999,9 @@ try {
     usage.cacheWrite += reply.usage.cacheWrite;
     usage.cacheRead += reply.usage.cacheRead;
     usage.output += reply.usage.output;
-    log({ k: 'turn', turn: turns, usage: reply.usage, calls: reply.calls.length });
+    if (reply.served) servedBackends.add(reply.served);
+    if (typeof reply.costUsd === 'number') orReportedCostUsd += reply.costUsd;
+    log({ k: 'turn', turn: turns, usage: reply.usage, calls: reply.calls.length, ...(reply.served ? { served: reply.served } : {}) });
 
     // Catch the intermittent cloud freeze in the act. The provider's whole
     // received prompt is input + cacheRead; a healthy turn reports ~1 token per
@@ -1163,6 +1192,8 @@ const result = {
   commandBytes: commands.reduce((n, c) => n + c.bytes, 0),
   timeouts: commands.filter((c) => c.killed).length,
   contextTruncations,
+  orBackends: [...servedBackends],
+  orReportedCostUsd: providerName === 'openrouter' ? +orReportedCostUsd.toFixed(4) : null,
   maxUsd: args.maxUsd,
   spendUsd: (() => {
     const t = priceRun(rates, { provider: providerName, model, orchestrator: usage, inner }).totalUsd;

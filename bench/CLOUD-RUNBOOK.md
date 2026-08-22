@@ -48,6 +48,15 @@ node bench/harness.mjs \
   `browser-pilot do` fails instantly with "no API key" and the run turn-caps at
   0/6 — that was c0822bp attempt 1, the first cloud run. `cloud-setup.sh` now
   checks for this and warns.
+- **Orchestrator provider.** `--provider novita` is the baseline, but novita's
+  response cache intermittently drops the orchestrator's history on this arm and
+  turn-caps the run at 0/6 (see HANDOFF, "novita drops the orchestrator's
+  history"). To run the orchestrator elsewhere, keep `BROWSER_PILOT_PROVIDER=novita`
+  (that is the *inner* model, which is unaffected) and change only `--provider`:
+  `--provider openrouter --model z-ai/glm-5.3` (needs `OPENROUTER_API_KEY`; routes
+  to Z.ai, logs the served backend and real USD cost in the result). The harness
+  flags any dropped-history turn as `contextTruncations` in the result regardless
+  of provider.
 - `--reset` is **not optional**. It reloads the app's seed and clears its
   mutation log, which is what makes the run's recorded writes attributable to it.
 - Expect 10-25 minutes of near-silence. **Do not end your turn while it runs** —
