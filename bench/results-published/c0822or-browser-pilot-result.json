@@ -1,0 +1,70 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "2ebbc79"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c0822or-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c0822or",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 13,
+  "wallMs": 719873,
+  "orchestrator": {
+    "input": 5732,
+    "cacheWrite": 0,
+    "cacheRead": 40192,
+    "output": 1686
+  },
+  "inner": {
+    "promptTokens": 1523676,
+    "cachedTokens": 1322432,
+    "completionTokens": 14363,
+    "instructions": 12,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1487646,
+        "completionTokens": 13940,
+        "cachedTokens": 1299712,
+        "instructions": 11
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 36030,
+        "completionTokens": 423,
+        "cachedTokens": 22720,
+        "instructions": 1
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3"
+  },
+  "commandCount": 13,
+  "subcommands": {
+    "open": 1,
+    "config": 1,
+    "do": 11
+  },
+  "invocationCount": 13,
+  "commandMs": 682419,
+  "commandBytes": 8075,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0259,
+  "maxUsd": 2,
+  "spendUsd": null,
+  "finalText": "All objectives completed and verified.\n\n**Final report**\n\n1. **DONE** — Ticket `c0822or RD Bench Ticket` created (ref **RD-1015**, customer Bench Customer Co, raised 2026-08-22, initial status Draft).\n2. **DONE** — Part `c0822or RD Part A`, cost $100.00, markup 25% → computed price **$125.00** (total row $125.00).\n3. **DONE** — Part `c0822or RD Part B`, cost $200.00, markup 25% → computed price **$250.00** (overall total $375.00).\n4. **DONE** — Part A cost changed 100 → 150 (markup still 25%) → computed price **$187.50**; overall total $437.50.\n5. **DONE** — Status set to **Ready**. Precondition discovered: clicking \"Mark Ready\" with unsupplied parts produced the alert verbatim: `Ticket is not ready Part \"c0822or RD Part A\" has no supplier Part \"c0822or RD Part B\" has no supplier`. Required action: assign a supplier to every part on the ticket. I set Part A → \"Acme Supplies\" and Part B → \"Bench OEM Parts\"; \"Mark Ready\" then succeeded with no alert, status badge changed to **Ready** (button replaced by \"Mark Draft\" / \"Mark Closed\").\n6. **DONE** — Both parts deleted (each via a \"Delete part\" confirm modal); parts table row count **0**, total row empty. Ticket then archived via \"Archive ticket\" (no confirm dialog); detail page shows badges **Ready + Archived** with an \"Unarchive ticket\" button. With \"Show archived\" unchecked the active list shows 10 tickets (RD-1004–RD-1014) and RD-1015 is absent — nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c0822or-browser-pilot-transcript.jsonl"
+}
