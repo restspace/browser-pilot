@@ -192,16 +192,30 @@ What holds and what doesn't:
   ($0.247 → $0.118), cuts do-calls (17 → 11) and wall (1412 → 724s), and removes escalation from
   3 of 4 runs. On the median, coarse browser-pilot now **beats agent-browser on cost** ($0.118 vs
   $0.133) while keeping its context edge (11KB vs 28KB). The fragmentation really was the driver.
-- **But the tail is NOT gone.** scoarse2 still fragmented enough to escalate twice and cost
-  **$0.375 — the most expensive browser-pilot run recorded, dearer than any fine-grained one.**
-  So `--coarse` makes the bad mode rarer (1 in 4, was ~every run) but doesn't eliminate it.
+- **But the tail is NOT gone — and its cause is not fragmentation** (corrected after inspecting
+  scoarse2, whose $0.375 is the dearest browser-pilot run recorded). Both of scoarse2's
+  escalations were on OPEN-ENDED EXPLORE/ENUMERATE instructions, not action-splitting: do#1
+  "sign in *and explore the app enough to describe its structure*" (383s) and do#2 "open the New
+  ticket dialog and *read its full contents — every field label, input type, placeholder, select
+  option and button; do not submit*" (303s). Each drove the inner agent to its 30-turn cap and
+  escalated to glm-5.3. The genuinely hard step — do#8, discovering the supplier precondition and
+  fixing both parts — completed on cheap deepseek with no escalation. So the residual tail is the
+  orchestrator occasionally asking the sub-agent to *survey/enumerate* rather than achieve an
+  outcome; `--coarse` cut action-fragmentation but does not forbid exploration instructions.
+  (There was minor fragmentation too — ticket creation split across do#2/#3 — but the cost came
+  from the explore-to-turn-cap escalations.) An earlier note here called this "fragmentation";
+  that was imprecise.
 - **agent-browser remains far more consistent** (cost 0.129–0.136 vs coarse bp 0.084–0.375). The
   honest read: coarse browser-pilot has the better *typical* run; agent-browser has the better
   *worst* run and near-zero variance. Which matters depends on whether you care about median or
   tail cost.
-- N=4 each; the coarse tail (one escalating run) means N=5+ would sharpen the picture. The
-  remaining variance is still the orchestrator occasionally fragmenting despite the prompt —
-  a stronger orchestrator model (or the A2/A3 arms) is the next lever.
+- N=4 each; the coarse tail (one escalating run) means N=5+ would sharpen the picture. Levers for
+  the residual tail, cheapest first: (a) extend the `--coarse` prompt to also discourage spending
+  a command on open-ended exploration/enumeration ("describe the app", "list every field") — act
+  toward the outcome and let the sub-agent read only what it needs internally; that directly
+  targets scoarse2's two escalations; (b) `--no-escalate` (A3) caps the tail by refusing the
+  pricey glm-5.3 retry; (c) a stronger/steadier orchestrator model. Note the inner 30-turn cap is
+  itself the escalation trigger for these survey instructions.
 
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
