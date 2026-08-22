@@ -81,6 +81,15 @@ Neutral target (`--target repairdesk`, the app that ships in `bench/app`), 2026-
 | r02 | agent-browser | fail: turn cap, **0/6**, never got past login | 120 | 1238s | 8.9KB | 0.228 | n/a | 0.228 |
 | r03 | agent-browser | **complete, all 6 objectives externally verified** | 78 | 536s | 37.0KB | 0.284 | n/a | 0.284 |
 
+Same target, first runs on **cloud Linux** (Claude Code routines, "BrowserPilot" environment,
+one fresh 4-CPU/17GB Ubuntu box per arm, Node 22.22), 2026-08-22. Raw files are in
+`bench/results-published/`, merged from the `results/<runid>` branches:
+
+| Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
+|---|---|---|---|---|---|---|---|---|
+| c0822ab | agent-browser 0.34.0 | **complete, all 6 objectives verified against the mutation log** | 40 | 214s | 39.3KB | 0.179 | n/a | 0.179 |
+| c0822bp | browser-pilot | fail: turn cap, **0/6**, 119 `do`s all blocked at sign-in (attempt 2; attempt 1 void, see below) | 120 | 4663s | 369.5KB | 0.112 | 7.214 | 7.326 |
+
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
 | | browser-pilot (r01) | agent-browser (r03) |
@@ -107,6 +116,55 @@ Caveats, all of which matter more than the numbers:
 - r01's inner model was deepseek-v4-flash throughout, with no escalation. A different inner
   model moves its cost line and nothing else.
 - **r03's verification is not independently re-checkable.** See the gap below.
+
+### First cloud pair (c0822ab vs c0822bp) — and the sign-in loop, settled
+
+The two arms ran concurrently on identical fresh boxes, which is the setup the runbook was
+written for. agent-browser's figure is clean: 6/6 in 214s for $0.18, the fastest and cheapest
+complete run of that arm so far (no stale daemon this time — r03's 230s penalty is gone, and
+the cloud box is quicker than the Windows workstation). browser-pilot's figure is a failure,
+and this time the failure is fully diagnosable because the transcript now stores command output:
+
+- **Attempt 1 (void, not published):** every `do` failed instantly with "no API key". The
+  runbook never exported `BROWSER_PILOT_PROVIDER`; the harness's `--provider` configures the
+  orchestrator only, and browser-pilot's inner agent defaulted to `zhipu`. Fixed in
+  `cloud-setup.sh` and `CLOUD-RUNBOOK.md` (commit 21092c7). 5.5 minutes, orchestrator tokens
+only; its files were archived on the box and not published.
+- **Attempt 2 (published as c0822bp):** the orchestrator opened the app correctly at turn 1
+  (`browser-pilot open http://127.0.0.1:4180/` → "Repair Desk — …#/tickets"). On the very
+  first `do` ("Sign in…"), the inner agent did **not** look at the page it was on: its first
+  action was `page.goto http://localhost:3000`, which failed, leaving the tab on
+  `chrome-error://chromewebdata/`. It then spent 17 turns port-scanning localhost from inside
+  the browser, reported "the app is unreachable", and — because the daemon keeps the inner
+  conversation across `do` calls — every one of the next 118 sign-in instructions re-read that
+  history and answered "still not running". The orchestrator rephrased the instruction five
+  ways and never tried `browser-pilot reset` or re-`open`. 78 minutes; $7.21 of inner-model
+  tokens (19.8M prompt, of which 8.4M went to the glm-5.3 escalation that every blocked
+instruction triggers).
+- **This is h14's failure too.** h14 (2026-08-21, atelyr target) was "119 `do`s re-issuing
+  sign-in" and could not be explained because only byte counts were recorded. Same arm, same
+  shape, same count. Two sightings in two days on two targets: the browser-pilot arm is
+  bimodal because of one product defect, not noise.
+
+**The defect is in browser-pilot, not the harness or the orchestrator.** `src/agent/loop.ts`
+pushes the caller's instruction as the user message with no statement of the current page URL
+or title. The system prompt says "if you don't know the current page state, call snapshot
+first" — r01's model did; c0822bp's guessed a URL and navigated away from the page the caller
+had set up. Two cheap fixes, both app-agnostic: (1) prefix each instruction with the live
+`page.url()`/title so the model never has to guess where it is; (2) a rule that the browser is
+already on the caller's page and a guessed `goto` to a different origin is not an acceptable
+first move. A third, orthogonal: when an instruction reports `blocked` on a page whose URL
+differs from the session's last successful one, say so in the report — the orchestrator had
+no signal that its tool had wandered off.
+
+Until that lands, **do not run an N=5 sweep on this arm**: a third of the runs will be $7
+turn-caps that measure the defect, not the tool.
+
+Setup notes from the cloud boxes, for the record: `cloud-setup.sh --with-arm-b` needed no
+fixes on Ubuntu 24.04 (apt deps, Chromium 1228 download, app start, all clean, ~40s).
+agent-browser 0.34.0 declares `node >=24` and the image has 22.22 — npm printed `EBADENGINE`
+and installed anyway; it ran fine, but a box with a stricter npm would refuse it. Both sessions
+found `bin/browser-pilot.js` flipped to mode 755 by `npm link`; now committed that way.
 
 ### Gap: the mutation log does not survive the app
 
@@ -383,6 +441,12 @@ Unchanged from `bench/README.md`, all still open:
 
 ## Suggested next steps, in order
 
+0. **Fix the inner agent's blind start** (see "First cloud pair"): seed each `do` with the
+   current page URL/title and forbid a guessed cross-origin `goto` as a first move. Then rerun
+   the browser-pilot arm on the cloud (`/schedule` a routine on the BrowserPilot environment
+   pointed at `bench/CLOUD-RUNBOOK.md`; one routine per arm, ~4 min to provision, results come
+   back as `results/<runid>` branches to merge). Nothing else on this list is worth doing
+   first — every browser-pilot sweep until then is measuring the defect.
 1. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and
