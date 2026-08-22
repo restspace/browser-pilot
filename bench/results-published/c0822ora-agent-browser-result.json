@@ -1,0 +1,57 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "ca873a7"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c0822ora-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c0822ora",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 33,
+  "wallMs": 253042,
+  "orchestrator": {
+    "input": 18109,
+    "cacheWrite": 0,
+    "cacheRead": 368000,
+    "output": 2399
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 77,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 23,
+    "fill": 13,
+    "click": 22,
+    "wait": 15,
+    "get": 2,
+    "check": 1
+  },
+  "invocationCount": 77,
+  "commandMs": 22003,
+  "commandBytes": 26604,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.1316,
+  "maxUsd": 2,
+  "spendUsd": 0.1316,
+  "finalText": "All objectives verified. Final state confirmed: RD-1015 exists only under \"Show archived\", status Ready, 0 parts, and does not appear in the default active list.\n\n**Report**\n\n1. **DONE** — Ticket created: `c0822ora RD Bench Ticket`, ref **RD-1015**, customer Marlow Bakery, created 2026-08-22. Verified in the tickets table.\n\n2. **DONE** — Part `c0822ora RD Part A` (cost $100.00, markup 25%, qty 1) computed **PRICE = $125.00** (ticket total then $125.00).\n\n3. **DONE** — Part `c0822ora RD Part B` (cost $200.00, markup 25%, qty 1) computed **PRICE = $250.00** (ticket total then $375.00).\n\n4. **DONE** — After editing Part A's cost from 100 → 150 (markup still 25%), Part A's computed **PRICE = $187.50** (ticket total then $437.50).\n\n5. **DONE** — Ticket ends in status **Ready**. Precondition discovered: the app rejected the first \"Mark Ready\" attempt with an alert reading **\"Ticket is not ready\"** listing:\n   - `Part \"c0822ora RD Part A\" has no supplier`\n   - `Part \"c0822ora RD Part B\" has no supplier`\n\n   What was required: **every part on the ticket must have a supplier set**. I edited each part and set Supplier = \"Acme Parts\" (no other change), after which \"Mark Ready\" succeeded and the status badge changed from Draft to **Ready** (buttons became \"Mark Draft\" / \"Mark Closed\").\n\n6. **DONE** — Both parts deleted via their Delete buttons, each confirmed through a dialog: *\"Delete the part \\\"c0822ora RD Part A\\\" from this ticket? This cannot be undone.\"* and the equivalent for Part B. The Parts table then read **\"No parts on this ticket yet.\"** The ticket was then archived — the detail page showed badges **Status: Ready** + **Archived** and the button changed to \"Unarchive ticket\". With \"Show archived\" unchecked, RD-1015 is absent from the active list; with it checked, RD-1015 appears as `c0822ora RD Bench Ticket Archived | Ready | 0 parts`. Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c0822ora-agent-browser-transcript.jsonl"
+}
