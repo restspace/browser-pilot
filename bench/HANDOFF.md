@@ -119,11 +119,41 @@ Both arms, 6/6 verified against the mutation log, orchestrator on OpenRouter→Z
 | Total cost | **$0.077** | $0.132 |
 | contextTruncations | 0 | 0 |
 
-Same shape as the earlier r01-vs-r03 pair, now on a provider that doesn't corrupt the run:
-agent-browser ~2x faster in wall-clock; browser-pilot ~1.7x cheaper and ~4.5x less orchestrator
-context. Still N=1 per arm — run the N≥5 sweep on this setup before quoting medians. The novita
-numbers above are NOT comparable to these (different orchestrator backend); the two clean
-comparisons to trust are this one and r01-vs-r03.
+This N=1 pair looked like the r01-vs-r03 shape (agent-browser faster, browser-pilot cheaper) —
+but the sweep below shows that reading was noise. `c0822orp` was a lucky fast 12-turn run at the
+bottom of browser-pilot's cost distribution. The novita numbers above are NOT comparable to
+these (different orchestrator backend).
+
+### N=4-per-arm sweep on OpenRouter→Z.AI (s1–s4 × bp/ab), 2026-08-22, commit 1d7b066
+
+Eight runs, one per fresh box. **Every run: 6/6 objectives PASS (verified against the mutation
+log — the two browser-pilot runs with extra mutations retried but ended correct), 0 price-claim
+mismatches, `contextTruncations: 0`, backend Z.AI.** The freeze fix holds across N=8.
+
+| Metric (median, range) | browser-pilot | agent-browser |
+|---|---|---|
+| Objectives | 4/4 runs 6/6 | 4/4 runs 6/6 |
+| Turns | 17.5 (15–26) | 33 (32–34) |
+| Wall | 1412s (638–2076) | **951s (881–965)** |
+| Orchestrator context | **17.4KB (11.4–20.4)** | 27.6KB (27.1–30.7) |
+| Total cost | 0.247 (0.149–0.284) | **0.133 (0.129–0.136)** |
+
+Per-run cost: bp $0.284/$0.149/$0.267/$0.228 (orch $0.04–0.08 + **inner $0.09–0.22**);
+ab $0.136/$0.130/$0.129/$0.136 (orchestrator only).
+
+What the sweep actually says — and it is not what the N=1 pair said:
+
+- **agent-browser wins on both speed and cost here, with strikingly low variance** (wall
+  881–965s, cost $0.129–0.136). Its many cheap orchestrator turns are predictable.
+- **browser-pilot's only consistent win is orchestrator context** (~1.6x less), which is its
+  architectural claim and it holds. But it is **slower in median wall-clock and more expensive**,
+  and both are **high-variance** (wall 638–2076s, cost $0.149–0.284).
+- **The cost sink is browser-pilot's inner model**, not the orchestrator: inner is $0.09–0.22 per
+  run and swings with how much work escalates to glm-5.3. The orchestrator side is cheap (the
+  decomposition claim), but the inner model eats the saving on this task/model pairing.
+- N=4 is still small and both arms could shift with a different inner model (see A2/A3 sensitivity
+  arms). But "browser-pilot is cheaper" from the single pair does not survive contact with N=4;
+  quote the medians and ranges above, not c0822orp.
 
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
@@ -575,11 +605,12 @@ Unchanged from `bench/README.md`, all still open:
    would distort caching cost on one arm (see "Isn't the workaround unrepresentative" reasoning
    in the log); OpenRouter keeps the same model and rate and simply avoids the faulty backend.
    Validated: c0822or/orp/ora all `contextTruncations: 0`, 6/6. See "Resolved" note above.
-1. **Run the N≥5 sweep on the OpenRouter setup.** The clean pair (c0822orp vs c0822ora) is N=1
-   per arm. Repeat both arms ~5× via `--provider openrouter --model z-ai/glm-5.3` (inner still
-   `BROWSER_PILOT_PROVIDER=novita`) and report medians + range. The spend ceiling ($2) and the
-   `contextTruncations` gate make an unattended sweep safe. This supersedes the old "re-baseline"
-   item below for the orchestrator provider.
+1. ~~Run the N≥5 sweep on the OpenRouter setup.~~ **Done 2026-08-22: N=4 per arm** (s1–s4 ×
+   bp/ab), all 6/6, all `contextTruncations: 0` — see "N=4-per-arm sweep" above. Headline: on
+   this task/model agent-browser is faster AND cheaper with far lower variance; browser-pilot's
+   only consistent edge is orchestrator context. Extend to N=5+ if a tighter median is wanted,
+   but the direction is clear. Next real lever is the sensitivity arms (item 5): the result may
+   change with a cheaper/steadier inner model, since browser-pilot's cost is inner-dominated.
 2. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and
