@@ -132,6 +132,15 @@ node bench/harness.mjs \
   --runid r01 --out bench/results --reset
 ```
 
+On a fresh Linux box — a cloud instance, a container, a CI runner — `bench/cloud-setup.sh`
+does all of the above and checks it: node version, build, a browser (the dependency is
+`playwright-core`, which bundles none, so a bare container has nothing for browser-pilot's
+`chrome → msedge → chromium` channel search to find), outbound network to the model API, and
+the app itself. It installs `agent-browser` only with `--with-arm-b`, at a **pinned** version,
+because every agent-browser figure recorded so far came from 0.16.3 and npm latest has moved
+well past it — installing "latest" would quietly make new runs incomparable with old ones. It
+sets up and verifies but never starts a run, since runs cost money.
+
 Against the private target, where the placeholders must be supplied:
 
 ```sh
