@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "4c4c118"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/scoarse3-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "scoarse3",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 13,
+  "wallMs": 551338,
+  "orchestrator": {
+    "input": 6722,
+    "cacheWrite": 0,
+    "cacheRead": 50944,
+    "output": 2692
+  },
+  "inner": {
+    "promptTokens": 1921533,
+    "cachedTokens": 1762048,
+    "completionTokens": 12584,
+    "instructions": 12,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1921533,
+        "completionTokens": 12584,
+        "cachedTokens": 1762048,
+        "instructions": 12
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 12,
+  "subcommands": {
+    "do": 12
+  },
+  "invocationCount": 12,
+  "commandMs": 478975,
+  "commandBytes": 10479,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0345,
+  "maxUsd": 2,
+  "spendUsd": 0.1097,
+  "finalText": "All objectives complete. Final report:\n\n**Objective 1 — DONE.** Ticket created with title `scoarse3 RD Bench Ticket`, ref **RD-1015**, customer \"Bench Co\", status Draft, 0 parts, created 2026-08-22. Verified appearing in the tickets list.\n\n**Objective 2 — DONE.** Part `scoarse3 RD Part A` added with cost 100, markup 25%, qty 1. Computed price: **$125.00** (100 × 1.25).\n\n**Objective 3 — DONE.** Part `scoarse3 RD Part B` added with cost 200, markup 25%, qty 1. Computed price: **$250.00** (200 × 1.25). Footer total at that point: $375.00.\n\n**Objective 4 — DONE.** Part A's cost edited from 100 to 150 (markup still 25%, qty 1). Computed price afterwards: **$187.50** (150 × 1.25). Footer total became $437.50.\n\n**Objective 5 — DONE.** Ticket ends in status **Ready**. Precondition discovered: clicking \"Mark Ready\" while parts had no supplier was refused with a native alert reading exactly:\n> Ticket is not ready\n> Part \"scoarse3 RD Part A\" has no supplier\n> Part \"scoarse3 RD Part B\" has no supplier\n\nWhat was required: **every part on the ticket must have a supplier set.** I set Supplier to \"Acme Parts\" on both parts (via each part's Edit action), after which \"Mark Ready\" succeeded with no dialog — the header showed \"Status Ready\" and the controls changed to \"Mark Draft\" / \"Mark Closed\".\n\n**Objective 6 — DONE.** Both parts deleted (each Delete opened a Confirm dialog with a \"Delete part\" button, which I accepted; I waited until each row was gone). Parts table then showed the empty state \"No parts on this ticket yet.\" with no footer total row. The ticket was then archived via \"Archive ticket\" (no confirmation dialog; the button flipped to \"Unarchive ticket\"). Verified: with default filters (archived hidden), searching \"scoarse3\" returns \"No tickets match the current filters.\"; with \"Show archived\" checked, the single matching row is RD-1015, title \"scoarse3 RD Bench Ticket Archived\" (the app appends \" Archived\" to the title), customer Bench Co, status Ready, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/scoarse3-browser-pilot-transcript.jsonl"
+}

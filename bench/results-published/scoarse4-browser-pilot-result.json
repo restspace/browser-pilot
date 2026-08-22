@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "4c4c118"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/scoarse4-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "scoarse4",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 535400,
+  "orchestrator": {
+    "input": 4648,
+    "cacheWrite": 0,
+    "cacheRead": 22848,
+    "output": 2161
+  },
+  "inner": {
+    "promptTokens": 1315418,
+    "cachedTokens": 1118976,
+    "completionTokens": 12198,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1315418,
+        "completionTokens": 12198,
+        "cachedTokens": 1118976,
+        "instructions": 7
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 484312,
+  "commandBytes": 4932,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.022,
+  "maxUsd": 2,
+  "spendUsd": 0.0842,
+  "finalText": "All objectives complete. Final report:\n\n**1. DONE** — Ticket `scoarse4 RD Bench Ticket` (RD-1015) created and confirmed on screen.\n\n**2. DONE** — Part `scoarse4 RD Part A` created with cost $100.00 and markup 25%. Computed price: **$125.00** (100 + 25% markup).\n\n**3. DONE** — Part `scoarse4 RD Part B` created with cost $200.00 and markup 25%. Computed price: **$250.00** (200 + 25% markup). Ticket total at that point: $375.00.\n\n**4. DONE** — Part A's cost changed from 100 to 150 (markup unchanged at 25%). Computed price afterwards: **$187.50** (150 + 25%). Part B remained $250.00; ticket total updated to $437.50.\n\n**5. DONE** — Ticket ended in status **Ready**. The precondition the app enforced: **every part on the ticket must have a supplier assigned**. The initial \"Mark Ready\" attempt was rejected with the alert: *\"Ticket is not ready Part \"scoarse4 RD Part A\" has no supplier Part \"scoarse4 RD Part B\" has no supplier\"*. I satisfied it by assigning supplier \"Acme Supplies\" to Part A and \"Reliable Parts Co\" to Part B via their edit dialogs; \"Mark Ready\" then succeeded and the status showed Ready.\n\n**6. DONE** — Both parts deleted (each confirmed via a modal dialog; parts table then showed \"No parts on this ticket yet.\"), and the ticket archived via \"Archive ticket\" (title gained an \"(Archived)\" suffix, button changed to \"Unarchive ticket\"). Verified in the tickets list: RD-1015 does **not** appear in the default active view (list ran RD-1004 to RD-1014), and appears only when \"Show archived\" is checked, as \"scoarse4 RD Bench Ticket Archived\" with status Ready and 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/scoarse4-browser-pilot-transcript.jsonl"
+}
