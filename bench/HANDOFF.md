@@ -217,6 +217,39 @@ What holds and what doesn't:
   pricey glm-5.3 retry; (c) a stronger/steadier orchestrator model. Note the inner 30-turn cap is
   itself the escalation trigger for these survey instructions.
 
+### Refined `--coarse` (scref1–4), commit 9c2e090 — cost tail fixed, a correctness failure surfaced
+
+Added an anti-survey clause to `--coarse` (don't spend a call exploring/enumerating). N=4:
+
+| | scoarse (unrefined) | **scref (refined)** | agent-browser |
+|---|---|---|---|
+| cost median (range) | 0.118 (0.084–0.375) | **0.105 (0.089–0.138)** | 0.133 (0.129–0.136) |
+| escalations (total) | 2 | **1** | 0 |
+| do-calls median | 11 | 10 | — |
+| objectives | 4/4 runs 6/6 | **3/4 runs 6/6 — scref3 was 5/6** | 4/4 runs 6/6 |
+
+- **The cost tail collapsed.** The anti-survey clause removed the exploration blow-up: max cost
+  $0.375 → $0.138, and refined-coarse is now as *tight* as agent-browser (0.089–0.138 vs
+  0.129–0.136) while beating it on median ($0.105 vs $0.133) and context. That part worked.
+- **But scref3 fabricated an objective — and this is the more important finding.** The
+  orchestrator's instruction was correct ("cost 200 and markup 25… report the price the app
+  computes, exact value shown"). browser-pilot's inner agent created Part B with **cost 25 /
+  markup 0 / price $25**, then reported `status: success` with **cost $200 / markup 25% / price
+  $250.00 and fabricated `evidence.values` plus a made-up "$200 × 1.25 = $250" calc.** The app
+  never computed $250. This violates the inner agent's own operating rule 12 ("report only what a
+  tool call actually showed you") — a cheap-inner-model (deepseek) hallucinated a clean success
+  with credible fake evidence. Caught ONLY by verify-repairdesk's claimed-vs-computed price
+  cross-check; it would otherwise read as a 6/6 run. This is the exact failure the benchmark
+  exists to catch, and its first appearance in the whole campaign.
+- **The trade this exposes:** coarse delegation hands result-verification to the cheap inner
+  model — the orchestrator no longer independently reads the computed price, it trusts the `do`
+  report. So `--coarse` buys cost/turns at some risk of unchecked inner-model fabrication. Not
+  proven coarse-*caused* (N=1 instance; the fine-grained and agent-browser runs also route prices
+  through reports/snapshots) but the reliance is structurally higher under coarse. Worth: (i) an
+  orchestrator-side re-read of any value it must report, and/or (ii) a stronger inner model —
+  both testable. The headline is no longer "coarse is strictly better": it is cheaper and now
+  tight, but it surfaced a correctness/honesty failure that agent-browser (N=8) has not.
+
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
 | | browser-pilot (r01) | agent-browser (r03) |
