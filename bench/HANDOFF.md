@@ -174,21 +174,34 @@ when the orchestrator fragments the work.
 untouched control): each command runs autonomously to its own report, so hand it a whole outcome
 and let it finish rather than driving click-by-click. No app specifics, no task plan. One run:
 
-| Metric | bp baseline (s1–s4, median) | **scoarse1 (--coarse)** |
-|---|---|---|
-| do-calls | 17 | **10** |
-| outer turns | 17.5 | **11** |
-| glm-5.3 escalations | 1–3 per run | **0** |
-| mutations (10 = clean) | 10–21 | **10** |
-| total cost | $0.247 (0.149–0.284) | **$0.126** |
-| orchestrator context | 17.4KB | 12KB |
-| wall | 1412s | 898s |
-| result | 6/6 | 6/6, trunc 0 |
+N=4 sweep (scoarse1–4), all 6/6, all `contextTruncations: 0`. Per-run: scoarse1 do=10 esc=0
+$0.126; scoarse2 do=13 **esc=2 $0.375**; scoarse3 do=12 esc=0 $0.110; scoarse4 do=7 esc=0 $0.084.
 
-Cost roughly halved into the c0822orp coarse profile, escalation eliminated, no thrash — and now
-level with agent-browser ($0.133) while keeping browser-pilot's context edge (12KB vs 27.6KB).
-Strong support that the fragmentation was the whole problem. **N=1** — run a `--coarse` sweep
-(3–4) to confirm the variance collapses, not just one lucky point, before quoting it.
+| Metric (median, range) | bp baseline s1–s4 | **bp --coarse s1–4** | agent-browser s1–s4 |
+|---|---|---|---|
+| do-calls | 17 (15–24) | **11 (7–13)** | — |
+| glm-5.3 escalations | 1–3 every run | **0 in 3 of 4** | — |
+| mutations (10=clean) | 10–21 | 10 (one at 11) | 10 |
+| Wall | 1412s (638–2076) | **724s (535–1424)** | 951s (881–965) |
+| Orchestrator context | 17.4KB (11–20) | **11.1KB (4.8–17.8)** | 27.6KB (27–31) |
+| Total cost | 0.247 (0.149–0.284) | **0.118 (0.084–0.375)** | 0.133 (0.129–0.136) |
+
+What holds and what doesn't:
+
+- **The median moves a lot.** Coarse delegation roughly halves browser-pilot's median cost
+  ($0.247 → $0.118), cuts do-calls (17 → 11) and wall (1412 → 724s), and removes escalation from
+  3 of 4 runs. On the median, coarse browser-pilot now **beats agent-browser on cost** ($0.118 vs
+  $0.133) while keeping its context edge (11KB vs 28KB). The fragmentation really was the driver.
+- **But the tail is NOT gone.** scoarse2 still fragmented enough to escalate twice and cost
+  **$0.375 — the most expensive browser-pilot run recorded, dearer than any fine-grained one.**
+  So `--coarse` makes the bad mode rarer (1 in 4, was ~every run) but doesn't eliminate it.
+- **agent-browser remains far more consistent** (cost 0.129–0.136 vs coarse bp 0.084–0.375). The
+  honest read: coarse browser-pilot has the better *typical* run; agent-browser has the better
+  *worst* run and near-zero variance. Which matters depends on whether you care about median or
+  tail cost.
+- N=4 each; the coarse tail (one escalating run) means N=5+ would sharpen the picture. The
+  remaining variance is still the orchestrator occasionally fragmenting despite the prompt —
+  a stronger orchestrator model (or the A2/A3 arms) is the next lever.
 
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
