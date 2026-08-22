@@ -33,6 +33,7 @@ lightly exercised; a correction is a useful result in its own right.
 Substitute `<ARM>` (`browser-pilot` or `agent-browser`) and `<RUNID>`:
 
 ```sh
+export BROWSER_PILOT_PROVIDER=novita
 node bench/harness.mjs \
   --arm <ARM> --target repairdesk \
   --task bench/tasks/repairdesk-ticket-flow.md \
@@ -40,6 +41,13 @@ node bench/harness.mjs \
   --runid <RUNID> --out bench/results --reset
 ```
 
+- The `export` is **not optional** for the browser-pilot arm (harmless for the
+  other). `--provider` configures the harness's orchestrator only; browser-pilot's
+  inner agent resolves its own provider from `BROWSER_PILOT_PROVIDER` and
+  defaults to `zhipu`, which has no key on the box. Without it every
+  `browser-pilot do` fails instantly with "no API key" and the run turn-caps at
+  0/6 — that was c0822bp attempt 1, the first cloud run. `cloud-setup.sh` now
+  checks for this and warns.
 - `--reset` is **not optional**. It reloads the app's seed and clears its
   mutation log, which is what makes the run's recorded writes attributable to it.
 - Expect 10-25 minutes of near-silence. **Do not end your turn while it runs** —

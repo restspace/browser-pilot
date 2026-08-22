@@ -219,6 +219,26 @@ if [ -n "${NOVITA_API_KEY:-}${ANTHROPIC_API_KEY:-}" ]; then
     warn "browser-pilot could not open the app — re-run its command to see why:"
     warn "  browser-pilot open http://127.0.0.1:${PORT}/ --session cloud-setup-check"
   fi
+
+  # `open` proves the browser, not the model. browser-pilot's INNER agent picks
+  # its provider from BROWSER_PILOT_PROVIDER, not from the harness's --provider,
+  # and defaults to zhipu — so with only NOVITA_API_KEY set, every `do` call
+  # dies instantly with "no API key" and the run turn-caps at 0/6 (c0822bp
+  # attempt 1, 2026-08-22, the first cloud run). Check the resolved config the
+  # way the harness will see it.
+  inner_provider="${BROWSER_PILOT_PROVIDER:-${provider}}"
+  inner_cfg="$(BROWSER_PILOT_PROVIDER="$inner_provider" browser-pilot config --session cloud-setup-check 2>/dev/null || true)"
+  browser-pilot stop --session cloud-setup-check >/dev/null 2>&1 || true
+  if printf '%s' "$inner_cfg" | grep -q '"apiKeySet": true'; then
+    echo "    inner agent resolves provider ${inner_provider} with a key"
+  else
+    warn "browser-pilot's inner agent has NO usable key for provider ${inner_provider}"
+    warn "every 'browser-pilot do' will fail instantly; see 'browser-pilot config'"
+  fi
+  if [ -z "${BROWSER_PILOT_PROVIDER:-}" ]; then
+    warn "BROWSER_PILOT_PROVIDER is not exported; the harness does NOT set it for you:"
+    warn "  export BROWSER_PILOT_PROVIDER=${provider}"
+  fi
 else
   warn "skipped: needs a model API key"
 fi
@@ -230,8 +250,11 @@ cat <<EOF
 
 $(printf '\033[1m==> Ready\033[0m')
 
-Run the browser-pilot arm:
+Run the browser-pilot arm. The export is REQUIRED: --provider configures the
+orchestrator only, and browser-pilot's inner agent reads its own provider from
+the environment (default zhipu, which has no key here):
 
+  export BROWSER_PILOT_PROVIDER=${provider}
   node bench/harness.mjs \\
     --arm browser-pilot --target repairdesk \\
     --task bench/tasks/repairdesk-ticket-flow.md \\
