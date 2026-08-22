@@ -94,6 +94,37 @@ one fresh 4-CPU/17GB Ubuntu box per arm, Node 22.22), 2026-08-22. Raw files are 
 | c0822bp4 | browser-pilot | turn-cap 0/6 — **freeze caught**: 100 context-truncated turns, provider frozen at ~2129 tok while harness sent 155KB | 120 | 1853s | 88.2KB | 0.243 | 0.623 | 0.865 |
 | c0822bp5 | browser-pilot | **completed 6/6** — diagnostic, no freeze | 15 | 574s | 9.4KB | 0.039 | 0.082 | 0.121 |
 
+Orchestrator moved off novita onto **OpenRouter → Z.AI** (same model `z-ai/glm-5.3`, same
+~$1.4/$4.4/$0.26 rate; inner model still novita), 2026-08-22, commit ca873a7. This is the fix
+for the novita freeze — Z.AI's caching does not drop history. `contextTruncations: 0` on all
+three, `orBackends: ["Z.AI"]`, and OpenRouter's own reported orchestrator cost matched the
+rate-based figure to the cent:
+
+| Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
+|---|---|---|---|---|---|---|---|---|
+| c0822or | browser-pilot | **completed 6/6** — OpenRouter probe, 0 truncations | 13 | 720s | 7.9KB | 0.026 | 0.093 | 0.119 |
+| c0822orp | browser-pilot | **completed 6/6**, 0 truncations | 12 | 532s | 5.8KB | 0.025 | 0.052 | 0.077 |
+| c0822ora | agent-browser | **completed 6/6**, 0 truncations | 33 | 253s | 26.0KB | 0.132 | n/a | 0.132 |
+
+### First clean paired comparison on a fault-free orchestrator (c0822orp vs c0822ora)
+
+Both arms, 6/6 verified against the mutation log, orchestrator on OpenRouter→Z.AI, same box class:
+
+| | browser-pilot (c0822orp) | agent-browser (c0822ora) |
+|---|---|---|
+| Objectives | 6/6 | 6/6 |
+| Turns | 12 | 33 |
+| Wall | 532s | **253s** |
+| Context to orchestrator | **5.8KB** | 26.0KB |
+| Total cost | **$0.077** | $0.132 |
+| contextTruncations | 0 | 0 |
+
+Same shape as the earlier r01-vs-r03 pair, now on a provider that doesn't corrupt the run:
+agent-browser ~2x faster in wall-clock; browser-pilot ~1.7x cheaper and ~4.5x less orchestrator
+context. Still N=1 per arm — run the N≥5 sweep on this setup before quoting medians. The novita
+numbers above are NOT comparable to these (different orchestrator backend); the two clean
+comparisons to trust are this one and r01-vs-r03.
+
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
 | | browser-pilot (r01) | agent-browser (r03) |
@@ -242,6 +273,15 @@ fix directly; the harness-side options, none yet chosen:
 
 The detector stays in as a permanent tripwire: any future run says `contextTruncations` in its
 result, so a frozen run can never again be mistaken for the model being incapable.
+
+**Resolved 2026-08-22 (commits 2ebbc79, ca873a7):** the orchestrator now runs on OpenRouter,
+which routes `z-ai/glm-5.3` to a single backend, Z.AI, whose caching does not have novita's
+fault. Three runs (c0822or/orp/ora) all came back `contextTruncations: 0` and completed 6/6.
+Same model and rate as novita, so it is a like-for-like swap for the orchestrator; the inner
+model stays on novita. Novita is left in place as a provider option but should not be used as
+the orchestrator until they fix the response cache — if it ever is, the detector will catch it.
+Fixing this exposed a pricing bug (inner priced under the orchestrator's provider), fixed in
+ca873a7 so the spend ceiling and cost table work with any orchestrator provider.
 
 ### Gap: the mutation log does not survive the app
 
@@ -529,22 +569,25 @@ Unchanged from `bench/README.md`, all still open:
    to provision, results come back as `results/<runid>` branches to merge). Done as c0822bp2 —
    inner agent fixed, but see 0b.
 
-0b. ~~Decide the orchestrator-loop question~~ **Diagnosed 2026-08-22, root cause found** — it was
-   not a loop-guard or prompt problem at all: novita drops the orchestrator's history and serves
-   only the cached prefix (see "Root cause of the browser-pilot cloud freeze"). The loop was the
-   symptom. **Next: pick and ship a mitigation** — recommended (a) retry the orchestrator call on
-   `context-truncated` with a cache-busting perturbation/back-off, since a bare resend may hit the
-   same stale cache. The detector is already in and will confirm any mitigation works (a fixed
-   run shows `contextTruncations: 0` where it used to freeze). This is a correctness fix applied
-   to both arms, not a methodology change.
-1. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
+0b. ~~Decide the orchestrator-loop question~~ **Resolved 2026-08-22** — root cause was novita's
+   response cache dropping the orchestrator's history; fix was to move the orchestrator to
+   OpenRouter→Z.AI, not to patch the harness. Rejected the retry/cache-buster idea because it
+   would distort caching cost on one arm (see "Isn't the workaround unrepresentative" reasoning
+   in the log); OpenRouter keeps the same model and rate and simply avoids the faulty backend.
+   Validated: c0822or/orp/ora all `contextTruncations: 0`, 6/6. See "Resolved" note above.
+1. **Run the N≥5 sweep on the OpenRouter setup.** The clean pair (c0822orp vs c0822ora) is N=1
+   per arm. Repeat both arms ~5× via `--provider openrouter --model z-ai/glm-5.3` (inner still
+   `BROWSER_PILOT_PROVIDER=novita`) and report medians + range. The spend ceiling ($2) and the
+   `contextTruncations` gate make an unattended sweep safe. This supersedes the old "re-baseline"
+   item below for the orchestrator provider.
+2. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and
    that the snapshot must include `data-store/` (the seeded bench login lives there — restoring
    `mongo-data/` alone would log every later run out).
-2. **Re-baseline both arms.** browser-pilot's `--help` gained instruction-sizing guidance and
+3. **Re-baseline both arms.** browser-pilot's `--help` gained instruction-sizing guidance and
    the harness changed how it counts and runs commands, so no run before 2026-08-21 is
    comparable to one after. Everything resets once, here.
-3. A neutral public target app + its own task file.
-4. The N=5 sweep across arms A1/B1, then the sensitivity arms (A2 inner model = orchestrator,
-   A3 `--no-escalate`).
+4. A neutral public target app + its own task file.
+5. After the N≥5 sweep (item 1), the sensitivity arms: A2 inner model = orchestrator, A3
+   `--no-escalate`.
