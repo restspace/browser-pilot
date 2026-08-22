@@ -55,8 +55,29 @@ Re-baseline runs (2026-08-21, after the help/harness changes; `--reset` on all t
 | h14 | browser-pilot | fail: turn cap, 119 `do`s all retrying sign-in | 120 | 1632s | 178.5KB | 0.130 | 0.781 |
 | a14 | agent-browser | fail: turn cap, 200 `snapshot`s, never filled or clicked | 200 | 703s | 191.1KB | 0.227 | n/a |
 
-**No complete-and-costed run exists on the new baseline.** Three attempts, three
-different failure modes.
+**No complete-and-costed run exists on the new baseline *for the atelyr target*.** Three
+attempts, three different failure modes.
+
+Neutral target (`--target repairdesk`, the app that ships in `bench/app`), 2026-08-22:
+
+| Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
+|---|---|---|---|---|---|---|---|---|
+| r01 | browser-pilot | **complete, all 6 objectives externally verified** | 16 | 769s | 19.2KB | 0.047 | 0.060 | 0.107 |
+
+`node bench/verify-repairdesk.mjs r01` → 6/6 PASS, 0 claim mismatches, 0 residue left active.
+Subcommands: 13 `do`, 1 `open`, 1 `config`, 1 `peek`. No escalation — the whole run stayed on
+`deepseek/deepseek-v4-flash`. The agent discovered the Ready precondition by reading the
+rejection off the page, set a supplier on both parts, and retried; the mutation log shows those
+two writes at seq 5-6, immediately before the successful transition at seq 7.
+
+**This is the first run in the whole benchmark where objectives 2-5 were verified at all**,
+rather than reported by the agent and checked only for arithmetic self-consistency. That is the
+mutation log doing its job, not the tool performing better.
+
+Do NOT compare r01's $0.107 against h12's $0.591. Different app, different task instance, and
+a different inner model (r01 ran deepseek-v4-flash throughout; h12's inner spend was GLM). It
+is a first data point on a new target, N=1, and nothing more. The agent-browser arm has never
+been run against this target, so there is no paired comparison here yet.
 
 Discarded (not in results/): h03 (killed, ran concurrently with a03 — contention), h05 (killed by
 a disconnect at 35 turns, **zero retries**, which is what confirmed the connection-pooling fix),
