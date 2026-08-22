@@ -1,0 +1,232 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-08-22T21:37:06.730Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scoarse3 RD Bench Ticket",
+      "customer": "Bench Co",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T21:37:06.730Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-08-22T21:37:55.629Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T21:37:55.629Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-08-22T21:39:08.430Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T21:39:08.430Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-08-22T21:39:30.774Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T21:37:55.629Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T21:37:55.629Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-08-22T21:40:17.037Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T21:37:55.629Z",
+      "price": 187.5
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Parts",
+      "createdAt": "2026-08-22T21:37:55.629Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-08-22T21:40:27.587Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T21:39:08.430Z",
+      "price": 250
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Parts",
+      "createdAt": "2026-08-22T21:39:08.430Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-08-22T21:40:48.704Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scoarse3 RD Bench Ticket",
+      "customer": "Bench Co",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T21:37:06.730Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scoarse3 RD Bench Ticket",
+      "customer": "Bench Co",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T21:37:06.730Z"
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-08-22T21:41:21.970Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Parts",
+      "createdAt": "2026-08-22T21:37:55.629Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 9,
+    "at": "2026-08-22T21:41:33.601Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scoarse3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Parts",
+      "createdAt": "2026-08-22T21:39:08.430Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-08-22T21:41:52.384Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scoarse3 RD Bench Ticket",
+      "customer": "Bench Co",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T21:37:06.730Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scoarse3 RD Bench Ticket",
+      "customer": "Bench Co",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T21:37:06.730Z"
+    }
+  }
+]
