@@ -686,6 +686,9 @@ async function collectInnerUsage() {
     }
     inner.model = cfg.model ?? inner.model ?? null;
     inner.fallbackModel = cfg.fallbackModel ?? inner.fallbackModel ?? null;
+    // The inner model's own provider, so it is priced against the right rate
+    // table even when the orchestrator runs on a different provider.
+    inner.provider = cfg.provider ?? inner.provider ?? null;
   } catch (err) {
     log({ k: 'inner-usage-failed', message: String(err), raw: r.out.slice(0, 400) });
   }
