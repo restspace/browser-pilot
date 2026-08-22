@@ -958,6 +958,14 @@ log({ k: 'meta', arm: args.arm, target: targetName, provider: providerName, mode
 try {
   while (turns < args.maxTurns) {
     turns++;
+    // What the harness is about to SEND, measured before the call. If this grows
+    // while the provider's reported `usage.input` stays flat, the history is
+    // being dropped between here and the model (provider/network), not by the
+    // harness. Counts only — no message content — so it stays publishable.
+    // Diagnoses the cloud browser-pilot freeze where usage.input sat at 17 for
+    // 118 turns (c0822bp/c0822bp2). See bench/HANDOFF.md.
+    const sentChars = messages.reduce((n, m) => n + JSON.stringify(m).length, 0);
+    log({ k: 'sent', turn: turns, messages: messages.length, chars: sentChars });
     const reply = await adapter.send(messages);
     usage.input += reply.usage.input;
     usage.cacheWrite += reply.usage.cacheWrite;
