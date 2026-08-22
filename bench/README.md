@@ -65,8 +65,18 @@ Owning the loop makes every token attributable.
 ### Deliberate asymmetries, and why they stay
 
 - **Each arm gets its own tool's real `--help` text, verbatim.** That is what a user gets.
-  agent-browser's is ~12KB against browser-pilot's ~3KB, because it has more commands to
-  document. Equalising this would mean editorialising one tool's documentation.
+  agent-browser's is ~23KB against browser-pilot's ~4KB, because it has far more commands to
+  document. Equalising this would mean editorialising one tool's documentation. Both armdocs
+  are regenerated from the installed binary rather than hand-copied, so they cannot drift into
+  editorialising — and they must be regenerated whenever either tool's version changes. Under
+  agent-browser 0.16.3 the figure was ~12KB; the jump is the version bump, not a change of
+  method.
+- **agent-browser 0.34.0 ships a `skills` subsystem** (`agent-browser skills get core`) that
+  loads workflow guidance written by its authors. Arm B's orchestrator can invoke it like any
+  other subcommand, and it is part of the shipped tool, so it stays. This is worth stating
+  plainly because it is the closest thing agent-browser has to the decomposition guidance
+  browser-pilot carries internally, and a reader comparing the two should know arm B can reach
+  for it. Whether a run actually does is visible in the `subcommands` breakdown.
 - **browser-pilot's `--help` gained a "Sizing an instruction" section on 2026-08-21, and this
   is expected to improve its numbers.** Disclosed because the reader should judge it. The
   reasoning: runs varied 15 vs 45 `do` instructions for the same goal, at ~1.6KB of orchestrator
