@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "9bef84e"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/scoarse1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "scoarse1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 898300,
+  "orchestrator": {
+    "input": 7863,
+    "cacheWrite": 0,
+    "cacheRead": 43840,
+    "output": 3581
+  },
+  "inner": {
+    "promptTokens": 1954007,
+    "cachedTokens": 1709824,
+    "completionTokens": 18752,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1954007,
+        "completionTokens": 18752,
+        "cachedTokens": 1709824,
+        "instructions": 10
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "do": 10
+  },
+  "invocationCount": 10,
+  "commandMs": 814965,
+  "commandBytes": 12318,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0382,
+  "maxUsd": 2,
+  "spendUsd": 0.1255,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE.** Ticket created with title `scoarse1 RD Bench Ticket`, reference **RD-1015** (internal id `t15`), customer \"Test Customer\", initial status Draft.\n\n**Objective 2 — DONE.** Part `scoarse1 RD Part A` added with cost $100.00 and markup 25%. Computed price: **$125.00** (qty 1, supplier \"Test Supplier\").\n\n**Objective 3 — DONE.** Part `scoarse1 RD Part B` added with cost $200.00 and markup 25%. Computed price: **$250.00** (qty 1, supplier \"Test Supplier\"). Ticket total at that point: $375.00.\n\n**Objective 4 — DONE.** Part A's cost edited from 100 to 150 (markup kept at 25%). Computed price afterwards: **$187.50**. Ticket total became $437.50.\n\n**Objective 5 — DONE.** Ticket RD-1015 ended in status **Ready**.\n\nPreconditions discovered: the app requires **at least one part on the ticket** before it will accept the Ready status. I verified this with a controlled experiment on a separate probe ticket (`scoarse1 RD Probe`, RD-1016) that had no parts — clicking \"Mark Ready\" was refused with the exact page-level alert: heading **\"Ticket is not ready\"** and message **\"A ticket needs at least one part before it can be marked Ready\"**; the status stayed Draft. On RD-1015 the precondition was already satisfied by the two parts, so \"Mark Ready\" was accepted with no error and the status changed Draft → Ready. (Note: removing parts afterwards does not revert the status — RD-1015 stayed Ready.)\n\n**Objective 6 — DONE.** Both parts deleted from RD-1015 (each deletion confirmed via dialog: \"Delete the part 'scoarse1 RD Part A/B' from this ticket? This cannot be undone.\"); the Parts section then showed \"No parts on this ticket yet.\" The ticket was archived (button changed to \"Unarchive ticket\", no confirmation dialog required). I also archived the probe ticket RD-1016 so nothing created by this run was left active. Final verification: with \"Show archived\" unchecked, the active list shows 11 tickets (RD-1001 through RD-1014) and neither RD-1015 nor RD-1016 appears; with \"Show archived\" checked, both appear with an \"Archived\" badge. RD-1015's final state: title `scoarse1 RD Bench Ticket`, status Ready, Archived badge present, no parts.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/scoarse1-browser-pilot-transcript.jsonl"
+}
