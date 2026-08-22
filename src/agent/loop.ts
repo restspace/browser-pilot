@@ -137,7 +137,8 @@ export async function runInstruction(
     );
   }
   state.trimHistory();
-  state.messages.push({ role: 'user', content: instruction });
+  const location = await describeLocation(browser);
+  state.messages.push({ role: 'user', content: location ? `${instruction}\n\n${location}` : instruction });
   // Script recording (opt-in) groups this instruction's actions under one
   // test.step, so a generated spec reads as the plan that produced it.
   browser.script?.beginInstruction(instruction);
@@ -554,5 +555,44 @@ async function captureFinalState(
     return title ? { url, title } : { url };
   } catch {
     return undefined;
+  }
+}
+
+/**
+ * Where the browser is right now, as a line appended to every instruction.
+ *
+ * Without it the model starts blind and, being told to act rather than
+ * deliberate, may guess. Bench run c0822bp (2026-08-22) began its first
+ * instruction with `goto http://localhost:3000` although the caller had just
+ * opened the app on another port: it landed on a browser error page,
+ * port-scanned from inside it, reported the app unreachable, and — because
+ * history persists across instructions — repeated that verdict 118 times.
+ * Naming the page costs ~30 tokens per instruction and removes the guess.
+ *
+ * Never launches a browser: a session with no page yet gets no line, and the
+ * rules then only allow a URL the instruction itself provides. Never throws —
+ * a wedged page must not stop an instruction from starting.
+ */
+async function describeLocation(browser: BrowserSession): Promise<string | null> {
+  if (!browser.isOpen) return null;
+  try {
+    const page = await browser.getPage();
+    const url = page.url();
+    const title = await Promise.race([
+      page.title().catch(() => ''),
+      new Promise<string>((r) => setTimeout(() => r(''), 2_000)),
+    ]);
+    let line = `[browser] You are currently on ${url}${title ? ` — "${title}"` : ''}.`;
+    if (url.startsWith('chrome-error://')) {
+      line +=
+        ' That is a browser error page: the last navigation failed, so the app is NOT at that address. Use back to return to the page the caller set up, or goto a URL the instruction gives — do not guess one.';
+    } else if (url === 'about:blank') {
+      line += ' Nothing has been loaded yet: only navigate to a URL the instruction or briefing gives.';
+    } else {
+      line += ' Start from this page; the caller put the browser here on purpose.';
+    }
+    return line;
+  } catch {
+    return null;
   }
 }

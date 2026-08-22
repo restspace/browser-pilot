@@ -441,12 +441,15 @@ Unchanged from `bench/README.md`, all still open:
 
 ## Suggested next steps, in order
 
-0. **Fix the inner agent's blind start** (see "First cloud pair"): seed each `do` with the
-   current page URL/title and forbid a guessed cross-origin `goto` as a first move. Then rerun
-   the browser-pilot arm on the cloud (`/schedule` a routine on the BrowserPilot environment
-   pointed at `bench/CLOUD-RUNBOOK.md`; one routine per arm, ~4 min to provision, results come
-   back as `results/<runid>` branches to merge). Nothing else on this list is worth doing
-   first — every browser-pilot sweep until then is measuring the defect.
+0. ~~Fix the inner agent's blind start~~ **Done 2026-08-22**: every `do` now ends with a
+   `[browser] You are currently on <url> — "<title>"` line (with an explicit warning on
+   `chrome-error://` and `about:blank`), and operating rule 2 forbids a guessed `goto` or any
+   port/hostname probing. Live check against the local app with c0822bp's exact first
+   instruction: signed in, 5 turns, never left port 4180 (n=1). The harness also gained a
+   spend ceiling (`--maxUsd`, default 2.00, `stop=spend-cap`) so a recurrence costs $2, not
+   $7. **Next: rerun the browser-pilot arm on the cloud** (`/schedule` a routine on the
+   BrowserPilot environment pointed at `bench/CLOUD-RUNBOOK.md`; one routine per arm, ~4 min
+   to provision, results come back as `results/<runid>` branches to merge).
 1. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and

@@ -92,6 +92,35 @@ describe('agent loop', () => {
     expect(JSON.stringify(state.messages.at(-1))).toContain('did the thing');
   });
 
+  it('tells the model which page the browser is on, and flags an error page', async () => {
+    const script = () =>
+      scriptedProvider([{ toolCalls: [reportCall({ status: 'success', summary: 'ok', evidence: { values: {} } })] }]);
+    const onPage = (url: string, title: string) =>
+      ({
+        ...browserStub,
+        isOpen: true,
+        getPage: async () => ({ url: () => url, title: async () => title }),
+      }) as unknown as BrowserSession;
+
+    const state = new SessionState('t-location');
+    await runInstruction(script(), onPage('http://127.0.0.1:4180/#/tickets', 'Repair Desk'), state, 'sign in', loopOpts);
+    const first = String(state.messages[0].content);
+    // the caller's instruction stays first and verbatim; the location follows it
+    expect(first.startsWith('sign in\n\n[browser] You are currently on http://127.0.0.1:4180/#/tickets — "Repair Desk".')).toBe(true);
+
+    const errState = new SessionState('t-location-err');
+    await runInstruction(script(), onPage('chrome-error://chromewebdata/', ''), errState, 'sign in', loopOpts);
+    const err = String(errState.messages[0].content);
+    expect(err).toContain('chrome-error://chromewebdata/');
+    expect(err).toContain('error page');
+    expect(err).toContain('do not guess');
+
+    // no page open: nothing is launched and the instruction goes through untouched
+    const closedState = new SessionState('t-location-closed');
+    await runInstruction(script(), browserStub, closedState, 'sign in', loopOpts);
+    expect(closedState.messages[0]).toEqual({ role: 'user', content: 'sign in' });
+  });
+
   it('feeds schema errors back for one retry, then accepts the corrected report', async () => {
     const state = new SessionState('t-retry');
     const provider = scriptedProvider([
