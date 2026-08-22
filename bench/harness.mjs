@@ -21,7 +21,14 @@
  *
  * Usage:
  *   node bench/harness.mjs --arm browser-pilot --model claude-sonnet-5 \
- *     --task bench/tasks/atelyr-project-flow.md --runid bpX1 --out bench/results
+ *     --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md \
+ *     --runid bpX1 --out bench/results --reset
+ *
+ * --target selects the app under test and decides how --reset rolls it back.
+ * It defaults to atelyr, the private app every published run so far used, so
+ * that those command lines still reproduce. The repairdesk target ships in
+ * this repo and needs nothing provisioned: start it with
+ * `node bench/app/server.mjs` and the credentials default themselves.
  */
 import { spawn, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -31,6 +38,55 @@ import path from 'node:path';
 const ARMS = {
   'browser-pilot': { bin: 'browser-pilot', docs: 'armdocs/browser-pilot.md' },
   'agent-browser': { bin: 'agent-browser', docs: 'armdocs/agent-browser.md' },
+};
+
+/**
+ * The application under test. An arm is which tool drives the browser; a target
+ * is what the browser is pointed at. Both arms always run against the same
+ * target — it is a control, not a variable — but the two supported targets
+ * differ in how state is rolled back between runs, and that difference has to
+ * live somewhere.
+ *
+ *   repairdesk  ships in this repo (bench/app). Resetting is an in-process
+ *               reload of the seed: one HTTP call, milliseconds, nothing to
+ *               stop or restart. Credentials are committed, so a reader needs
+ *               no provisioning at all.
+ *   atelyr      a private app on a real mongod. Resetting means stopping the
+ *               backend and swapping ~300MB of WiredTiger files on disk, which
+ *               is what bench/reset.mjs exists for. Requires APP_* to be set
+ *               and a baseline to have been captured first.
+ *
+ * `defaults` are applied only where the environment is silent, so an explicit
+ * APP_URL always wins — pointing the neutral target at a different port is a
+ * normal thing to want.
+ */
+const TARGETS = {
+  atelyr: {
+    task: 'tasks/atelyr-project-flow.md',
+    defaults: {},
+    reset() {
+      console.log('[harness] restoring datastore baseline');
+      execFileSync(process.execPath, [path.join(here, 'reset.mjs'), '--restore'], {
+        stdio: 'inherit',
+      });
+    },
+    notReadyHint: 'Is the atelyr backend running? Check 127.0.0.1:3100 and the vite dev server.',
+  },
+  repairdesk: {
+    task: 'tasks/repairdesk-ticket-flow.md',
+    defaults: {
+      APP_URL: 'http://127.0.0.1:4180/',
+      APP_EMAIL: 'bench@example.com',
+      APP_PASSWORD: 'bench-pass-1234',
+    },
+    async reset() {
+      const url = new URL('/__reset', process.env.APP_URL);
+      const res = await fetch(url, { method: 'POST' });
+      if (!res.ok) throw new Error(`reset failed: ${res.status} ${res.statusText}`);
+      console.log(`[harness] reloaded seed via ${url}`);
+    },
+    notReadyHint: 'Start it with: node bench/app/server.mjs',
+  },
 };
 
 const API_VERSION = '2023-06-01';
@@ -90,6 +146,24 @@ const arm = ARMS[args.arm];
 if (!arm) {
   console.error(`--arm must be one of: ${Object.keys(ARMS).join(', ')}`);
   process.exit(2);
+}
+
+// Defaults to atelyr so every run recorded before targets existed still
+// reproduces from its own command line.
+const targetName = typeof args.target === 'string' ? args.target : 'atelyr';
+const target = TARGETS[targetName];
+if (!target) {
+  console.error(`--target must be one of: ${Object.keys(TARGETS).join(', ')}`);
+  process.exit(2);
+}
+// Applied before the task file is read, since substitution resolves {{APP_URL}}
+// and friends out of the environment, and before SECRETS is built so anything
+// defaulted in here is still redacted from the transcript.
+for (const [k, v] of Object.entries(target.defaults)) {
+  if (!process.env[k]) {
+    process.env[k] = v;
+    console.log(`[harness] ${targetName}: defaulting ${k}`);
+  }
 }
 const providerName =
   args.provider ||
@@ -169,6 +243,15 @@ function substitute(text) {
 
 const readIfSet = (p) =>
   p && typeof p === 'string' ? substitute(fs.readFileSync(path.resolve(p), 'utf8')) : '';
+// Checked before the file is read, because pairing a target with the other
+// target's task file usually fails first at placeholder substitution, and
+// "APP_URL is not set" is a baffling way to be told you picked the wrong task.
+// Not fatal: sensitivity arms legitimately run task variants under other names.
+if (args.task && !String(args.task).replace(/\\/g, '/').endsWith(target.task)) {
+  console.warn(
+    `[harness] note: --target ${targetName} normally runs bench/${target.task}, not ${args.task}`,
+  );
+}
 const task = readIfSet(args.task);
 if (!task) {
   console.error('--task <file> is required');
@@ -729,18 +812,51 @@ const adapters = {
 const adapter = providerName === 'anthropic' ? adapters.anthropic : adapters.openai;
 
 /**
- * Roll the app datastore back to a captured baseline before the run.
+ * Roll the app back to its baseline before the run.
  *
- * Without this, state accumulates across runs (the app API has no
- * delete-project), so list sizes drift and later runs face a different task
- * than earlier ones. Restoring stops and restarts the backend, so it must
- * happen before the first command and never while another arm is running.
+ * Without this, state accumulates across runs (neither app's UI offers a bulk
+ * delete), so list sizes drift and later runs face a different task than
+ * earlier ones. How it happens is the target's business: repairdesk reloads
+ * its seed in-process, atelyr stops the backend and swaps files on disk. The
+ * atelyr path restarts processes, so it must happen before the first command
+ * and never while the other arm is running.
  */
 if (args.reset) {
-  console.log('[harness] restoring datastore baseline');
-  execFileSync(process.execPath, [path.join(here, 'reset.mjs'), '--restore'], {
-    stdio: 'inherit',
-  });
+  try {
+    await target.reset();
+  } catch (err) {
+    // Reset runs before the reachability check below, because the atelyr path
+    // is what brings the backend back up — so a dead app surfaces here first,
+    // and this is where it has to be explained.
+    console.error(`[harness] could not reset ${targetName}: ${err.message}`);
+    console.error(`[harness] ${target.notReadyHint}`);
+    process.exit(2);
+  }
+}
+
+/**
+ * Fail before spending a single model token if the app is not actually there.
+ *
+ * A previous sweep burned three runs discovering at turn 40 that the agent had
+ * been staring at a connection error the whole time — the transcripts recorded
+ * only that each observation was small, not that the app was down. One request
+ * up front turns that into a one-line message.
+ */
+if (process.env.APP_URL) {
+  try {
+    const res = await fetch(process.env.APP_URL, {
+      signal: AbortSignal.timeout(10_000),
+      redirect: 'manual',
+    });
+    // Any HTTP answer means something is listening and routing; a login
+    // redirect or a 404 on the root is still a live app.
+    console.log(`[harness] ${targetName} responded ${res.status} at ${process.env.APP_URL}`);
+  } catch (err) {
+    console.error(`[harness] ${targetName} is not reachable at ${process.env.APP_URL}`);
+    console.error(`[harness] ${target.notReadyHint}`);
+    console.error(`[harness] ${err.message}`);
+    process.exit(2);
+  }
 }
 
 const startedAt = Date.now();
@@ -750,7 +866,7 @@ let finalText = '';
 let stopReason = 'completed';
 let leftLoopEarly = false;
 
-log({ k: 'meta', arm: args.arm, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), captureBytes: args.captureBytes, startedAt });
+log({ k: 'meta', arm: args.arm, target: targetName, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), captureBytes: args.captureBytes, startedAt });
 
 try {
   while (turns < args.maxTurns) {
@@ -874,6 +990,7 @@ try {
 
 const result = {
   arm: args.arm,
+  target: targetName,
   provider: providerName,
   model,
   runid,

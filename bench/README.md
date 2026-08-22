@@ -111,27 +111,63 @@ separately.
 Every result published so far is from the private target. The neutral one exists so that can
 change; see gap 2.
 
+`--target` selects which one a run uses, and decides what `--reset` means. It defaults to
+`atelyr`, so command lines recorded against earlier runs still reproduce.
+
 ## Running it
+
+Against the neutral target, which is what a reader can actually do — no credentials to
+provision, since the target defaults `APP_URL`, `APP_EMAIL` and `APP_PASSWORD` to the
+committed ones (anything already set in the environment wins):
 
 ```sh
 export NOVITA_API_KEY=...          # or ANTHROPIC_API_KEY
-export APP_URL=... APP_EMAIL=... APP_PASSWORD=...   # task placeholders; never committed
+
+node bench/app/server.mjs &        # the app under test, port 4180
 
 node bench/harness.mjs \
-  --arm browser-pilot \
+  --arm browser-pilot --target repairdesk \
+  --provider novita --model zai-org/glm-5.3 \
+  --task bench/tasks/repairdesk-ticket-flow.md \
+  --runid r01 --out bench/results --reset
+```
+
+Against the private target, where the placeholders must be supplied:
+
+```sh
+export APP_URL=... APP_EMAIL=... APP_PASSWORD=...   # never committed
+
+node bench/harness.mjs \
+  --arm browser-pilot --target atelyr \
   --provider novita --model zai-org/glm-5.3 \
   --task bench/tasks/atelyr-project-flow.md \
-  --runid h01 --out bench/results
+  --runid h01 --out bench/results --reset
 ```
 
 Swap `--arm agent-browser` for the other side. Add `--briefing <file>` for the briefed
 condition. Each run writes `<runid>-<arm>-result.json` (aggregates) and
-`<runid>-<arm>-transcript.jsonl` (every turn, every command, every token count).
+`<runid>-<arm>-transcript.jsonl` (every turn, every command, every token count); both record
+the target, so a result file says what it was run against.
+
+The harness checks the app answers on `APP_URL` before spending a single model token, and
+exits with the reason if it does not. Three runs were once lost to an app that was down,
+discovered forty turns in.
 
 ## Resetting between runs
 
 State accumulates across runs, so runs are not comparable unless each starts from the same
-baseline. `bench/reset.mjs` handles this at the filesystem level — there is no `mongodump` or
+baseline. `--reset` does this, and what it does depends on `--target`.
+
+### `--target repairdesk`
+
+Nothing to set up. `--reset` POSTs to the app's `/__reset`, which reloads the committed seed
+in process. It takes milliseconds, stops no processes, and cannot half-fail — the restore
+below once corrupted a datastore by dying midway through a delete. Resetting also clears the
+app's mutation log, which is what makes a run's recorded writes attributable to that run.
+
+### `--target atelyr`
+
+`bench/reset.mjs` handles this at the filesystem level — there is no `mongodump` or
 `mongosh` on this machine, only `mongod`, so a logical dump is not available.
 
 Capture the baseline **once**, with the app in the state every run should start from:
@@ -159,8 +195,16 @@ Both snapshot and restore stop `mongod` and `rs2-server`, move the bytes, and re
 ## Reporting rules
 
 - **Success is verified externally**, against the app's API — never from the tool's own report.
-  `node bench/verify.mjs <runid>` does this: it logs into the app and inspects the resulting
-  records. Note its limits, which are structural — see gap 5 below.
+  One verifier per target, because they can establish very different things:
+  - `node bench/verify-repairdesk.mjs <runid>` — reads the app's mutation log and final state
+    and scores **all six objectives**, needing no credentials. It also cross-checks the prices
+    the run *claimed* in its final report against the prices the app actually computed, and
+    exits non-zero on a mismatch. A run that reports 133.33 where the app recorded 125.00 is
+    the exact failure this benchmark exists to catch, and on this target it is caught.
+  - `node bench/verify.mjs <runid>` — logs into the private app and inspects the surviving
+    records. It can only establish objectives 1 and 6; see gap 5.
+  Neither verifier can show the agent drove the app through the *browser* rather than by some
+  other route. What bounds that is the harness restricting each arm to its own binary.
 - **N ≥ 5 per arm; report median and full range.** Single runs of an agentic system are noise:
   the same step has taken 8 turns and 30 turns on consecutive attempts.
 - **Publish raw token counts alongside costs**, so figures survive price changes.
@@ -187,11 +231,10 @@ These are open, and the benchmark is not publishable until they are closed:
    accumulate and slowly change list sizes. `bench/reset.mjs` now snapshots and restores the
    datastore at the filesystem level (see "Resetting between runs"); what is still missing is a
    sweep run end to end with `--reset` on every run, confirming the baseline actually holds.
-   On the neutral target this problem mostly goes away — `POST /__reset` reloads the seed
-   in-process in milliseconds, with no processes to stop and no filesystem copy to get wrong.
-   **The harness does not yet know about it**: `--reset` still shells out to `bench/reset.mjs`,
-   which is specific to the private app. Teaching it to reset per target is a prerequisite for
-   running a sweep against `bench/app`.
+   On the neutral target this problem mostly goes away — `--reset` there reloads the seed
+   in-process in milliseconds, with no processes to stop and no filesystem copy to get wrong,
+   and the harness now picks the right mechanism from `--target`. So this gap is really only
+   open for the private target, and only until a sweep confirms the baseline holds.
 2. **Single application — a second target now exists, but nothing has been run against it.**
    A benchmark run only against a private app cannot be reproduced by a reader.
    `bench/app/` is a neutral target that ships with this repo and needs no credentials or
