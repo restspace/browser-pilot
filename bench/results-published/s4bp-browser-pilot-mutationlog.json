@@ -1,0 +1,232 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-08-22T19:27:25.634Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s4bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:27:25.634Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-08-22T19:28:32.832Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s4bp RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:28:32.832Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-08-22T19:29:59.148Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s4bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:29:59.147Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-08-22T19:30:33.911Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s4bp RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:28:32.832Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s4bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:28:32.832Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-08-22T19:38:15.108Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s4bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:28:32.832Z",
+      "price": 187.5
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s4bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supply",
+      "createdAt": "2026-08-22T19:28:32.832Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-08-22T19:40:14.537Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s4bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:29:59.147Z",
+      "price": 250
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s4bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supply",
+      "createdAt": "2026-08-22T19:29:59.147Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-08-22T19:40:37.424Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s4bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:27:25.634Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s4bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:27:25.634Z"
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-08-22T19:42:03.449Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s4bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supply",
+      "createdAt": "2026-08-22T19:28:32.832Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 9,
+    "at": "2026-08-22T19:44:02.745Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s4bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supply",
+      "createdAt": "2026-08-22T19:29:59.147Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-08-22T19:44:53.808Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s4bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:27:25.634Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s4bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T19:27:25.634Z"
+    }
+  }
+]
