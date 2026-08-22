@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "2deb83c"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c0822bp5-browser-pilot-mutationlog.json",
+  "provider": "novita",
+  "model": "zai-org/glm-5.3",
+  "runid": "c0822bp5",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 15,
+  "wallMs": 573738,
+  "orchestrator": {
+    "input": 5365,
+    "cacheWrite": 0,
+    "cacheRead": 38272,
+    "output": 4781
+  },
+  "inner": {
+    "promptTokens": 1058213,
+    "cachedTokens": 837248,
+    "completionTokens": 11524,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1021286,
+        "completionTokens": 10949,
+        "cachedTokens": 813824,
+        "instructions": 9
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 36927,
+        "completionTokens": 575,
+        "cachedTokens": 23424,
+        "instructions": 1
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3"
+  },
+  "commandCount": 14,
+  "subcommands": {
+    "open": 5,
+    "do": 9
+  },
+  "invocationCount": 14,
+  "commandMs": 400611,
+  "commandBytes": 9591,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "maxUsd": 2,
+  "spendUsd": 0.1209,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**1. DONE** — Ticket `c0822bp5 RD Bench Ticket` exists: Ref **RD-1015** (detail page `#/tickets/t15`), customer Marlow Bakery, created in status Draft.\n\n**2. DONE** — Part `c0822bp5 RD Part A` added with cost **$100.00** and markup **25%**; the app computed a price of **$125.00** (parts total at that point: $125.00).\n\n**3. DONE** — Part `c0822bp5 RD Part B` added with cost **$200.00** and markup **25%**; the app computed a price of **$250.00** (parts total then: $375.00).\n\n**4. DONE** — Part A's cost edited from $100.00 to **$150.00** (markup unchanged at 25%); the app then computed a price of **$187.50** (parts total: $437.50).\n\n**5. DONE** — Ticket ended in status **Ready**. The precondition the app enforces: **every part on the ticket must have a supplier assigned**. The first \"Mark Ready\" attempt was refused with the alert: `Ticket is not ready Part \"c0822bp5 RD Part A\" has no supplier Part \"c0822bp5 RD Part B\" has no supplier` (status stayed Draft). After setting supplier **Acme Supplies** on Part A and **Apex Parts Co.** on Part B, \"Mark Ready\" succeeded — status showed **Ready** and the action buttons changed to \"Mark Draft\" / \"Mark Closed\".\n\n**6. DONE** — Both parts were removed (each via its row's delete button plus the \"Delete part\" confirmation dialog); the parts table then showed \"No parts on this ticket yet.\" with no total. The ticket was archived via \"Archive ticket\" (button toggled to \"Unarchive ticket\", no native dialog). Verified in the tickets list: with \"Show archived\" unchecked, RD-1015 does **not** appear among active tickets; with it checked, it appears as **RD-1015 / c0822bp5 RD Bench Ticket Archived, Status Ready, Parts 0**. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c0822bp5-browser-pilot-transcript.jsonl"
+}
