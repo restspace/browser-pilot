@@ -66,13 +66,20 @@ function parseArgs(argv) {
   // instruction may take 300 + 1.5x300 before it returns; agent-browser's
   // commands are seconds, with a 25s worst case. 900s clears both. This is a
   // backstop against a wedged process, not a budget.
-  const out = { maxTurns: 120, timeoutMs: 900_000 };
+  // captureBytes: how much of each command's output to keep in the transcript.
+  // Byte counts alone proved not to be enough: three runs stalled at or before
+  // login and the recorded transcripts could not say what the agent was
+  // actually being shown, only how big it was. 4000 is plenty to see a page
+  // snapshot or a `do` report while keeping transcripts publishable in size.
+  // 0 disables capture.
+  const out = { maxTurns: 120, timeoutMs: 900_000, captureBytes: 4000 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
     const key = a.slice(2);
     const val = argv[i + 1];
-    if (key === 'maxTurns' || key === 'timeoutMs') out[key] = Number(argv[++i]);
+    if (key === 'maxTurns' || key === 'timeoutMs' || key === 'captureBytes')
+      out[key] = Number(argv[++i]);
     else out[key] = val && !val.startsWith('--') ? (i++, val) : true;
   }
   return out;
@@ -113,9 +120,21 @@ const transcript = fs.createWriteStream(transcriptPath, { flags: 'w' });
  * ("... sign in with password X ..."), so an unredacted transcript cannot be
  * published — which defeats the point of keeping raw runs for scrutiny.
  */
-const SECRETS = ['APP_PASSWORD', 'APP_EMAIL']
-  .map((k) => process.env[k])
-  .filter((v) => v && v.length > 3);
+/**
+ * Each secret plus the encodings it plausibly appears in. Raw substring
+ * matching alone is not enough now that command OUTPUT is captured: a password
+ * can come back URL-encoded in a request line, or backslash-escaped inside a
+ * JSON blob the tool prints, and either form would sail past a plain
+ * `split(secret)` straight into a transcript meant for publication.
+ */
+const SECRETS = [...new Set(
+  ['APP_PASSWORD', 'APP_EMAIL']
+    .map((k) => process.env[k])
+    .filter((v) => v && v.length > 3)
+    .flatMap((v) => [v, encodeURIComponent(v), JSON.stringify(v).slice(1, -1)]),
+)]
+  // Longest first, so a broader encoding is masked before a substring of it.
+  .sort((a, b) => b.length - a.length);
 
 function redact(value) {
   if (typeof value === 'string') {
@@ -731,7 +750,7 @@ let finalText = '';
 let stopReason = 'completed';
 let leftLoopEarly = false;
 
-log({ k: 'meta', arm: args.arm, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), startedAt });
+log({ k: 'meta', arm: args.arm, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), captureBytes: args.captureBytes, startedAt });
 
 try {
   while (turns < args.maxTurns) {
@@ -786,7 +805,14 @@ try {
         const r = await runCommand(segments[s]);
         const bytes = Buffer.byteLength(r.out, 'utf8');
         commands.push({ turn: turns, cmd: segments[s], ms: r.ms, bytes, code: r.code, killed: r.killed });
-        log({ k: 'cmd', turn: turns, cmd: segments[s], ms: r.ms, code: r.code, killed: r.killed, bytes });
+        // `out` is what the orchestrator actually saw. It goes through the same
+        // redaction as everything else, so transcripts stay publishable.
+        const entry = { k: 'cmd', turn: turns, cmd: segments[s], ms: r.ms, code: r.code, killed: r.killed, bytes };
+        if (args.captureBytes > 0) {
+          entry.out = r.out.slice(0, args.captureBytes);
+          if (r.out.length > args.captureBytes) entry.outTruncated = r.out.length;
+        }
+        log(entry);
         if (r.out) outs.push(r.out);
         lastCode = r.code;
         anyKilled = anyKilled || r.killed;

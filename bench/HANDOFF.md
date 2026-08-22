@@ -28,7 +28,7 @@ run is invalidated by them, but every earlier run's timeout accounting is.
 | `bench/score.mjs` | Prices runs; orchestrator and inner model costed separately |
 | `bench/verify.mjs` | External success check against the app database. Only objectives 1 and 6 are verifiable — objective 6's cleanup destroys the evidence for 2-5 |
 | `bench/reset.mjs` | Datastore snapshot/restore (`--snapshot`/`--restore`/`--status`), wired into the harness as `--reset`. Baseline captured 2026-08-21 (7 projects, 7 items) after clearing 19 bench projects |
-| `bench/splitter.test.mjs` | Tests the shell-operator splitter against every recorded command |
+| `bench/check-splitter.mjs` | Tests the shell-operator splitter against every recorded command |
 | `bench/README.md` | Methodology, conflict-of-interest statement, deliberate asymmetries, open gaps |
 
 ## Results so far
@@ -118,7 +118,7 @@ h09 (degenerate loop, see below), h10 (killed on request mid-run).
   the chaining, makes counts comparable, checks every segment against the allow-list instead of
   only the first, and closes chaining as a way past the repeat detector. The splitter is
   quote-aware (agent-browser's `eval` payloads are JavaScript containing `&&` and `;`) and is
-  tested against all 475 recorded commands by `bench/splitter.test.mjs`: 475 commands → 598
+  tested against all 475 recorded commands by `bench/check-splitter.mjs`: 475 commands → 598
   segments, 59 chains, and exactly one previously-run command now refused
   (`... 2>/dev/null`, a top-level redirect, correctly outside the sandbox).
 

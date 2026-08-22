@@ -154,6 +154,11 @@ Both snapshot and restore stop `mongod` and `rs2-server`, move the bytes, and re
 - **N ≥ 5 per arm; report median and full range.** Single runs of an agentic system are noise:
   the same step has taken 8 turns and 30 turns on consecutive attempts.
 - **Publish raw token counts alongside costs**, so figures survive price changes.
+- **Transcripts record command output**, capped at `--captureBytes` (default 4000, 0 disables) and
+  redacted. Byte counts alone were not enough to diagnose a stalled run: three runs stalled at or
+  before login and the transcripts could say only how large each observation was, not what it
+  said. Secrets are masked in raw, URL-encoded and JSON-escaped form, since captured output is a
+  far likelier place for a credential to surface than a command line is.
 - **Quote `invocationCount`, never `commandCount`.** agent-browser chains with `&&`, so one
   recorded command can be several real invocations (a03: 70 recorded, 160 actual); browser-pilot
   never chains and is 1:1. `commandCount` is therefore not comparable across arms.

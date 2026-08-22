@@ -7,7 +7,7 @@
  * quote-aware would cut them in half and the benchmark would silently start
  * refusing valid commands.
  *
- * Run: node bench/splitter.test.mjs
+ * Run: node bench/check-splitter.mjs
  */
 import fs from 'node:fs'
 import path from 'node:path'
