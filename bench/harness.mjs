@@ -320,11 +320,24 @@ const toolDocs = fs.readFileSync(path.join(here, arm.docs), 'utf8');
  * Identical for both arms apart from the tool docs and the optional briefing.
  * Deliberately says nothing about HOW to decompose the goal.
  */
+// Opt-in, browser-pilot only: teach the orchestrator to delegate whole outcomes
+// and let each command run autonomously to its own report, instead of driving
+// the browser one UI action per call. Diagnosed 2026-08-22: the orchestrator was
+// micro-stepping browser-pilot (open form / fill / submit as separate `do`s) and
+// thrashing, so each fragment paid for a full inner agent run plus escalation.
+// Gated to browser-pilot because agent-browser has no inner agent and must issue
+// atomic commands — it stays the untouched control. Recorded in the result as
+// `coarse` and disclosed in HANDOFF; contains no app specifics or task plan.
+const coarse = Boolean(args.coarse) && args.arm === 'browser-pilot';
+const coarseBlock = coarse
+  ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there.`
+  : '';
+
 const systemText = `You are an automation agent completing a goal in a real web browser.
 
 You have exactly one tool: \`run_command\`, which runs the \`${arm.bin}\` command-line tool and returns its output. You cannot see the screen; the command output is your only view of the browser.
 
-Work through the goal to completion. Verify what you did rather than assuming a command succeeded. When the whole goal is done (or you are certain you cannot finish it), stop calling tools and reply with a final plain-text report stating, for each part of the goal, whether it succeeded and the concrete values you observed.
+Work through the goal to completion. Verify what you did rather than assuming a command succeeded. When the whole goal is done (or you are certain you cannot finish it), stop calling tools and reply with a final plain-text report stating, for each part of the goal, whether it succeeded and the concrete values you observed.${coarseBlock}
 
 Runid for this run: ${runid}. Where the goal says to name something with the runid, use exactly this value.
 
@@ -1195,6 +1208,7 @@ const result = {
   commandBytes: commands.reduce((n, c) => n + c.bytes, 0),
   timeouts: commands.filter((c) => c.killed).length,
   contextTruncations,
+  coarse,
   orBackends: [...servedBackends],
   orReportedCostUsd: providerName === 'openrouter' ? +orReportedCostUsd.toFixed(4) : null,
   maxUsd: args.maxUsd,
