@@ -1,0 +1,63 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "95d0823"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c0822bp-browser-pilot-mutationlog.json",
+  "provider": "novita",
+  "model": "zai-org/glm-5.3",
+  "runid": "c0822bp",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "turn-cap",
+  "turns": 120,
+  "wallMs": 4662776,
+  "orchestrator": {
+    "input": 1533,
+    "cacheWrite": 0,
+    "cacheRead": 252800,
+    "output": 9986
+  },
+  "inner": {
+    "promptTokens": 19757503,
+    "cachedTokens": 11208064,
+    "completionTokens": 145285,
+    "instructions": 238,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 11366460,
+        "completionTokens": 81420,
+        "cachedTokens": 6175616,
+        "instructions": 119
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 8391043,
+        "completionTokens": 63865,
+        "cachedTokens": 5032448,
+        "instructions": 119
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3"
+  },
+  "commandCount": 121,
+  "subcommands": {
+    "open": 1,
+    "config": 1,
+    "do": 119
+  },
+  "invocationCount": 121,
+  "commandMs": 4140531,
+  "commandBytes": 378334,
+  "timeouts": 0,
+  "finalText": "",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c0822bp-browser-pilot-transcript.jsonl"
+}
