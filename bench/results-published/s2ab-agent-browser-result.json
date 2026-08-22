@@ -1,0 +1,56 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "1d7b066"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/s2ab-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "s2ab",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 32,
+  "wallMs": 943681,
+  "orchestrator": {
+    "input": 19953,
+    "cacheWrite": 0,
+    "cacheRead": 356096,
+    "output": 2152
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 78,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 25,
+    "fill": 13,
+    "click": 22,
+    "wait": 16,
+    "check": 1
+  },
+  "invocationCount": 78,
+  "commandMs": 21972,
+  "commandBytes": 31454,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.13,
+  "maxUsd": 2,
+  "spendUsd": 0.13,
+  "finalText": "All objectives verified. RD-1015 shows as \"s2ab RD Bench Ticket Archived\", status Ready, 0 parts.\n\nFinal report:\n\n1. **DONE** — Ticket `s2ab RD Bench Ticket` created as **RD-1015** (customer \"Bench Customer\", created 2026-08-22). Verified in the tickets list.\n\n2. **DONE** — Part `s2ab RD Part A` (cost $100.00, markup 25%, qty 1) computed price **$125.00** (ticket total $125.00).\n\n3. **DONE** — Part `s2ab RD Part B` (cost $200.00, markup 25%, qty 1) computed price **$250.00** (ticket total $375.00).\n\n4. **DONE** — After editing Part A's cost from 100 → 150, its computed price was **$187.50** (ticket total $437.50).\n\n5. **DONE** — Status reached **Ready**. Precondition discovered: clicking \"Mark Ready\" with unsupplied parts produced an alert reading `Ticket is not ready` with the list items `Part \"s2ab RD Part A\" has no supplier` and `Part \"s2ab RD Part B\" has no supplier`. **Required: every part on the ticket must have a supplier set.** I set supplier \"Acme Parts\" on both parts via Edit, after which \"Mark Ready\" succeeded and the detail page showed `Status: Ready` (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n6. **DONE** — Both parts deleted (each via a Confirm dialog: `Delete the part \"s2ab RD Part A\" from this ticket? This cannot be undone.` → \"Delete part\", same for Part B). Parts table then read `No parts on this ticket yet.` Ticket then archived — detail page showed `Status: Ready` + `Archived` badge and the button changed to \"Unarchive ticket\". With \"Show archived\" unchecked the ticket is absent from the active list; with it checked, RD-1015 appears as `s2ab RD Bench Ticket Archived`, status `Ready`, parts `0`. Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/s2ab-agent-browser-transcript.jsonl"
+}

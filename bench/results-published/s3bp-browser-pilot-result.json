@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "1d7b066"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/s3bp-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "s3bp",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 16,
+  "wallMs": 1656300,
+  "orchestrator": {
+    "input": 9882,
+    "cacheWrite": 0,
+    "cacheRead": 76160,
+    "output": 2683
+  },
+  "inner": {
+    "promptTokens": 2342267,
+    "cachedTokens": 2145536,
+    "completionTokens": 16753,
+    "instructions": 17,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1949290,
+        "completionTokens": 14240,
+        "cachedTokens": 1779200,
+        "instructions": 14
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 392977,
+        "completionTokens": 2513,
+        "cachedTokens": 366336,
+        "instructions": 3
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 16,
+  "subcommands": {
+    "open": 1,
+    "config": 1,
+    "do": 14
+  },
+  "invocationCount": 16,
+  "commandMs": 877178,
+  "commandBytes": 20858,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0454,
+  "maxUsd": 2,
+  "spendUsd": 0.2667,
+  "finalText": "All objectives complete and verified.\n\n**Final report**\n\n1. **DONE** — Ticket created: ref **RD-1015**, title **\"s3bp RD Bench Ticket\"**, customer \"Not recorded\", initial status Draft, created 2026-08-22.\n2. **DONE** — Part **\"s3bp RD Part A\"** added with cost $100.00 and markup 25%; computed **Price = $125.00**.\n3. **DONE** — Part **\"s3bp RD Part B\"** added with cost $200.00 and markup 25%; computed **Price = $250.00**.\n4. **DONE** — Part A's cost edited 100 → 150 (markup still 25%); computed **Price = $187.50**. Part B unchanged at $250.00; table total $437.50.\n5. **DONE** — Ticket status is **Ready**. Two preconditions were enforced, discovered by attempting \"Mark Ready\" and reading the alerts verbatim:\n   - With no parts: *\"Ticket is not ready — A ticket needs at least one part before it can be marked Ready\"*\n   - With parts but no suppliers: *\"Ticket is not ready — Part \"s3bp RD Part A\" has no supplier / Part \"s3bp RD Part B\" has no supplier\"*\n   - **Required: (a) at least one part on the ticket, and (b) every part must have a supplier.** I satisfied both by adding the two parts and setting Supplier = \"Acme Supply\" on each; \"Mark Ready\" then succeeded with no alert and the status changed Draft → Ready.\n6. **DONE** — Both parts deleted (confirmation dialogs: *\"Delete the part \"s3bp RD Part A\" from this ticket? This cannot be undone.\"* and the equivalent for Part B, both confirmed). Parts table now reads \"No parts on this ticket yet.\" Ticket then archived (no confirmation prompt; button changed to \"Unarchive ticket\" and an \"Archived\" badge appeared). Final verification: RD-1015 does not appear in the active tickets list; searching for \"s3bp\" returns only the archived RD-1015 row (\"RD-1015 | s3bp RD Bench Ticket Archived | Not recorded | Ready | 0 | 2026-08-22\"). Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/s3bp-browser-pilot-transcript.jsonl"
+}

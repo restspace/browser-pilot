@@ -1,0 +1,57 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "1d7b066"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/s4ab-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "s4ab",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 34,
+  "wallMs": 965361,
+  "orchestrator": {
+    "input": 18200,
+    "cacheWrite": 0,
+    "cacheRead": 385280,
+    "output": 2374
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 79,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 24,
+    "fill": 13,
+    "click": 22,
+    "wait": 16,
+    "get": 2,
+    "check": 1
+  },
+  "invocationCount": 79,
+  "commandMs": 22036,
+  "commandBytes": 27777,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.1361,
+  "maxUsd": 2,
+  "spendUsd": 0.1361,
+  "finalText": "All objectives complete. Final verification: RD-1015 shows in the archived view as `Ready`, `Archived`, with 0 parts, and does not appear in the active list.\n\n**Final report**\n\n1. **DONE** — Ticket `s4ab RD Bench Ticket` created (ref **RD-1015**, customer Marlow Bakery, status Draft, 0 parts). Confirmed present in the tickets table.\n\n2. **DONE** — Part `s4ab RD Part A` created with cost $100.00 and markup 25%. App-computed **price: $125.00** (ticket total then $125.00).\n\n3. **DONE** — Part `s4ab RD Part B` created with cost $200.00 and markup 25%. App-computed **price: $250.00** (ticket total then $375.00).\n\n4. **DONE** — Part A's cost edited 100 → 150 (markup still 25%). App-computed **price: $187.50** (ticket total then $437.50).\n\n5. **DONE** — Ticket ends in status **Ready**. Precondition discovered: the app rejected the first \"Mark Ready\" attempt with an alert reading **\"Ticket is not ready\"** listing:\n   - `Part \"s4ab RD Part A\" has no supplier`\n   - `Part \"s4ab RD Part B\" has no supplier`\n\n   So the requirement is that **every part on the ticket must have a supplier assigned**. I satisfied it by editing each part and setting Supplier = \"Acme Parts\" (leaving cost/markup/qty unchanged). After both parts had suppliers, clicking \"Mark Ready\" succeeded and the status badge changed from `Draft` to `Ready` (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n6. **DONE** — Both parts removed and the ticket archived:\n   - Deleted `s4ab RD Part A` via its Delete button, confirming the dialog \"Delete the part \\\"s4ab RD Part A\\\" from this ticket? This cannot be undone.\" → table then showed only Part B.\n   - Deleted `s4ab RD Part B` via its Delete button, confirming the equivalent dialog → table then read \"No parts on this ticket yet.\"\n   - Clicked \"Archive ticket\" → status line read `Ready` + `Archived`, button changed to \"Unarchive ticket\".\n   - Verified the active tickets list no longer contains RD-1015, and with \"Show archived\" checked it appears as `RD-1015 | s4ab RD Bench Ticket Archived | Marlow Bakery | Ready | 0 | 2026-08-22`. Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/s4ab-agent-browser-transcript.jsonl"
+}

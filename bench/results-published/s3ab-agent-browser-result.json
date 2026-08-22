@@ -1,0 +1,57 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "1d7b066"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/s3ab-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "s3ab",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 32,
+  "wallMs": 959072,
+  "orchestrator": {
+    "input": 18139,
+    "cacheWrite": 0,
+    "cacheRead": 359040,
+    "output": 2263
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 80,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 24,
+    "fill": 13,
+    "click": 22,
+    "wait": 16,
+    "get": 3,
+    "check": 1
+  },
+  "invocationCount": 80,
+  "commandMs": 23646,
+  "commandBytes": 27808,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.1287,
+  "maxUsd": 2,
+  "spendUsd": 0.1287,
+  "finalText": "All objectives verified. Final state confirmed: RD-1015 archived, status Ready, 0 parts.\n\n**Report**\n\n1. **DONE** — Ticket `s3ab RD Bench Ticket` created (ref **RD-1015**, customer Marlow Bakery, created 2026-08-22). Verified present in the tickets list.\n2. **DONE** — Part `s3ab RD Part A` (cost $100.00, markup 25%, qty 1) computed price **$125.00**.\n3. **DONE** — Part `s3ab RD Part B` (cost $200.00, markup 25%, qty 1) computed price **$250.00**. (Ticket total at that point: $375.00.)\n4. **DONE** — After editing Part A's cost from 100 → 150, its computed price was **$187.50** (ticket total $437.50).\n5. **DONE** — Status reached **Ready**. The precondition discovered: **every part on the ticket must have a supplier**. Clicking \"Mark Ready\" with unsupplied parts produced an alert reading `Ticket is not ready` with the items `Part \"s3ab RD Part A\" has no supplier` and `Part \"s3ab RD Part B\" has no supplier`. I set supplier \"Acme Parts\" on both parts via Edit, after which \"Mark Ready\" succeeded and the status badge changed from `Draft` to `Ready` (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n6. **DONE** — Both parts deleted (each via a Confirm dialog: `Delete the part \"s3ab RD Part A\" from this ticket? This cannot be undone.` / same for Part B, confirmed with \"Delete part\"). The parts table then read `No parts on this ticket yet.` The ticket was then archived — the detail page showed `Status: Ready` plus an `Archived` badge and the button changed to \"Unarchive ticket\". The default tickets list no longer shows RD-1015; with \"Show archived\" checked it appears as `RD-1015 | s3ab RD Bench Ticket Archived | Marlow Bakery | Ready | 0 | 2026-08-22`. Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/s3ab-agent-browser-transcript.jsonl"
+}
