@@ -35,6 +35,7 @@ import fs from 'node:fs';
 import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
+import { loadRates, priceRun } from './pricing.mjs';
 
 const ARMS = {
   'browser-pilot': { bin: 'browser-pilot', docs: 'armdocs/browser-pilot.md' },
@@ -175,13 +176,21 @@ function parseArgs(argv) {
   // actually being shown, only how big it was. 4000 is plenty to see a page
   // snapshot or a `do` report while keeping transcripts publishable in size.
   // 0 disables capture.
-  const out = { maxTurns: 120, timeoutMs: 900_000, captureBytes: 4000 };
+  // maxUsd: spend ceiling in USD across orchestrator + inner tokens, priced
+  // after every turn with bench/pricing.mjs (the same formula score.mjs uses).
+  // A run that crosses it stops with stopReason 'spend-cap'. It exists because
+  // the turn cap is not symmetric between arms: one wasted agent-browser turn
+  // is a CLI call, one wasted browser-pilot turn is a whole sub-agent run plus
+  // an escalation — c0822bp spent $7.21 on 119 identical blocked instructions.
+  // 2.00 is ~7x the dearest complete run on record and well under that. 0
+  // disables the ceiling.
+  const out = { maxTurns: 120, timeoutMs: 900_000, captureBytes: 4000, maxUsd: 2 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
     const key = a.slice(2);
     const val = argv[i + 1];
-    if (key === 'maxTurns' || key === 'timeoutMs' || key === 'captureBytes')
+    if (key === 'maxTurns' || key === 'timeoutMs' || key === 'captureBytes' || key === 'maxUsd')
       out[key] = Number(argv[++i]);
     else out[key] = val && !val.startsWith('--') ? (i++, val) : true;
   }
@@ -941,6 +950,8 @@ let turns = 0;
 let finalText = '';
 let stopReason = 'completed';
 let leftLoopEarly = false;
+let spendUnpriced = false;
+const rates = loadRates(typeof args.rates === 'string' ? args.rates : undefined);
 
 log({ k: 'meta', arm: args.arm, target: targetName, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), captureBytes: args.captureBytes, startedAt });
 
@@ -1034,6 +1045,27 @@ try {
     const followUp = adapter.toolResults(results);
     if (Array.isArray(followUp)) messages.push(...followUp);
     else messages.push(followUp);
+
+    // Spend ceiling. Priced here, after this turn's inner usage was sampled,
+    // so the figure includes the sub-agent work the turn just paid for.
+    const spend = priceRun(rates, { provider: providerName, model, orchestrator: usage, inner });
+    if (spend.totalUsd === null) {
+      if (!spendUnpriced) {
+        spendUnpriced = true;
+        const why = spend.orchUsd === null ? `no rate for ${providerName}/${model} in rates.json` : spend.innerBasis;
+        log({ k: 'spend-unpriced', why });
+        console.error(`[harness] cannot price this run (${why}); --maxUsd is NOT enforced`);
+      }
+    } else {
+      log({ k: 'spend', turn: turns, usd: +spend.totalUsd.toFixed(4) });
+      if (args.maxUsd > 0 && spend.totalUsd >= args.maxUsd) {
+        stopReason = 'spend-cap';
+        leftLoopEarly = true;
+        log({ k: 'spend-cap', turn: turns, usd: +spend.totalUsd.toFixed(4), maxUsd: args.maxUsd });
+        console.error(`[harness] spend ceiling hit: $${spend.totalUsd.toFixed(4)} >= --maxUsd ${args.maxUsd} at turn ${turns}`);
+        break;
+      }
+    }
   }
   // Only a run that exhausted the budget is turn-capped. Testing `turns >=
   // maxTurns` alone mislabels a run that finished exactly on the last turn — it
@@ -1105,6 +1137,11 @@ const result = {
   commandMs: commands.reduce((n, c) => n + c.ms, 0),
   commandBytes: commands.reduce((n, c) => n + c.bytes, 0),
   timeouts: commands.filter((c) => c.killed).length,
+  maxUsd: args.maxUsd,
+  spendUsd: (() => {
+    const t = priceRun(rates, { provider: providerName, model, orchestrator: usage, inner }).totalUsd;
+    return t === null ? null : +t.toFixed(4);
+  })(),
   finalText,
   transcriptPath,
 };
@@ -1121,6 +1158,7 @@ console.log(
     `commands=${result.commandCount} cmdTime=${(result.commandMs / 1000).toFixed(1)}s cmdBytes=${result.commandBytes} timeouts=${result.timeouts}`,
     `orchestrator in=${usage.input} cw=${usage.cacheWrite} cr=${usage.cacheRead} out=${usage.output}`,
     `inner prompt=${inner.promptTokens} cached=${inner.cachedTokens} completion=${inner.completionTokens}`,
+    `spend=${result.spendUsd === null ? 'unpriced' : `$${result.spendUsd}`} maxUsd=${args.maxUsd || 'off'}`,
     `-> ${resultPath}`,
   ].join('\n'),
 );

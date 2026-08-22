@@ -56,6 +56,10 @@ node bench/harness.mjs \
   caps a foreground call below the run length, start it under a process manager
   and block on it *within* the same turn.
 - Do not lower `--maxTurns`.
+- `--maxUsd` defaults to 2.00: the harness prices orchestrator + inner tokens after
+  every turn and stops at `stop=spend-cap` once the run crosses it. Leave it — a
+  capped run is a legitimate result. Raise it only deliberately, and say so in the
+  report.
 
 ### Before a rerun of the same runid
 

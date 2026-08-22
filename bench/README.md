@@ -244,6 +244,15 @@ Both snapshot and restore stop `mongod` and `rs2-server`, move the bytes, and re
   before login and the transcripts could say only how large each observation was, not what it
   said. Secrets are masked in raw, URL-encoded and JSON-escaped form, since captured output is a
   far likelier place for a credential to surface than a command line is.
+- **Runs have a spend ceiling.** `--maxUsd` (default 2.00, 0 disables) prices orchestrator +
+  inner tokens after every turn with `bench/pricing.mjs` — the same formula `score.mjs` uses —
+  and stops the run at `stopReason: "spend-cap"` once crossed; the result records `maxUsd` and
+  the final `spendUsd`. This is the symmetric counterpart to the turn cap, which is not: a
+  wasted agent-browser turn is one CLI call, a wasted browser-pilot turn is a sub-agent run plus
+  an escalation, and c0822bp spent $7.21 on 119 identical blocked instructions before the turn
+  cap caught it. A capped run is reported as capped, never discarded, and the ceiling is the
+  same for both arms. If a run cannot be priced (a model missing from `rates.json`) the ceiling
+  is not enforced and the transcript says so.
 - **Quote `invocationCount`, never `commandCount`.** agent-browser chains with `&&`, so one
   recorded command can be several real invocations (a03: 70 recorded, 160 actual); browser-pilot
   never chains and is 1:1. `commandCount` is therefore not comparable across arms.

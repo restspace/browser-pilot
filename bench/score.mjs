@@ -12,6 +12,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { loadRates, priceRun } from './pricing.mjs';
 
 const args = Object.fromEntries(
   process.argv
@@ -20,58 +21,17 @@ const args = Object.fromEntries(
     .filter(Boolean),
 );
 const resultsDir = path.resolve(args.results || 'bench/results');
-const rates = JSON.parse(fs.readFileSync(path.resolve(args.rates || 'bench/rates.json'), 'utf8'));
-
-function rateFor(provider, model) {
-  return rates[provider]?.[model] ?? null;
-}
-
-function cost(rate, { input = 0, cacheWrite = 0, cacheRead = 0, output = 0 }) {
-  if (!rate) return null;
-  return (
-    (input * rate.input + cacheWrite * rate.cacheWrite + cacheRead * rate.cacheRead + output * rate.output) /
-    1e6
-  );
-}
+const rates = loadRates(args.rates);
 
 const rows = [];
 for (const file of fs.readdirSync(resultsDir).filter((f) => f.endsWith('-result.json'))) {
   const r = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
 
-  const orchRate = rateFor(r.provider, r.model);
-  const orchCost = cost(orchRate, r.orchestrator);
-
-  // Inner model: prefer the per-model split; it is the only way to price a run
-  // in which escalation moved work onto a second, pricier tier.
-  let innerCost = null;
-  let innerBasis = 'none';
-  const inner = r.inner ?? {};
-  if (inner.byModel && Object.keys(inner.byModel).length) {
-    innerCost = 0;
-    innerBasis = 'per-model';
-    for (const [model, u] of Object.entries(inner.byModel)) {
-      const rate = rateFor(r.provider, model);
-      const c = cost(rate, {
-        input: Math.max(0, (u.promptTokens ?? 0) - (u.cachedTokens ?? 0)),
-        cacheRead: u.cachedTokens ?? 0,
-        output: u.completionTokens ?? 0,
-      });
-      if (c === null) {
-        innerCost = null;
-        innerBasis = `unknown rate for ${model}`;
-        break;
-      }
-      innerCost += c;
-    }
-  } else if (inner.promptTokens) {
-    const rate = rateFor(r.provider, inner.model);
-    innerCost = cost(rate, {
-      input: Math.max(0, inner.promptTokens - (inner.cachedTokens ?? 0)),
-      cacheRead: inner.cachedTokens ?? 0,
-      output: inner.completionTokens ?? 0,
-    });
-    innerBasis = 'single-rate ESTIMATE (no per-model split)';
-  }
+  // Same formula the harness uses for its live spend ceiling (bench/pricing.mjs),
+  // so a run stopped at `--maxUsd` scores at the figure that stopped it.
+  const { orchUsd: orchCost, innerUsd, totalUsd, innerBasis } = priceRun(rates, r);
+  // An arm with no inner model shows n/a rather than a misleading 0.
+  const innerCost = innerBasis === 'none' ? null : innerUsd;
 
   rows.push({
     runid: r.runid,
@@ -85,7 +45,8 @@ for (const file of fs.readdirSync(resultsDir).filter((f) => f.endsWith('-result.
     ctxKB: +(r.commandBytes / 1024).toFixed(1),
     orch_usd: orchCost === null ? null : +orchCost.toFixed(4),
     inner_usd: innerCost === null ? null : +innerCost.toFixed(4),
-    total_usd: orchCost === null || innerCost === null ? null : +(orchCost + innerCost).toFixed(4),
+    total_usd: totalUsd === null ? null : +totalUsd.toFixed(4),
+    cap: r.maxUsd === undefined ? '' : r.stopReason === 'spend-cap' ? `HIT ${r.maxUsd}` : `< ${r.maxUsd}`,
     innerBasis,
   });
 }
