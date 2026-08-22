@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "9c2e090"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/scref2-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "scref2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 12,
+  "wallMs": 919481,
+  "orchestrator": {
+    "input": 6490,
+    "cacheWrite": 0,
+    "cacheRead": 45568,
+    "output": 2625
+  },
+  "inner": {
+    "promptTokens": 1792067,
+    "cachedTokens": 1564416,
+    "completionTokens": 16495,
+    "instructions": 11,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1792067,
+        "completionTokens": 16495,
+        "cachedTokens": 1564416,
+        "instructions": 11
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 11,
+  "subcommands": {
+    "do": 11
+  },
+  "invocationCount": 11,
+  "commandMs": 868054,
+  "commandBytes": 9109,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0325,
+  "maxUsd": 2,
+  "spendUsd": 0.1128,
+  "finalText": "All objectives verified. Final report:\n\n---\n\n**Objective 1 — DONE.** Ticket `RD-1015` titled **\"scref2 RD Bench Ticket\"** was created (customer: \"Bench Test Customer\", created 2026-08-22). Creation form required only **Title**; Customer was optional.\n\n**Objective 2 — DONE.** Part **\"scref2 RD Part A\"** with cost $100.00 and markup 25% was added. App-computed price: **$125.00**.\n\n**Objective 3 — DONE.** Part **\"scref2 RD Part B\"** with cost $200.00 and markup 25% was added. App-computed price: **$250.00**. (Ticket parts total at that point: $375.00.)\n\n**Objective 4 — DONE.** Part A's cost was edited from 100 to 150 (markup unchanged at 25%). App-computed price afterwards: **$187.50**. (Ticket parts total became $437.50.)\n\n**Objective 5 — DONE.** Ticket ends in status **Ready**. Precondition discovered: clicking \"Mark Ready\" was initially rejected with an alert titled **\"Ticket is not ready\"** listing, verbatim:\n- `Part \"scref2 RD Part A\" has no supplier`\n- `Part \"scref2 RD Part B\" has no supplier`\n\nWhat was required: **every part on the ticket must have a supplier assigned.** I set supplier \"Bench Supplier\" on both parts, after which \"Mark Ready\" succeeded — the page displayed \"Status Ready\" and the button was replaced by \"Mark Draft\" / \"Mark Closed\".\n\n**Objective 6 — DONE.** Both parts were removed (each via the delete action in the parts table, confirmed through the \"Delete part\" confirmation dialog). The parts table then showed \"No parts on this ticket yet.\" with 0 rows. The ticket was then archived via the \"Archive ticket\" button (button changed to \"Unarchive ticket\"). Verified: with \"Show archived\" unchecked, the default ticket list does **not** contain RD-1015; with \"Show archived\" checked, RD-1015 appears with an \"Archived\" badge, status Ready, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/scref2-browser-pilot-transcript.jsonl"
+}
