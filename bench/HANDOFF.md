@@ -155,6 +155,41 @@ What the sweep actually says — and it is not what the N=1 pair said:
   arms). But "browser-pilot is cheaper" from the single pair does not survive contact with N=4;
   quote the medians and ranges above, not c0822orp.
 
+### Cause of browser-pilot's blow-up: the orchestrator micro-manages it
+
+The sweep's browser-pilot cost/turn variance is not the inner agent's fault — it is the
+orchestrator driving browser-pilot one UI action per `do` instead of delegating whole sub-tasks.
+Evidence: the cheap runs sent coarse instructions (c0822orp: 11 do-calls, "create a ticket with
+these fields", 0 escalations, $0.077); the dear ones micro-stepped and thrashed (s1bp: 24
+do-calls — "open the form" then separately "fill the title" — plus a state-confusion spiral of
+corrective instructions, 21 mutations, 1 escalation, $0.284). Each fragment pays for a full inner
+agent loop (~8-10 inner turns) and, when a fragment hits ambiguity, an escalation to glm-5.3
+(~10x the inner rate). So browser-pilot does far more *total* LLM turns than agent-browser
+(≈150+ inner vs ≈33 orchestrator on a run like s3bp) — fine if they are cheap and coarse, ruinous
+when the orchestrator fragments the work.
+
+### Fix test: `--coarse` orchestrator prompt (scoarse1), commit 9bef84e, N=1
+
+`--coarse` adds one paragraph to the orchestrator prompt (browser-pilot only; agent-browser is the
+untouched control): each command runs autonomously to its own report, so hand it a whole outcome
+and let it finish rather than driving click-by-click. No app specifics, no task plan. One run:
+
+| Metric | bp baseline (s1–s4, median) | **scoarse1 (--coarse)** |
+|---|---|---|
+| do-calls | 17 | **10** |
+| outer turns | 17.5 | **11** |
+| glm-5.3 escalations | 1–3 per run | **0** |
+| mutations (10 = clean) | 10–21 | **10** |
+| total cost | $0.247 (0.149–0.284) | **$0.126** |
+| orchestrator context | 17.4KB | 12KB |
+| wall | 1412s | 898s |
+| result | 6/6 | 6/6, trunc 0 |
+
+Cost roughly halved into the c0822orp coarse profile, escalation eliminated, no thrash — and now
+level with agent-browser ($0.133) while keeping browser-pilot's context edge (12KB vs 27.6KB).
+Strong support that the fragmentation was the whole problem. **N=1** — run a `--coarse` sweep
+(3–4) to confirm the variance collapses, not just one lucky point, before quoting it.
+
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
 | | browser-pilot (r01) | agent-browser (r03) |
