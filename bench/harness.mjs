@@ -951,6 +951,7 @@ let finalText = '';
 let stopReason = 'completed';
 let leftLoopEarly = false;
 let spendUnpriced = false;
+let contextTruncations = 0;
 const rates = loadRates(typeof args.rates === 'string' ? args.rates : undefined);
 
 log({ k: 'meta', arm: args.arm, target: targetName, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), captureBytes: args.captureBytes, startedAt });
@@ -972,6 +973,22 @@ try {
     usage.cacheRead += reply.usage.cacheRead;
     usage.output += reply.usage.output;
     log({ k: 'turn', turn: turns, usage: reply.usage, calls: reply.calls.length });
+
+    // Catch the intermittent cloud freeze in the act. The provider's whole
+    // received prompt is input + cacheRead; a healthy turn reports ~1 token per
+    // 3-4 chars sent. When the provider reports far less than the harness sent,
+    // the conversation was dropped between here and the model (the c0822bp /
+    // c0822bp2 freeze, where received sat at ~2129 tokens while sent kept
+    // growing). >=8 chars/received-token means over half the prompt vanished:
+    // far past any tokenizer/caching variance, so it flags a real truncation
+    // rather than noise. Log-only — never abort, so detection cannot itself
+    // change a run's outcome or bias the comparison.
+    const received = reply.usage.input + reply.usage.cacheRead;
+    if (turns > 1 && received > 0 && sentChars / received >= 8) {
+      contextTruncations++;
+      log({ k: 'context-truncated', turn: turns, sentChars, received, ratio: +(sentChars / received).toFixed(1) });
+      console.error(`[harness] turn ${turns}: sent ${sentChars} chars but provider received ~${received} tokens (${(sentChars / received).toFixed(1)}x) — conversation history is being dropped upstream`);
+    }
 
     messages.push(reply.assistant);
 
@@ -1145,6 +1162,7 @@ const result = {
   commandMs: commands.reduce((n, c) => n + c.ms, 0),
   commandBytes: commands.reduce((n, c) => n + c.bytes, 0),
   timeouts: commands.filter((c) => c.killed).length,
+  contextTruncations,
   maxUsd: args.maxUsd,
   spendUsd: (() => {
     const t = priceRun(rates, { provider: providerName, model, orchestrator: usage, inner }).totalUsd;
