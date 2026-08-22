@@ -89,6 +89,7 @@ one fresh 4-CPU/17GB Ubuntu box per arm, Node 22.22), 2026-08-22. Raw files are 
 |---|---|---|---|---|---|---|---|---|
 | c0822ab | agent-browser 0.34.0 | **complete, all 6 objectives verified against the mutation log** | 40 | 214s | 39.3KB | 0.179 | n/a | 0.179 |
 | c0822bp | browser-pilot | fail: turn cap, **0/6**, 119 `do`s all blocked at sign-in (attempt 2; attempt 1 void, see below) | 120 | 4663s | 369.5KB | 0.112 | 7.214 | 7.326 |
+| c0822bp2 | browser-pilot | **post-fix**: inner sign-in now succeeds first try, but still 0/6 turn-cap — orchestrator re-issued sign-in 119× and never advanced (see below) | 120 | 1543s | 172.2KB | 0.121 | 0.680 | 0.802 |
 
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
@@ -165,6 +166,40 @@ fixes on Ubuntu 24.04 (apt deps, Chromium 1228 download, app start, all clean, ~
 agent-browser 0.34.0 declares `node >=24` and the image has 22.22 — npm printed `EBADENGINE`
 and installed anyway; it ran fine, but a box with a stricter npm would refuse it. Both sessions
 found `bin/browser-pilot.js` flipped to mode 755 by `npm link`; now committed that way.
+
+### Post-fix rerun (c0822bp2): the inner fix worked, and exposed the layer beneath it
+
+With the blind-start fix (commit 647b7f9) the inner agent is no longer the problem: the first
+`do` signed in cleanly in 5 turns, landed on `#/tickets`, and named the "New ticket" button;
+every later `do` correctly reported "already signed in". Inner cost fell from $7.21 to $0.68
+(no instruction ever went `blocked`, so the glm-5.3 escalation that dominated c0822bp never
+fired), and the spend ceiling logged $0.80 without needing to trip.
+
+But the run still turn-capped at **0/6**, for a defect one layer up: the **orchestrator issued
+`browser-pilot do "sign in…"` 119 times and never once issued an instruction about creating a
+ticket** (non-signin `do` count: 0; mutation log empty). It received a clear success and a
+description of the tickets page every time and did not advance to objective 1.
+
+This is not the inner agent and not the harness plumbing — it is the orchestrator (glm-5.3,
+driving the benchmark) failing to progress. Two things make it worse than plain model variance:
+
+- **The loop guard never fired.** `repeatedOutput` (bench/harness.mjs) nudges only on
+  *byte-identical* output, deliberately, to stop an arm escaping it by changing one string.
+  But each sign-in success is worded slightly differently (ticket counts, "Signed in" vs "No
+  login form was shown"), so `sameOutputRuns` never reached the threshold and the orchestrator
+  got no advisory at all across 119 near-identical turns. A guard keyed on semantic sameness,
+  or simply on "same subcommand + same reported status N turns running", would have caught it —
+  but any such guard changes the comparison and must be applied to both arms and disclosed.
+- **The same orchestrator model completed this exact task as r01** (16 turns, 6/6). So glm-5.3
+  is capable of it; c0822bp2 is the bad half of the bimodal outcome HANDOFF already flagged,
+  now seen cleanly with a working inner agent. N is still 1 per condition.
+
+**Not fixed here, on purpose.** The remaining defect is orchestrator behaviour, and the obvious
+levers — a smarter loop guard, an orchestrator prompt that lists objectives as a checklist, a
+lower `--maxTurns` for this arm — all change what the benchmark measures and so are a
+methodology decision, not a bug fix. What IS in hand: the inner agent is sound, and a
+recurrence now costs ≤$2 instead of $7. Suggested next step 0b covers where to take the
+orchestrator question.
 
 ### Gap: the mutation log does not survive the app
 
@@ -449,7 +484,16 @@ Unchanged from `bench/README.md`, all still open:
    spend ceiling (`--maxUsd`, default 2.00, `stop=spend-cap`) so a recurrence costs $2, not
    $7. **Next: rerun the browser-pilot arm on the cloud** (`/schedule` a routine on the
    BrowserPilot environment pointed at `bench/CLOUD-RUNBOOK.md`; one routine per arm, ~4 min
-   to provision, results come back as `results/<runid>` branches to merge).
+   to provision, results come back as `results/<runid>` branches to merge). Done as c0822bp2 —
+   inner agent fixed, but see 0b.
+
+0b. **Decide the orchestrator-loop question** (surfaced by c0822bp2, see "Post-fix rerun"). The
+   benchmark orchestrator looped on sign-in for a whole run while the inner agent kept
+   succeeding. This is a methodology call, not a bug: options are (a) accept it as bimodal
+   variance and let N≥5 average it out — cheap now that a bad run is ≤$2; (b) add a loop guard
+   keyed on "same subcommand + same status for N turns" rather than byte-identical output,
+   applied to BOTH arms and disclosed; (c) give the orchestrator an explicit objective
+   checklist. (b)/(c) change what is measured — get a human decision before shipping either.
 1. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and
