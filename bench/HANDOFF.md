@@ -79,6 +79,43 @@ Neutral target (`--target repairdesk`, the app that ships in `bench/app`), 2026-
 |---|---|---|---|---|---|---|---|---|
 | r01 | browser-pilot | **complete, all 6 objectives externally verified** | 16 | 769s | 19.2KB | 0.047 | 0.060 | 0.107 |
 | r02 | agent-browser | fail: turn cap, **0/6**, never got past login | 120 | 1238s | 8.9KB | 0.228 | n/a | 0.228 |
+| r03 | agent-browser | **complete, all 6 objectives externally verified** | 78 | 536s | 37.0KB | 0.284 | n/a | 0.284 |
+
+### First paired comparison (r01 vs r03), N=1 each — read the caveats
+
+| | browser-pilot (r01) | agent-browser (r03) |
+|---|---|---|
+| Objectives verified | 6/6 | 6/6 |
+| Turns | 16 | 78 |
+| Wall | 769s | **536s** |
+| Context to orchestrator | **19.2KB** | 37.0KB |
+| Total cost | **$0.107** | $0.284 |
+
+The shape matches what earlier atelyr runs suggested and neither arm is uniformly ahead:
+agent-browser is **faster in wall-clock** while costing ~2.7x more and ~1.9x the orchestrator
+context. browser-pilot's wall time is dominated by its inner model thinking; agent-browser's
+commands are milliseconds each but it needs far more of them.
+
+Caveats, all of which matter more than the numbers:
+
+- **N=1 per arm.** Both arms are bimodal on this benchmark — r02 was the same arm, same task,
+  same model, and scored 0/6 at the turn cap. A single success does not establish a rate.
+- **r03 is inflated by an environment artifact.** A stale `r03` daemon left by a destroyed
+  earlier attempt cost it ~230s of its 536s and ~11 of its 78 turns before it worked around it.
+  Cleaned up, agent-browser's wall-clock advantage here would be *larger*, not smaller.
+- **Windows, not Linux**, and both runs were on the same developer machine.
+- r01's inner model was deepseek-v4-flash throughout, with no escalation. A different inner
+  model moves its cost line and nothing else.
+- **r03's verification is not independently re-checkable.** See the gap below.
+
+### Gap: the mutation log does not survive the app
+
+The log is in-memory only. Stopping `bench/app/server.mjs` destroys it, so a run can only be
+verified while the app that saw it is still up. I could not re-verify r03 after the fact for
+exactly this reason — the pass is recorded in the run's report and nowhere else, which is
+weaker than the design intends. Persisting the log alongside `data/*.json`, or having the
+harness dump `/__log` into `bench/results/` at the end of a run, would make a verified run
+auditable later instead of only in the moment.
 
 r02 (agent-browser 0.34.0) is **not a usable timing data point**: 910 of its 1238 seconds were
 the harness's own `'close'` bug (see gotchas), and its first command was killed by the timeout.
@@ -313,6 +350,14 @@ distorts wall clock unequally (many short commands vs few long ones).
   ~900s of dead time in its wall clock and `commandMs`, and a spurious `timeouts: 1`. r02 lost
   910 of 1238s this way. Earlier a-runs were manually pre-warmed per the advice above, so they
   are less affected, but which ones and by how much is not recoverable from what was kept.
+- **Sweep agent-browser sessions before reusing a runid.** The harness passes `--session
+  <runid>`, so a daemon left by an abandoned run of the same name is still listening and
+  answers slowly or not at all. r03 spent ~230s and ~11 turns fighting a stale `r03` daemon
+  before routing around it. `agent-browser session list`, then kill, before any rerun.
+- **A run launched by a subagent dies with that subagent's worktree.** A remote/worktree agent
+  that starts the harness and then ends its turn leaves it writing into a deleted directory:
+  the process keeps calling the model and produces nothing recoverable. Block on the run inside
+  the turn, and point `--out` at an absolute path outside the worktree.
 - **Vite survives `TaskStop`** — the wrapper dies, the process does not. Kill the PID holding
   port 5173 directly.
 - **Do not mass-kill chrome.exe.** Benchmark browsers are not distinguishable by name; on this
