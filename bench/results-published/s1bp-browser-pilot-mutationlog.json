@@ -1,0 +1,479 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-08-22T19:30:26.005Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-08-22T19:34:33.977Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s1bp RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:34:33.976Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-08-22T19:35:39.359Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s1bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:35:39.359Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-08-22T19:36:10.842Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s1bp RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:34:33.976Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s1bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:34:33.976Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-08-22T19:37:27.019Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-08-22T19:38:56.514Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-08-22T19:39:01.598Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-08-22T19:40:43.395Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s1bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:34:33.976Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 9,
+    "at": "2026-08-22T19:40:51.361Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s1bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:35:39.359Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-08-22T19:41:07.461Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 11,
+    "at": "2026-08-22T19:43:30.553Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 12,
+    "at": "2026-08-22T19:44:38.269Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 13,
+    "at": "2026-08-22T19:46:29.414Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p20",
+    "before": null,
+    "after": {
+      "id": "p20",
+      "ticketId": "t15",
+      "name": "s1bp RD Probe",
+      "cost": 10,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:46:29.414Z",
+      "price": 10
+    }
+  },
+  {
+    "seq": 14,
+    "at": "2026-08-22T19:47:15.962Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p20",
+    "before": {
+      "id": "p20",
+      "ticketId": "t15",
+      "name": "s1bp RD Probe",
+      "cost": 10,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:46:29.414Z",
+      "price": 10
+    },
+    "after": {
+      "id": "p20",
+      "ticketId": "t15",
+      "name": "s1bp RD Probe",
+      "cost": 10,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:46:29.414Z",
+      "price": 10
+    }
+  },
+  {
+    "seq": 15,
+    "at": "2026-08-22T19:48:26.358Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 16,
+    "at": "2026-08-22T19:49:56.821Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 17,
+    "at": "2026-08-22T19:52:13.882Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p20",
+    "before": {
+      "id": "p20",
+      "ticketId": "t15",
+      "name": "s1bp RD Probe",
+      "cost": 10,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:46:29.414Z",
+      "price": 10
+    },
+    "after": null
+  },
+  {
+    "seq": 18,
+    "at": "2026-08-22T19:53:21.382Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p21",
+    "before": null,
+    "after": {
+      "id": "p21",
+      "ticketId": "t15",
+      "name": "s1bp RD Final",
+      "cost": 10,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:53:21.382Z",
+      "price": 10
+    }
+  },
+  {
+    "seq": 19,
+    "at": "2026-08-22T19:54:28.793Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  },
+  {
+    "seq": 20,
+    "at": "2026-08-22T19:55:41.175Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p21",
+    "before": {
+      "id": "p21",
+      "ticketId": "t15",
+      "name": "s1bp RD Final",
+      "cost": 10,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": "RD Supplier",
+      "createdAt": "2026-08-22T19:53:21.382Z",
+      "price": 10
+    },
+    "after": null
+  },
+  {
+    "seq": 21,
+    "at": "2026-08-22T19:59:31.799Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s1bp RD Bench Ticket",
+      "customer": "RD Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T19:30:26.005Z"
+    }
+  }
+]

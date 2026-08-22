@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "1d7b066"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/s1bp-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "s1bp",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 26,
+  "wallMs": 2075604,
+  "orchestrator": {
+    "input": 10351,
+    "cacheWrite": 0,
+    "cacheRead": 139904,
+    "output": 7186
+  },
+  "inner": {
+    "promptTokens": 3736551,
+    "cachedTokens": 3281088,
+    "completionTokens": 26369,
+    "instructions": 24,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3675837,
+        "completionTokens": 25719,
+        "cachedTokens": 3241728,
+        "instructions": 23
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 60714,
+        "completionTokens": 650,
+        "cachedTokens": 39360,
+        "instructions": 1
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 25,
+  "subcommands": {
+    "open": 1,
+    "do": 23,
+    "peek": 1
+  },
+  "invocationCount": 25,
+  "commandMs": 1528872,
+  "commandBytes": 19962,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0825,
+  "maxUsd": 2,
+  "spendUsd": 0.2842,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**1. Ticket exists — DONE.** Ticket created with title `s1bp RD Bench Ticket`, Ref **RD-1015**, Customer \"RD Bench Customer\", Created 2026-08-22. Confirmed in the tickets list (count went 13 → 14).\n\n**2. Part A — DONE.** Part `s1bp RD Part A` created with Cost $100.00, Markup 25%, Qty 1, Supplier \"RD Supplier\". App-computed **Price: $125.00** (total row $125.00).\n\n**3. Part B — DONE.** Part `s1bp RD Part B` created with Cost $200.00, Markup 25%, Qty 1, Supplier \"RD Supplier\". App-computed **Price: $250.00** (total row $337.50 → $437.50 after Part A's edit).\n\n**4. Part A cost changed to 150 — DONE.** Edited Part A to Cost $150.00 (markup 25%, qty 1 unchanged). App-computed **Price: $187.50**; total row updated to **$437.50** ($187.50 + $250.00).\n\n**5. Ticket ends in status Ready — DONE.** Final status badge: **Ready**. The preconditions I discovered and satisfied (verified by deliberately triggering the failures first):\n   - **At least one part is required.** With zero parts, \"Mark Ready\" was rejected with banner heading **\"Ticket is not ready\"** and item **\"A ticket needs at least one part before it can be marked Ready\"** — status stayed Draft.\n   - **Every part must have a supplier.** With a part whose Supplier was blank, \"Mark Ready\" was rejected with **\"Ticket is not ready\"** / **\"Part \\\"s1bp RD Probe\\\" has no supplier\"** — status stayed Draft.\n   - Once a part with a supplier existed, \"Mark Ready\" succeeded with no error and the badge changed Draft → Ready (buttons became Mark Draft / Mark Closed / Archive ticket).\n\n**6. Parts removed and ticket archived — DONE.** Both parts (`s1bp RD Part A`, `s1bp RD Part B`) were deleted via their Delete actions with confirmation; the parts table showed the empty state **\"No parts on this ticket yet.\"** with no total row. The ticket was then archived: the detail page's button changed from \"Archive ticket\" to **\"Unarchive ticket\"** (status badge still Ready). In the tickets list with \"Show archived\" unchecked, RD-1015 is **absent**; with it checked, the row reads Ref RD-1015, Title cell \"s1bp RD Bench Ticket\" + **\"Archived\"** badge, Customer RD Bench Customer, Status Ready, Parts 0, Created 2026-08-22. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/s1bp-browser-pilot-transcript.jsonl"
+}
