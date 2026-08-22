@@ -1,0 +1,261 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-08-22T22:23:48.843Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scref3 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T22:23:48.843Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-08-22T22:24:18.027Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scref3 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:24:18.027Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-08-22T22:25:37.053Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scref3 RD Part B",
+      "cost": 25,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:25:37.053Z",
+      "price": 25
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-08-22T22:27:08.436Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scref3 RD Part B",
+      "cost": 25,
+      "markup": 0,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:25:37.053Z",
+      "price": 25
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scref3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:25:37.053Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-08-22T22:27:43.135Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scref3 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:24:18.027Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scref3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:24:18.027Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-08-22T22:28:20.214Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scref3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:24:18.027Z",
+      "price": 187.5
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scref3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "ABC Supplies",
+      "createdAt": "2026-08-22T22:24:18.027Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-08-22T22:30:47.025Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scref3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T22:25:37.053Z",
+      "price": 250
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scref3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "XYZ Parts Inc.",
+      "createdAt": "2026-08-22T22:25:37.053Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-08-22T22:30:50.272Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scref3 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T22:23:48.843Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scref3 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T22:23:48.843Z"
+    }
+  },
+  {
+    "seq": 9,
+    "at": "2026-08-22T22:31:24.174Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "scref3 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "ABC Supplies",
+      "createdAt": "2026-08-22T22:24:18.027Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-08-22T22:32:45.420Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "scref3 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "XYZ Parts Inc.",
+      "createdAt": "2026-08-22T22:25:37.053Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 11,
+    "at": "2026-08-22T22:35:01.080Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scref3 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T22:23:48.843Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "scref3 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T22:23:48.843Z"
+    }
+  }
+]
