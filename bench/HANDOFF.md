@@ -31,6 +31,21 @@ run is invalidated by them, but every earlier run's timeout accounting is.
 | `bench/check-splitter.mjs` | Tests the shell-operator splitter against every recorded command |
 | `bench/README.md` | Methodology, conflict-of-interest statement, deliberate asymmetries, open gaps |
 
+## Arm B baseline break — 2026-08-21
+
+**Every agent-browser row below was produced by agent-browser 0.16.3.** Measurement is
+restarting against **0.34.0** (npm latest, published 2026-08-10), pinned in
+`bench/cloud-setup.sh`. That is eighteen minor versions of behaviour change, so a03/a12/a13/a14
+are a **closed baseline**: do not pool them with new runs, do not plot them on the same axes,
+and do not compare a new browser-pilot run against an old agent-browser one. The
+browser-pilot-side figures are unaffected by this.
+
+This machine still had 0.16.3 installed at the time of writing. Upgrade before measuring here:
+
+```sh
+npm install -g agent-browser@0.34.0
+```
+
 ## Results so far
 
 | Run | Arm | Status | Turns | Wall | Ctx→orch | Orch $ | Inner $ |

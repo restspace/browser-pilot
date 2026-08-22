@@ -136,10 +136,14 @@ On a fresh Linux box — a cloud instance, a container, a CI runner — `bench/c
 does all of the above and checks it: node version, build, a browser (the dependency is
 `playwright-core`, which bundles none, so a bare container has nothing for browser-pilot's
 `chrome → msedge → chromium` channel search to find), outbound network to the model API, and
-the app itself. It installs `agent-browser` only with `--with-arm-b`, at a **pinned** version,
-because every agent-browser figure recorded so far came from 0.16.3 and npm latest has moved
-well past it — installing "latest" would quietly make new runs incomparable with old ones. It
-sets up and verifies but never starts a run, since runs cost money.
+the app itself. It installs `agent-browser` only with `--with-arm-b`, at a **pinned concrete
+version** — currently 0.34.0 — never `latest`, so that two boxes set up a week apart cannot
+quietly disagree. It sets up and verifies but never starts a run, since runs cost money.
+
+**Arm B baseline break, 2026-08-21.** Every agent-browser figure in `HANDOFF.md` before this
+date was produced by agent-browser 0.16.3. Measurement is restarting against 0.34.0, eighteen
+minor versions later. Runs either side of that line are not comparable and must not be pooled
+or plotted together; the old figures stay in the record as a closed baseline.
 
 Against the private target, where the placeholders must be supplied:
 

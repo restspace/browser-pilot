@@ -21,13 +21,20 @@ set -euo pipefail
 
 # The agent-browser version to install for arm B.
 #
-# PIN THIS DELIBERATELY. Every agent-browser figure recorded in HANDOFF.md was
-# produced by 0.16.3, and npm latest has since moved many minor versions past
-# it. Installing "latest" silently makes new runs incomparable with old ones
-# while looking like it worked, which is the worst of both. Override only if
-# you mean to start a new baseline:
-#   AGENT_BROWSER_VERSION=0.34.0 bench/cloud-setup.sh --with-arm-b
-AGENT_BROWSER_VERSION="${AGENT_BROWSER_VERSION:-0.16.3}"
+# 0.34.0 is npm latest as of 2026-08-21 (published 2026-08-10), chosen because
+# measurement is starting again from scratch and a new baseline should be taken
+# against the current tool rather than a stale one.
+#
+# It is a concrete version and not "latest" on purpose. A floating pin would
+# make two boxes set up a week apart quietly disagree, which is exactly the
+# failure this line exists to prevent. When you next want to move it, bump it
+# here and note the change in HANDOFF.md so the discontinuity is on the record.
+#
+# This is a BASELINE BREAK: every agent-browser figure recorded in HANDOFF.md
+# before 2026-08-21 came from 0.16.3, eighteen minor versions back. Those runs
+# and runs made with this pin are not comparable, and neither is a mixture.
+#   AGENT_BROWSER_VERSION=0.16.3 bench/cloud-setup.sh --with-arm-b   # old baseline
+AGENT_BROWSER_VERSION="${AGENT_BROWSER_VERSION:-0.34.0}"
 
 PORT="${PORT:-4180}"
 WITH_ARM_B=0
@@ -128,7 +135,11 @@ if [ "$WITH_ARM_B" = "1" ]; then
     echo "    already installed: ${installed}"
     case "$installed" in
       *"$AGENT_BROWSER_VERSION"*) : ;;
-      *) warn "this is NOT the pinned ${AGENT_BROWSER_VERSION}; arm B results will not be comparable with existing runs" ;;
+      *)
+        warn "this is NOT the pinned ${AGENT_BROWSER_VERSION}; arm B results from this box"
+        warn "will not be comparable with runs made against the pin. To match:"
+        warn "  npm install -g agent-browser@${AGENT_BROWSER_VERSION}"
+        ;;
     esac
   else
     npm install -g "agent-browser@${AGENT_BROWSER_VERSION}"
