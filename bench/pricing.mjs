@@ -49,10 +49,19 @@ export function priceRun(rates, { provider, model, orchestrator, inner }) {
   let innerUsd = 0;
   let innerBasis = 'none';
   const u = inner ?? {};
+  // The inner model has its own provider (browser-pilot's BROWSER_PILOT_PROVIDER,
+  // reported by `config` and recorded as inner.provider), which is NOT the
+  // orchestrator's. They coincided while both ran on novita; once the
+  // orchestrator moved to OpenRouter, pricing inner under the orchestrator's
+  // provider looked the inner models up in the wrong rate table and returned
+  // null — silently disabling the spend ceiling. Price inner against its own
+  // provider, falling back to the orchestrator's for older results that predate
+  // the field.
+  const innerProvider = u.provider || provider;
   if (u.byModel && Object.keys(u.byModel).length) {
     innerBasis = 'per-model';
     for (const [m, t] of Object.entries(u.byModel)) {
-      const c = cost(rateFor(rates, provider, m), {
+      const c = cost(rateFor(rates, innerProvider, m), {
         input: Math.max(0, (t.promptTokens ?? 0) - (t.cachedTokens ?? 0)),
         cacheRead: t.cachedTokens ?? 0,
         output: t.completionTokens ?? 0,
@@ -65,7 +74,7 @@ export function priceRun(rates, { provider, model, orchestrator, inner }) {
       innerUsd += c;
     }
   } else if (u.promptTokens) {
-    innerUsd = cost(rateFor(rates, provider, u.model), {
+    innerUsd = cost(rateFor(rates, innerProvider, u.model), {
       input: Math.max(0, u.promptTokens - (u.cachedTokens ?? 0)),
       cacheRead: u.cachedTokens ?? 0,
       output: u.completionTokens ?? 0,
