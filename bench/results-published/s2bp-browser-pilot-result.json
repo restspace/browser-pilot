@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "1d7b066"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/s2bp-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "s2bp",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 19,
+  "wallMs": 638384,
+  "orchestrator": {
+    "input": 8535,
+    "cacheWrite": 0,
+    "cacheRead": 87360,
+    "output": 5542
+  },
+  "inner": {
+    "promptTokens": 2325805,
+    "cachedTokens": 2139136,
+    "completionTokens": 14596,
+    "instructions": 17,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2325805,
+        "completionTokens": 14596,
+        "cachedTokens": 2139136,
+        "instructions": 17
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 19,
+  "subcommands": {
+    "open": 1,
+    "do": 17,
+    "peek": 1
+  },
+  "invocationCount": 19,
+  "commandMs": 484684,
+  "commandBytes": 15572,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.059,
+  "maxUsd": 2,
+  "spendUsd": 0.1492,
+  "finalText": "All objectives complete and verified.\n\n**1. DONE** — Ticket created: **RD-1015**, title `s2bp RD Bench Ticket`, customer \"Bench Customer\", initial status Draft (created 2026-08-22).\n\n**2. DONE** — Part `s2bp RD Part A` added with Cost $100.00, Markup 25%, Qty 1, Supplier \"Bench Supplier\". Computed **Price: $125.00**.\n\n**3. DONE** — Part `s2bp RD Part B` added with Cost $200.00, Markup 25%, Qty 1, Supplier \"Bench Supplier\". Computed **Price: $250.00**. (Table total at that point: $375.00.)\n\n**4. DONE** — Part A edited, Cost 100 → 150 (markup unchanged at 25%). Computed **Price: $187.50**. Table total updated to $437.50.\n\n**5. DONE** — Ticket RD-1015 ends in status **Ready** (verified persisted after navigating away and back). The app enforces preconditions via a native alert titled \"Ticket is not ready\"; I discovered them experimentally on a scratch ticket (RD-1016) so RD-1015 was never left in a bad state. Exactly **two** preconditions were found, and satisfying both was sufficient:\n   - **At least one part must exist on the ticket.** Alert text: `Ticket is not ready — A ticket needs at least one part before it can be marked Ready`.\n   - **Every part on the ticket must have a supplier.** Alert text: `Ticket is not ready — Part \"s2bp RD Probe Part\" has no supplier`.\n   \n   A missing customer does **not** block Ready (the probe ticket had no customer and still reached Ready once the two conditions above were met). RD-1015 already satisfied both conditions when I clicked Mark Ready, so it transitioned Draft → Ready with no alert.\n\n**6. DONE** — Both parts deleted from RD-1015, each via a custom \"Confirm\" dialog reading `Delete the part \"<name>\" from this ticket? This cannot be undone.` (confirmed with \"Delete part\"). Parts section now shows the empty state \"No parts on this ticket yet.\" with no total row. Ticket then archived (no confirmation prompt; button became \"Unarchive ticket\", an \"Archived\" badge appeared beside Status: Ready). Final check: the active Tickets list shows 13 tickets with **no** `s2bp` rows; with \"Show archived\" ticked, both appear as `RD-1015 | s2bp RD Bench Ticket Archived | Bench Customer | Ready | 0` and `RD-1016 | s2bp RD Probe Archived | Not recorded | Ready | 1`. Nothing created by this run remains active.\n\nNote: I created one extra scratch ticket, `s2bp RD Probe` (RD-1016), purely to probe the Ready preconditions without disturbing RD-1015. It was also archived, so it leaves nothing active either.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/s2bp-browser-pilot-transcript.jsonl"
+}

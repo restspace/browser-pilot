@@ -1,0 +1,289 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-08-22T19:43:49.400Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s2bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:43:49.400Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-08-22T19:44:27.897Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s2bp RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-08-22T19:44:27.897Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-08-22T19:44:46.445Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s2bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-08-22T19:44:46.445Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-08-22T19:45:11.528Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s2bp RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-08-22T19:44:27.897Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s2bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-08-22T19:44:27.897Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-08-22T19:45:25.909Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s2bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:43:49.400Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s2bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:43:49.400Z"
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-08-22T19:47:01.005Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t16",
+    "before": null,
+    "after": {
+      "id": "t16",
+      "ref": "RD-1016",
+      "title": "s2bp RD Probe",
+      "customer": "",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:47:01.005Z"
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-08-22T19:47:34.105Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p20",
+    "before": null,
+    "after": {
+      "id": "p20",
+      "ticketId": "t16",
+      "name": "s2bp RD Probe Part",
+      "cost": 10,
+      "markup": 5,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:47:34.105Z",
+      "price": 10.5
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-08-22T19:49:14.267Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p20",
+    "before": {
+      "id": "p20",
+      "ticketId": "t16",
+      "name": "s2bp RD Probe Part",
+      "cost": 10,
+      "markup": 5,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-22T19:47:34.105Z",
+      "price": 10.5
+    },
+    "after": {
+      "id": "p20",
+      "ticketId": "t16",
+      "name": "s2bp RD Probe Part",
+      "cost": 10,
+      "markup": 5,
+      "quantity": 1,
+      "supplier": "Probe Supplier",
+      "createdAt": "2026-08-22T19:47:34.105Z",
+      "price": 10.5
+    }
+  },
+  {
+    "seq": 9,
+    "at": "2026-08-22T19:50:26.862Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t16",
+    "before": {
+      "id": "t16",
+      "ref": "RD-1016",
+      "title": "s2bp RD Probe",
+      "customer": "",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-22T19:47:01.005Z"
+    },
+    "after": {
+      "id": "t16",
+      "ref": "RD-1016",
+      "title": "s2bp RD Probe",
+      "customer": "",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:47:01.005Z"
+    }
+  },
+  {
+    "seq": 10,
+    "at": "2026-08-22T19:51:04.029Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t16",
+    "before": {
+      "id": "t16",
+      "ref": "RD-1016",
+      "title": "s2bp RD Probe",
+      "customer": "",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:47:01.005Z"
+    },
+    "after": {
+      "id": "t16",
+      "ref": "RD-1016",
+      "title": "s2bp RD Probe",
+      "customer": "",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T19:47:01.005Z"
+    }
+  },
+  {
+    "seq": 11,
+    "at": "2026-08-22T19:51:49.960Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "s2bp RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-08-22T19:44:27.897Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 12,
+    "at": "2026-08-22T19:52:20.093Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "s2bp RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-08-22T19:44:46.445Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 13,
+    "at": "2026-08-22T19:52:37.623Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s2bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-22T19:43:49.400Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "s2bp RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-22T19:43:49.400Z"
+    }
+  }
+]
