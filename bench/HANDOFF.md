@@ -90,6 +90,9 @@ one fresh 4-CPU/17GB Ubuntu box per arm, Node 22.22), 2026-08-22. Raw files are 
 | c0822ab | agent-browser 0.34.0 | **complete, all 6 objectives verified against the mutation log** | 40 | 214s | 39.3KB | 0.179 | n/a | 0.179 |
 | c0822bp | browser-pilot | fail: turn cap, **0/6**, 119 `do`s all blocked at sign-in (attempt 2; attempt 1 void, see below) | 120 | 4663s | 369.5KB | 0.112 | 7.214 | 7.326 |
 | c0822bp2 | browser-pilot | **post-fix**: inner sign-in now succeeds first try, but still 0/6 turn-cap — orchestrator re-issued sign-in 119× and never advanced (see below) | 120 | 1543s | 172.2KB | 0.121 | 0.680 | 0.802 |
+| c0822bp3 | browser-pilot | **completed 6/6** — diagnostic, no freeze; sent/received tracked | 13 | 652s | 16.2KB | 0.050 | 0.071 | 0.121 |
+| c0822bp4 | browser-pilot | turn-cap 0/6 — **freeze caught**: 100 context-truncated turns, provider frozen at ~2129 tok while harness sent 155KB | 120 | 1853s | 88.2KB | 0.243 | 0.623 | 0.865 |
+| c0822bp5 | browser-pilot | **completed 6/6** — diagnostic, no freeze | 15 | 574s | 9.4KB | 0.039 | 0.082 | 0.121 |
 
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
@@ -200,6 +203,45 @@ lower `--maxTurns` for this arm — all change what the benchmark measures and s
 methodology decision, not a bug fix. What IS in hand: the inner agent is sound, and a
 recurrence now costs ≤$2 instead of $7. Suggested next step 0b covers where to take the
 orchestrator question.
+
+### Root cause of the browser-pilot cloud freeze: novita drops the orchestrator's history (CONFIRMED)
+
+The sign-in loop is not the model failing and not a harness state bug. It is the model provider
+(novita, glm-5.3 as orchestrator) intermittently ignoring the appended conversation and
+processing only the cached system-prompt prefix. Proven by instrumenting what the harness SENDS
+vs what the provider REPORTS receiving (`{k:"sent"}` before each call; `{k:"context-truncated"}`
+when received < ⅛ of sent). Five diagnostic runs on identical fresh boxes, same commit:
+
+| run | outcome | sent.chars by end | provider received | contextTruncations |
+|---|---|---|---|---|
+| c0822bp3 | **completed 6/6** | 29,433 | grew in step (in+cr climbing) | 0 |
+| c0822bp4 | turn-cap 0/6 | 155,784 | **frozen at ~2,129 tokens t3→t80** | 100 |
+| c0822bp5 | **completed 6/6** | 20,964 | grew in step | 0 |
+
+c0822bp4 is the proof: the harness sent a normally-growing conversation (1 → 240 messages,
+155 KB), while the provider reported receiving a flat `in=17, cacheRead=2112` from turn 3 to
+turn 80+ — i.e. only the cached prefix, none of the 100 KB of history after it. The orchestrator
+therefore woke each turn seeing only the goal, signed in, and repeated it 119 times. At the very
+last turn the freeze spontaneously cleared (`cr` jumped to 37,312), which rules out a fixed
+context-window truncation and points at a novita **prompt-cache** fault: it matched the prefix
+and failed to read past it. It correlates with the browser-pilot arm's multi-minute gaps between
+orchestrator calls (each `do` is a full inner run); agent-browser, with sub-second gaps, has
+never shown it. It is per-box/per-connection and intermittent — 2 of 3 froze, then 1 of 2.
+
+This is the same amnesia behind h14 and both original cloud runs. It is a provider bug we cannot
+fix directly; the harness-side options, none yet chosen:
+- **Retry the orchestrator call when `context-truncated` fires.** Correctness, not bias — both
+  arms would get it. Risk: an immediate retry may hit the same cache entry and return the same
+  truncated read (bp4 only recovered after a long time), so it likely needs a cache-busting
+  perturbation or a back-off, not a bare resend.
+- **Defeat the prefix cache** (vary the system prefix per call). Removes the fault but inflates
+  cost and changes the caching being measured — disclose if used.
+- **Keep the gap short** (ping/keepalive to novita during long `do`s), or move the orchestrator
+  to a different endpoint/provider. Speculative until the retry is tried.
+- Report it to novita with these traces.
+
+The detector stays in as a permanent tripwire: any future run says `contextTruncations` in its
+result, so a frozen run can never again be mistaken for the model being incapable.
 
 ### Gap: the mutation log does not survive the app
 
@@ -487,13 +529,14 @@ Unchanged from `bench/README.md`, all still open:
    to provision, results come back as `results/<runid>` branches to merge). Done as c0822bp2 —
    inner agent fixed, but see 0b.
 
-0b. **Decide the orchestrator-loop question** (surfaced by c0822bp2, see "Post-fix rerun"). The
-   benchmark orchestrator looped on sign-in for a whole run while the inner agent kept
-   succeeding. This is a methodology call, not a bug: options are (a) accept it as bimodal
-   variance and let N≥5 average it out — cheap now that a bad run is ≤$2; (b) add a loop guard
-   keyed on "same subcommand + same status for N turns" rather than byte-identical output,
-   applied to BOTH arms and disclosed; (c) give the orchestrator an explicit objective
-   checklist. (b)/(c) change what is measured — get a human decision before shipping either.
+0b. ~~Decide the orchestrator-loop question~~ **Diagnosed 2026-08-22, root cause found** — it was
+   not a loop-guard or prompt problem at all: novita drops the orchestrator's history and serves
+   only the cached prefix (see "Root cause of the browser-pilot cloud freeze"). The loop was the
+   symptom. **Next: pick and ship a mitigation** — recommended (a) retry the orchestrator call on
+   `context-truncated` with a cache-busting perturbation/back-off, since a bare resend may hit the
+   same stale cache. The detector is already in and will confirm any mitigation works (a fixed
+   run shows `contextTruncations: 0` where it used to freeze). This is a correctness fix applied
+   to both arms, not a methodology change.
 1. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and
