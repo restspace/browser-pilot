@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "4c4c118"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/scoarse2-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "scoarse2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 13,
+  "wallMs": 1424438,
+  "orchestrator": {
+    "input": 8889,
+    "cacheWrite": 0,
+    "cacheRead": 72960,
+    "output": 2813
+  },
+  "inner": {
+    "promptTokens": 3888642,
+    "cachedTokens": 3610432,
+    "completionTokens": 26213,
+    "instructions": 13,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3290002,
+        "completionTokens": 19767,
+        "cachedTokens": 3029504,
+        "instructions": 11
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 598640,
+        "completionTokens": 6446,
+        "cachedTokens": 580928,
+        "instructions": 2
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 12,
+  "subcommands": {
+    "do": 11,
+    "peek": 1
+  },
+  "invocationCount": 12,
+  "commandMs": 1349152,
+  "commandBytes": 18189,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0438,
+  "maxUsd": 2,
+  "spendUsd": 0.3748,
+  "finalText": "All objectives complete and verified.\n\n**Final report**\n\n1. **DONE** — Ticket created: reference **RD-1015**, title **\"scoarse2 RD Bench Ticket\"**, customer \"Not recorded\", created 2026-08-22, initial status Draft.\n2. **DONE** — Part **\"scoarse2 RD Part A\"** added with cost 100, markup 25%, qty 1. Computed price: **$125.00** (100 + 25%).\n3. **DONE** — Part **\"scoarse2 RD Part B\"** added with cost 200, markup 25%, qty 1. Computed price: **$250.00** (200 + 25%). Parts total at that point: $375.00.\n4. **DONE** — Part A's cost edited from 100 to **150** (markup still 25%). Computed price afterwards: **$187.50**. Parts total became $437.50.\n5. **DONE** — Status set to **Ready**. Precondition discovered: clicking \"Mark Ready\" initially failed with the exact alert: *\"Ticket is not ready Part \"scoarse2 RD Part A\" has no supplier Part \"scoarse2 RD Part B\" has no supplier\"*. What was required: **every part on the ticket must have a supplier**. I set Supplier = \"Bench Supply Co\" on both parts, after which \"Mark Ready\" succeeded and the status badge changed to Ready (action buttons became Mark Draft / Mark Closed / Archive ticket).\n6. **DONE** — Both parts deleted (each via Delete → confirm \"Delete part\"); the parts table then showed \"No parts on this ticket yet.\" with no total row, and the status stayed Ready. The ticket was then archived (button changed to \"Unarchive ticket\"). Verified: with \"Show archived\" unchecked, searching for \"scoarse2\" returns \"No tickets match the current filters.\" (0 rows, Page 1 of 1); with \"Show archived\" checked, RD-1015 appears as \"scoarse2 RD Bench Ticket Archived\", status Ready, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/scoarse2-browser-pilot-transcript.jsonl"
+}
