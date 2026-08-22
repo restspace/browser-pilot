@@ -78,6 +78,30 @@ Neutral target (`--target repairdesk`, the app that ships in `bench/app`), 2026-
 | Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
 |---|---|---|---|---|---|---|---|---|
 | r01 | browser-pilot | **complete, all 6 objectives externally verified** | 16 | 769s | 19.2KB | 0.047 | 0.060 | 0.107 |
+| r02 | agent-browser | fail: turn cap, **0/6**, never got past login | 120 | 1238s | 8.9KB | 0.228 | n/a | 0.228 |
+
+r02 (agent-browser 0.34.0) is **not a usable timing data point**: 910 of its 1238 seconds were
+the harness's own `'close'` bug (see gotchas), and its first command was killed by the timeout.
+Its *failure* is real, though, and the mutation log confirms it — 0 entries, so the run never
+wrote anything. What happened:
+
+- Turn 1 opened the app and took the run's **only** snapshot. `subcommands` for the whole run:
+  `open: 1, snapshot: 1, fill: 238, click: 119`.
+- Turn 2 filled email and password and clicked Sign in. **All three succeeded** — login worked.
+- Turns 3-120 repeated that same three-command sequence 118 more times against a form that was
+  no longer on the page, ignoring the harness's degenerate-loop advice at `repeat: 118`.
+
+Two things fed the loop, and both are worth writing down because they are about the tool
+surface rather than the model having a bad day:
+
+1. **It never took a second snapshot**, so having logged in successfully it had no evidence of
+   that and no refs for anything past the login form.
+2. **`fill` on a stale ref reports success.** `fill @e4` and `fill @e5` returned `✓ Done` with
+   exit 0 against a form that had gone; only `click @e6` failed. Two of three commands saying
+   "working" is close to worst-case input for a model deciding whether to retry.
+
+N=1, and the loop may not reproduce. It needs re-running on the fixed harness before anyone
+draws a conclusion from it.
 
 `node bench/verify-repairdesk.mjs r01` → 6/6 PASS, 0 claim mismatches, 0 residue left active.
 Subcommands: 13 `do`, 1 `open`, 1 `config`, 1 `peek`. No escalation — the whole run stayed on
@@ -277,8 +301,18 @@ distorts wall clock unequally (many short commands vs few long ones).
   empty — only the line-buffered transcript survived. Use `nohup ... &`, or on Windows
   `Start-Process -WindowStyle Hidden -RedirectStandardOutput ...`. Judge progress from the
   transcript, never from the `.log`.
-- **agent-browser's first command after a cold start hangs** (>45s, seen 5 times). Kill it and
-  retry; the retry takes ~0.4s. Pre-warm before a timed run and report the hang separately.
+- ~~**agent-browser's first command after a cold start hangs**~~ — **this was our bug, fixed
+  2026-08-22.** agent-browser was never slow. `runCommand` resolved only on `'close'`, which
+  waits for the stdio pipes; agent-browser leaves a detached daemon holding them after the CLI
+  exits, so `'close'` never fired and the harness sat on a command that had already printed its
+  output until the timeout killed it. Measured directly against the real CLI: **60s timeout
+  waiting on `'close'`, 1.8s waiting on `'exit'`, byte-identical output.** The harness now
+  resolves on `'exit'` with a 500ms grace for trailing output. Pre-warming "worked" because a
+  second command on a live session reuses the daemon rather than spawning one.
+  **Consequence for the record:** any agent-browser run whose session was not pre-warmed has
+  ~900s of dead time in its wall clock and `commandMs`, and a spurious `timeouts: 1`. r02 lost
+  910 of 1238s this way. Earlier a-runs were manually pre-warmed per the advice above, so they
+  are less affected, but which ones and by how much is not recoverable from what was kept.
 - **Vite survives `TaskStop`** — the wrapper dies, the process does not. Kill the PID holding
   port 5173 directly.
 - **Do not mass-kill chrome.exe.** Benchmark browsers are not distinguishable by name; on this

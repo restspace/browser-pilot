@@ -479,6 +479,12 @@ function commandIsAllowed(cmd) {
 /** How long to wait for a killed process tree to close its pipes before giving up. */
 const DRAIN_MS = 10_000;
 
+// How long to keep reading a command's output after the process has exited but
+// its pipes are still held open by something it spawned. Long enough for a
+// trailing write to arrive, short enough that it is noise against commands that
+// take seconds. See the 'exit' handler in runCommand for why this is needed.
+const EXIT_GRACE_MS = 500;
+
 /**
  * Kill the whole process tree, not just the shell.
  *
@@ -510,12 +516,14 @@ function runCommand(cmd) {
     let killed = false;
     let settled = false;
     let drain = null;
+    let grace = null;
 
     const finish = (code) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
       if (drain) clearTimeout(drain);
+      if (grace) clearTimeout(grace);
       resolve({ out: out.trimEnd(), code, ms: Date.now() - started, killed });
     };
 
@@ -528,6 +536,27 @@ function runCommand(cmd) {
 
     child.stdout.on('data', (d) => (out += d.toString()));
     child.stderr.on('data', (d) => (out += d.toString()));
+
+    /**
+     * Resolve on 'exit', not only on 'close'.
+     *
+     * 'close' waits for the stdio pipes to close, and agent-browser leaves a
+     * DETACHED DAEMON holding them after the CLI itself has exited. So on a
+     * cold start 'close' never fired, and the harness sat on a command that had
+     * already finished and already printed its output until the 900s timeout
+     * killed it. Run r02 lost 910 of its 1238 wall-clock seconds to this, and
+     * it was recorded for weeks as an "agent-browser cold-start hang" — the
+     * tool was not slow, the harness was waiting on the wrong event.
+     *
+     * The grace period exists because 'exit' can precede the last chunk of
+     * output: it gives the pipes a moment to deliver anything still buffered.
+     * 'close' still wins when it arrives, which is the normal case for a
+     * process that does not daemonise, so well-behaved commands are unaffected.
+     */
+    child.on('exit', (code) => {
+      if (settled || grace) return;
+      grace = setTimeout(() => finish(code), EXIT_GRACE_MS);
+    });
     child.on('close', (code) => finish(code));
     child.on('error', (err) => {
       out += String(err);
