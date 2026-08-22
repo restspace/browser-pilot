@@ -1,0 +1,49 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "95d0823"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c0822ab-agent-browser-mutationlog.json",
+  "provider": "novita",
+  "model": "zai-org/glm-5.3",
+  "runid": "c0822ab",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 40,
+  "wallMs": 213849,
+  "orchestrator": {
+    "input": 24037,
+    "cacheWrite": 0,
+    "cacheRead": 505984,
+    "output": 3234
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 92,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 30,
+    "fill": 13,
+    "click": 28,
+    "wait": 19,
+    "check": 1
+  },
+  "invocationCount": 92,
+  "commandMs": 23959,
+  "commandBytes": 40252,
+  "timeouts": 0,
+  "finalText": "All objectives verified. Final state confirmed: ticket RD-1015 shows Status \"Ready\", badge \"Archived\", and \"No parts on this ticket yet.\"\n\n## Final Report\n\n**1. DONE** — Ticket created: **RD-1015**, title \"c0822ab RD Bench Ticket\", customer Marlow Bakery, raised 2026-08-22. It appeared at the top of the tickets list after the create refresh.\n\n**2. DONE** — Part \"c0822ab RD Part A\" with cost $100.00 and markup 25% → computed **PRICE $125.00** (ticket total $125.00).\n\n**3. DONE** — Part \"c0822ab RD Part B\" with cost $200.00 and markup 25% → computed **PRICE $250.00** (ticket total $437.50).\n\n**4. DONE** — Part A's cost edited from 100 to **$150.00** (markup still 25%) → computed **PRICE $187.50** (ticket total $437.50).\n\n**5. DONE** — Status reached **Ready**. The precondition discovered: **every part on the ticket must have a supplier**. The first \"Mark Ready\" attempt failed with an alert reading \"Ticket is not ready\" listing:\n- `Part \"c0822ab RD Part A\" has no supplier`\n- `Part \"c0822ab RD Part B\" has no supplier`\n\nI satisfied it by editing each part and setting Supplier = \"Northgate Parts\" (both parts then showed \"Northgate Parts\" instead of \"No supplier\"). The next \"Mark Ready\" click succeeded — the status text changed from \"Draft\" to \"Ready\" and the action buttons changed to \"Mark Draft\" / \"Mark Closed\".\n\n**6. DONE** — Both parts deleted (each via Delete → \"Confirm\" dialog → \"Delete part\" button, waiting for the list refresh between each). Final parts table shows \"No parts on this ticket yet.\" The ticket was then archived: the button flipped to \"Unarchive ticket\", the detail page gained an \"Archived\" badge, and RD-1015 disappeared from the default ticket list — it only reappears when \"Show archived\" is checked (shown there as \"c0822ab RD Bench Ticket Archived\", status Ready, 0 parts). Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c0822ab-agent-browser-transcript.jsonl"
+}
