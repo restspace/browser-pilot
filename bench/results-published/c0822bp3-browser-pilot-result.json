@@ -1,0 +1,57 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "9a80c84"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c0822bp3-browser-pilot-mutationlog.json",
+  "provider": "novita",
+  "model": "zai-org/glm-5.3",
+  "runid": "c0822bp3",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 13,
+  "wallMs": 652299,
+  "orchestrator": {
+    "input": 9241,
+    "cacheWrite": 0,
+    "cacheRead": 59840,
+    "output": 4938
+  },
+  "inner": {
+    "promptTokens": 1809255,
+    "cachedTokens": 1664768,
+    "completionTokens": 12887,
+    "instructions": 12,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1809255,
+        "completionTokens": 12887,
+        "cachedTokens": 1664768,
+        "instructions": 12
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3"
+  },
+  "commandCount": 12,
+  "subcommands": {
+    "do": 12
+  },
+  "invocationCount": 12,
+  "commandMs": 514938,
+  "commandBytes": 16607,
+  "timeouts": 0,
+  "maxUsd": 2,
+  "spendUsd": 0.1207,
+  "finalText": "All objectives complete. Final report:\n\n**1. DONE** — Ticket `c0822bp3 RD Bench Ticket` exists, ref **RD-1015** (customer \"Bench Cafe\", created 2026-08-22). Confirmed at `#/tickets/t15`.\n\n**2. DONE** — Part `c0822bp3 RD Part A`: cost $100.00, markup 25%, qty 1, supplier Acme. App-computed price: **$125.00** (100 × 1.25).\n\n**3. DONE** — Part `c0822bp3 RD Part B`: cost $200.00, markup 25%, qty 1, supplier Acme. App-computed price: **$250.00** (200 × 1.25). Ticket total was $375.00 with both parts.\n\n**4. DONE** — After editing Part A's cost 100 → 150 (markup still 25%), price recomputed to **$187.50** (150 × 1.25). Ticket total updated to $437.50.\n\n**5. DONE** — Ticket ends in status **Ready** (\"Status: Ready\" on the detail page; header buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n**What was required to reach Ready (discovered by experiment):**\nThe \"Mark Ready\" button is not disabled when preconditions fail — it stays clickable but rejects the change with an alert titled **\"Ticket is not ready\"**. Two preconditions, both required:\n- **The ticket must have at least one part.** With zero parts, the alert body read exactly: *\"A ticket needs at least one part before it can be marked Ready.\"*\n- **Every part on the ticket must have a supplier set.** With one part (name \"probe\", cost 1, markup 1, no supplier), the alert body read exactly: *\"Part \\\"probe\\\" has no supplier.\"* Note the supplier column displays \"No supplier\" for empty values, so this is easy to miss.\n\nAfter adding a supplier to that part, \"Mark Ready\" succeeded with no alert — confirming these two are the complete set of preconditions. RD-1015 already had both parts with supplier \"Acme\", so its \"Mark Ready\" succeeded on the first attempt with no message shown.\n\n**6. DONE** — Both parts deleted from RD-1015 (each Delete opened a \"Confirm\" dialog confirmed with \"Delete part\"); the table refreshed to **\"No parts on this ticket yet.\"** with no total row. Ticket then archived: \"Archive ticket\" flipped to \"Unarchive ticket\" and an \"Archived\" badge appeared (no confirmation dialog/message; status stayed Ready). Default tickets list shows **13 tickets with RD-1015 absent**; with \"Show archived\" ticked, RD-1015 appears as *Archived / Ready / 0 parts*.\n\nCleanup note: probing the preconditions required a scratch ticket `c0822bp3 RD Probe` (RD-1016) with a throwaway part \"probe\". It is also archived (Archived / Ready / 1 part) and does not appear in the default list, so nothing created by this run is left active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c0822bp3-browser-pilot-transcript.jsonl"
+}
