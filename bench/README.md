@@ -142,6 +142,14 @@ node bench/harness.mjs \
   --runid r01 --out bench/results --reset
 ```
 
+**Runs are made on cloud Linux instances**, one run per instance, so that every measurement
+comes off identical hardware with nothing else competing for it and several runs can proceed at
+once. `bench/CLOUD-RUNBOOK.md` is the single file a cloud session is pointed at: setup, run,
+verify, and — the part that is easy to forget until a box is destroyed — pushing the raw
+results to a branch, since `bench/results/` is gitignored and the instance is ephemeral. Each
+run also records a `machine` block (platform, arch, node, cpu count, memory, tool version,
+repo commit), so a published row can say what produced it.
+
 On a fresh Linux box — a cloud instance, a container, a CI runner — `bench/cloud-setup.sh`
 does all of the above and checks it: node version, build, a browser (the dependency is
 `playwright-core`, which bundles none, so a bare container has nothing for browser-pilot's

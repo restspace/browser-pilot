@@ -30,9 +30,10 @@
  * this repo and needs nothing provisioned: start it with
  * `node bench/app/server.mjs` and the credentials default themselves.
  */
-import { spawn, execFileSync } from 'node:child_process';
+import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import https from 'node:https';
+import os from 'node:os';
 import path from 'node:path';
 
 const ARMS = {
@@ -86,8 +87,54 @@ const TARGETS = {
       console.log(`[harness] reloaded seed via ${url}`);
     },
     notReadyHint: 'Start it with: node bench/app/server.mjs',
+    // The app keeps its mutation log in memory, so stopping it destroys the
+    // only evidence a run's objectives were met. Pulling the log into the
+    // results directory at the end of a run makes a verified run auditable
+    // later instead of only while the app that saw it is still up — which
+    // matters most for a cloud run, where the box is gone minutes afterwards.
+    logUrl: () => new URL('/__log', process.env.APP_URL),
   },
 };
+
+/**
+ * What produced these numbers. A result file that cannot say which machine,
+ * OS or tool version it came from is not much use once runs arrive from more
+ * than one box, which is the entire point of running them in the cloud.
+ * Deliberately no hostname or username: these files are meant to be published.
+ */
+function describeMachine(bin) {
+  const out = {
+    platform: process.platform,
+    arch: process.arch,
+    node: process.version,
+    cpus: os.cpus().length,
+    memGB: Math.round(os.totalmem() / 1e9),
+  };
+  // spawnSync, not execFileSync: browser-pilot prints its banner for --version
+  // and exits 2, which execFileSync turns into a throw and records as null.
+  // shell:true because on Windows both CLIs are .cmd shims that execFile
+  // cannot exec directly. Take whatever was printed, whatever the exit code.
+  const v = spawnSync(bin, ['--version'], {
+    encoding: 'utf8',
+    timeout: 30_000,
+    shell: true,
+    windowsHide: true,
+  });
+  const line = `${v.stdout || ''}${v.stderr || ''}`
+    .split('\n')
+    .map((l) => l.trim())
+    .find(Boolean);
+  out.tool = line ? line.slice(0, 80) : null;
+  try {
+    out.commit = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+      encoding: 'utf8',
+      cwd: here,
+    }).trim();
+  } catch {
+    out.commit = null;
+  }
+  return out;
+}
 
 const API_VERSION = '2023-06-01';
 
@@ -1017,9 +1064,30 @@ try {
   log({ k: 'cleanup-failed', message: String(err) });
 }
 
+/**
+ * Snapshot the target's mutation log while the app is still up. Runs before
+ * the result is written so a crash here cannot cost us the result file.
+ */
+let mutationLogPath = null;
+if (target.logUrl) {
+  try {
+    const res = await fetch(target.logUrl(), { signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const entries = await res.json();
+    mutationLogPath = path.join(outDir, `${runid}-${args.arm}-mutationlog.json`);
+    fs.writeFileSync(mutationLogPath, JSON.stringify(redact(entries), null, 2));
+    log({ k: 'mutation-log', path: mutationLogPath, entries: entries.length });
+  } catch (err) {
+    mutationLogPath = null;
+    log({ k: 'mutation-log-failed', message: String(err) });
+  }
+}
+
 const result = {
   arm: args.arm,
   target: targetName,
+  machine: describeMachine(arm.bin),
+  mutationLogPath,
   provider: providerName,
   model,
   runid,
