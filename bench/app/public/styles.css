@@ -1,0 +1,787 @@
+/* ==========================================================================
+   Repair Desk - hand written stylesheet, no framework, no CDN.
+
+   An ordinary competent internal tool: system fonts, a restrained slate and
+   indigo palette, a sticky nav, cards, a zebra striped table and status badges
+   that are distinguishable by hue *and* by their text. Focus rings are left
+   loud on purpose - this is a tool people drive from the keyboard.
+   ========================================================================== */
+
+:root {
+  --page: #f4f6f9;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --border: #dde3ea;
+  --border-strong: #c3ccd8;
+
+  --text: #1c2734;
+  --text-muted: #5b6875;
+  --text-faint: #7b8794;
+
+  --brand: #2f4b8f;
+  --brand-dark: #24396d;
+  --brand-tint: #eaeffb;
+
+  --danger: #a52432;
+  --danger-tint: #fdecee;
+  --danger-border: #f0bcc2;
+
+  --ok: #1f6b45;
+  --ok-tint: #e6f4ec;
+  --warn: #8a5b12;
+  --warn-tint: #fbf1de;
+
+  --radius: 6px;
+  --radius-lg: 10px;
+  --shadow: 0 1px 2px rgba(20, 32, 48, 0.06), 0 4px 12px rgba(20, 32, 48, 0.05);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Visible focus everywhere, including for elements that would otherwise rely
+   on the UA default that some resets quietly remove. */
+:focus-visible {
+  outline: 3px solid #7d9be0;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--surface);
+  padding: 10px 16px;
+  z-index: 20;
+}
+
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Navigation
+   -------------------------------------------------------------------------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.nav-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 6px;
+}
+
+.nav-links a {
+  color: rgba(255, 255, 255, 0.88);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+}
+
+.nav-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-user-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.nav .btn-quiet {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #fff;
+}
+
+.nav .btn-quiet:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+
+.main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.page-head-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.page-title {
+  font-size: 24px;
+}
+
+.page-subtitle {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+}
+
+.status-line {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.status-label {
+  color: var(--text-muted);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.breadcrumb-sep {
+  color: var(--border-strong);
+}
+
+.breadcrumb-current {
+  font-family: var(--font-mono);
+}
+
+.footer {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.footer-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.footer-muted {
+  color: var(--text-faint);
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.card-title {
+  font-size: 16px;
+}
+
+.card-subtitle {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   Forms
+   -------------------------------------------------------------------------- */
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.field-required {
+  color: var(--danger);
+}
+
+.field-help {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.input:focus {
+  border-color: var(--brand);
+}
+
+select.input {
+  min-width: 170px;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+.form-actions {
+  margin-top: 20px;
+}
+
+.filter-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 16px 20px;
+  flex-wrap: wrap;
+}
+
+.field-inline {
+  margin-bottom: 0;
+}
+
+.field-grow {
+  flex: 1 1 260px;
+}
+
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 26px;
+}
+
+.field-check .field-label {
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: var(--surface-alt);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #8c1d29;
+  border-color: #8c1d29;
+}
+
+.btn-danger-quiet {
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+
+.btn-danger-quiet:hover {
+  background: var(--danger-tint);
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 10px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.table thead th {
+  background: var(--surface-alt);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.table tbody tr:nth-child(even) {
+  background: var(--surface-alt);
+}
+
+.table tbody tr:hover {
+  background: var(--brand-tint);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tfoot th,
+.table tfoot td {
+  background: var(--surface-alt);
+  border-top: 2px solid var(--border-strong);
+  border-bottom: none;
+  font-weight: 600;
+}
+
+/* Money and counts read far better right aligned and tabular. */
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-ref a {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.cell-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.empty-cell {
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.muted {
+  color: var(--text-faint);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.page-indicator {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Badges
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.badge-draft {
+  background: var(--warn-tint);
+  border-color: #e8d3a8;
+  color: var(--warn);
+}
+
+.badge-ready {
+  background: var(--brand-tint);
+  border-color: #c3d0ee;
+  color: var(--brand-dark);
+}
+
+.badge-closed {
+  background: var(--ok-tint);
+  border-color: #b8dcc8;
+  color: var(--ok);
+}
+
+.badge-archived {
+  background: #eef1f4;
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Status and error regions
+   -------------------------------------------------------------------------- */
+
+.status-region:empty,
+.error-region:empty {
+  display: none;
+}
+
+.refreshing {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  background: var(--brand-tint);
+  border: 1px solid #c3d0ee;
+  color: var(--brand-dark);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.error-region.is-shown {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--danger-border);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--danger-tint);
+  color: #6f1720;
+}
+
+.error-title {
+  font-weight: 600;
+}
+
+.error-list {
+  margin: 8px 0 0;
+  padding-left: 22px;
+}
+
+.error-list li {
+  margin-top: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Login
+   -------------------------------------------------------------------------- */
+
+.login-wrap {
+  max-width: 440px;
+  margin: 48px auto 0;
+}
+
+.login-card {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Dialogs
+   -------------------------------------------------------------------------- */
+
+.dialog {
+  width: min(520px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 18px 48px rgba(16, 26, 40, 0.24);
+}
+
+.dialog-narrow {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.dialog::backdrop {
+  background: rgba(18, 26, 38, 0.45);
+}
+
+.dialog-form {
+  display: block;
+}
+
+.dialog-head {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dialog-title {
+  font-size: 17px;
+}
+
+.dialog-desc {
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dialog-desc[hidden] {
+  display: none;
+}
+
+.dialog-fields {
+  padding: 18px 20px;
+}
+
+.dialog-error:empty {
+  display: none;
+}
+
+.dialog-error {
+  margin: 0 20px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--danger-border);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--danger-tint);
+  color: #6f1720;
+  font-size: 14px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+/* --------------------------------------------------------------------------
+   Narrow screens
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .nav-inner,
+  .main,
+  .footer-inner {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .page-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field-check {
+    padding-top: 0;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 12px;
+  }
+}

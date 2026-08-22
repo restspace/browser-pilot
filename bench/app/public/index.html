@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repair Desk</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!--
+    The application shell is static markup. Only #view is re-rendered per route,
+    which keeps the nav, the error region and the dialogs stable in the DOM for
+    the whole session (the spec requires the error region to always be present).
+  -->
+  <header class="nav" id="nav" hidden>
+    <div class="nav-inner">
+      <a class="brand" href="#/tickets" data-testid="nav-brand">
+        <span class="brand-mark" aria-hidden="true">RD</span>
+        <span class="brand-name">Repair Desk</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#/tickets" data-testid="nav-tickets">Tickets</a>
+      </nav>
+      <div class="nav-user">
+        <span class="nav-user-name" id="nav-user-name" data-testid="current-user"></span>
+        <button type="button" class="btn btn-quiet" id="sign-out" data-testid="sign-out">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <!--
+      Live regions sit above the view so that a status message never shifts the
+      page content it describes. #status-region holds the "Refreshing..."
+      indicator; it is empty (no child element at all) whenever nothing is
+      pending, so waiting for the indicator to appear and then disappear is
+      unambiguous for an automated client.
+    -->
+    <div id="status-region" class="status-region" aria-live="polite" aria-atomic="true"></div>
+    <div id="error-region" class="error-region" data-testid="error" role="alert" aria-live="assertive"></div>
+    <div id="view"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-text">Repair Desk &mdash; internal workshop tooling. Prices include the configured markup.</p>
+      <p class="footer-text footer-muted">Environment: local benchmark instance</p>
+    </div>
+  </footer>
+
+  <!--
+    One reusable form dialog serves "New ticket", "Add part" and "Edit part".
+    Reusing it is what keeps data-testid="modal-save" / "modal-cancel" unique in
+    the document, which is what the spec's naming table asks for.
+  -->
+  <dialog id="form-dialog" class="dialog" aria-labelledby="form-dialog-title" data-testid="form-dialog">
+    <form id="dialog-form" class="dialog-form" novalidate>
+      <div class="dialog-head">
+        <h2 id="form-dialog-title" class="dialog-title" data-testid="modal-title">Dialog</h2>
+        <p id="form-dialog-desc" class="dialog-desc" data-testid="modal-description"></p>
+      </div>
+      <div id="dialog-fields" class="dialog-fields"></div>
+      <div id="dialog-error" class="dialog-error" data-testid="modal-error"></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-quiet" id="modal-cancel" data-testid="modal-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="modal-save" data-testid="modal-save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="dialog dialog-narrow" aria-labelledby="confirm-dialog-title" data-testid="confirm-dialog">
+    <div class="dialog-form">
+      <div class="dialog-head">
+        <h2 id="confirm-dialog-title" class="dialog-title">Confirm</h2>
+        <p id="confirm-message" class="dialog-desc" data-testid="confirm-message"></p>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-quiet" id="confirm-no" data-testid="confirm-no">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-yes" data-testid="confirm-yes">Delete part</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

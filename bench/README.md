@@ -101,6 +101,16 @@ so both tools can reach a zero-LLM replay. The interesting question there is not
 but **how the script is obtained** and how many of its locators survive a re-run — measured
 separately.
 
+## Targets
+
+| Target | Task file | Reproducible by a reader | Verifiable after cleanup |
+|---|---|---|---|
+| `bench/app` (repair desk, ships here) | `bench/tasks/repairdesk-ticket-flow.md` | yes — `node bench/app/server.mjs`, no install, credentials committed | yes, via the mutation log |
+| atelyr (private) | `bench/tasks/atelyr-project-flow.md` | no | only objectives 1 and 6 |
+
+Every result published so far is from the private target. The neutral one exists so that can
+change; see gap 2.
+
 ## Running it
 
 ```sh
@@ -177,17 +187,39 @@ These are open, and the benchmark is not publishable until they are closed:
    accumulate and slowly change list sizes. `bench/reset.mjs` now snapshots and restores the
    datastore at the filesystem level (see "Resetting between runs"); what is still missing is a
    sweep run end to end with `--reset` on every run, confirming the baseline actually holds.
-2. **Single application.** A benchmark run only against a private app cannot be reproduced by a
-   reader. A neutral, publicly available target is required before publication.
+   On the neutral target this problem mostly goes away — `POST /__reset` reloads the seed
+   in-process in milliseconds, with no processes to stop and no filesystem copy to get wrong.
+   **The harness does not yet know about it**: `--reset` still shells out to `bench/reset.mjs`,
+   which is specific to the private app. Teaching it to reset per target is a prerequisite for
+   running a sweep against `bench/app`.
+2. **Single application — a second target now exists, but nothing has been run against it.**
+   A benchmark run only against a private app cannot be reproduced by a reader.
+   `bench/app/` is a neutral target that ships with this repo and needs no credentials or
+   provisioning: `node bench/app/server.mjs`, zero dependencies (see `bench/app/README.md`),
+   with `bench/tasks/repairdesk-ticket-flow.md` as the structurally equivalent task. What is
+   still missing is results: **every number published so far comes from the private app.**
+   This gap closes when a sweep has been run against the neutral target and the two targets'
+   figures are reported side by side.
 3. **The task set was written while developing browser-pilot** against this app, which risks
-   selection bias toward flows it handles well.
+   selection bias toward flows it handles well. The neutral target reduces the app-specific
+   part of this but not all of it: `repairdesk-ticket-flow.md` is deliberately a structural
+   mirror of `atelyr-project-flow.md`, so it inherits the *shape* of a task set chosen with
+   browser-pilot in hand, even though the app underneath is new. A genuinely independent task
+   set — written by someone with no stake in the result — is the real fix.
 4. **Orchestrator usage pattern, not the tool, drives the context result.** The context saving
    only appears when the orchestrator delegates coarsely (few `do` instructions). A run that
    drifts into many fine-grained `peek`/`config` calls lands at agent-browser's context figure —
    h11 did exactly that: 69.6KB over 59 turns, against h12's 25.5KB over 17. The headline metric
    is therefore bimodal across runs, not noisy around a mean, and must be reported as a spread
    with commands-per-run alongside it.
-5. **Objectives 2-5 cannot be verified externally.** Objective 6 requires the run to delete both
+5. **Objectives 2-5 cannot be verified externally *on the private app*.** This is closed on the
+   neutral target and open on the private one, so it constrains which target a published claim
+   can rest on. `bench/app` keeps an append-only mutation log (`GET /__log`) recording every
+   write with the computed price, which survives the run deleting its own records — so there a
+   verifier can prove a part really was created at cost 100 and priced 125.00. The private app
+   has no equivalent, and the rest of this entry describes it.
+
+   Objective 6 requires the run to delete both
    line items and close the project, which destroys the very records that would prove objectives
    2-5 happened. After a run, the database can only confirm objective 1 (project exists) and
    objective 6 (items gone, project closed). `verify.mjs` therefore checks the run's *claimed*
