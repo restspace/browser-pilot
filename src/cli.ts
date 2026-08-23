@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { globalConfigPath, writeGlobalConfig } from './agent/llm.js';
+import { AnthropicProvider, OpenAICompatProvider, globalConfigPath, resolveProviderConfig, writeGlobalConfig, type Provider } from './agent/llm.js';
 import type { Report } from './agent/report.js';
 import { encodeFrame, LineDecoder, type Frame, type Request, type ResultFrame } from './shared/protocol.js';
 import { sessionsDir, socketPath, validateSessionName } from './shared/paths.js';
@@ -11,6 +11,7 @@ import { candidateExpr } from './daemon/recorder.js';
 import { fillParams } from './skills/compile.js';
 import { SkillStore, successRate, type Skill } from './skills/store.js';
 import { listFlows, loadFlow } from './skills/flow.js';
+import { patchSegment, promoteFallback, triage, type DriftTicket, type ProposeLocator, type TriageAction } from './skills/repair.js';
 
 const USAGE = `browser-pilot — agent-in-the-loop Playwright CLI
 
@@ -27,6 +28,7 @@ Usage:
   browser-pilot skills show <id>
   browser-pilot skills rm <id>
   browser-pilot skills clear --origin <origin> | --all
+  browser-pilot skills repair --drift <run-drift.json> [--dry-run] [--model M]   # post-session repair: drain a run's drift tickets
   browser-pilot var <name>=<value>          # declare a run variable (learning session; becomes {{name}} in a flow)
   browser-pilot flow list | show <name>     # saved flows (recorded sessions you can replay with run)
   browser-pilot run <flow> [--var k=v ...]  # replay a saved flow deterministically, repairing drifted steps
@@ -309,6 +311,10 @@ async function main(): Promise<void> {
     const shown = { ...merged, ...(merged.apiKey ? { apiKey: '***' } : {}) };
     console.log(`${globalConfigPath()}: ${JSON.stringify(shown)}`);
     console.log('applies to the next instruction — running daemons re-read this file per call');
+    return;
+  }
+  if (command === 'skills' && positional[0] === 'repair') {
+    await repairCommand(positional, flags, json);
     return;
   }
   if (command === 'skills') {
@@ -810,3 +816,131 @@ async function listSessions(json: boolean): Promise<void> {
 }
 
 main().catch((err) => fail(err?.message ?? String(err)));
+
+// --- post-session repair (SLOW MODE) ---
+
+/**
+ * Drain one run's drift tickets, after the timed run is over:
+ *  - localized drift that already self-healed (a fallback resolved) → promote
+ *    that fallback to primary in the stored skill. Cheap, deterministic.
+ *  - localized drift with a dead chain → ask the repair model to re-derive
+ *    the moved control's locator on the live page, verify it resolves, and
+ *    store the patched chain as a provisional VARIANT that must earn adoption
+ *    through the normal lifecycle.
+ *  - low similarity → broad redesign: flag for a fresh record run, never
+ *    patch selectors.
+ */
+async function repairCommand(positional: string[], flags: Map<string, string | boolean>, json: boolean): Promise<void> {
+  const file = String(flags.get('drift') ?? positional[1] ?? '');
+  if (!file) fail('usage: skills repair --drift <run-drift.json> [--dry-run] [--model M]', 2);
+  let tickets: DriftTicket[];
+  try {
+    tickets = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (err) {
+    return fail(`could not read drift tickets from ${file}: ${(err as Error).message}`, 1);
+  }
+  const dryRun = flags.has('dry-run');
+  const store = new SkillStore();
+  const actions = triage(tickets);
+  const summary = {
+    promoted: [] as Array<Record<string, unknown>>,
+    patched: [] as Array<Record<string, unknown>>,
+    reRecord: [] as Array<Record<string, unknown>>,
+    skipped: [] as Array<Record<string, unknown>>,
+  };
+
+  for (const a of actions) {
+    if (a.kind === 'promote-fallback') {
+      const ok = dryRun ? true : promoteFallback(store, a.ticket);
+      (ok ? summary.promoted : summary.skipped).push({
+        skill: a.ticket.skill, step: a.ticket.atStep, from: a.ticket.missedLocator, to: a.ticket.fallbackUsed,
+        ...(dryRun ? { dryRun: true } : {}), ...(ok ? {} : { why: 'ticket no longer maps onto the stored skill' }),
+      });
+    } else if (a.kind === 're-record') {
+      summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: a.why });
+    } else if (a.kind === 'skip') {
+      summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.step, why: a.why });
+    }
+  }
+
+  const patches = actions.filter((a): a is Extract<TriageAction, { kind: 'patch-segment' }> => a.kind === 'patch-segment');
+  if (patches.length && !dryRun) {
+    const config = resolveProviderConfig({ model: flags.get('model') ? String(flags.get('model')) : undefined });
+    const model = flags.get('model') ? String(flags.get('model')) : config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model;
+    const provider: Provider = config.provider === 'anthropic' ? new AnthropicProvider({ ...config, model }) : new OpenAICompatProvider({ ...config, model });
+    const { BrowserSession } = await import('./daemon/browser.js');
+    const session = new BrowserSession({ session: 'repair', persist: false });
+    try {
+      for (const a of patches) {
+        const url = repairPageUrl(store, a.ticket);
+        if (!url) {
+          summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: 'the drifted page cannot be revisited (its url needs run-specific ids)' });
+          continue;
+        }
+        const page = await session.getPage();
+        await page.goto(url, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
+        const res = await patchSegment(store, a.ticket, page, llmProposer(provider));
+        if (res.outcome === 'patched') summary.patched.push({ skill: a.ticket.skill, step: a.ticket.atStep, variant: res.variant, locator: res.detail, model });
+        else summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `${res.outcome}${res.detail ? `: ${res.detail}` : ''}` });
+      }
+    } finally {
+      await session.close();
+    }
+  } else if (patches.length) {
+    for (const a of patches) summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: 'patch-segment (dry run: needs the repair model + live page)' });
+  }
+
+  if (json) {
+    console.log(JSON.stringify({ tickets: tickets.length, ...summary }, null, 2));
+    return;
+  }
+  console.log(`${tickets.length} drift ticket(s) → ${summary.promoted.length} fallback(s) promoted, ${summary.patched.length} segment(s) patched, ${summary.reRecord.length} flagged for re-record, ${summary.skipped.length} skipped`);
+  for (const p of summary.promoted) console.log(`  promoted   ${p.skill} step ${p.step}: ${p.to}${p.dryRun ? ' (dry run)' : ''}`);
+  for (const p of summary.patched) console.log(`  patched    ${p.skill} step ${p.step} → variant ${p.variant} (${p.locator})`);
+  for (const p of summary.reRecord) console.log(`  re-record  ${p.skill} (${p.flow}/${p.step}): ${p.why}`);
+  for (const p of summary.skipped) console.log(`  skipped    ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}`);
+}
+
+/** A concrete url the drifted page can be revisited at, or null when it cannot. */
+function repairPageUrl(store: SkillStore, ticket: DriftTicket): string | null {
+  const skill = store.get(ticket.skill);
+  if (!skill) return null;
+  const candidates = [ticket.pageUrlPattern, skill.preconditions.urlPattern];
+  for (const c of candidates) {
+    if (!c) continue;
+    const filled = fillParams(c, Object.fromEntries(Object.entries(skill.params).map(([k, p]) => [k, p.example])));
+    if (!filled.includes(':id') && !filled.includes('{{')) return filled;
+  }
+  return null;
+}
+
+/** ProposeLocator backed by the repair model: strict-JSON locator proposals from the live-page snapshot. */
+function llmProposer(provider: Provider): ProposeLocator {
+  return async ({ skill, ticket, chain, snapshot }) => {
+    const prompt = [
+      "A stored browser procedure has drifted: one step's locator no longer resolves on the live page.",
+      `Procedure template: ${skill.template}`,
+      `Step ${ticket.atStep ?? '?'} (${ticket.key ?? 'target'}); its known locators, best first, ALL of which failed to resolve:`,
+      ...chain.map((c) => `  - ${candidateExpr(c)}`),
+      '',
+      'Interactive elements currently on the page, one per line:',
+      snapshot || '(none found)',
+      '',
+      'Pick the ONE element that serves the same purpose the dead locators described (the control probably moved or was renamed).',
+      'Reply with ONLY a JSON object, no prose, in one of these shapes:',
+      '{"kind":"role","role":"button","name":"..."} {"kind":"label","label":"..."} {"kind":"placeholder","placeholder":"..."}',
+      '{"kind":"testid","attr":"data-testid","value":"..."} {"kind":"id","selector":"#..."} {"kind":"text","text":"..."} {"kind":"css","selector":"..."}',
+      'If no element on the page serves that purpose, reply with exactly: null',
+    ].join('\n');
+    const completion = await provider.complete([{ role: 'user', content: prompt }], []);
+    const text = (completion.text ?? '').trim().replace(/^```(?:json)?\s*|\s*```$/g, '');
+    if (!text || text === 'null') return null;
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object' && typeof parsed.kind === 'string') return parsed;
+    } catch {
+      /* not JSON */
+    }
+    return null;
+  };
+}

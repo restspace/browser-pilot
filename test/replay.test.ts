@@ -132,6 +132,20 @@ d('skill replay (fixture page)', () => {
     expect(recorded).toHaveLength(5);
   }, 30_000);
 
+  it('a goto-first procedure navigates itself: no start-page refusal', async () => {
+    const page = await session.getPage();
+    await page.goto('about:blank');
+    const nav: Skill = structuredClone(skill);
+    nav.id = 's_navself';
+    nav.steps.unshift({ tool: 'goto', args: { url: fixtureUrl }, locators: {} });
+    session.learn!.put(nav);
+    const out = await run('run_skill', { id: nav.id, params: { v1: 'Nav Ada', v2: '9' } });
+    expect(out.replay?.refused).toBeFalsy();
+    expect(out.replay?.ok).toBe(true);
+    expect(out.replay?.values.banner).toBe('Saved Nav Ada!');
+    session.learn!.remove(nav.id);
+  }, 30_000);
+
   it('refuses to run from the wrong page or with missing params — nothing is touched', async () => {
     const page = await session.getPage();
     await page.goto('about:blank');

@@ -36,6 +36,8 @@ export interface LocatorMiss {
   primary: string;
   /** The fallback that resolved, or null when the whole chain missed. */
   used: string | null;
+  /** Chain index of the fallback that resolved (0 is the primary). */
+  usedIndex?: number;
   /** Which skill the miss belongs to, set when misses from a segment chain are aggregated. */
   skill?: string;
 }
@@ -100,7 +102,13 @@ export async function replaySkill(
   }
 
   const startUrl = page.url();
-  if (!urlMatches(skill.preconditions.urlPattern, startUrl, params)) {
+  // A procedure whose FIRST step navigates (goto) carries its own
+  // precondition: wherever the browser is, step 1 puts it on the recorded
+  // page. Refusing it by start-url would make it permanently unreplayable on
+  // apps that redirect at load (the recorded start url is a race between the
+  // capture and the redirect) — the flow6 head step failed exactly this way.
+  const navigatesItself = skill.steps[0]?.tool === 'goto';
+  if (!navigatesItself && !urlMatches(skill.preconditions.urlPattern, startUrl, params)) {
     res.refused = true;
     res.reason = `not on the page this procedure starts from (expects ${fillParams(skill.preconditions.urlPattern, params)}, browser is at ${urlPattern(startUrl)}) — nothing was run`;
     return res;
@@ -146,7 +154,7 @@ export async function replaySkill(
       resolved[key] = hit.locator;
       if (hit.index > 0) {
         res.fallthroughs++;
-        res.misses.push({ step: tag, key, primary: candidateExpr(chain[0]), used: candidateExpr(hit.candidate) });
+        res.misses.push({ step: tag, key, primary: candidateExpr(chain[0]), used: candidateExpr(hit.candidate), usedIndex: hit.index });
         res.warnings.push(`step ${tag}: primary locator did not resolve; used fallback #${hit.index + 1} ${candidateExpr(hit.candidate)}`);
       }
     }

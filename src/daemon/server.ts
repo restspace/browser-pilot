@@ -5,6 +5,7 @@ import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Pr
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern } from '../skills/compile.js';
+import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
@@ -44,31 +45,6 @@ const STOP_DRAIN_MS = 3_000;
  */
 const MAX_CANDIDATE_ATTEMPTS = 3;
 
-/**
- * A drift observation from one flow-step replay: the primary locator missed
- * (fallthrough or dead chain) or the step needed model recovery. Recording
- * only — repair happens AFTER the session, by the post-session repair pass
- * draining these. `similarity` is the localized-vs-redesign classifier: high
- * similarity + a missed locator = localized drift (patchable); low similarity
- * = broad redesign (re-record the segment, do not patch selectors).
- */
-export interface DriftTicket {
-  flow: string;
-  step: string;
-  skill: string;
-  /** Skill-internal step tag the miss happened at, when known. */
-  atStep?: string;
-  /** Which arg the locator was for ("target"/"source"), when known. */
-  key?: string;
-  similarity: number | null;
-  missedLocator: string | null;
-  /** The fallback that resolved, or null when nothing did. */
-  fallbackUsed: string | null;
-  /** The step went to model recovery. */
-  recovered: boolean;
-  reason?: string;
-  pageUrlPattern?: string;
-}
 
 export class Daemon {
   private browser: BrowserSession;
@@ -588,6 +564,19 @@ ${direct.prelude}` : recoveryText,
       }
       const values: Record<string, string> = {};
       for (const [k, v] of Object.entries(result.report.evidence?.values ?? {})) values[k] = String(v);
+      // A recovery's model names its read-backs freely (ticketRef vs
+      // ticket_ref vs ticket-id); later steps reference the names recorded at
+      // capture time. Alias each expected output that is missing but present
+      // under a cosmetically different key, so one cosmetic rename cannot
+      // cascade every later step into recovery (the flow6 failure mode).
+      if (recovered) {
+        const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+        for (const want of step.outputs) {
+          if (want in values) continue;
+          const hits = Object.keys(values).filter((k) => norm(k) === norm(want));
+          if (hits.length === 1) values[want] = values[hits[0]];
+        }
+      }
       outputs[step.id] = values;
       const sk = result.skill;
       // Drift telemetry: record, never repair inline. One ticket per primary-
@@ -597,7 +586,7 @@ ${direct.prelude}` : recoveryText,
         for (const m of sk.misses ?? []) {
           driftTickets.push({
             flow: flow.name, step: step.id, skill: m.skill ?? sk.invoked, atStep: m.step, key: m.key,
-            similarity: sk.similarity, missedLocator: m.primary, fallbackUsed: m.used, recovered,
+            similarity: sk.similarity, missedLocator: m.primary, fallbackUsed: m.used, ...(m.usedIndex !== undefined ? { fallbackIndex: m.usedIndex } : {}), recovered,
             ...(pageUrlPattern ? { pageUrlPattern } : {}),
           });
         }
