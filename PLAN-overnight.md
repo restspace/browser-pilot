@@ -27,7 +27,7 @@ uses 4` (reliable zero-model). Evidence in bench/results/flow5-*.
 
 ## Task checklist (tick as done; commit + test each)
 
-- [ ] 1. Lifecycle-gated adoption (kill force-pin churn)
+- [x] 1. Lifecycle-gated adoption (kill force-pin churn) — DONE da4048f; flow6 sweep: 6/6 all runs, store churn killed (9 skills vs 24), but exposed two cascade defects fixed in b7b27e8 (goto-first refusal race; recovery value-name drift)
       - Remove the force-pin in runFlow (server.ts ~546). Never overwrite step.skill
         with a just-compiled provisional.
       - Per flow step, each run: resolve CANDIDATE skills for the step's procedure
@@ -42,7 +42,7 @@ uses 4` (reliable zero-model). Evidence in bench/results/flow5-*.
         bad hint can't dominate. Keep the clean original as fallback candidate.
       - VALIDATE with a sweep; expect monotone zero-model fraction.
 
-- [ ] 2. Drift telemetry / repair tickets (recording only; NO inline repair)
+- [x] 2. Drift telemetry / repair tickets (recording only; NO inline repair) — DONE: LocatorMiss + DriftTickets in flow result; sweep.mjs writes <runid>-drift.json
       - On each segment/step replay, emit a structured DriftTicket when the primary
         locator missed (fallthrough) or the step failed: { flow, step/segment id,
         skill id, similarity (replay.similarity), missedLocator + the fallback that
@@ -51,7 +51,7 @@ uses 4` (reliable zero-model). Evidence in bench/results/flow5-*.
       - similarity is the localized-vs-redesign classifier: high sim + missed locator
         = localized drift (patchable); low sim = broad redesign (re-record).
 
-- [ ] 3. Segmentation — one skill per page-template segment, not per instruction
+- [x] 3. Segmentation — one skill per page-template segment, not per instruction — DONE: compileSkills() splits at url-pattern seams, seq{chain,index,of}, recorder captures fingerprintAfter at seams, chain replay w/ per-segment lifecycle; unit + two-page fixture browser tests; flow7 sweep validating
       - In compile: split the recorded step run at page-template transitions
         (URL-pattern change via urlPattern(), and/or structural fingerprint drop).
         Capture a fingerprint at each segment start (today only captured once per
@@ -65,7 +65,7 @@ uses 4` (reliable zero-model). Evidence in bench/results/flow5-*.
       - Heaviest/riskiest. Full unit + browser tests. VALIDATE with a sweep; expect
         the coarse sign-in+create monolith to auto-split and each half to converge.
 
-- [ ] 4. Post-session repair subagent (SLOW MODE, after the run)
+- [x] 4. Post-session repair subagent (SLOW MODE, after the run) — DONE b7b27e8: src/skills/repair.ts + `skills repair --drift <file> [--dry-run] [--model M]`; closed-loop fixture tests; bench app /__drift affordance for live validation
       - A command / script that reads a run's DriftTickets and, per ticket:
         * high similarity + a working fallback → the chain already self-healed; record
           that the fallback should be promoted (cheap, no model).
