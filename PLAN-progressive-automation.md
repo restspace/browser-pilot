@@ -70,6 +70,24 @@ Reading it honestly:
 - What worked exactly as designed: validation/demotion (the add-part skill was repaired in run 1 and its
   variant reached 3/3 validated and superseded it), refusal from the wrong page, live read-backs.
 
+### Locator durability: retarget row-clicks to the record link (2026-08-23)
+
+Closed the "held only because the reset app has a single-row list" caveat. When the agent clicks a
+container (a table row, list item) to open a record, `describeHandle` now retargets the recorded locator
+to the single hyperlink inside it — whose accessible name is the record's id (`RD-1015`), which
+parameterises to `{{v}}` — keeping the row's structural css as a fallback. So the nav step replays as
+`getByRole('link', { name: '{{ref}}' })`, resolving the record by id rather than by row position.
+
+Verified position-independently: the coupled flow replayed twice **without a reset between** (so the
+second replay's list already held the first's ticket) created two distinct tickets (RD-1015, RD-1016) and
+added each run's part to its *own* ticket — both fully Tier A (zero model), ~14s, confirmed against the
+mutation log. Previously this worked only because a reset list has one row.
+
+Remaining: a verification read located by positional css (`td:nth-child(6)`) is still brittle, but it is
+now non-fatal at replay (skipped, not recovered) and, for reported values, superseded by the read-back
+synthesis's stable-handle read — so it no longer forces recovery. The producing-step-must-replay-clean
+point stands but is met for these flows.
+
 ### Verified model fallback + non-fatal reads → coupled flow fully zero-model (2026-08-23)
 
 Two more changes, then the coupled flow replays end-to-end with no model calls:

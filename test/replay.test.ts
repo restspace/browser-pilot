@@ -346,6 +346,37 @@ d('flow record and run (fixture page)', () => {
   }, 60_000);
 });
 
+d('record-link retargeting (fixture page)', () => {
+  it('describes a row-click by the record link inside it, not the row text', async () => {
+    const { describeTarget } = await import('../src/daemon/recorder.js');
+    const { snapshot } = await import('../src/daemon/refs.js');
+    const session = new BrowserSession({ session: 'retarget', persist: false });
+    try {
+      const page = await session.getPage();
+      await page.setContent(`
+        <table id="rows"><tbody>
+          <tr id="r1" data-testid="ticket-row-t15" onclick="location.hash='#/t/15'">
+            <td><a href="#/t/15" data-testid="ticket-link-t15">RD-1015</a></td>
+            <td>Draft</td><td>2026-08-23</td>
+          </tr>
+        </tbody></table>`);
+      const snap = await snapshot(page, { full: true } as any);
+      const rowRef = /row "[^"]*" \[(@e\d+)\]/.exec(snap)![1];
+      // retarget on (click semantics): the durable locator should be the link inside the row
+      const described = await describeTarget(page, rowRef, true);
+      const identities = described.chain!.map((c: any) => c.name ?? c.value ?? c.text ?? c.selector ?? '');
+      // the record link (name RD-1015) is in the chain; the row's css path is a fallback
+      expect(identities.some((v) => v === 'RD-1015')).toBe(true);
+      // a structural fallback to the row itself is kept (last, not the link path)
+      expect(described.chain!.some((c: any) => c.kind === 'css' && !/>\s*a$/.test(c.selector))).toBe(true);
+      // and NEVER the whole volatile row text ("RD-1015 Draft 2026-08-23")
+      expect(identities.some((v) => /Draft|2026/.test(v))).toBe(false);
+    } finally {
+      await session.close();
+    }
+  }, 30_000);
+});
+
 d('read-back synthesis (fixture page)', () => {
   it('captures a durable NON-value locator for a reported value, so it can be re-read', async () => {
     const { captureReadBack } = await import('../src/daemon/recorder.js');

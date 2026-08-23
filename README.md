@@ -314,9 +314,12 @@ configured fallback model, even when per-step escalation is otherwise off, or an
 can be brought back to continue from exactly there. That last rung is the orchestrator returning to the
 *top* of the ladder for one step, not rejoining the whole run.
 
-Navigation to a record is parameterised, not hard-coded: when a skill step clicks the row or link for a
-record whose identifier appears in the instruction (ticket `RD-1015`), that identifier becomes a slot, so
-replay navigates to *this* run's record. When the identifier is one an earlier step produced, it threads
+Navigation to a record is parameterised, not hard-coded. When the agent clicks a table **row** to open a
+record, the recorder retargets the click to the record's own link inside the row — whose name is the
+identifier (`RD-1015`), not the whole volatile row text — and keeps the row's structural path as a
+fallback. That identifier, when it appears in the instruction, becomes a slot, so replay resolves the
+link **by the record's id, position-independently**: on a list of many tickets it opens *this* run's
+ticket, not whichever row happens to sit where the recorded one did. When the identifier is one an earlier step produced, it threads
 through as `{{step.output}}` — provided that step read it back live. To make identifiers threadable even when the agent reported them from prose rather than a `read`, every
 value a step reports is **captured at record time as a durable read-back**: the tool finds the live
 element showing the value and stores a `read` of it located by a stable handle (a test id, a structural

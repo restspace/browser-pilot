@@ -138,6 +138,9 @@ export interface RecordedReport {
 
 export type RecordedEntry = RecordedStep | RecordedInstruction | RecordedReport;
 
+/** Click tools: their target may be a table row whose durable locator is the record link inside it. */
+const CLICK_TOOLS = new Set(['click', 'dblclick', 'modifier_click', 'right_click']);
+
 /** Tools that map onto Playwright script lines; everything else is agent-only scaffolding. */
 const RECORDABLE = new Set([
   'click', 'dblclick', 'right_click', 'modifier_click', 'fill', 'type', 'press', 'select',
@@ -293,9 +296,10 @@ export class ScriptRecorder {
     const locators: Record<string, LocatorExpr> = {};
     for (const key of ['target', 'source'] as const) {
       const raw = args[key];
+      const retarget = key === 'target' && CLICK_TOOLS.has(tool);
       if (resolved?.[key]) {
         const rawText = typeof raw === 'string' ? raw : '';
-        locators[key] = await describeLocator(page, resolved[key], rawText).catch(() => ({
+        locators[key] = await describeLocator(page, resolved[key], rawText, retarget).catch(() => ({
           expr: '',
           verified: false,
           raw: rawText,
@@ -303,7 +307,7 @@ export class ScriptRecorder {
         continue;
       }
       if (typeof raw !== 'string' || !raw.trim()) continue;
-      locators[key] = await describeTarget(page, raw).catch(() => ({ expr: '', verified: false, raw }));
+      locators[key] = await describeTarget(page, raw, retarget).catch(() => ({ expr: '', verified: false, raw }));
     }
     return { k: 'step', tool, args, locators };
   }
@@ -346,7 +350,7 @@ interface Candidate {
  * `@ref` handles are re-derived from the element's own attributes, preferring
  * test ids and roles over structural paths.
  */
-export async function describeTarget(page: Page, raw: string): Promise<LocatorExpr> {
+export async function describeTarget(page: Page, raw: string, retarget = false): Promise<LocatorExpr> {
   if (!isRefTarget(raw)) {
     // A raw selector the agent chose: keep it as the primary, but still
     // describe the element it hit so replay has attribute-based fallbacks.
@@ -373,7 +377,7 @@ export async function describeTarget(page: Page, raw: string): Promise<LocatorEx
     .catch(() => null);
   if (!handle) return { expr: '', verified: false, raw };
   try {
-    return await describeHandle(page, handle, raw);
+    return await describeHandle(page, handle, raw, retarget);
   } finally {
     await handle.dispose().catch(() => {});
   }
@@ -483,23 +487,66 @@ async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: st
 }
 
 /** Describe the element a live Locator resolves to (replay path). */
-export async function describeLocator(page: Page, locator: Locator, raw: string): Promise<LocatorExpr> {
+export async function describeLocator(page: Page, locator: Locator, raw: string, retarget = false): Promise<LocatorExpr> {
   const handle = await locator.elementHandle({ timeout: 2_000 }).catch(() => null);
   if (!handle) return { expr: '', verified: false, raw };
   try {
-    return await describeHandle(page, handle, raw);
+    return await describeHandle(page, handle, raw, retarget);
   } finally {
     await handle.dispose().catch(() => {});
   }
 }
 
-async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: string): Promise<LocatorExpr> {
+async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: string, retarget = false): Promise<LocatorExpr> {
+  // A click on a table ROW opening a record is more durably located by the
+  // record's own link inside it (name = the ref, which parameterises) than by
+  // the row (name = the whole volatile row text; a positional css otherwise).
+  // Retarget to that link, keeping the row's structural path as a fallback.
+  if (retarget) {
+    const link = await recordLinkOf(handle).catch(() => null);
+    if (link) {
+      try {
+        const linkInfo = (await link.evaluate(describeInPage)) as ElementInfo;
+        const { winner, chain } = await verifiedChain(page, linkInfo, link);
+        if (winner) {
+          const rowInfo = (await handle.evaluate(describeInPage)) as ElementInfo;
+          const fallback: LocatorCandidate = { kind: 'css', selector: rowInfo.cssPath };
+          return { expr: candidateExpr(winner), verified: true, raw, chain: [...chain, fallback] };
+        }
+      } finally {
+        await link.dispose().catch(() => {});
+      }
+    }
+  }
   const info = (await handle.evaluate(describeInPage)) as ElementInfo;
   const { winner, chain } = await verifiedChain(page, info, handle);
   if (winner) return { expr: candidateExpr(winner), verified: true, raw, chain };
   // Nothing resolved back to this element — hand over the structural path and
   // let the generated script flag it, rather than inventing something clean.
   return { expr: `page.locator(${q(info.cssPath)})`, verified: false, raw, chain };
+}
+
+/**
+ * If `handle` is a container (a table row, list item, card) that wraps exactly
+ * one hyperlink, return a handle to that link — the durable, often
+ * parameterisable target for a navigation click. Null otherwise, including
+ * when the element already IS the link or has several links (ambiguous).
+ */
+async function recordLinkOf(handle: ElementHandle<Node>): Promise<ElementHandle<Element> | null> {
+  const found = await handle.evaluateHandle((el) => {
+    const node = el as Element;
+    if (node.tagName === 'A') return null; // already a link
+    const container = /^(TR|LI|TD|TH|DIV|SECTION|ARTICLE)$/.test(node.tagName) || node.getAttribute('role') === 'row' || node.getAttribute('role') === 'listitem';
+    if (!container) return null;
+    const links = Array.from(node.querySelectorAll('a[href]')).filter((a) => (a as HTMLElement).offsetParent !== null || a.getClientRects().length > 0);
+    return links.length === 1 ? links[0] : null;
+  });
+  const el = found.asElement() as ElementHandle<Element> | null;
+  if (!el) {
+    await found.dispose().catch(() => {});
+    return null;
+  }
+  return el;
 }
 
 /**
