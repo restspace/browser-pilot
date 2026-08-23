@@ -16,7 +16,7 @@ import type { ChatMessage, Completion, Provider, ToolDef } from '../src/agent/ll
 import { executeTool } from '../src/agent/tools.js';
 import { BrowserSession } from '../src/daemon/browser.js';
 import { SessionState } from '../src/daemon/state.js';
-import { compileSkill } from '../src/skills/compile.js';
+import { compileSkill, compileSkills } from '../src/skills/compile.js';
 import { learnFromInstruction } from '../src/skills/learn.js';
 import type { Skill } from '../src/skills/store.js';
 
@@ -468,4 +468,80 @@ d('delete-loop replay (fixture page)', () => {
     // the loop kept going until the list was empty — past the two it saw recorded
     expect(await page.locator('#dellist > .prow').count()).toBe(0);
   }, 30_000);
+});
+
+d('segment chains (two fixture pages)', () => {
+  let home: string;
+  let session: BrowserSession;
+  let segs: Skill[];
+  const dir = os.tmpdir();
+  const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, dir);
+  const INSTR = "fill the form with name 'Zed', open the detail page, save note 'hello zed', and report the detail banner";
+  const SEG_REPORT = {
+    status: 'success' as const,
+    summary: "Saved note 'hello zed' on the detail page; the banner says 'Noted hello zed!'.",
+    evidence: { values: { dbanner: 'Noted hello zed!' } },
+  };
+
+  beforeAll(async () => {
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-seg-'));
+    process.env.BROWSER_PILOT_HOME = home;
+    process.env.BROWSER_PILOT_SKILLS_DIR = path.join(home, 'skills');
+    session = new BrowserSession({ session: 'segchain', persist: false, learn: true });
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+
+    const recorder = session.script!;
+    const mark = recorder.mark();
+    recorder.beginInstruction(INSTR, { url: page.url() });
+    const snap = (await run('snapshot', {})).result;
+    const ref = (label: RegExp) => label.exec(snap)![1];
+    await run('fill', { target: ref(/textbox "Name" \[(@e\d+)\]/), value: 'Zed' });
+    await run('click', { target: ref(/link "Open detail" \[(@e\d+)\]/) });
+    const snap2 = (await run('snapshot', {})).result;
+    const ref2 = (label: RegExp) => label.exec(snap2)![1];
+    await run('fill', { target: ref2(/textbox "Note" \[(@e\d+)\]/), value: 'hello zed' });
+    await run('click', { target: ref2(/button "Save note" \[(@e\d+)\]/) });
+    await run('wait_for', { target: '#dbanner', state: 'text_contains', text: 'Noted hello zed', timeout_ms: 3000 });
+    await run('read', { target: '#dbanner', what: 'text' });
+    segs = compileSkills({ entries: recorder.entriesSince(mark), instruction: INSTR, report: SEG_REPORT, session: 'segchain' });
+    for (const s of segs) session.learn!.put(s);
+  }, 60_000);
+
+  afterAll(async () => {
+    await session?.close();
+    delete process.env.BROWSER_PILOT_SKILLS_DIR;
+    delete process.env.BROWSER_PILOT_HOME;
+    fs.rmSync(home, { recursive: true, force: true });
+  });
+
+  it('the recording splits at the navigation into a linked chain with a live fingerprint seam', () => {
+    expect(segs).toHaveLength(2);
+    const [a, b] = segs;
+    expect(a.seq?.index).toBe(0);
+    expect(b.seq?.index).toBe(1);
+    expect(a.seq?.chain).toBe(b.seq?.chain);
+    expect(a.preconditions.urlPattern).toContain('page.html');
+    expect(b.preconditions.urlPattern).toContain('detail.html');
+    // the recorder captured a real fingerprint at the seam
+    expect(b.preconditions.fingerprint?.length).toBeGreaterThan(0);
+    expect(b.steps.map((s) => s.tool)).toEqual(['fill', 'click', 'wait_for', 'read']);
+  });
+
+  it('segment 2 refuses on the wrong page; the chain replays cleanly in order', async () => {
+    const [a, b] = segs;
+    const params = { v1: 'Ada', v2: 'from ada' };
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    // gating: the tail must refuse before touching anything on page 1
+    const refused = await run('run_skill', { id: b.id, params });
+    expect(refused.replay?.refused).toBe(true);
+    // composition: head then tail, each on its own page
+    const first = await run('run_skill', { id: a.id, params });
+    expect(first.replay?.ok).toBe(true);
+    expect(page.url()).toContain('detail.html');
+    const second = await run('run_skill', { id: b.id, params });
+    expect(second.replay?.ok).toBe(true);
+    expect(second.replay?.values.dbanner).toBe('Noted from ada!');
+  }, 60_000);
 });

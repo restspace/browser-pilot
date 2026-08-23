@@ -1,12 +1,14 @@
 import type { InstructionResult, SkillRecord } from '../agent/loop.js';
 import type { Report } from '../agent/report.js';
 import type { RecordedEntry, RecordedInstruction } from '../daemon/recorder.js';
-import { compileSkill, escapeRe, fillParams, sameProcedure, urlMatches } from './compile.js';
+import { compileSkills, escapeRe, fillParams, sameProcedure, urlMatches } from './compile.js';
 import { successRate, type Skill, type SkillStore } from './store.js';
 
 export interface LearnedRecord {
-  /** A new skill was stored. */
+  /** A new skill was stored (the first segment, when the compile split). */
   compiled?: string;
+  /** Every segment stored, in chain order, when the compile split into >1. */
+  compiledAll?: string[];
   /** An existing skill absorbed this run (same template or same procedure). */
   merged?: string;
   /** The stored skill whose stats were updated from a replay. */
@@ -60,7 +62,7 @@ export function learnFromInstruction(
   if (fullReplay) return Object.keys(out).length ? out : null;
   const variantOf = sk?.invoked && !sk.refused && sk.stepsReplayed < sk.stepsTotal ? sk.invoked : undefined;
 
-  const skill = compileSkill({
+  const skills = compileSkills({
     entries: input.entries,
     instruction: input.instruction,
     report: input.result.report,
@@ -69,21 +71,38 @@ export function learnFromInstruction(
     now: input.now,
     variantOf,
   });
-  if (!skill) return Object.keys(out).length ? out : null;
+  if (!skills.length) return Object.keys(out).length ? out : null;
 
-  const existing = store.list(skill.origin);
-  const twin = existing.find((s) => s.status !== 'demoted' && (s.template === skill.template || sameProcedure(s, skill)));
-  if (twin && !variantOf) {
-    twin.stats.uses += 1;
-    twin.stats.successes += 1;
-    twin.stats.lastUsed = skill.provenance.created;
-    if (twin.status === 'provisional' && twin.stats.successes >= 2) twin.status = 'validated';
-    store.put(twin);
-    out.merged = twin.id;
-    return out;
+  const existing = store.list(skills[0].origin);
+  if (!variantOf) {
+    // A twin is an existing skill with this recording's shape at the same
+    // chain position. Merge only when EVERY segment has a twin and the twins
+    // all belong to one chain — otherwise the store would end up with
+    // half-shared chains that replay cannot compose.
+    const twins = skills.map((sk) =>
+      existing.find(
+        (s) =>
+          s.status !== 'demoted' &&
+          (s.seq?.index ?? 0) === (sk.seq?.index ?? 0) &&
+          (s.seq?.of ?? 1) === (sk.seq?.of ?? 1) &&
+          (s.template === sk.template || sameProcedure(s, sk)),
+      ),
+    );
+    if (twins.every(Boolean) && new Set(twins.map((t) => t!.seq?.chain ?? t!.id)).size === 1) {
+      for (const twin of twins as Skill[]) {
+        twin.stats.uses += 1;
+        twin.stats.successes += 1;
+        twin.stats.lastUsed = skills[0].provenance.created;
+        if (twin.status === 'provisional' && twin.stats.successes >= 2) twin.status = 'validated';
+        store.put(twin);
+      }
+      out.merged = twins[0]!.id;
+      return out;
+    }
   }
-  store.put(skill);
-  out.compiled = skill.id;
+  for (const sk of skills) store.put(sk);
+  out.compiled = skills[0].id;
+  if (skills.length > 1) out.compiledAll = skills.map((s) => s.id);
   if (variantOf) out.variantOf = variantOf;
   return out;
 }
@@ -96,6 +115,7 @@ export function learnFromInstruction(
 export function matchTemplate(skills: Skill[], instruction: string, url: string): { skill: Skill; params: Record<string, string> } | null {
   for (const skill of skills) {
     if (skill.status !== 'validated') continue;
+    if (skill.seq && skill.seq.index > 0) continue; // chains start at their head
     if (!urlMatches(skill.preconditions.urlPattern, url)) continue;
     const params = bindSkill(skill, instruction);
     if (params) return { skill, params };
@@ -124,6 +144,7 @@ export function selectCandidates(
   const out: { skill: Skill; params: Record<string, string> }[] = [];
   for (const s of skills) {
     if (s.status === 'demoted') continue;
+    if (s.seq && s.seq.index > 0) continue; // chains start at their head
     // The flow's stored bindings are authoritative for the pinned skill; a
     // sibling binds from the instruction text, or inherits the pinned
     // bindings when it shares the hint's procedure and its slots all resolve.

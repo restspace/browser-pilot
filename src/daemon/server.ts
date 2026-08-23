@@ -596,7 +596,7 @@ ${direct.prelude}` : recoveryText,
         const pageUrlPattern = sk.replayUrl ? compiledUrlPattern(sk.replayUrl) : undefined;
         for (const m of sk.misses ?? []) {
           driftTickets.push({
-            flow: flow.name, step: step.id, skill: sk.invoked, atStep: m.step, key: m.key,
+            flow: flow.name, step: step.id, skill: m.skill ?? sk.invoked, atStep: m.step, key: m.key,
             similarity: sk.similarity, missedLocator: m.primary, fallbackUsed: m.used, recovered,
             ...(pageUrlPattern ? { pageUrlPattern } : {}),
           });
@@ -718,28 +718,74 @@ ${direct.prelude}` : recoveryText,
       break; // partial: the page has changed — hand what ran to recovery, never restart another candidate
     }
     if (!match || !replay) return {};
-    const record: Partial<SkillRecord> = {
-      invoked: replay.skill,
-      stepsReplayed: replay.stepsRun,
+
+    // Walk the segment chain: a multi-segment skill replays segment by
+    // segment, each gated by its own precondition. A cleanly-replayed
+    // segment's outcome is recorded on ITS skill immediately (its own success
+    // regardless of what later segments do — that independence is the point
+    // of segmentation); the LAST replay, clean or not, is left to the
+    // instruction-level learning so it is not double-counted. On a mid-chain
+    // stop, recovery inherits only the failed segment's blame.
+    const agg = {
+      stepsRun: replay.stepsRun,
       stepsTotal: replay.stepsTotal,
-      refused: false,
       fallthroughs: replay.fallthroughs,
+      misses: replay.misses.map((m) => ({ ...m, skill: replay!.skill })),
+      values: { ...replay.values },
+      segmentsDone: 0,
+    };
+    let current = match.skill;
+    let last = match.skill; // whose replay `replay` currently holds
+    while (replay.ok && current.seq && current.seq.index < current.seq.of - 1) {
+      const next = store.list(origin).find((s) => s.seq?.chain === current.seq!.chain && s.seq?.index === current.seq!.index + 1);
+      if (!next) {
+        replay = { ...replay, ok: false, reason: `segment ${current.seq.index + 2}/${current.seq.of} of this procedure chain is missing from the store` };
+        break;
+      }
+      // The just-finished segment succeeded on its own terms — record it now.
+      store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
+      agg.segmentsDone++;
+      progress(`[skill] chain ${current.seq.chain}: segment ${next.seq!.index + 1}/${next.seq!.of} → ${next.id}`);
+      const nextExec = await executeTool(this.browser, 'run_skill', { id: next.id, params: match.params }, screenshotDir, signal);
+      const r = nextExec.replay;
+      if (!r) return {};
+      replay = r;
+      last = next;
+      current = next;
+      agg.stepsRun += r.stepsRun;
+      agg.stepsTotal += r.stepsTotal;
+      agg.fallthroughs += r.fallthroughs;
+      agg.misses.push(...r.misses.map((m) => ({ ...m, skill: next.id })));
+      Object.assign(agg.values, r.values);
+    }
+
+    const record: Partial<SkillRecord> = {
+      // On success the chain head answers for the whole run; on a stop, the
+      // segment that stopped does, so demotion and variants attach to it.
+      invoked: replay.ok ? match.skill.id : last.id,
+      stepsReplayed: replay.ok ? agg.stepsRun : replay.stepsRun,
+      stepsTotal: replay.ok ? agg.stepsTotal : replay.stepsTotal,
+      refused: Boolean(replay.refused),
+      fallthroughs: agg.fallthroughs,
       similarity: replay.similarity,
-      ...(replay.misses.length ? { misses: replay.misses } : {}),
+      ...(agg.misses.length ? { misses: agg.misses } : {}),
       ...(replay.reason ? { failReason: replay.reason } : {}),
       ...(replay.failedAt !== undefined ? { failedAt: replay.failedAt } : {}),
       replayUrl: replay.url,
-      deterministicActions: replay.stepsRun,
-      totalActions: replay.stepsRun,
+      deterministicActions: agg.stepsRun,
+      totalActions: agg.stepsRun,
       tier: 'A',
     };
     if (!replay.ok) {
+      const ranNote = agg.segmentsDone
+        ? `[replay] ${agg.segmentsDone} earlier segment(s) of this procedure chain replayed cleanly and HAVE changed the page. Then a stored segment stopped part-way. Its output:\n`
+        : `[replay] A stored procedure was replayed before you started and stopped part-way. Its output:\n`;
       return {
-        prelude: `[replay] A stored procedure was replayed before you started and stopped part-way. Its output:\n${renderReplay(match.skill, replay)}`,
+        prelude: ranNote + renderReplay(last, replay),
         partial: record,
       };
     }
-    const report = synthesizeReport(match.skill, match.params, replay.values);
+    const report = synthesizeReport(last, match.params, agg.values);
     // Keep the conversation coherent for later instructions: the same one-line
     // entry the loop would have written.
     this.state.messages.push({ role: 'user', content: instruction });

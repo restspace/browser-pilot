@@ -112,6 +112,13 @@ export interface RecordedStep {
   result?: string;
   /** Page signature delta around a state-changing step (learning mode only). */
   diff?: StepDiff;
+  /**
+   * Structural fingerprint of the page AFTER this step, captured only when the
+   * step navigated to a different page template (its url pattern changed).
+   * This is a segment seam: compile splits skills here, and the fingerprint
+   * becomes the next segment's precondition.
+   */
+  fingerprintAfter?: number[];
   /** Set when the step was executed by replaying a stored skill, not chosen by the agent. */
   via?: { skill: string; step: number };
 }
@@ -313,12 +320,13 @@ export class ScriptRecorder {
   }
 
   /** Commit a prepared step once the action succeeded. Failed actions are dropped. */
-  commit(step: RecordedStep | null, result: string, extra: { diff?: StepDiff; via?: RecordedStep['via'] } = {}): void {
+  commit(step: RecordedStep | null, result: string, extra: { diff?: StepDiff; via?: RecordedStep['via']; fingerprintAfter?: number[] } = {}): void {
     if (!step) return;
     const entry: RecordedStep = {
       ...step,
       ...(extra.diff ? { diff: extra.diff } : {}),
       ...(extra.via ? { via: extra.via } : {}),
+      ...(extra.fingerprintAfter ? { fingerprintAfter: extra.fingerprintAfter } : {}),
     };
     this.append(RESULT_TOOLS.has(step.tool) ? { ...entry, result } : entry);
   }

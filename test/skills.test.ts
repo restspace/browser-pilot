@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { coalesceControls, compileSkill, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
@@ -451,5 +451,90 @@ describe('selectCandidates (lifecycle-gated adoption)', () => {
     const out = selectCandidates([hint, sibling], hint.id, same, params);
     expect(out.map((c) => c.skill.id)).toEqual([sibling.id, hint.id]);
     expect(out[0].params).toEqual(params);
+  });
+});
+
+describe('segmentation (one skill per page-template segment)', () => {
+  const SIGNIN = `${ORIGIN}/#/signin`;
+  const LIST = `${ORIGIN}/#/tickets`;
+  const INSTR = "Sign in as bench@example.com with password hunter2, then create a ticket titled 'Seg Ticket' and report its reference.";
+  const segReport = {
+    status: 'success' as const,
+    summary: "Signed in and created ticket 'Seg Ticket' (RD-1015).",
+    evidence: { values: { ticket_ref: 'RD-1015', ticket_title: 'Seg Ticket' } },
+  };
+  function twoPageRecording(): RecordedEntry[] {
+    return [
+      { k: 'instruction', text: INSTR, url: SIGNIN, fingerprint: [1, 0, 0] },
+      step('fill', { target: '@e1', value: 'bench@example.com' }, [{ kind: 'label', label: 'Email' }]),
+      step('fill', { target: '@e2', value: 'hunter2' }, [{ kind: 'label', label: 'Password' }]),
+      step('click', { target: '@e3' }, [{ kind: 'role', role: 'button', name: 'Sign in' }], {
+        diff: { url: LIST, alerts: [], added: ['- heading "Tickets"'] },
+        fingerprintAfter: [0, 1, 0],
+      }),
+      step('click', { target: '@e4' }, [{ kind: 'role', role: 'button', name: 'New ticket' }], {
+        diff: { url: LIST, alerts: [], added: ['- dialog "New ticket"'] },
+      }),
+      step('fill', { target: '@e5', value: 'Seg Ticket' }, [{ kind: 'label', label: 'Title' }]),
+      step('click', { target: '@e6' }, [{ kind: 'role', role: 'button', name: 'Create' }], {
+        diff: { url: LIST, alerts: [], added: ['- row "RD-1015 Seg Ticket"'] },
+      }),
+    ];
+  }
+
+  it('splits at the url-pattern seam into a linked chain with per-segment preconditions', () => {
+    const skills = compileSkills({ entries: twoPageRecording(), instruction: INSTR, report: segReport, session: 's' });
+    expect(skills).toHaveLength(2);
+    const [a, b] = skills;
+    expect(a.seq).toEqual({ chain: a.seq!.chain, index: 0, of: 2 });
+    expect(b.seq).toEqual({ chain: a.seq!.chain, index: 1, of: 2 });
+    expect(a.template).toBe(b.template);
+    expect(a.id).not.toBe(b.id);
+    expect(a.preconditions.urlPattern).toContain('/#/signin');
+    expect(a.preconditions.fingerprint).toEqual([1, 0, 0]);
+    expect(b.preconditions.urlPattern).toContain('/#/tickets');
+    expect(b.preconditions.fingerprint).toEqual([0, 1, 0]);
+    expect(a.steps).toHaveLength(3);
+    expect(b.steps).toHaveLength(3);
+    // report vouching only from the last segment
+    expect(a.reportTemplate).toBeUndefined();
+    expect(b.reportTemplate).toBeDefined();
+    // the shared slot set: every segment carries the union so one binding fits all
+    expect(Object.keys(a.params)).toEqual(Object.keys(b.params));
+    expect(Object.keys(a.params).length).toBeGreaterThan(0);
+  });
+
+  it('a same-template recording with no seam still compiles to one skill', () => {
+    const skills = compileSkills({ entries: recording(), instruction: INSTRUCTION, report, session: 's' });
+    expect(skills).toHaveLength(1);
+    expect(skills[0].seq).toBeUndefined();
+  });
+
+  it('learnFromInstruction stores all segments and merges a repeat run into the same chain', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-seg-'));
+    const store = new SkillStore(dir);
+    const result = { report: segReport, turns: 3, usage: { promptTokens: 1, completionTokens: 1, cachedTokens: 0 }, screenshots: [] } as unknown as InstructionResult;
+    const first = learnFromInstruction(store, { result, instruction: INSTR, entries: twoPageRecording(), session: 's1' });
+    expect(first?.compiledAll).toHaveLength(2);
+    const second = learnFromInstruction(store, { result, instruction: INSTR.replace('Seg Ticket', 'Seg Ticket'), entries: twoPageRecording(), session: 's2' });
+    expect(second?.merged).toBe(first?.compiled);
+    const all = store.all();
+    expect(all).toHaveLength(2);
+    // both segments were bumped and promoted together
+    for (const s of all) {
+      expect(s.stats.successes).toBe(2);
+      expect(s.status).toBe('validated');
+    }
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('matchTemplate and selectCandidates never start a chain mid-way', () => {
+    const skills = compileSkills({ entries: twoPageRecording(), instruction: INSTR, report: segReport, session: 's' });
+    for (const s of skills) s.status = 'validated';
+    const [head, tail] = skills;
+    // on the tail's page, the tail must not be offered as an entry point
+    expect(matchTemplate([tail], INSTR, LIST)).toBeNull();
+    expect(matchTemplate([head], INSTR, SIGNIN)?.skill.id).toBe(head.id);
+    expect(selectCandidates([tail, head], undefined, INSTR).map((c) => c.skill.id)).toEqual([head.id]);
   });
 });

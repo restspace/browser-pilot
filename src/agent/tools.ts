@@ -5,7 +5,9 @@ import type { BrowserSession } from '../daemon/browser.js';
 import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
 import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
 import { resolveTarget, snapshot, truncate } from '../daemon/refs.js';
+import { fingerprintPage } from '../daemon/fingerprint.js';
 import { isRecordable, type StepDiff } from '../daemon/recorder.js';
+import { urlPattern as compiledUrlPattern } from '../skills/compile.js';
 import { renderReplay, replaySkill, type ReplayResult } from '../skills/replay.js';
 import type { ToolDef } from './llm.js';
 
@@ -483,6 +485,7 @@ async function runStep(
   const before = wantDiff ? (opts.before ?? (await captureSignature(page!))) : null;
   const result = await dispatch(session, name, args, screenshotDir, signal, opts.resolved);
   let diff: StepDiff | undefined;
+  let fingerprintAfter: number[] | undefined;
   if (wantDiff && before) {
     const after = await settledSignature(page!);
     if (after) {
@@ -491,9 +494,15 @@ async function runStep(
         alerts: after.alerts.filter((a) => !before.alerts.includes(a)),
         added: after.lines.filter((l) => !before.lines.includes(l)).slice(0, 20),
       };
+      // The step crossed a page-template seam (its url pattern changed):
+      // fingerprint the new page so compile can split a skill here and gate
+      // the next segment on the page it actually runs on.
+      if (compiledUrlPattern(after.url) !== compiledUrlPattern(before.url)) {
+        fingerprintAfter = (await fingerprintPage(page!)) ?? undefined;
+      }
     }
   }
-  recorder?.commit(pending, result, { diff, via: opts.via });
+  recorder?.commit(pending, result, { diff, via: opts.via, fingerprintAfter });
   return { result, diff };
 }
 

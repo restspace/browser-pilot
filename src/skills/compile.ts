@@ -33,19 +33,38 @@ export interface CompileInput {
  * Returns null when there is nothing replayable (no steps, or no origin).
  */
 export function compileSkill(input: CompileInput): Skill | null {
+  return compileSkills(input)[0] ?? null;
+}
+
+/** One recorded segment: the steps that ran on one page template. */
+interface Segment {
+  steps: RecordedStep[];
+  startUrl: string;
+  fingerprint?: number[];
+}
+
+/**
+ * Like compileSkill, but the recording is first split at page-template seams
+ * — a step whose url PATTERN changed navigated to a different template — and
+ * each segment compiles into its own skill, scoped to the page it runs on
+ * (its own startUrl precondition and, when the recorder captured one, its own
+ * fingerprint). The segments share one template and one slot set and are
+ * linked by `seq`, so a caller binds params once and replay composes them;
+ * each segment is independently replayable, recoverable, and promotable, so a
+ * drift in one cannot cascade — the next segment refuses unless the page
+ * matches its template. A recording that never changes template compiles to
+ * exactly one skill, as before.
+ */
+export function compileSkills(input: CompileInput): Skill[] {
   const head = input.entries.find((e): e is RecordedInstruction => e.k === 'instruction');
   const steps = input.entries.filter((e): e is RecordedStep => e.k === 'step');
-  if (!steps.length) return null;
+  if (!steps.length) return [];
   const startUrl = head?.url ?? firstUrl(steps);
   const origin = startUrl ? originOf(startUrl) : null;
-  if (!origin || !startUrl) return null;
+  if (!origin || !startUrl) return [];
 
   const slots = discoverSlots(input.instruction, steps);
   const sub = (s: string) => substitute(s, slots);
-  const template = sub(input.instruction);
-
-  const params: Record<string, SkillParam> = {};
-  for (const [name, value] of slots) params[name] = { example: value, usedIn: [] };
 
   const reportValues = input.report.evidence?.values ?? {};
   // Inspection-only actions the agent used to ORIENT itself — probe the DOM with
@@ -62,55 +81,93 @@ export function compileSkill(input: CompileInput): Skill | null {
     }
     return true;
   });
-  const kept = replayable.length ? replayable : steps;
-  const skillSteps: SkillStep[] = kept.map((step, i) => {
-    const args = substituteDeep(step.args, slots) as Record<string, unknown>;
-    const locators: Record<string, LocatorCandidate[]> = {};
-    for (const [key, loc] of Object.entries(step.locators)) {
-      locators[key] = stableFirst((loc.chain ?? []).map((c) => substituteDeep(c, slots) as LocatorCandidate));
+  let kept = replayable.length ? replayable : steps;
+  // A variant covers only the territory it repaired: steps that were replayed
+  // via a DIFFERENT stored skill (an earlier segment completing cleanly) are
+  // that skill's procedure, not this variant's.
+  if (input.variantOf) kept = kept.filter((s) => !s.via || s.via.skill === input.variantOf);
+  if (!kept.length) return [];
+
+  // Split at page-template seams. A step that navigated (diff.url) to a url
+  // with a DIFFERENT pattern ends its segment; the recorder's fingerprintAfter
+  // (when captured) becomes the next segment's precondition.
+  const segments: Segment[] = [];
+  let seg: Segment = { steps: [], startUrl, ...(head?.fingerprint ? { fingerprint: head.fingerprint } : {}) };
+  let currentUrl = startUrl;
+  for (const step of kept) {
+    seg.steps.push(step);
+    if (step.diff?.url && step.diff.url !== currentUrl) {
+      const crossed = urlPattern(step.diff.url, slots) !== urlPattern(currentUrl, slots);
+      currentUrl = step.diff.url;
+      if (crossed) {
+        segments.push(seg);
+        seg = { steps: [], startUrl: currentUrl, ...(step.fingerprintAfter ? { fingerprint: step.fingerprintAfter } : {}) };
+      }
     }
-    const out: SkillStep = { tool: step.tool, args, locators };
-    const expect = expectationFor(step, slots);
-    if (expect) out.expect = expect;
-    const label = readLabel(step, reportValues);
-    if (label) out.label = label;
-    if (step.via) out.via = step.via;
-    for (const name of slotsUsed(JSON.stringify({ args, locators }))) params[name]?.usedIn.push(i + 1);
-    return out;
+  }
+  if (seg.steps.length) segments.push(seg);
+
+  // Build every segment's steps first: slot retention is decided across the
+  // WHOLE chain (a slot used only by segment 2 must stay in the shared
+  // template, or binding an instruction to segment 1 would fail).
+  const built = segments.map((sg) => {
+    const segParams: Record<string, SkillParam> = {};
+    for (const [name, value] of slots) segParams[name] = { example: value, usedIn: [] };
+    const skillSteps: SkillStep[] = sg.steps.map((step, i) => {
+      const args = substituteDeep(step.args, slots) as Record<string, unknown>;
+      const locators: Record<string, LocatorCandidate[]> = {};
+      for (const [key, loc] of Object.entries(step.locators)) {
+        locators[key] = stableFirst((loc.chain ?? []).map((c) => substituteDeep(c, slots) as LocatorCandidate));
+      }
+      const out: SkillStep = { tool: step.tool, args, locators };
+      const expect = expectationFor(step, slots);
+      if (expect) out.expect = expect;
+      const label = readLabel(step, reportValues);
+      if (label) out.label = label;
+      if (step.via) out.via = step.via;
+      for (const name of slotsUsed(JSON.stringify({ args, locators }))) segParams[name]?.usedIn.push(i + 1);
+      return out;
+    });
+    return { sg, segParams, folded: foldLoops(coalesceControls(skillSteps)) };
   });
 
-  const foldedSteps = foldLoops(coalesceControls(skillSteps));
-
-  // Drop slots that ended up unused by any step: they are instruction-only
-  // words (e.g. an id the orchestrator mentioned for context) and would only
-  // make the template harder to match.
-  for (const name of Object.keys(params)) {
-    if (!params[name].usedIn.length) delete params[name];
-  }
-  const finalTemplate = Object.keys(params).length === slots.size ? template : substitute(input.instruction, new Map([...slots].filter(([n]) => params[n])));
+  // Drop slots no segment uses: instruction-only words (e.g. an id the
+  // orchestrator mentioned for context) would only make matching harder.
+  const usedNames = new Set<string>();
+  for (const b of built) for (const [name, p] of Object.entries(b.segParams)) if (p.usedIn.length) usedNames.add(name);
+  const keptSlots = new Map([...slots].filter(([n]) => usedNames.has(n)));
+  const finalTemplate = keptSlots.size === slots.size ? sub(input.instruction) : substitute(input.instruction, keptSlots);
 
   const now = input.now ?? new Date().toISOString();
   const reportTemplate = {
     summary: sub(input.report.summary),
     values: Object.fromEntries(Object.entries(reportValues).map(([k, v]) => [k, sub(String(v))])),
   };
+  const of = built.length;
+  const chain = of > 1 ? newSkillId(origin, finalTemplate, now) : null;
 
-  return {
-    id: newSkillId(origin, finalTemplate, now),
-    origin,
-    template: finalTemplate,
-    params,
-    preconditions: {
-      urlPattern: urlPattern(startUrl, slots),
-      ...(head?.fingerprint ? { fingerprint: head.fingerprint } : {}),
-    },
-    steps: foldedSteps,
-    reportTemplate,
-    stats: { uses: 1, successes: 1, partial: 0, created: now, failedAtStep: {}, fallthroughs: 0 },
-    status: 'provisional',
-    ...(input.variantOf ? { variantOf: input.variantOf } : {}),
-    provenance: { session: input.session, instruction: input.instruction, ...(input.model ? { model: input.model } : {}), created: now },
-  };
+  return built.map((b, k) => {
+    const params: Record<string, SkillParam> = {};
+    for (const name of keptSlots.keys()) params[name] = b.segParams[name];
+    return {
+      id: newSkillId(origin, of > 1 ? `${finalTemplate}#${k}` : finalTemplate, now),
+      origin,
+      template: finalTemplate,
+      params,
+      preconditions: {
+        urlPattern: urlPattern(b.sg.startUrl, slots),
+        ...(b.sg.fingerprint ? { fingerprint: b.sg.fingerprint } : {}),
+      },
+      steps: b.folded,
+      // Only the last segment can vouch for the instruction's end state.
+      ...(k === of - 1 ? { reportTemplate } : {}),
+      stats: { uses: 1, successes: 1, partial: 0, created: now, failedAtStep: {}, fallthroughs: 0 },
+      status: 'provisional' as const,
+      ...(chain ? { seq: { chain, index: k, of } } : {}),
+      ...(input.variantOf ? { variantOf: input.variantOf } : {}),
+      provenance: { session: input.session, instruction: input.instruction, ...(input.model ? { model: input.model } : {}), created: now },
+    };
+  });
 }
 
 /**

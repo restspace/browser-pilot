@@ -24,6 +24,14 @@ export interface Skill {
   status: SkillStatus;
   /** Set on a skill compiled from a replay-then-repair of another skill. */
   variantOf?: string;
+  /**
+   * Set when this skill is one page-template segment of a longer recorded
+   * instruction: all segments of one compile share `chain` (and the template),
+   * and replay composes them in `index` order. Absent on a single-segment
+   * skill. Matching/selection always starts at index 0; later segments are
+   * reached by following the chain, each gated by its own precondition.
+   */
+  seq?: { chain: string; index: number; of: number };
   provenance: { session: string; instruction: string; model?: string; created: string };
 }
 

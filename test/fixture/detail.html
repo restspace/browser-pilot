@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>browser-pilot fixture detail</title></head>
+<body>
+  <h1>Detail page</h1>
+  <form id="detail-form">
+    <label>Note <input id="note" type="text" /></label>
+    <button id="save-note" type="button">Save note</button>
+  </form>
+  <div id="dbanner" hidden></div>
+  <script>
+    document.getElementById('save-note').addEventListener('click', () => {
+      const b = document.getElementById('dbanner');
+      b.hidden = false;
+      b.textContent = 'Noted ' + document.getElementById('note').value + '!';
+    });
+  </script>
+</body>
+</html>

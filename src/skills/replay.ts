@@ -36,6 +36,8 @@ export interface LocatorMiss {
   primary: string;
   /** The fallback that resolved, or null when the whole chain missed. */
   used: string | null;
+  /** Which skill the miss belongs to, set when misses from a segment chain are aggregated. */
+  skill?: string;
 }
 
 export interface ReplayResult {
@@ -401,7 +403,7 @@ export function renderReplay(skill: Skill, res: ReplayResult): string {
 /** Which stored skills could apply on this page, best first. */
 export function candidatesFor(skills: Skill[], url: string, limit = 5): Skill[] {
   return skills
-    .filter((s) => s.status !== 'demoted' && urlMatches(s.preconditions.urlPattern, url))
+    .filter((s) => s.status !== 'demoted' && !(s.seq && s.seq.index > 0) && urlMatches(s.preconditions.urlPattern, url))
     .sort((a, b) => {
       const rank = (s: Skill) => (s.status === 'validated' ? 1 : 0);
       const rate = (s: Skill) => (s.stats.uses ? s.stats.successes / s.stats.uses : 0);
