@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "2c704fa"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/sbatch2-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "sbatch2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 553045,
+  "orchestrator": {
+    "input": 5093,
+    "cacheWrite": 0,
+    "cacheRead": 25280,
+    "output": 1935
+  },
+  "inner": {
+    "promptTokens": 1269529,
+    "cachedTokens": 1064960,
+    "completionTokens": 12981,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1269529,
+        "completionTokens": 12981,
+        "cachedTokens": 1064960,
+        "instructions": 7
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 484446,
+  "commandBytes": 7357,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0222,
+  "maxUsd": 2,
+  "spendUsd": 0.0843,
+  "finalText": "All objectives verified complete.\n\n**Final report**\n\n1. **DONE** — Ticket `sbatch2 RD Bench Ticket` created (ref **RD-1015**, id t15), initial status Draft.\n2. **DONE** — Part `sbatch2 RD Part A`: cost $100.00, markup 25%, computed price **$125.00**.\n3. **DONE** — Part `sbatch2 RD Part B`: cost $200.00, markup 25%, computed price **$250.00**.\n4. **DONE** — Part A cost changed 100 → 150; computed price afterwards **$187.50** (ticket total went $375.00 → $437.50).\n5. **DONE** — Ticket ends in status **Ready**. Precondition discovered: clicking \"Mark Ready\" initially failed with the exact error *\"Ticket is not ready — Part \"sbatch2 RD Part A\" has no supplier — Part \"sbatch2 RD Part B\" has no supplier\"*. What was required: **every part on the ticket must have a supplier assigned**. I edited both parts and set supplier to \"Bench Supplies Co\"; \"Mark Ready\" then succeeded and the status badge read Ready (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n6. **DONE** — Both parts deleted (delete → confirm \"Delete part\" modal for each); parts table now shows *\"No parts on this ticket yet.\"* Ticket then archived via \"Archive ticket\" (no preconditions, no confirmation dialog; button toggled to \"Unarchive ticket\"). Verified read-only afterwards: detail page shows badges **Ready** and **Archived**, parts table empty, and the ticket no longer appears in the default active tickets list (only via the \"Show archived\" filter) — nothing from this run is left active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/sbatch2-browser-pilot-transcript.jsonl"
+}

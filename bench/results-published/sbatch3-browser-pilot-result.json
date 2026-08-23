@@ -1,0 +1,70 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "2c704fa"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/sbatch3-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "sbatch3",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1096772,
+  "orchestrator": {
+    "input": 6774,
+    "cacheWrite": 0,
+    "cacheRead": 25792,
+    "output": 1987
+  },
+  "inner": {
+    "promptTokens": 2179996,
+    "cachedTokens": 1878080,
+    "completionTokens": 19690,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1641723,
+        "completionTokens": 13393,
+        "cachedTokens": 1373440,
+        "instructions": 7
+      },
+      "zai-org/glm-5.3": {
+        "promptTokens": 538273,
+        "completionTokens": 6297,
+        "cachedTokens": 504640,
+        "instructions": 2
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1042257,
+  "commandBytes": 10996,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0249,
+  "maxUsd": 2,
+  "spendUsd": 0.3107,
+  "finalText": "All objectives complete and verified.\n\n**Final report**\n\n1. **DONE** — Ticket `sbatch3 RD Bench Ticket` created (ref **RD-1015**, id t15), customer \"Bench Customer\", initial status Draft, created 2026-08-23.\n\n2. **DONE** — Part `sbatch3 RD Part A` added with cost **$100.00** and markup **25%**. App-computed price: **$125.00**.\n\n3. **DONE** — Part `sbatch3 RD Part B` added with cost **$200.00** and markup **25%**. App-computed price: **$250.00**. (Ticket total at that point: $375.00.)\n\n4. **DONE** — Part A's cost edited from 100 → **$150.00** (markup still 25%). App-computed price afterwards: **$187.50**. Ticket total became $437.50.\n\n5. **DONE** — Ticket reached status **Ready**. Precondition discovered: every part on the ticket must have a supplier. Verbatim rejection message (shown as a native alert on \"Mark Ready\"):\n   `Ticket is not ready Part \"sbatch3 RD Part A\" has no supplier Part \"sbatch3 RD Part B\" has no supplier`\n   What was required: edit each part and set **Supplier = \"Generic Supplier\"** on both Part A and Part B, then click \"Mark Ready\" — which succeeded (button replaced by \"Mark Draft\"/\"Mark Closed\"). Final status verified in the DOM and via `GET /api/tickets` (t15 → \"Ready\").\n\n6. **DONE** — Both parts deleted (confirm dialogs accepted); parts table now reads exactly **\"No parts on this ticket yet.\"** with 0 rows. Ticket then archived: \"Archive ticket\" button flipped to **\"Unarchive ticket\"** and an **Archived** badge now shows next to Status: Ready. Archiving had no preconditions of its own. Final verification: RD-1015 appears only when \"Show archived\" is checked (row: `RD-1015 · sbatch3 RD Bench Ticket · Archived · Bench Customer · Ready · 0 parts · 2026-08-23`), and no ticket or part containing \"sbatch3\" appears anywhere in the normal active ticket list (both list pages checked). Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/sbatch3-browser-pilot-transcript.jsonl"
+}
