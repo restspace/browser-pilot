@@ -151,6 +151,13 @@ describe('foldLoops', () => {
     expect(foldLoops(steps)).toHaveLength(2);
   });
 
+  it('does NOT fold consecutive read-backs (observations never iterate)', () => {
+    // Three synthetic read-backs whose locators differ only in a per-record id —
+    // the same superficial shape as delete iteration, but reads must never fold.
+    const reads = ['p18', 'p19', 'p20'].map((id) => sstep('read', [{ kind: 'testid', attr: 'data-testid', value: `part-price-${id}` }], { target: '(read-back)' }));
+    expect(foldLoops(reads).every((s) => s.tool === 'read')).toBe(true);
+  });
+
   it('does NOT fold a control that is simply hit twice identically (no per-record id)', () => {
     const twice = [sstep('click', [{ kind: 'role', role: 'button', name: 'Next' }]), sstep('click', [{ kind: 'role', role: 'button', name: 'Next' }])];
     expect(foldLoops(twice)).toHaveLength(2);

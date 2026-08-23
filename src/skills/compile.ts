@@ -364,6 +364,13 @@ function locatorShape(c: LocatorCandidate | undefined): string {
 
 const MAX_GROUP_LEN = 3;
 const LOOP_MAX_ITER_CAP = 50;
+// A loop iterates an ACTION over records (delete each part, ...). Its anchor
+// must be a click; a group may carry connector controls (dialog_expect) but
+// never an observation — folding consecutive read-backs into a loop, which they
+// superficially resemble (same shape, per-record ids), is a bug: reads observe,
+// they do not iterate.
+const LOOP_ANCHOR_TOOLS = new Set(['click', 'dblclick', 'modifier_click', 'right_click']);
+const NON_LOOP_TOOLS = new Set(['read', 'read_all', 'eval', 'screenshot']);
 
 /**
  * Collapse a run of consecutive, identical control steps that carry no target
@@ -446,9 +453,10 @@ export function foldLoops(steps: SkillStep[]): SkillStep[] {
     // Prefer the smallest group length so [del, confirm] folds before [del]×2.
     for (let len = 1; len <= MAX_GROUP_LEN && i + 2 * len <= steps.length; len++) {
       const group = steps.slice(i, i + len);
-      if (group.some((s) => s.tool === 'loop')) continue;
-      // The body must anchor on something that CAN recur — a locate-able action.
-      if (!group[0].locators.target?.length) continue;
+      if (group.some((s) => s.tool === 'loop' || NON_LOOP_TOOLS.has(s.tool))) continue;
+      // The body must anchor on a repeatable, locate-able ACTION (a click on a
+      // record's control), never an observation.
+      if (!LOOP_ANCHOR_TOOLS.has(group[0].tool) || !group[0].locators.target?.length) continue;
       let count = 1;
       const groups: SkillStep[][] = [group];
       while (i + (count + 1) * len <= steps.length) {
