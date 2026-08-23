@@ -1,0 +1,232 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-08-23T08:28:33.001Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "sbatch2 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-23T08:28:33.001Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-08-23T08:28:59.496Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-23T08:28:59.496Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-08-23T08:29:48.560Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-23T08:29:48.560Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-08-23T08:30:18.343Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-23T08:28:59.496Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-23T08:28:59.496Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-08-23T08:30:48.590Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-23T08:28:59.496Z",
+      "price": 187.5
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplies Co",
+      "createdAt": "2026-08-23T08:28:59.496Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-08-23T08:31:59.389Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-08-23T08:29:48.560Z",
+      "price": 250
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplies Co",
+      "createdAt": "2026-08-23T08:29:48.560Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-08-23T08:33:04.749Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "sbatch2 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-08-23T08:28:33.001Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "sbatch2 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-23T08:28:33.001Z"
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-08-23T08:33:57.016Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplies Co",
+      "createdAt": "2026-08-23T08:28:59.496Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 9,
+    "at": "2026-08-23T08:35:04.978Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "sbatch2 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplies Co",
+      "createdAt": "2026-08-23T08:29:48.560Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-08-23T08:35:09.610Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "sbatch2 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-08-23T08:28:33.001Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "sbatch2 RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-08-23T08:28:33.001Z"
+    }
+  }
+]
