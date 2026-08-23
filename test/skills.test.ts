@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { compileSkill, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { learnFromInstruction, matchTemplate, synthesizeReport } from '../src/skills/learn.js';
@@ -159,6 +159,19 @@ describe('foldLoops', () => {
   it('leaves surrounding steps in place and folds only the repeated middle', () => {
     const folded = foldLoops([sstep('goto', undefined, { url: '/x' }), ...deleteGroup('p18'), ...deleteGroup('p19'), sstep('read', undefined, { target: '(read-back)' })]);
     expect(folded.map((s) => s.tool)).toEqual(['goto', 'loop', 'read']);
+  });
+
+  it('coalesces redundant dialog_expect arming so an uneven delete run still folds', () => {
+    const de = () => sstep('dialog_expect', undefined, { action: 'accept' });
+    // The shape the recorder actually produced: one arm before the first delete,
+    // two before the second — enough to misalign the groups on its own.
+    const raw = [de(), ...deleteGroup('p18'), de(), de(), ...deleteGroup('p19'), de()];
+    const folded = foldLoops(coalesceControls(raw));
+    const loops = folded.filter((s) => s.tool === 'loop');
+    expect(loops).toHaveLength(1);
+    // The loop repeats the two delete clicks, guarded by the Delete button.
+    expect(loops[0].body?.filter((b) => b.tool === 'click')).toHaveLength(2);
+    expect(loops[0].while?.[0]).toMatchObject({ kind: 'role', name: 'Delete' });
   });
 });
 

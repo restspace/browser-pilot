@@ -79,7 +79,7 @@ export function compileSkill(input: CompileInput): Skill | null {
     return out;
   });
 
-  const foldedSteps = foldLoops(skillSteps);
+  const foldedSteps = foldLoops(coalesceControls(skillSteps));
 
   // Drop slots that ended up unused by any step: they are instruction-only
   // words (e.g. an id the orchestrator mentioned for context) and would only
@@ -364,6 +364,27 @@ function locatorShape(c: LocatorCandidate | undefined): string {
 
 const MAX_GROUP_LEN = 3;
 const LOOP_MAX_ITER_CAP = 50;
+
+/**
+ * Collapse a run of consecutive, identical control steps that carry no target
+ * (chiefly `dialog_expect`, which the agent often re-arms redundantly) into
+ * one. Arming the same handler twice is a no-op, but the extra copies land
+ * unevenly between otherwise-identical action groups and stop foldLoops from
+ * seeing the repetition. Only no-locator steps with byte-identical args are
+ * touched, so real actions are never merged.
+ */
+export function coalesceControls(steps: SkillStep[]): SkillStep[] {
+  const out: SkillStep[] = [];
+  for (const step of steps) {
+    const prev = out[out.length - 1];
+    const noTarget = !step.locators.target?.length && !step.locators.source?.length;
+    if (prev && noTarget && prev.tool === step.tool && !prev.locators.target?.length && JSON.stringify(prev.args) === JSON.stringify(step.args)) {
+      continue;
+    }
+    out.push(step);
+  }
+  return out;
+}
 
 /** Replace id-like whole tokens in a string with `*`, so per-record ids collapse. */
 function stripIds(text: string): string {
