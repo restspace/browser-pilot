@@ -71,6 +71,7 @@ browser-pilot do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' a
 
 # recording (opt-in, see below)
 browser-pilot script tests/flow.spec.ts                # emit a Playwright spec from what was done
+browser-pilot skills list|show <id>|rm <id>            # stored procedures learned with --learn
 
 # housekeeping
 browser-pilot session list
@@ -138,6 +139,85 @@ What that buys you, and what it doesn't:
 
 `--script` and `--record` are independent — video is a recording of what happened, this is a
 recording you can re-run.
+
+## Learning: replay what worked, reason only where it didn't
+
+Start a session with `--learn` (or `BROWSER_PILOT_SKILLS=1`) and browser-pilot becomes *progressively*
+less agentic on a site the more it succeeds there. Every instruction that reports `success` is compiled
+into a stored **skill** — a parameterised, replayable procedure — and on later instructions the skills
+that start on the current page are offered to the internal agent, which replays one deterministically
+and only reasons about the steps that no longer work.
+
+```sh
+browser-pilot --session a --learn open http://app.local/
+browser-pilot --session a do "sign in as ops@example.com / pw1 and create a ticket titled 'k7 Bench'"
+#   … 14 turns; stored s_68e5ee
+browser-pilot --session b --learn open http://app.local/
+browser-pilot --session b do "log in (ops@example.com, pw1) then create a new ticket called 'm3 Bench'"
+#   turn 1: run_skill s_68e5ee {v1: ops@example.com, v2: pw1, v3: m3 Bench} → 11/11 steps
+#   turn 2: report — 3 turns, same outcome, values read back live
+browser-pilot skills list                # what has been learned, per origin
+browser-pilot skills show s_68e5ee       # every step, its locators and fallbacks, what is a parameter and what is not
+```
+
+What a skill is, and how it is made:
+
+- **Steps** are the instruction's recorded actions (so `--learn` implies `--script` recording). Each
+  target carries a **chain** of locators, best first — test id, role + name, label, placeholder, stable
+  id, text, structural path — and replay walks the chain when the primary no longer resolves. Selectors
+  with an id baked in (`ticket-link-t15`, a link named `RD-1017`) are pushed behind the semantic ones,
+  because they name a record, not a control.
+- **Parameters** are found deterministically: a value the agent typed that also occurs as a whole token
+  in the instruction becomes a `{{vN}}` slot, substituted everywhere — step arguments, locator names,
+  expectations, the stored report. Values the agent invented ("Bench Customer" for a required field that
+  the instruction did not mention) stay literal; `skills show` flags them and the `[skills]` listing tells
+  the agent a procedure types **fixed** values, so it declines one whose fixed values do not fit.
+- **Expectations** come from the page diff recorded around each step. The url pattern afterwards is hard.
+  Page lines that carry a parameter are hard too — a step recorded to make `heading "{{v3}}"` appear must
+  make the *new* title appear, which is how a positional row locator opening the *previous* ticket (the
+  list refreshes a beat after a create) is caught as a failure rather than counted as a success. Other
+  lines are soft: logged, not enforced, until data says they are reliable.
+- **Preconditions**: the start page's url pattern (`/#/tickets/:id`) plus a structural fingerprint of the
+  page — a hashed bag of normalised DOM paths, recorded now so template recognition across *different*
+  pages can be built on real `(similarity, outcome)` data later. A skill is never replayed from a page
+  that does not match.
+
+How replay drives the inner loop:
+
+1. The instruction's first user message ends with a `[skills]` block listing the candidates (id,
+   template, params, success record, what it reads back, any fixed values). The system prompt is
+   unchanged, so the cached prefix is unaffected.
+2. The agent calls `run_skill {id, params}` — usually as its first action. That is the matching: the model
+   does it on the turn it would have spent on a snapshot. Steps run in-process like a `batch`, with a
+   DOM-quiescence settle before each one standing in for the observation turns the agent is no longer
+   taking.
+3. It completes → the agent gets every step's outcome and every value read back from the live page, and
+   reports. It stops at step *k* → the agent gets "steps 1..k-1 ran, k failed because …, the page is here"
+   and continues agentically from that state (operating rule 3b: observe first, never repeat what ran).
+4. After the report: a clean full replay inside a successful instruction bumps the skill (second one
+   **validates** it); a repair compiles the replayed prefix plus the agent's own actions as a **variant**,
+   and a variant that validates supersedes the skill it repaired; the same step failing twice in a row
+   **demotes** a skill out of the listing. `skills rm` / `skills clear` for anything you do not like.
+5. A validated skill whose template matches the instruction word for word (case, whitespace and quote
+   style aside) is replayed by the daemon **with no model call at all**, and the report is synthesised
+   from the stored one with every labelled value replaced by its live read-back. A part-way stop drops
+   into step 3 with the partial result in the first message. This is the path a fixed-wording test plan
+   converges to; an orchestrator that rewords every step gets the two-turn path instead.
+
+Honesty properties that are kept on purpose: read-backs are always live, never the recorded value; a
+replay refuses from the wrong page or with a missing parameter without touching anything; a skill is
+only compiled from a `success` report and only validated by a second one, because one success is
+evidence, not proof. Every `do` result carries a `skill` block (`invoked`, `stepsReplayed/stepsTotal`,
+`repaired`, `tier`, `deterministicActions/totalActions`) and a `learned` block, and `config` rolls them
+up per session, so a learning run's deterministic fraction is measurable, not anecdotal.
+
+Where skills live: `~/.browser-pilot/skills/<origin>.json`, one file per site origin, shared by every
+session (that is the point); `BROWSER_PILOT_SKILLS_DIR` relocates the store, which the bench uses to keep
+a sweep's store isolated. Note that anything the agent typed that was *not* in the instruction is stored
+literally — a password that came from a briefing rather than the instruction will be in the file.
+
+The app-agnostic boundary holds: nothing app-specific is compiled into the tool. Everything app-specific
+lives in a store the tool *learned* on your site, which you can read and delete.
 
 ## Sessions
 
@@ -249,6 +329,7 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 | `BROWSER_PILOT_HOME` | `~/.browser-pilot` | sessions + config root |
 | `BROWSER_PILOT_RECORD=1`, `--record` | off | record the session to webm, one file per tab, under `<session dir>/video` (first call of a session). Playwright only writes video out when the browser context closes, so the paths are printed by `stop` — nothing is readable mid-session, and killing the daemon without `stop` loses the recording. |
 | `BROWSER_PILOT_SCRIPT=1`, `--script` | off | record every action as a replayable Playwright step (first call of a session); write the spec with `browser-pilot script [out.spec.ts]`. Costs one page round trip per action to resolve a durable selector. |
+| `BROWSER_PILOT_SKILLS=1`, `--learn` | off | learning mode (see [Learning](#learning-replay-what-worked-reason-only-where-it-didnt)): compile successful instructions into stored skills and replay them later; implies `--script`. `BROWSER_PILOT_SKILLS_DIR` relocates the store (default `~/.browser-pilot/skills`). |
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
 | `--turn-timeout` | 90 | wall-clock seconds for a single LLM call; a turn that produces no tool call by then is aborted and retried with a nudge, and three such turns in a row end the instruction. Stops a model from spending the whole `--timeout` reasoning inside one request. |
@@ -257,8 +338,8 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 
 ```sh
 npm run build             # tsc -> dist/
-npm test                  # unit tests (protocol, refs, prompt, report, loop, trimming)
-BP_BROWSER_TESTS=1 npx vitest run   # + browser-backed primitive tests (needs Chrome/Edge)
+npm test                  # unit tests (protocol, refs, prompt, report, loop, trimming, skills)
+BP_BROWSER_TESTS=1 npx vitest run   # + browser-backed primitive, replay and perturbation tests (needs Chrome/Edge)
 ```
 
 `test/fixture/page.html` is the fixture the browser tests drive (React-style controlled inputs,

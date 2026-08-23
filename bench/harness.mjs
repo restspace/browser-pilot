@@ -329,6 +329,19 @@ const toolDocs = fs.readFileSync(path.join(here, arm.docs), 'utf8');
 // atomic commands — it stays the untouched control. Recorded in the result as
 // `coarse` and disclosed in HANDOFF; contains no app specifics or task plan.
 const coarse = Boolean(args.coarse) && args.arm === 'browser-pilot';
+
+// Learning mode (progressive automation): browser-pilot compiles successful
+// instructions into stored skills and replays them on later ones. The store is
+// shared across the runs of a learning sweep and isolated from the user's own
+// (`--learn <dir>`), so run N+1 can benefit from run N and nothing else can.
+// Only the inner tool changes; the orchestrator prompt is untouched, so a
+// sweep measures what the tool learned, not what the orchestrator was told.
+const learnDir = args.learn && args.arm === 'browser-pilot' ? path.resolve(String(args.learn)) : null;
+if (learnDir) {
+  fs.mkdirSync(learnDir, { recursive: true });
+  process.env.BROWSER_PILOT_SKILLS = '1';
+  process.env.BROWSER_PILOT_SKILLS_DIR = learnDir;
+}
 const coarseBlock = coarse
   ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Equally, do NOT spend a call just exploring or cataloguing the UI ("describe the app's structure", "open the dialog and list every field, option and button", "report the full contents") — that sends the agent on an open-ended survey that burns its whole budget without moving the goal forward. Ask for the outcome and let the agent read only what it needs to achieve it; if you need a specific fact back, request that one fact as part of an action, not an exhaustive inventory. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there.`
   : '';
@@ -697,6 +710,7 @@ async function collectInnerUsage() {
         log({ k: 'inner-usage-stale', seen: prompt, kept: inner.promptTokens });
       }
     }
+    if (cfg.skills) inner.skills = cfg.skills;
     inner.model = cfg.model ?? inner.model ?? null;
     inner.fallbackModel = cfg.fallbackModel ?? inner.fallbackModel ?? null;
     // The inner model's own provider, so it is priced against the right rate
@@ -1209,6 +1223,16 @@ const result = {
   timeouts: commands.filter((c) => c.killed).length,
   contextTruncations,
   coarse,
+  // Learning sweep accounting: deterministic fraction A_n of the inner tool's
+  // browser actions that ran by replay rather than by the model.
+  learn: learnDir
+    ? {
+        dir: learnDir,
+        ...(inner.skills ?? {}),
+        deterministicFraction:
+          inner.skills && inner.skills.totalActions ? +(inner.skills.deterministicActions / inner.skills.totalActions).toFixed(3) : null,
+      }
+    : null,
   orBackends: [...servedBackends],
   orReportedCostUsd: providerName === 'openrouter' ? +orReportedCostUsd.toFixed(4) : null,
   maxUsd: args.maxUsd,
@@ -1233,6 +1257,11 @@ console.log(
     `orchestrator in=${usage.input} cw=${usage.cacheWrite} cr=${usage.cacheRead} out=${usage.output}`,
     `inner prompt=${inner.promptTokens} cached=${inner.cachedTokens} completion=${inner.completionTokens}`,
     `spend=${result.spendUsd === null ? 'unpriced' : `$${result.spendUsd}`} maxUsd=${args.maxUsd || 'off'}`,
+    ...(result.learn
+      ? [
+          `learn: A_n=${result.learn.deterministicFraction ?? 'n/a'} replayed=${result.learn.invoked ?? 0}/${result.learn.instructions ?? 0} full=${result.learn.fullReplays ?? 0} repaired=${result.learn.repaired ?? 0} compiled=${result.learn.compiled ?? 0} variants=${result.learn.variants ?? 0}`,
+        ]
+      : []),
     `-> ${resultPath}`,
   ].join('\n'),
 );

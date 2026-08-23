@@ -47,6 +47,9 @@ for (const file of fs.readdirSync(resultsDir).filter((f) => f.endsWith('-result.
     inner_usd: innerCost === null ? null : +innerCost.toFixed(4),
     total_usd: totalUsd === null ? null : +totalUsd.toFixed(4),
     cap: r.maxUsd === undefined ? '' : r.stopReason === 'spend-cap' ? `HIT ${r.maxUsd}` : `< ${r.maxUsd}`,
+    // Learning sweeps: deterministic fraction and how many instructions replayed a stored skill.
+    A_n: r.learn ? (r.learn.deterministicFraction ?? 'n/a') : '',
+    replayed: r.learn ? `${r.learn.invoked ?? 0}/${r.learn.instructions ?? 0}${r.learn.repaired ? ` (${r.learn.repaired} repaired)` : ''}` : '',
     innerBasis,
   });
 }
@@ -70,3 +73,6 @@ console.log(
   '\nctxKB = bytes of command output returned to the orchestrator — the context an agent driving this tool would pay for.',
 );
 console.log('Success is NOT scored here: verify it externally against the app, not from a tool\'s self-report.');
+if (rows.some((r) => r.A_n !== '')) {
+  console.log("A_n = fraction of the inner tool's browser actions that ran by replaying a stored skill (learning sweeps only).");
+}

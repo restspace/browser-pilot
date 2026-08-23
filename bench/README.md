@@ -184,6 +184,25 @@ The harness checks the app answers on `APP_URL` before spending a single model t
 exits with the reason if it does not. Three runs were once lost to an app that was down,
 discovered forty turns in.
 
+## Learning sweeps (progressive automation)
+
+`--learn <dir>` puts the browser-pilot arm in learning mode with an isolated skill store: successful
+instructions are compiled into stored procedures and later instructions replay them (see the root
+README, "Learning"). The orchestrator prompt is untouched, so a sweep measures what the *tool* learned.
+The result file gains a `learn` block — `deterministicFraction` (A_n: inner browser actions that ran by
+replay ÷ all inner browser actions), `invoked`, `fullReplays`, `repaired`, `compiled`, `variants` — and
+`score.mjs` shows `A_n` and `replayed` columns.
+
+`bench/sweep.mjs` runs the same task K times in sequence against ONE shared store, resetting the app and
+minting `<base>-n<k>` runids, and prints the per-n curve (cost, turns, A_n, verified objectives):
+
+```sh
+node bench/sweep.mjs --k 5 --base lrn --learn bench/results/lrn-skills --verify   --arm browser-pilot --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md   --provider openrouter --model z-ai/glm-5.3 --coarse --out bench/results
+```
+
+Omit `--learn` for a control sweep of the same K. The claim under test is the notes' Pareto one: cost
+and turns fall with n while externally verified correctness does not.
+
 ## Resetting between runs
 
 State accumulates across runs, so runs are not comparable unless each starts from the same

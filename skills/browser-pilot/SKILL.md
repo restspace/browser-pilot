@@ -65,6 +65,28 @@ commented-out one; anything unresolvable is a `TODO`, never a wrong selector. Re
 committing — it replays the path the agent took, detours included. `script --clear` discards the
 recording; adding `--clear` to a write starts a fresh one.
 
+## Learning mode — repeated work gets cheaper
+
+If you will run the same kind of steps against a site more than once (a test plan you re-run, a flow
+across many similar records), start the session with `--learn`. Every `do` that succeeds is compiled
+into a stored, parameterised procedure; on later `do`s that start on the same page the internal agent
+is offered those procedures, replays one deterministically, and only reasons about steps that no longer
+work. A run that took 14 internal turns the first time typically takes 2–3 the next, with the same
+report shape and every value still read back from the live page.
+
+```sh
+browser-pilot --session t1 --learn open http://localhost:5173
+browser-pilot --session t1 do "sign in as admin@example.com / pw123 and create a project named 'k7 Demo'"
+browser-pilot skills list                    # what has been learned for each site
+browser-pilot skills show <id>               # the steps, their fallbacks, what is a parameter
+```
+
+Two habits make it work well: keep the *values* in the instruction text (a name, a cost, a url) — that
+is how they become parameters rather than hard-coded literals — and keep instruction boundaries stable
+across runs (one `do` = one whole outcome, as above), so the procedure learned last time matches the
+outcome asked for this time. The store lives per site under `~/.browser-pilot/skills/`; `skills rm`
+removes anything you do not want replayed.
+
 ## When a `do` misbehaves
 
 Control commands do **not** queue behind the running instruction, so you can always look and

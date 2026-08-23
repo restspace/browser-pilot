@@ -11,6 +11,38 @@ This document is **Stage 1 only**: replay-first with repair-on-failure for the e
 delegation (one `do` instruction), measured on the existing bench. Template-page recognition is Stage 2,
 but Stage 1 deliberately records the data Stage 2 needs.
 
+## Status (2026-08-23)
+
+Implemented and committed on `main` (`e298f96` and follow-ups): recorder chains + per-step diffs,
+`src/skills/{store,compile,replay,learn}.ts`, `src/daemon/fingerprint.ts`, the `run_skill` tool and
+operating rule 3b, `--learn` / `skills` CLI, daemon-side Tier A, harness `--learn`, `score.mjs` `A_n`,
+`bench/sweep.mjs`. 210 tests pass including the three fixture perturbations and the loop-level
+replay→repair→variant path.
+
+What the first real runs against the local repair-desk app taught (all fixed, all with tests):
+
+1. **Id-bearing locators look unique and aren't.** `getByTestId('ticket-link-t15')` and
+   `getByRole('link', { name: 'RD-1017' })` replayed *successfully* onto the previous run's ticket.
+   Fix: compile demotes any candidate whose selector or name is id-like behind the semantic ones.
+2. **"Ran" is not "worked".** The wrong-ticket replay passed every hard check (url pattern `:id`
+   matched). Fix: page-change expectations that carry a parameter are hard — the step was recorded to
+   surface `heading "{{v3}}"`, so it must surface the new title — with a presence check on the miss
+   path so a value that was already on the page (filling a field with its default) does not false-fail.
+3. **The agent's observation turns were implicit waits.** The app refreshes its list a beat after a
+   create; the recorded click on "row 1" hit the stale row. Fix: a DOM-quiescence settle (250 ms quiet,
+   2 s max) before each replayed step. Generic, no network-idle, instant on a static page.
+4. **The model can mis-type a value.** It created `sm1 …` when asked for `sm1b …`; the typed value then
+   did not occur in the instruction and stayed literal. `skills show` flags literals, and the `[skills]`
+   listing now says which fixed values a procedure types so the agent can decline it.
+
+Measured on the real app with `deepseek-v4-flash` as the inner model, three differently-worded
+instructions for "sign in and create a ticket": run 1 — 14 turns, skill stored; run 2 — replay stopped
+at the wrong-ticket step (caught by fix 2), agent repaired, variant stored; run 3 — variant replayed
+11/11 on turn 1, one verifying snapshot, report: **3 turns**, variant validated, original superseded.
+
+Next: the K=5 learning sweep on the bench (local first, then the cloud routine), the README numbers,
+and the Stage 2 items below.
+
 ## Where we start from (what already exists)
 
 | Need | Already there | Gap |

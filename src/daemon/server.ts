@@ -238,6 +238,7 @@ export class Daemon {
               })
             : null;
           if (learned) progress(`[learn] ${describeLearned(learned)}`);
+          if (result.skill) this.state.recordSkill(result.skill, learned);
           return {
             ...result,
             model: provider.model,
@@ -301,6 +302,7 @@ export class Daemon {
           scriptSteps: this.browser.script?.entries.filter((e) => e.k === 'step').length ?? 0,
           learning: Boolean(this.browser.learn),
           skillsDir: this.browser.learn?.dir ?? null,
+          skills: this.browser.learn ? this.state.skills : null,
           notes: this.state.notes,
           usage: this.state.usage,
           usageByModel: this.state.usageByModel,

@@ -29,6 +29,58 @@ export class SessionState {
    * single aggregate cannot be costed. Keyed by the model that produced them.
    */
   usageByModel: Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number; instructions: number }> = {};
+  /**
+   * Learning-mode rollup across the session's instructions, so a caller can
+   * read the deterministic fraction the way it reads token usage: from
+   * `config`, independent of how each `do` printed its result.
+   */
+  skills = {
+    instructions: 0,
+    offered: 0,
+    invoked: 0,
+    fullReplays: 0,
+    repaired: 0,
+    refused: 0,
+    tierA: 0,
+    stepsReplayed: 0,
+    deterministicActions: 0,
+    totalActions: 0,
+    compiled: 0,
+    merged: 0,
+    variants: 0,
+  };
+
+  recordSkill(
+    skill: {
+      listed: string[];
+      invoked?: string;
+      stepsReplayed: number;
+      stepsTotal: number;
+      repaired: boolean;
+      refused: boolean;
+      tier?: 'A' | 'B';
+      deterministicActions: number;
+      totalActions: number;
+    },
+    learned?: { compiled?: string; merged?: string; variantOf?: string } | null,
+  ): void {
+    const k = this.skills;
+    k.instructions += 1;
+    if (skill.listed.length) k.offered += 1;
+    if (skill.invoked && !skill.refused) {
+      k.invoked += 1;
+      if (skill.stepsReplayed === skill.stepsTotal) k.fullReplays += 1;
+      if (skill.repaired) k.repaired += 1;
+      if (skill.tier === 'A') k.tierA += 1;
+    }
+    if (skill.refused) k.refused += 1;
+    k.stepsReplayed += skill.stepsReplayed;
+    k.deterministicActions += skill.deterministicActions;
+    k.totalActions += skill.totalActions;
+    if (learned?.compiled) k.compiled += 1;
+    if (learned?.merged) k.merged += 1;
+    if (learned?.variantOf) k.variants += 1;
+  }
 
   /** Fold one instruction's usage into both the session total and its model's bucket. */
   recordUsage(
