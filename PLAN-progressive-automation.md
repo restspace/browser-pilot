@@ -70,6 +70,35 @@ Reading it honestly:
 - What worked exactly as designed: validation/demotion (the add-part skill was repaired in run 1 and its
   variant reached 3/3 validated and superseded it), refusal from the wrong page, live read-backs.
 
+### Verified model fallback + non-fatal reads → coupled flow fully zero-model (2026-08-23)
+
+Two more changes, then the coupled flow replays end-to-end with no model calls:
+
+1. **Verified model fallback for read-back** (the earlier "ask the model for the source" idea, done as a
+   *fallback*): after `captureReadBack` runs deterministically, any value it could not pin by text (e.g. a
+   non-unique value) is put to the model in one bounded turn via a `locate` tool; each answer is trusted
+   only after it resolves to exactly that value (`captureReadBackAt`). Deterministic-first keeps the
+   common case free; the model earns its turn only on stragglers.
+2. **Reads are non-fatal in replay, and `read_all` may match many.** A `read`/`read_all` is an observation,
+   not a state change — so a read whose locator no longer resolves is skipped with a warning and the
+   replay continues, rather than stopping the whole procedure and forcing recovery. And `resolveChain` no
+   longer requires a unique match for `read_all` (which reads across every row). This was the actual cause
+   of the coupled flow's step 2 dropping to recovery: a trailing price-column `read_all` with a positional
+   css locator failed after the real work (navigate → fill → submit) had already succeeded.
+
+Result on the deliberately-coupled flow (sign-in+create+return-to-list → open-by-ref → add-part),
+deepseek-recorded, replayed with a fresh runid three times: **2/2 success, both steps Tier A (zero model
+calls), ~10s** — where the first version of this flow hard-blocked at step 2, and the previous version
+completed only via strong-model recovery (~60s). The read-back (step 1 emits the live ticket id),
+parameterised navigation (step 2 clicks the ticket by the threaded id), and non-fatal reads compose to
+give the full progressive-automation payoff: a whole learned session replaying deterministically.
+
+Still open (unchanged): navigation/verification locators that are whole-row-text or positional css are
+brittle — they happened to hold here (single-row list on a reset app) but would drift on a populated,
+non-resetting app; the recorder preferring a record's own link/testid over the row, and read-back reads
+over agent-chosen positional reads, is the durability work. And a producing step must still replay clean
+for its outputs to thread — met here, not guaranteed for larger skills.
+
 ### Parameterised intra-skill navigation (2026-08-23)
 
 Addressed the reliability blocker from the previous entry. Three changes:

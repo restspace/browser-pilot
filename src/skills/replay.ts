@@ -103,13 +103,21 @@ export async function replaySkill(
     // (no network-idle, no app knowledge) and instant on a static page.
     await settleDom(page);
 
+    // A read/read_all is an OBSERVATION, not a state change: its failure means
+    // a value could not be re-captured, never that the procedure is broken. So
+    // a read that cannot resolve or errors is skipped with a warning and the
+    // replay continues — only an action step (click/fill/submit) or a hard
+    // expectation stops it. read_all also legitimately matches many elements,
+    // so its target need not be unique.
+    const isRead = step.tool === 'read' || step.tool === 'read_all';
+
     // Resolve every target through its chain before touching the page.
     const resolved: Record<string, Locator> = {};
     let resolveError: string | null = null;
     for (const key of ['target', 'source']) {
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
-      const hit = await resolveChain(page, chain, typeof args[key] === 'string' ? String(args[key]) : '');
+      const hit = await resolveChain(page, chain, typeof args[key] === 'string' ? String(args[key]) : '', step.tool === 'read_all');
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
         break;
@@ -121,6 +129,12 @@ export async function replaySkill(
       }
     }
     if (resolveError) {
+      if (isRead) {
+        res.stepsRun++;
+        res.warnings.push(`step ${n}: skipped read — ${resolveError}`);
+        res.lines.push(`${head} → skipped (${resolveError})`);
+        continue;
+      }
       res.failedAt = n;
       res.reason = resolveError;
       res.lines.push(`${head} → FAILED: ${resolveError}`);
@@ -132,6 +146,12 @@ export async function replaySkill(
       outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: n });
     } catch (err) {
       const message = (err instanceof Error ? err.message : String(err)).split('\nCall log:')[0];
+      if (isRead) {
+        res.stepsRun++;
+        res.warnings.push(`step ${n}: read errored — ${clip(message, 120)}`);
+        res.lines.push(`${head} → skipped (${clip(message, 120)})`);
+        continue;
+      }
       res.failedAt = n;
       res.reason = `${step.tool} failed: ${clip(message, 300)}`;
       res.lines.push(`${head} → FAILED: ${clip(message, 300)}`);
@@ -197,6 +217,8 @@ export async function resolveChain(
   page: Page,
   chain: LocatorCandidate[],
   rawTarget: string,
+  /** read_all reads across every match, so its target need not be unique. */
+  allowMultiple = false,
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
   for (const [index, candidate] of candidates.entries()) {
@@ -204,9 +226,9 @@ export async function resolveChain(
       const locator = makeLocator(page, candidate);
       const count = await locator.count();
       if (count === 1) return { locator, index, candidate };
-      if (count > 1 && candidate.nth === undefined && index === 0) {
-        // The primary used to be unique; ambiguity now is drift, keep looking.
-        continue;
+      if (count > 1) {
+        if (allowMultiple) return { locator, index, candidate };
+        if (candidate.nth === undefined && index === 0) continue; // was unique; ambiguity is drift, keep looking
       }
     } catch {
       // malformed selector or detached page — try the next candidate

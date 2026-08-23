@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ElementHandle, Locator, Page } from 'playwright-core';
 import { ensureSessionDir } from '../shared/paths.js';
-import { isRefTarget } from './refs.js';
+import { isRefTarget, resolveTarget } from './refs.js';
 
 /**
  * One way of finding an element, in a form that can be rebuilt into a Locator
@@ -416,34 +416,70 @@ export async function captureReadBack(page: Page, value: string): Promise<Record
   if (v.length < 2 || v.length > 80) return null; // too short to be distinctive, or prose
   const loc = page.getByText(v, { exact: true });
   const count = await loc.count().catch(() => 0);
-  if (count !== 1) return null; // ambiguous or absent — cannot pin it
+  if (count !== 1) return null; // ambiguous or absent — cannot pin it by text
   const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
   if (!handle) return null;
   try {
-    const info = (await handle.evaluate(describeInPage)) as ElementInfo;
-    const chain: LocatorCandidate[] = [];
-    let winner: LocatorCandidate | null = null;
-    for (const candidate of candidatesFor(info)) {
-      // Skip any candidate whose identity IS the value — locating the price by
-      // "125.00" would never match a different price on the next run.
-      if (candidateIdentity(candidate.spec) === v) continue;
-      const match = await matchIndex(candidate.make(page), handle);
-      if (match === null) continue;
-      const spec = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
-      if (!winner) winner = spec;
-      chain.push(spec);
-    }
-    if (!winner) return null; // only a circular locator resolved — cannot re-read stably
-    return {
-      k: 'step',
-      tool: 'read',
-      args: { target: '(read-back)', what: 'text' },
-      locators: { target: { expr: candidateExpr(winner), verified: true, raw: '(read-back)', chain } },
-      result: JSON.stringify(v),
-    };
+    return await readBackFromHandle(page, handle, v);
   } finally {
     await handle.dispose().catch(() => {});
   }
+}
+
+/**
+ * Read-back from a selector the MODEL supplied (the verified-fallback path,
+ * for values captureReadBack could not pin by text — e.g. a value that is not
+ * unique). The selector is trusted only after it resolves to exactly one
+ * element whose text actually IS the value; otherwise null and the value stays
+ * un-threadable.
+ */
+export async function captureReadBackAt(page: Page, value: string, selector: string): Promise<RecordedStep | null> {
+  const v = value.trim();
+  if (!selector.trim() || v.length < 2 || v.length > 80) return null;
+  let loc;
+  try {
+    loc = resolveTarget(page, selector);
+  } catch {
+    return null;
+  }
+  const count = await loc.count().catch(() => 0);
+  if (count !== 1) return null; // must be unambiguous
+  const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
+  if (!handle) return null;
+  try {
+    const raw = await handle
+      .evaluate((el) => ((el as HTMLElement).innerText ?? (el as HTMLInputElement).value ?? '').trim())
+      .catch(() => '');
+    if (raw !== v && !raw.includes(v)) return null; // the model pointed at the wrong element
+    return await readBackFromHandle(page, handle, v);
+  } finally {
+    await handle.dispose().catch(() => {});
+  }
+}
+
+/** Derive a durable, non-circular read step for `value` from a live element. */
+async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: string): Promise<RecordedStep | null> {
+  const info = (await handle.evaluate(describeInPage)) as ElementInfo;
+  const chain: LocatorCandidate[] = [];
+  let winner: LocatorCandidate | null = null;
+  for (const candidate of candidatesFor(info)) {
+    // Skip any candidate whose identity IS the value — locating the price by
+    // "125.00" would never match a different price on the next run.
+    if (candidateIdentity(candidate.spec) === v) continue;
+    const match = await matchIndex(candidate.make(page), handle);
+    if (match === null) continue;
+    const spec = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
+    if (!winner) winner = spec;
+    chain.push(spec);
+  }
+  if (!winner) return null; // only a circular locator resolved — cannot re-read stably
+  return {
+    k: 'step',
+    tool: 'read',
+    args: { target: '(read-back)', what: 'text' },
+    locators: { target: { expr: candidateExpr(winner), verified: true, raw: '(read-back)', chain } },
+    result: JSON.stringify(v),
+  };
 }
 
 /** Describe the element a live Locator resolves to (replay path). */

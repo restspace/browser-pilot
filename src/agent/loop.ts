@@ -1,13 +1,13 @@
 import type { BrowserSession } from '../daemon/browser.js';
 import type { SessionState } from '../daemon/state.js';
-import type { ChatMessage, Provider } from './llm.js';
+import type { ChatMessage, Provider, ToolDef } from './llm.js';
 import { fingerprintPage } from '../daemon/fingerprint.js';
 import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
 import { validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
-import { captureReadBack } from '../daemon/recorder.js';
+import { captureReadBack, captureReadBackAt } from '../daemon/recorder.js';
 
 /** Tools that change the page URL, staleing every existing snapshot's refs. */
 const NAVIGATION_TOOLS = new Set(['goto', 'back', 'tabs']);
@@ -236,10 +236,21 @@ export async function runInstruction(
         try {
           const page = await browser.getPage();
           const alreadyRead = browser.script.readResultsThisInstruction();
+          const stragglers: string[] = [];
           for (const value of new Set(Object.values(values))) {
             if (!value || alreadyRead.has(value)) continue;
             const step = await captureReadBack(page, value);
             if (step) browser.script.addStep(step);
+            else stragglers.push(value); // not pinnable by text — try the model next
+          }
+          // Verified model fallback: for values the deterministic search could
+          // not pin (typically because they are not unique on the page), ask
+          // the model — which knows where it read them — for a selector, then
+          // trust it only after it resolves to exactly that value. One extra
+          // turn, and only when a straggler exists.
+          if (stragglers.length) {
+            const sourced = await sourceStragglers(provider, page, system, state, stragglers, opts, usage);
+            for (const step of sourced) browser.script.addStep(step);
           }
         } catch {
           // a wedged/navigating page must never turn a good report into no report
@@ -606,6 +617,72 @@ function escalationPrompt(instruction: string, first: InstructionResult): string
     `approach it did not try.\n\nThe original instruction to complete is:\n${instruction}`
   );
 }
+
+/**
+ * Verified model fallback for read-back synthesis: ask the model where each
+ * un-pinnable reported value lives on the current page, then trust the answer
+ * only after it resolves to exactly that value. Ephemeral — does not touch the
+ * running history — and bounded to one completion.
+ */
+async function sourceStragglers(
+  provider: Provider,
+  page: import('playwright-core').Page,
+  system: ChatMessage,
+  state: SessionState,
+  values: string[],
+  opts: LoopOptions,
+  usage: { promptTokens: number; completionTokens: number; cachedTokens: number },
+): Promise<import('../daemon/recorder.js').RecordedStep[]> {
+  const ask: ChatMessage = {
+    role: 'user',
+    content:
+      `Before this instruction is filed, point to where these value(s) you just reported are shown on the CURRENT page, so they can be re-read on a later run. ` +
+      `Call locate with, for each value, a CSS selector (or @ref from your latest snapshot) that resolves to EXACTLY the one element displaying it — or an empty selector if the value is computed and not shown verbatim on the page. Values:\n` +
+      values.map((v) => `- ${JSON.stringify(v)}`).join('\n'),
+  };
+  let completion;
+  try {
+    completion = await provider.complete([system, ...state.messages, ask], [LOCATE_TOOL], { signal: opts.signal });
+  } catch {
+    return [];
+  }
+  usage.promptTokens += completion.usage.promptTokens;
+  usage.completionTokens += completion.usage.completionTokens;
+  usage.cachedTokens += completion.usage.cachedTokens;
+  const call = completion.toolCalls.find((c) => c.name === 'locate');
+  const sources = call?.args && Array.isArray((call.args as { sources?: unknown }).sources) ? ((call.args as { sources: unknown[] }).sources) : [];
+  const out: import('../daemon/recorder.js').RecordedStep[] = [];
+  for (const entry of sources) {
+    const e = entry as { value?: unknown; selector?: unknown };
+    if (typeof e.value !== 'string' || typeof e.selector !== 'string' || !e.selector.trim()) continue;
+    const step = await captureReadBackAt(page, e.value, e.selector).catch(() => null);
+    if (step) out.push(step);
+  }
+  if (out.length) opts.onProgress?.(`[read-back] model sourced ${out.length}/${values.length} un-pinnable value(s)`);
+  return out;
+}
+
+const LOCATE_TOOL: ToolDef = {
+  name: 'locate',
+  description: 'Point to where each listed value is shown on the current page, so it can be re-read later.',
+  parameters: {
+    type: 'object',
+    required: ['sources'],
+    properties: {
+      sources: {
+        type: 'array',
+        items: {
+          type: 'object',
+          required: ['value', 'selector'],
+          properties: {
+            value: { type: 'string', description: 'The reported value, exactly as given.' },
+            selector: { type: 'string', description: 'CSS selector or @ref resolving to exactly the element that displays this value; "" if it is computed / not shown.' },
+          },
+        },
+      },
+    },
+  },
+};
 
 /** What the stored-skill listing contributes to an instruction's first message. */
 async function offerSkills(
