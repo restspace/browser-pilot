@@ -68,7 +68,7 @@ describe('promoteFallback', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-repair-'));
     const store = new SkillStore(dir);
     store.put(mkSkill());
-    expect(promoteFallback(store, ticket({ fallbackUsed: 'css=#submit', fallbackIndex: 2 }))).toBe(true);
+    expect(promoteFallback(store, ticket({ fallbackUsed: "page.locator('#submit')", fallbackIndex: 2 }))).toBe(true);
     const chain = store.get('s_x')!.steps[0].locators.target;
     expect(chain.map((c) => c.kind)).toEqual(['id', 'role', 'text']);
     fs.rmSync(dir, { recursive: true, force: true });
@@ -79,6 +79,8 @@ describe('promoteFallback', () => {
     const store = new SkillStore(dir);
     store.put(mkSkill());
     expect(promoteFallback(store, ticket({ skill: 's_gone', fallbackIndex: 1 }))).toBe(false);
+    // a ticket naming a candidate that is no longer at that index is refused
+    expect(promoteFallback(store, ticket({ fallbackUsed: "page.locator('#other')", fallbackIndex: 1 }))).toBe(false);
     expect(promoteFallback(store, ticket({ fallbackIndex: 9 }))).toBe(false);
     expect(promoteFallback(store, ticket({ fallbackIndex: undefined }))).toBe(false);
     fs.rmSync(dir, { recursive: true, force: true });

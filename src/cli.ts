@@ -128,6 +128,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'origin',
     'save-flow',
     'recovery-model',
+    'drift',
   ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];

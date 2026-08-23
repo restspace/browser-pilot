@@ -58,8 +58,13 @@ export type TriageAction =
 export function triage(tickets: DriftTicket[]): TriageAction[] {
   const seen = new Set<string>();
   const out: TriageAction[] = [];
+  // Loop iterations ("2.1.1", "2.4.1") all share one body step — canonicalise
+  // the tag so a loop that missed on every iteration yields ONE action, not
+  // one per iteration (repeat splices with stale indices would scramble the
+  // chain).
+  const canon = (tag: string | undefined) => (tag && tag.split('.').length === 3 ? tag.replace(/\.\d+\./, '.*.') : tag);
   for (const t of tickets) {
-    const dedupe = `${t.skill}|${t.atStep ?? ''}|${t.key ?? ''}|${t.missedLocator ?? ''}`;
+    const dedupe = `${t.skill}|${canon(t.atStep) ?? ''}|${t.key ?? ''}|${t.missedLocator ?? ''}`;
     if (seen.has(dedupe)) continue;
     seen.add(dedupe);
     const localized = t.similarity === null || t.similarity >= LOCALIZED_SIMILARITY;
@@ -106,6 +111,11 @@ export function promoteFallback(store: SkillStore, ticket: DriftTicket): boolean
   const step = stepByTag(skill, ticket.atStep);
   const chain = step?.locators[ticket.key ?? 'target'];
   if (!chain || ticket.fallbackIndex >= chain.length) return false;
+  // The index was observed on a param-filled chain; make sure it still names
+  // the candidate the ticket promoted (a prior promotion, or a chain edit,
+  // may have moved it). Parameterised candidates can only be index-checked.
+  const expr = candidateExpr(chain[ticket.fallbackIndex]);
+  if (ticket.fallbackUsed && !expr.includes('{{') && expr !== ticket.fallbackUsed) return false;
   const [used] = chain.splice(ticket.fallbackIndex, 1);
   chain.unshift(used);
   store.put(skill);
