@@ -679,3 +679,36 @@ Fixed: `foldLoops` now only folds groups anchored on a **click** with no
 read/read_all/eval/screenshot inside. Regression test added; the delete-loop
 browser test still passes under the stricter rule. A clean re-measure (flow5) runs
 with the fix in place.
+
+### flow5 (clean, fold fix) — re-pin is non-monotonic
+
+All 4 runs 6/6 verified; record $0.042. But zero-model steps went **7/12 → 3/12 →
+3/12** across the replays, and wall-clock rose (269 → 772 → 520s). The fold fix
+worked (0 read-loops; the read-heavy verify step replayed zero-model on n2), but
+the bigger finding is that **re-pin does not converge — it can degrade the flow.**
+
+Root cause: the head step (sign-in + create, one big instruction) does not replay
+deterministically. When it recovers, the model drives the browser into a slightly
+different state, which trips the *next* steps' preconditions even though their
+skills were unchanged — so a single non-deterministic head step cascades into
+several downstream recoveries. Re-pinning the head with a recovery-compiled skill
+does not fix it (that skill is just as non-deterministic), and replacing a clean
+recorded skill with a recovery-compiled one is often a downgrade.
+
+Correctness is never at risk — recovery rescues every run, so verified stays 6/6 —
+but the promise "cheaper over successive runs" is not met by blind re-pin.
+
+Recommended next (not yet done — a design decision):
+- Do NOT blindly replace a step's skill on first recovery. Either keep the
+  original and add the recovery as a *variant*, letting the existing
+  promote-on-2nd-success / demote-on-2-strikes lifecycle pick the winner, or only
+  replace after the original has failed K times.
+- Attack the head step directly: split sign-in into its own small deterministic
+  skill so its recovery can't cascade into create/add/edit.
+
+### OpenRouter-for-both: settled
+
+Both roles run on OpenRouter with no code change (glm-5.3 orchestrator + glm-5.2
+inner, escalation off). Across flow4+flow5, 8/8 runs were 6/6 verified, the record
+run costs ~$0.04 (vs novita $0.46), and replays run ~2× faster than novita. That
+part is a clear win; the convergence work is where the open problem now sits.
