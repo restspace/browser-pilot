@@ -1,0 +1,66 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "3dc70c0"
+  },
+  "mutationLogPath": "C:\\dev\\browser-pilot\\bench\\results\\lrn1-n2-browser-pilot-mutationlog.json",
+  "provider": "novita",
+  "model": "zai-org/glm-5.3",
+  "runid": "lrn1-n2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 365500,
+  "orchestrator": {
+    "input": 4857,
+    "cacheWrite": 0,
+    "cacheRead": 18240,
+    "output": 1954
+  },
+  "inner": {
+    "promptTokens": 775539,
+    "cachedTokens": 699904,
+    "completionTokens": 7343,
+    "instructions": 6,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 775539,
+        "completionTokens": 7343,
+        "cachedTokens": 699904,
+        "instructions": 6
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": null,
+    "provider": "novita"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 308342,
+  "commandBytes": 4477,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "C:\\dev\\browser-pilot\\bench\\results\\lrn1-skills",
+    "deterministicFraction": null
+  },
+  "orBackends": [],
+  "orReportedCostUsd": null,
+  "maxUsd": 2,
+  "spendUsd": 0.0524,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE**: Ticket `lrn1-n2 RD Bench Ticket` created (ref **RD-1015**, customer \"Bench Customer\"), initial status Draft, 0 parts.\n\n**Objective 2 — DONE**: Part `lrn1-n2 RD Part A` added with cost 100, markup 25. App-computed price: **$125.00**.\n\n**Objective 3 — DONE**: Part `lrn1-n2 RD Part B` added with cost 200, markup 25. App-computed price: **$250.00**. Ticket parts total at that point: $375.00.\n\n**Objective 4 — DONE**: Part A's cost edited from 100 → 150 (markup still 25). App-computed price afterwards: **$187.50**. Ticket parts total became $437.50.\n\n**Objective 5 — DONE**: Ticket status is **Ready**. Precondition discovered: the app refused the first \"Mark Ready\" attempt with the alert *\"Ticket is not ready — Part \"lrn1-n2 RD Part A\" has no supplier\"*. The requirement is that **every part on the ticket must have a supplier**. Part B already had supplier \"Acme Supplies\"; Part A had none. I edited Part A to set its supplier to \"Acme Supplies\", retried Mark Ready, and the status changed to Ready (the Mark Ready button was replaced by Mark Draft / Mark Closed).\n\n**Objective 6 — DONE**: Both parts deleted (each confirmed via dialog; Parts table now reads \"No parts on this ticket yet.\"), then the ticket archived (confirm dialog accepted; the \"Archive ticket\" button changed to \"Unarchive ticket\"). The ticket shows status Ready with an \"Archived\" badge, 0 parts, and does **not** appear in the active ticket list (verified across both pages with \"Show archived\" unchecked); it appears only in the archived view.\n\nNothing created by this run remains active.",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\lrn1-n2-browser-pilot-transcript.jsonl"
+}

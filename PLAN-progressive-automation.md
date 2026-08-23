@@ -40,8 +40,43 @@ instructions for "sign in and create a ticket": run 1 — 14 turns, skill stored
 at the wrong-ticket step (caught by fix 2), agent repaired, variant stored; run 3 — variant replayed
 11/11 on turn 1, one verifying snapshot, report: **3 turns**, variant validated, original superseded.
 
-Next: the K=5 learning sweep on the bench (local first, then the cloud routine), the README numbers,
-and the Stage 2 items below.
+### First learning sweep (local, K=3, `lrn1`, 2026-08-23)
+
+`node bench/sweep.mjs --k 3 --learn … --verify`, repairdesk target, orchestrator `zai-org/glm-5.3` on
+novita (no OpenRouter key locally — the freeze tripwire stayed quiet), inner `deepseek-v4-flash`,
+escalation off, coarse. Results in `bench/results-published/lrn1-*` and the learned store in
+`bench/results-published/lrn1-skills/`.
+
+| n | verified | orch cmds | total $ | orch $ | inner $ | inner $/instr | A_n (replayed / recorded actions) |
+|---|---|---|---|---|---|---|---|
+| 1 | 6/6 | 11 | 0.144 | 0.066 | 0.078 | 0.0071 | 0.11 (within-run reuse: part B replayed part A's skill) |
+| 2 | 6/6 | 6 | 0.052 | 0.020 | 0.032 | 0.0054 | 0.38 |
+| 3 | 6/6 | 10 | 0.090 | 0.029 | 0.062 | 0.0062 | 0.33–0.35 (5/10 instructions replayed, 4 full, 1 repaired) |
+
+Reading it honestly:
+
+- Correctness held (6/6 externally verified on every run; run 1's "claim mismatch" is the verifier reading
+  Part A's final price as the objective-2 claim, a parsing quirk, not a fabrication).
+- Cost fell (run 1 → runs 2–3: −64% and −37%), but **most of the total-cost swing is the orchestrator's
+  decomposition variance** (6 vs 10 vs 11 commands), not learning. The learning-attributable signal is
+  the inner cost *per instruction*: $0.0071 → $0.0054 → $0.0062, a 13–24% reduction, with A_n ≈ 0.35.
+  Well short of the plan's run-5 ≤ 50% / A_5 ≥ 0.7 targets at n=3.
+- Why A_n plateaus at ~0.35: (a) half the instructions on each run found no matching skill or the agent
+  declined, because the orchestrator re-chunks the task differently each run and the store fragments —
+  by run 3 there were 17 skills for ~8 distinct outcomes, most provisional, since the twin-merge only
+  fires on an identical template or identical step sequence; (b) replay covers the *actions* but the
+  agent still spends its own turns verifying and reporting, so per-instruction token cost falls less
+  than action count does.
+- What worked exactly as designed: validation/demotion (the add-part skill was repaired in run 1 and its
+  variant reached 3/3 validated and superseded it), refusal from the wrong page, live read-backs.
+
+Next, in order: (1) merge skills by *outcome* rather than by template — same origin + same start page +
+same step sequence modulo parameters already merges; extend to "same tools and same primary locator kinds
+with different literals", and let a validated skill absorb a provisional one whose steps are a prefix
+or superset; (2) Tier A will not fire under a rewording orchestrator, so measure the fixed-wording case
+separately with a scripted caller (that is where A_n → 1 and cost → orchestrator-only); (3) K=5 with
+N≥3 sweeps on the cloud routine with OpenRouter, plus a K=5 control sweep, before quoting any number in
+the README; (4) the Stage 2 items below.
 
 ## Where we start from (what already exists)
 
