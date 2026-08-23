@@ -2,7 +2,7 @@ import type { InstructionResult, SkillRecord } from '../agent/loop.js';
 import type { Report } from '../agent/report.js';
 import type { RecordedEntry, RecordedInstruction } from '../daemon/recorder.js';
 import { compileSkill, escapeRe, fillParams, sameProcedure, urlMatches } from './compile.js';
-import type { Skill, SkillStore } from './store.js';
+import { successRate, type Skill, type SkillStore } from './store.js';
 
 export interface LearnedRecord {
   /** A new skill was stored. */
@@ -101,6 +101,50 @@ export function matchTemplate(skills: Skill[], instruction: string, url: string)
     if (params) return { skill, params };
   }
   return null;
+}
+
+/**
+ * The skills a flow step should try for its procedure, best track record
+ * first. The step's pinned skill is a HINT that defines the family (its
+ * template and its procedure shape), never an authority: candidates are every
+ * non-demoted skill in the store that either binds the instruction directly
+ * or shares the hint's procedure, ordered validated-first, then by success
+ * rate, then by experience. Selection by record is what stops one bad pin —
+ * e.g. a fragile provisional from a single model recovery — from dominating
+ * the step run after run.
+ */
+export function selectCandidates(
+  skills: Skill[],
+  hintId: string | undefined,
+  instruction: string,
+  hintParams?: Record<string, string>,
+): { skill: Skill; params: Record<string, string> }[] {
+  const hint = hintId ? skills.find((s) => s.id === hintId) : undefined;
+  const pinned = hintParams && Object.keys(hintParams).length ? hintParams : undefined;
+  const out: { skill: Skill; params: Record<string, string> }[] = [];
+  for (const s of skills) {
+    if (s.status === 'demoted') continue;
+    // The flow's stored bindings are authoritative for the pinned skill; a
+    // sibling binds from the instruction text, or inherits the pinned
+    // bindings when it shares the hint's procedure and its slots all resolve.
+    let params: Record<string, string> | null = null;
+    if (s.id === hintId && pinned) params = pinned;
+    else params = bindSkill(s, instruction);
+    if (!params && pinned && hint && (s.template === hint.template || sameProcedure(s, hint)) && Object.keys(s.params).every((p) => pinned[p])) {
+      params = pinned;
+    }
+    if (!params) continue;
+    out.push({ skill: s, params });
+  }
+  return out.sort((a, b) => {
+    const rank = (s: Skill) => (s.status === 'validated' ? 1 : 0);
+    return (
+      rank(b.skill) - rank(a.skill) ||
+      successRate(b.skill) - successRate(a.skill) ||
+      b.skill.stats.uses - a.skill.stats.uses ||
+      (b.skill.stats.lastUsed ?? '').localeCompare(a.skill.stats.lastUsed ?? '')
+    );
+  });
 }
 
 /**

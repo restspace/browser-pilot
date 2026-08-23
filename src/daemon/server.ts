@@ -4,7 +4,7 @@ import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
-import { bindSkill, learnFromInstruction, matchTemplate, synthesizeReport } from '../skills/learn.js';
+import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
@@ -35,6 +35,13 @@ const UNQUEUED_COMMANDS = new Set<CommandName>(['ping', 'config', 'screenshot', 
 
 /** How long `stop` lets an aborted instruction unwind before tearing down. */
 const STOP_DRAIN_MS = 3_000;
+
+/**
+ * How many stored candidates a flow step may actually replay (attempts that
+ * ran at least one step) before giving up and recovering on the model.
+ * Refusals (wrong page, unbindable params) are free and do not count.
+ */
+const MAX_CANDIDATE_ATTEMPTS = 3;
 
 export class Daemon {
   private browser: BrowserSession;
@@ -537,14 +544,18 @@ ${direct.prelude}` : recoveryText,
           session: this.opts.session,
           model: opts.provider.model,
         });
-        // Re-pin the step when it heals. Two cases: a run_skill repair that
-        // validated (result.skill.repaired), OR a step whose pinned skill failed
-        // to replay at all and only the model recovery finished it — the old
-        // skill is demonstrably broken for this flow, so pin the fresh one the
-        // recovery just compiled. Without this second case a step that recovers
-        // recovers again every run (repinned stayed 0) and never converges.
-        if (learned?.compiled && (result.skill?.repaired || (recovered && result.report.status === 'success'))) {
-          repinned = learned.compiled;
+        // Lifecycle-gated adoption: the pin only ever moves to a skill that is
+        // VALIDATED and has just replayed this step cleanly. A skill compiled
+        // from a single model recovery enters the store provisional and must
+        // EARN the pin by validating across runs — flow5 showed that
+        // force-pinning such a skill (usually MORE fragile than the clean
+        // original) makes the zero-model fraction non-monotone: fail, recover,
+        // re-pin another provisional, churn. The pin is a hint, not an
+        // authority: selection each run is by track record (selectCandidates),
+        // so an unhealthy pin costs one refused/failed attempt, not the step.
+        const outcome = learned?.outcome;
+        if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill) {
+          repinned = outcome.skill;
         }
       }
       const values: Record<string, string> = {};
@@ -618,21 +629,45 @@ ${direct.prelude}` : recoveryText,
     }
     const origin = originOf(url);
     if (!origin) return {};
-    let match: { skill: import('../skills/store.js').Skill; params: Record<string, string> } | null;
+    // Candidates for this instruction, best track record first. In flow mode
+    // the pinned skill is only a hint that names the procedure family —
+    // selection is by the store's own lifecycle (validated > success rate >
+    // experience), so a fragile pin cannot dominate the step run after run.
+    let candidates: { skill: import('../skills/store.js').Skill; params: Record<string, string> }[];
     if (chosen) {
-      const skill = store.get(chosen.id);
-      // Prefer the flow's stored bindings; fall back to deriving from wording.
-      const params = skill ? (chosen.params && Object.keys(chosen.params).length ? chosen.params : bindSkill(skill, instruction)) : null;
-      match = skill && params ? { skill, params } : null;
+      candidates = selectCandidates(store.list(origin), chosen.id, instruction, chosen.params);
     } else {
-      match = matchTemplate(store.list(origin), instruction, url);
+      const m = matchTemplate(store.list(origin), instruction, url);
+      candidates = m ? [m] : [];
     }
-    if (!match) return {};
-    progress(`[skill] ${match.skill.id} matches the instruction exactly — replaying without the model`);
+    if (!candidates.length) return {};
     this.browser.script?.beginInstruction(instruction, { url });
-    const execution = await executeTool(this.browser, 'run_skill', { id: match.skill.id, params: match.params }, screenshotDir, signal);
-    const replay = execution.replay;
-    if (!replay || replay.refused) return {};
+    let match: { skill: import('../skills/store.js').Skill; params: Record<string, string> } | null = null;
+    let replay: NonNullable<Awaited<ReturnType<typeof executeTool>>['replay']> | null = null;
+    let attempts = 0;
+    for (const cand of candidates) {
+      if (attempts >= MAX_CANDIDATE_ATTEMPTS) break;
+      progress(`[skill] trying ${cand.skill.id} (${cand.skill.status}, ${cand.skill.stats.successes}/${cand.skill.stats.uses}) without the model`);
+      const execution = await executeTool(this.browser, 'run_skill', { id: cand.skill.id, params: cand.params }, screenshotDir, signal);
+      const r = execution.replay;
+      if (!r) return {};
+      if (r.refused) continue; // wrong page / bad params: nothing ran, free to try the next
+      attempts++;
+      match = cand;
+      replay = r;
+      if (r.ok) break;
+      if (r.stepsRun === 0) {
+        // Failed before touching the page — safe to try the next candidate.
+        // Record the failure so the store's own lifecycle (two strikes →
+        // demoted) drops a flaky skill out of selection.
+        store.recordOutcome(cand.skill.id, { ok: false, failedAt: r.failedAt, fallthroughs: r.fallthroughs, instructionSucceeded: false });
+        match = null;
+        replay = null;
+        continue;
+      }
+      break; // partial: the page has changed — hand what ran to recovery, never restart another candidate
+    }
+    if (!match || !replay) return {};
     const record: Partial<SkillRecord> = {
       invoked: replay.skill,
       stepsReplayed: replay.stepsRun,

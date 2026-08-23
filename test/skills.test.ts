@@ -7,7 +7,7 @@ import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { coalesceControls, compileSkill, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
-import { learnFromInstruction, matchTemplate, synthesizeReport } from '../src/skills/learn.js';
+import { learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
 import { candidatesFor, renderCandidates } from '../src/skills/replay.js';
 import { SkillStore, originOf, originSlug, type Skill } from '../src/skills/store.js';
 
@@ -407,5 +407,49 @@ describe('zero-model template match', () => {
     const b = compileSkill({ entries: recording(), instruction: 'totally different words x7 RD Part A 100 25', report, session: 's' })!;
     expect(sameProcedure(a, b)).toBe(true);
     expect(sameProcedure(a, { ...b, steps: b.steps.slice(1) })).toBe(false);
+  });
+});
+
+describe('selectCandidates (lifecycle-gated adoption)', () => {
+  const make = (status: Skill['status'], stats?: Partial<Skill['stats']>): Skill => {
+    const s = compileSkill({ entries: recording(), instruction: INSTRUCTION, report, session: 's' })!;
+    s.status = status;
+    Object.assign(s.stats, stats);
+    return { ...s, id: `s_${status}_${s.stats.uses}_${Math.abs(JSON.stringify(stats ?? {}).length)}` };
+  };
+  const same = INSTRUCTION.replaceAll('x7 RD Part A', 'z9 RD Part B').replace('cost 100', 'cost 300').replace('markup 25', 'markup 40');
+
+  it('orders validated before provisional, excludes demoted, and never needs the hint', () => {
+    const validated = make('validated', { uses: 4, successes: 4 });
+    const provisional = make('provisional', { uses: 1, successes: 1 });
+    const demoted = make('demoted', { uses: 5, successes: 5 });
+    const out = selectCandidates([provisional, demoted, validated], undefined, same);
+    expect(out.map((c) => c.skill.id)).toEqual([validated.id, provisional.id]);
+    expect(out[0].params).toEqual({ v1: 'z9 RD Part B', v2: '300', v3: '40' });
+  });
+
+  it('a fragile pinned provisional does not outrank a proven validated sibling', () => {
+    const original = make('validated', { uses: 4, successes: 4 });
+    const pinnedVariant = make('provisional', { uses: 1, successes: 1 });
+    const out = selectCandidates([pinnedVariant, original], pinnedVariant.id, same, { v1: 'z9 RD Part B', v2: '300', v3: '40' });
+    expect(out[0].skill.id).toBe(original.id);
+    expect(out[1].skill.id).toBe(pinnedVariant.id);
+  });
+
+  it('ranks by success rate within a status tier', () => {
+    const shaky = make('validated', { uses: 4, successes: 2 });
+    const solid = make('validated', { uses: 4, successes: 4 });
+    const out = selectCandidates([shaky, solid], undefined, same);
+    expect(out[0].skill.id).toBe(solid.id);
+  });
+
+  it('a sameProcedure sibling with different wording inherits the pinned bindings', () => {
+    const hint = make('provisional');
+    const sibling = compileSkill({ entries: recording(), instruction: 'totally different words x7 RD Part A 100 25', report, session: 's' })!;
+    sibling.status = 'validated';
+    const params = { v1: 'z9 RD Part B', v2: '300', v3: '40' };
+    const out = selectCandidates([hint, sibling], hint.id, same, params);
+    expect(out.map((c) => c.skill.id)).toEqual([sibling.id, hint.id]);
+    expect(out[0].params).toEqual(params);
   });
 });
