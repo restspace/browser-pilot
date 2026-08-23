@@ -646,3 +646,36 @@ model. That is the generalisation the fold is for.
   as an explicitly model-driven step in the flow.
 - A fresh orchestrated flow sweep to re-measure end-to-end is blocked on Novita
   balance.
+
+## OpenRouter for both roles + fold fix (2026-08-23)
+
+Novita ran out of balance, so both roles were moved to OpenRouter (no code change
+needed — orchestrator via `--provider openrouter`, inner agent via
+`BROWSER_PILOT_PROVIDER=openrouter`). Pairing: **glm-5.3 orchestrator + glm-5.2
+inner, escalation off** (the OpenRouter preset carries no fallback).
+
+### flow4 sweep (K=4, OpenRouter) — all four runs 6/6
+
+| run | mode | verified | wall_s | cost |
+|-----|------|----------|--------|------|
+| n1 | record | 6/6 | 763 | $0.041 |
+| n2 | replay, no orchestrator | 6/6 | 348 | $0 orch |
+| n3 | replay, no orchestrator | 6/6 | 179 | $0 orch |
+| n4 | replay, no orchestrator | 6/6 | 296 | $0 orch |
+
+OpenRouter is both cheaper and faster than the novita run: the record run cost
+**$0.041** (vs novita's $0.457, ~11× cheaper) and replays ran ~180–350s (vs
+novita ~470–610s). Reliability was better too — 4/4 clean vs novita's 3/4.
+Re-pin fired (3 on n2, 2 on n3). Convergence is still partial: sign-in (01) and
+the read-heavy verify (08) recover run-to-run; 06-create converged to zero-model.
+
+### Fold defect found and fixed
+
+The fresh OpenRouter skills exposed a real bug: consecutive **read-backs** (same
+shape, per-record ids) were folding into `loop` steps — reads observe, they do not
+iterate. Non-fatal on replay (a read-loop repeats a harmless read to its cap) but
+wrong, and it was degrading exactly the read-heavy verify step's convergence.
+Fixed: `foldLoops` now only folds groups anchored on a **click** with no
+read/read_all/eval/screenshot inside. Regression test added; the delete-loop
+browser test still passes under the stricter rule. A clean re-measure (flow5) runs
+with the fix in place.
