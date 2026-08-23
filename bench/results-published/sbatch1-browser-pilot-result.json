@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "2c704fa"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/sbatch1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "sbatch1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 511326,
+  "orchestrator": {
+    "input": 3869,
+    "cacheWrite": 0,
+    "cacheRead": 21184,
+    "output": 1614
+  },
+  "inner": {
+    "promptTokens": 899072,
+    "cachedTokens": 822528,
+    "completionTokens": 8021,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 899072,
+        "completionTokens": 8021,
+        "cachedTokens": 822528,
+        "instructions": 7
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "zai-org/glm-5.3",
+    "provider": "novita"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 451387,
+  "commandBytes": 4210,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.018,
+  "maxUsd": 2,
+  "spendUsd": 0.054,
+  "finalText": "All objectives complete and verified.\n\n**Final report**\n\n1. **DONE** — Ticket `sbatch1 RD Bench Ticket` created (ref **RD-1015**, customer \"Bench Customer\"), confirmed present in the tickets list after refresh.\n2. **DONE** — Part `sbatch1 RD Part A` (cost 100, markup 25) added; app-computed price: **$125.00**.\n3. **DONE** — Part `sbatch1 RD Part B` (cost 200, markup 25) added; app-computed price: **$250.00** (ticket total at that point: $375.00).\n4. **DONE** — Part A's cost changed 100 → 150 (markup kept at 25); new app-computed price: **$187.50** (ticket total updated to $437.50).\n5. **DONE** — Ticket reached status **Ready**. Precondition discovered: the app blocked the first attempt with the message *\"Ticket is not ready Part \"sbatch1 RD Part A\" has no supplier Part \"sbatch1 RD Part B\" has no supplier\"* — i.e. **every part on the ticket must have a supplier assigned**. I set supplier \"Bench Supplier\" on both parts, then \"Mark Ready\" succeeded; page showed \"Status Ready\".\n6. **DONE** — Both parts deleted (each via a Confirm dialog / \"Delete part\" button, waiting for the refresh after each); parts table then read **\"No parts on this ticket yet.\"** Ticket then archived with no precondition blocking it — the button toggled to \"Unarchive ticket\" and an **\"Archived\"** badge appeared next to Status Ready. Final verification: RD-1015 is absent from the active tickets list (10 pre-existing tickets remain, RD-1004–RD-1014), and no ticket or part created by this run is left active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/sbatch1-browser-pilot-transcript.jsonl"
+}
