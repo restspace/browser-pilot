@@ -4,7 +4,9 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { compileSkill, discoverSlots, fillParams, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
+import { compileSkill, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
+import type { LocatorCandidate } from '../src/daemon/recorder.js';
+import type { SkillStep } from '../src/skills/store.js';
 import { learnFromInstruction, matchTemplate, synthesizeReport } from '../src/skills/learn.js';
 import { candidatesFor, renderCandidates } from '../src/skills/replay.js';
 import { SkillStore, originOf, originSlug, type Skill } from '../src/skills/store.js';
@@ -121,6 +123,45 @@ describe('parameterisation', () => {
   });
 });
 
+describe('foldLoops', () => {
+  const sstep = (tool: string, target?: LocatorCandidate[], args: Record<string, unknown> = {}): SkillStep => ({ tool, args, locators: target ? { target } : {} });
+  // Two "delete the part / confirm" groups that differ only in a per-record testid.
+  const deleteGroup = (id: string): SkillStep[] => [
+    sstep('click', [
+      { kind: 'role', role: 'button', name: 'Delete' },
+      { kind: 'testid', attr: 'data-testid', value: `part-delete-${id}` },
+    ]),
+    sstep('click', [{ kind: 'css', selector: 'button:has-text("Delete part")' }]),
+  ];
+
+  it('folds a run of identical action groups that differ only in a per-record id', () => {
+    const folded = foldLoops([...deleteGroup('p18'), ...deleteGroup('p19')]);
+    expect(folded).toHaveLength(1);
+    expect(folded[0].tool).toBe('loop');
+    expect(folded[0].body).toHaveLength(2);
+    expect(folded[0].while?.[0]).toMatchObject({ kind: 'role', name: 'Delete' });
+    expect(folded[0].max).toBe(2 * 2 + 3);
+  });
+
+  it('does NOT fold distinct form fields that merely share a role', () => {
+    const steps = [
+      sstep('fill', [{ kind: 'role', role: 'textbox', name: 'Title *' }], { value: 'A' }),
+      sstep('fill', [{ kind: 'role', role: 'textbox', name: 'Customer' }], { value: 'B' }),
+    ];
+    expect(foldLoops(steps)).toHaveLength(2);
+  });
+
+  it('does NOT fold a control that is simply hit twice identically (no per-record id)', () => {
+    const twice = [sstep('click', [{ kind: 'role', role: 'button', name: 'Next' }]), sstep('click', [{ kind: 'role', role: 'button', name: 'Next' }])];
+    expect(foldLoops(twice)).toHaveLength(2);
+  });
+
+  it('leaves surrounding steps in place and folds only the repeated middle', () => {
+    const folded = foldLoops([sstep('goto', undefined, { url: '/x' }), ...deleteGroup('p18'), ...deleteGroup('p19'), sstep('read', undefined, { target: '(read-back)' })]);
+    expect(folded.map((s) => s.tool)).toEqual(['goto', 'loop', 'read']);
+  });
+});
+
 describe('compileSkill', () => {
   it('puts id-bearing selectors behind the semantic candidates', () => {
     expect(
@@ -166,6 +207,22 @@ describe('compileSkill', () => {
     expect(s.reportTemplate?.values).toEqual({ partName: '{{v1}}', partPrice: '125.00' });
     expect(s.status).toBe('provisional');
     expect(s.stats).toMatchObject({ uses: 1, successes: 1 });
+  });
+  it('strips inspection-only steps (eval, screenshot, unreported reads) but keeps actions and read-backs', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: INSTRUCTION, url: `${ORIGIN}/#/tickets/t15`, fingerprint: [1, 0, 0] },
+      step('eval', { expression: 'document.querySelector("#f-title")' }),
+      step('fill', { target: '@e10', value: 'x7 RD Part A' }, [{ kind: 'label', label: 'Name' }]),
+      step('screenshot', { full_page: true }),
+      step('read', { target: '#scratch', what: 'text' }, [{ kind: 'css', selector: '#scratch' }], { result: '"nobody reports this"' }),
+      step('read', { target: '(read-back)', what: 'text' }, [{ kind: 'css', selector: '#price' }], { result: '"125.00"' }),
+    ];
+    const s = compileSkill({ entries, instruction: INSTRUCTION, report, session: 's' })!;
+    const tools = s.steps.map((st) => st.tool);
+    expect(tools).not.toContain('eval');
+    expect(tools).not.toContain('screenshot');
+    expect(tools).toEqual(['fill', 'read']); // the fill action + the read-back that supplies partPrice
+    expect(s.steps[1].args.target).toBe('(read-back)');
   });
   it('drops slots no step uses, and returns null with nothing to replay', () => {
     const entries: RecordedEntry[] = [{ k: 'instruction', text: 'open the list', url: `${ORIGIN}/` }];

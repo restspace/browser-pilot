@@ -527,7 +527,6 @@ ${direct.prelude}` : recoveryText,
         );
         if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
       }
-      void recovered;
       // Learn from a repair so the flow's steps get cheaper over successive runs.
       let repinned;
       if (this.browser.learn) {
@@ -538,7 +537,15 @@ ${direct.prelude}` : recoveryText,
           session: this.opts.session,
           model: opts.provider.model,
         });
-        if (learned?.compiled && result.skill?.repaired) repinned = learned.compiled;
+        // Re-pin the step when it heals. Two cases: a run_skill repair that
+        // validated (result.skill.repaired), OR a step whose pinned skill failed
+        // to replay at all and only the model recovery finished it — the old
+        // skill is demonstrably broken for this flow, so pin the fresh one the
+        // recovery just compiled. Without this second case a step that recovers
+        // recovers again every run (repinned stayed 0) and never converges.
+        if (learned?.compiled && (result.skill?.repaired || (recovered && result.report.status === 'success'))) {
+          repinned = learned.compiled;
+        }
       }
       const values: Record<string, string> = {};
       for (const [k, v] of Object.entries(result.report.evidence?.values ?? {})) values[k] = String(v);

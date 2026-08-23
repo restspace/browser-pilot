@@ -87,16 +87,13 @@ export async function replaySkill(
     res.similarity = cosine(skill.preconditions.fingerprint, (await fingerprintPage(page)) ?? undefined);
   }
 
-  for (const [i, step] of skill.steps.entries()) {
-    const n = i + 1;
-    if (opts.signal?.aborted) {
-      res.failedAt = n;
-      res.reason = 'instruction budget exhausted before this step';
-      res.lines.push(`${n}. ${step.tool} — not run (budget exhausted)`);
-      break;
-    }
+  // One step against the live page. Mutates `res` (lines/warnings/values/
+  // stepsRun) and returns how it went; a 'stop' has already set failedAt/reason.
+  // `tag` labels the step for humans (e.g. "5" or, inside a loop, "9.2.1");
+  // `failIndex` is the top-level step number recorded in failedAt on a stop.
+  const runOneStep = async (step: SkillStep, tag: string, failIndex: number): Promise<'ran' | 'skipped' | 'stop'> => {
     const args = fillParamsDeep(step.args, params) as Record<string, unknown>;
-    const head = `${n}. ${step.tool} ${describeArgs(step.tool, args)}`;
+    const head = `${tag}. ${step.tool} ${describeArgs(step.tool, args)}`;
 
     // The agent's observation turns were implicit waits; a replay has none,
     // so let the DOM go quiet before looking for this step's target. Generic
@@ -125,46 +122,43 @@ export async function replaySkill(
       resolved[key] = hit.locator;
       if (hit.index > 0) {
         res.fallthroughs++;
-        res.warnings.push(`step ${n}: primary locator did not resolve; used fallback #${hit.index + 1} ${candidateExpr(hit.candidate)}`);
+        res.warnings.push(`step ${tag}: primary locator did not resolve; used fallback #${hit.index + 1} ${candidateExpr(hit.candidate)}`);
       }
     }
     if (resolveError) {
       if (isRead) {
-        res.stepsRun++;
-        res.warnings.push(`step ${n}: skipped read — ${resolveError}`);
+        res.warnings.push(`step ${tag}: skipped read — ${resolveError}`);
         res.lines.push(`${head} → skipped (${resolveError})`);
-        continue;
+        return 'skipped';
       }
-      res.failedAt = n;
+      res.failedAt = failIndex;
       res.reason = resolveError;
       res.lines.push(`${head} → FAILED: ${resolveError}`);
-      break;
+      return 'stop';
     }
 
     let outcome: { result: string; diff?: StepDiff };
     try {
-      outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: n });
+      outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: failIndex });
     } catch (err) {
       const message = (err instanceof Error ? err.message : String(err)).split('\nCall log:')[0];
       if (isRead) {
-        res.stepsRun++;
-        res.warnings.push(`step ${n}: read errored — ${clip(message, 120)}`);
+        res.warnings.push(`step ${tag}: read errored — ${clip(message, 120)}`);
         res.lines.push(`${head} → skipped (${clip(message, 120)})`);
-        continue;
+        return 'skipped';
       }
-      res.failedAt = n;
+      res.failedAt = failIndex;
       res.reason = `${step.tool} failed: ${clip(message, 300)}`;
       res.lines.push(`${head} → FAILED: ${clip(message, 300)}`);
-      break;
+      return 'stop';
     }
-    res.stepsRun++;
 
     // Hard expectation: where the step was supposed to leave the browser.
     if (step.expect?.urlPattern && !urlMatches(step.expect.urlPattern, page.url(), params)) {
-      res.failedAt = n;
-      res.reason = `after step ${n} expected url ${fillParams(step.expect.urlPattern, params)} but browser is at ${urlPattern(page.url())}`;
+      res.failedAt = failIndex;
+      res.reason = `after step ${tag} expected url ${fillParams(step.expect.urlPattern, params)} but browser is at ${urlPattern(page.url())}`;
       res.lines.push(`${head} → ran, but ${res.reason}`);
-      break;
+      return 'stop';
     }
     // Page-change expectations. Lines that carry a parameter are HARD: they
     // are what distinguishes this run from the recorded one (the new title
@@ -174,7 +168,7 @@ export async function replaySkill(
     if (outcome.diff && step.expect) {
       if (step.expect.alertContains) {
         const want = fillParams(step.expect.alertContains, params);
-        if (!outcome.diff.alerts.some((a) => a.includes(want))) res.warnings.push(`step ${n}: expected alert containing ${JSON.stringify(want)}`);
+        if (!outcome.diff.alerts.some((a) => a.includes(want))) res.warnings.push(`step ${tag}: expected alert containing ${JSON.stringify(want)}`);
       }
       if (step.expect.addedContains?.length) {
         const seen = outcome.diff.added.join('\n');
@@ -182,29 +176,82 @@ export async function replaySkill(
         const parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
         const plain = step.expect.addedContains.filter((l) => !isParam(l));
         if (parameterised.length && !parameterised.some((w) => seen.includes(w)) && !(await presentOnPage(page, parameterised))) {
-          res.failedAt = n;
-          res.reason = `after step ${n} the page did not show ${parameterised.map((w) => JSON.stringify(w)).join(' / ')} as it did when recorded — the step ran but probably acted on the wrong element`;
+          res.failedAt = failIndex;
+          res.reason = `after step ${tag} the page did not show ${parameterised.map((w) => JSON.stringify(w)).join(' / ')} as it did when recorded — the step ran but probably acted on the wrong element`;
           res.lines.push(`${head} → ran, but ${res.reason}`);
-          break;
+          return 'stop';
         }
         if (plain.length && !plain.some((w) => seen.includes(w))) {
-          res.warnings.push(`step ${n}: none of the ${plain.length} expected page change(s) appeared`);
+          res.warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared`);
         }
       }
     }
 
-    if (step.tool === 'read' || step.tool === 'read_all') {
-      const key = step.label ?? `read${n}`;
+    if (isRead) {
+      const key = step.label ?? `read${tag}`;
       res.values[key] = parseRead(outcome.result);
       res.lines.push(`${head} → ${key} = ${clip(outcome.result, MAX_LINE)}`);
     } else {
       res.lines.push(`${head} → ${clip(outcome.result.split('\n')[0], MAX_LINE)}`);
     }
+    return 'ran';
+  };
+
+  // A folded loop: repeat the body while its guard locator still matches an
+  // element, capped at `max`. Counts as ONE top-level step no matter how many
+  // times the body runs, so the ok check below stays about top-level progress.
+  const runLoop = async (step: SkillStep, n: number): Promise<'ran' | 'stop'> => {
+    const body = step.body ?? [];
+    const guard = step.while ?? body[0]?.locators.target ?? [];
+    const max = step.max ?? 20;
+    const before = res.stepsRun;
+    let iter = 0;
+    while (iter < max) {
+      if (opts.signal?.aborted) break;
+      await settleDom(page);
+      const chain = fillParamsDeep(guard, params) as LocatorCandidate[];
+      const hit = await resolveChain(page, chain, '', true);
+      const remaining = hit ? await hit.locator.count().catch(() => 0) : 0;
+      if (!remaining) break;
+      for (const [k, bstep] of body.entries()) {
+        const st = await runOneStep(bstep, `${n}.${iter + 1}.${k + 1}`, n);
+        if (st === 'stop') {
+          res.stepsRun = before;
+          return 'stop';
+        }
+      }
+      iter++;
+    }
+    res.stepsRun = before + 1;
+    res.lines.push(`${n}. loop ×${iter} (while ${chain0Desc(guard)} matches)`);
+    return 'ran';
+  };
+
+  for (const [i, step] of skill.steps.entries()) {
+    const n = i + 1;
+    if (opts.signal?.aborted) {
+      res.failedAt = n;
+      res.reason = 'instruction budget exhausted before this step';
+      res.lines.push(`${n}. ${step.tool} — not run (budget exhausted)`);
+      break;
+    }
+    if (step.tool === 'loop') {
+      if ((await runLoop(step, n)) === 'stop') break;
+      continue;
+    }
+    const status = await runOneStep(step, String(n), n);
+    if (status === 'stop') break;
+    res.stepsRun++;
   }
 
   res.ok = res.stepsRun === skill.steps.length && res.failedAt === undefined;
   res.url = page.url();
   return res;
+}
+
+/** Short human label for a loop's guard locator. */
+function chain0Desc(chain: LocatorCandidate[]): string {
+  return chain[0] ? candidateExpr(chain[0]) : 'element';
 }
 
 /**

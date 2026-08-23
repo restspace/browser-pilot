@@ -45,6 +45,17 @@ export interface SkillStep {
   label?: string;
   /** Step-level provenance: executed by replay of another skill, or chosen by the agent. */
   via?: { skill: string; step: number };
+  /**
+   * `tool: 'loop'` only. The steps to repeat while `while` still matches an
+   * element, capped at `max` iterations. Folded from a run of identical action
+   * groups that differed only in a per-record id (e.g. deleting each part of a
+   * list), so replay generalises past the exact count seen when recording.
+   */
+  body?: SkillStep[];
+  /** `tool: 'loop'` only: repeat the body while this locator matches ≥1 element. */
+  while?: LocatorCandidate[];
+  /** `tool: 'loop'` only: hard cap on iterations, a runaway guard. */
+  max?: number;
 }
 
 export interface StepExpectation {

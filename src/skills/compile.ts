@@ -48,7 +48,22 @@ export function compileSkill(input: CompileInput): Skill | null {
   for (const [name, value] of slots) params[name] = { example: value, usedIn: [] };
 
   const reportValues = input.report.evidence?.values ?? {};
-  const skillSteps: SkillStep[] = steps.map((step, i) => {
+  // Inspection-only actions the agent used to ORIENT itself — probe the DOM with
+  // `eval`, grab a `screenshot`, read a value it never reported — are not part of
+  // the reproducible procedure. An `eval` is worse than noise: it assumes the
+  // record-time DOM and, unlike a read (which replay skips on failure), it is
+  // fatal, which is exactly what sent the sign-in and archive steps to recovery
+  // on every replay. Keep the actions, the synthetic read-backs, and any read
+  // whose value the run actually reported; drop the rest.
+  const replayable = steps.filter((step) => {
+    if (step.tool === 'screenshot' || step.tool === 'eval') return false;
+    if (step.tool === 'read' || step.tool === 'read_all') {
+      return step.args.target === '(read-back)' || Boolean(readLabel(step, reportValues));
+    }
+    return true;
+  });
+  const kept = replayable.length ? replayable : steps;
+  const skillSteps: SkillStep[] = kept.map((step, i) => {
     const args = substituteDeep(step.args, slots) as Record<string, unknown>;
     const locators: Record<string, LocatorCandidate[]> = {};
     for (const [key, loc] of Object.entries(step.locators)) {
@@ -63,6 +78,8 @@ export function compileSkill(input: CompileInput): Skill | null {
     for (const name of slotsUsed(JSON.stringify({ args, locators }))) params[name]?.usedIn.push(i + 1);
     return out;
   });
+
+  const foldedSteps = foldLoops(skillSteps);
 
   // Drop slots that ended up unused by any step: they are instruction-only
   // words (e.g. an id the orchestrator mentioned for context) and would only
@@ -87,7 +104,7 @@ export function compileSkill(input: CompileInput): Skill | null {
       urlPattern: urlPattern(startUrl, slots),
       ...(head?.fingerprint ? { fingerprint: head.fingerprint } : {}),
     },
-    steps: skillSteps,
+    steps: foldedSteps,
     reportTemplate,
     stats: { uses: 1, successes: 1, partial: 0, created: now, failedAtStep: {}, fallthroughs: 0 },
     status: 'provisional',
@@ -343,4 +360,99 @@ function locatorShape(c: LocatorCandidate | undefined): string {
     return `${c.kind}:${skeleton}`;
   }
   return c.kind;
+}
+
+const MAX_GROUP_LEN = 3;
+const LOOP_MAX_ITER_CAP = 50;
+
+/** Replace id-like whole tokens in a string with `*`, so per-record ids collapse. */
+function stripIds(text: string): string {
+  return text
+    .split(/([^A-Za-z0-9]+)/)
+    .map((tok) => (/^[A-Za-z0-9]+$/.test(tok) && isIdLike(tok) ? '*' : tok))
+    .join('');
+}
+
+/** A candidate's identity with per-record ids blanked — its shape AND its name/value. */
+function candSkeleton(c: LocatorCandidate): string {
+  switch (c.kind) {
+    case 'role':
+      return `role:${c.role}:${stripIds(c.name ?? '')}`;
+    case 'text':
+      return `text:${stripIds(c.text ?? '')}`;
+    case 'label':
+      return `label:${stripIds(c.label ?? '')}`;
+    case 'placeholder':
+      return `placeholder:${stripIds(c.placeholder ?? '')}`;
+    case 'testid':
+      return `testid:${stripIds(c.value)}`;
+    default:
+      return locatorShape(c);
+  }
+}
+
+function chainSkeleton(chain: LocatorCandidate[] | undefined): string {
+  return (chain ?? []).map(candSkeleton).join('|');
+}
+
+/** Two steps are the same procedure applied to (possibly) a different record. */
+function loopEquivalent(a: SkillStep, b: SkillStep): boolean {
+  if (a.tool !== b.tool || a.tool === 'loop') return false;
+  return chainSkeleton(a.locators.target) === chainSkeleton(b.locators.target) && chainSkeleton(a.locators.source) === chainSkeleton(b.locators.source);
+}
+
+/** True when two groups differ in a *raw* id somewhere — proof they act on distinct records, not an accidental repeat. */
+function differsInRawId(a: SkillStep[], b: SkillStep[]): boolean {
+  const raw = (g: SkillStep[]) => JSON.stringify(g.map((s) => [s.locators.target ?? [], s.locators.source ?? []]));
+  return raw(a) !== raw(b);
+}
+
+/**
+ * Collapse a run of ≥2 consecutive, structurally-identical action groups that
+ * differ only in a per-record id — the signature of iterating over a list (e.g.
+ * deleting each part in turn) — into a single `loop` step. The loop repeats its
+ * body while the body's first target still matches an element, so a replay on a
+ * list of a different length still clears it, instead of hard-coding the count
+ * seen when recording. Conservative by construction: distinct fields (a title
+ * vs a customer box) have different skeletons and never fold, and an accidental
+ * identical repeat (no id difference) is left alone.
+ */
+export function foldLoops(steps: SkillStep[]): SkillStep[] {
+  const out: SkillStep[] = [];
+  let i = 0;
+  while (i < steps.length) {
+    let folded = false;
+    // Prefer the smallest group length so [del, confirm] folds before [del]×2.
+    for (let len = 1; len <= MAX_GROUP_LEN && i + 2 * len <= steps.length; len++) {
+      const group = steps.slice(i, i + len);
+      if (group.some((s) => s.tool === 'loop')) continue;
+      // The body must anchor on something that CAN recur — a locate-able action.
+      if (!group[0].locators.target?.length) continue;
+      let count = 1;
+      const groups: SkillStep[][] = [group];
+      while (i + (count + 1) * len <= steps.length) {
+        const next = steps.slice(i + count * len, i + (count + 1) * len);
+        if (!group.every((s, k) => loopEquivalent(s, next[k]))) break;
+        groups.push(next);
+        count++;
+      }
+      if (count < 2) continue;
+      // Require a real per-record id difference across at least one pair, so we
+      // only fold genuine iteration, never a control legitimately hit twice.
+      if (!groups.slice(1).some((g) => differsInRawId(group, g))) continue;
+      out.push({
+        tool: 'loop',
+        args: {},
+        locators: {},
+        body: group,
+        while: group[0].locators.target,
+        max: Math.min(count * 2 + 3, LOOP_MAX_ITER_CAP),
+      });
+      i += count * len;
+      folded = true;
+      break;
+    }
+    if (!folded) out.push(steps[i++]);
+  }
+  return out;
 }
