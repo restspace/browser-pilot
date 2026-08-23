@@ -575,3 +575,74 @@ replayable skills (the remove step is a repeat-until-empty loop the single-shot
 recorder captures poorly); (b) wire the flow-recovery path to re-pin an improved
 skill so a recovered step converges to Tier A on the next run; (c) price inner
 spend in flow replays so the cost curve is honest.
+
+## Converging the unstable flow steps (2026-08-23)
+
+The flow1 sweep left 3 of 11 steps recovering on the model every replay
+(sign-in/create, remove-both-parts, archive) and `repinned:0` — nothing healed.
+Root causes, found by reading the stored skills rather than guessing:
+
+- The action **locators were already durable** (testid+role chains); the earlier
+  "raw @eNN handle" theory was wrong — `describeTarget` re-derives chains from
+  @refs. What actually broke replay:
+- **Fatal inspection steps.** The sign-in skill carried ~11 `eval` DOM probes the
+  model used to orient itself; an `eval` assumes the record-time DOM and, unlike
+  a read (which replay skips on failure), is *fatal* — so the skill stopped
+  part-way and recovered every run. Archive had the same via a trailing `eval`.
+- **No re-pin on recovery.** `runFlow` only re-pinned when `result.skill.repaired`
+  was set, which a fresh model recovery never sets — so a recovered step recovered
+  again next run and never converged.
+- **Remove was a hard-coded pair**, not a loop over the parts.
+
+Four changes (durable-chains item turned out already done):
+1. **compile: strip inspection-only steps** (`eval`, `screenshot`, unreported
+   reads); keep actions and the read-backs that feed reported values.
+2. **compile: `foldLoops` + `coalesceControls`** — collapse a run of identical
+   action groups that differ only in a per-record id into one generic `loop`
+   step that repeats while its guard locator still matches. Coalesce first
+   folds away the recorder's uneven `dialog_expect` re-arming that otherwise
+   misaligns the groups. Conservative: distinct fields never fold. New `loop`
+   support in `replaySkill` (`runOneStep` extracted, `runLoop` added).
+3. **runFlow: re-pin on recovery** — when a pinned skill fails to replay and only
+   the model finishes the step, pin the freshly-compiled skill so it converges.
+
+### Measured — flow2 sweep (K=4, same 6-objective task)
+
+| run | mode | verified | notes |
+|-----|------|----------|-------|
+| n1 | record | 6/6 | sign-in skill compiled to 14 steps (was 25) — inspection stripped |
+| n2 | replay, no orchestrator | 6/6 | 2 steps recovered, **repinned 3** (flow1 was 0) |
+| n3 | replay, no orchestrator | **5/6** | halted at the status-Ready precondition step (300s timeout) |
+| n4 | replay, no orchestrator | 6/6 | |
+
+What the fixes bought, honestly:
+- **Strip inspection: works.** No skill carries `eval`/`screenshot` any more; the
+  sign-in skill shrank 25→14 steps and no longer dies on a probe.
+- **Re-pin: works mechanically** (`repinned:3` vs `0`) but does **not** yet give
+  reliable convergence — the sign-in step recovered on both n2 and n3, so the
+  recovery-compiled skill still isn't replaying clean. More work needed there.
+- **The dominant reliability risk is now a genuinely hard step**, not a skill bug:
+  "discover the preconditions for status Ready, satisfy them" is exploratory and
+  ran 17 turns (success) on n2 but 27 turns (300s timeout) on n3. That variance
+  is model-bound; skills don't capture open-ended discovery well.
+- **The loop only fires when one instruction iterates over records.** flow2's
+  orchestrator issued the two deletes as *separate* BP calls, so there was no
+  in-instruction repetition to fold — the loop is orchestrator-chunking-dependent.
+
+### Loop proven directly (browser test, no model)
+
+Because Novita ran out of balance mid-session (a flow3 sweep 403'd on the first
+orchestrator call), the loop was proven without an orchestrated sweep: a
+browser-gated test records deleting two rows, confirms `compileSkill` folds them
+into one `loop` step, and replays it against a **three**-row list — the loop runs
+until the list is empty, clearing a list *longer* than the one recorded, zero
+model. That is the generalisation the fold is for.
+
+### Still open
+- Recovery-compiled skills don't reliably converge to Tier A (re-pin lands but the
+  next replay still drifts) — needs the recovery recording to compile a cleaner,
+  more positional-independent skill.
+- The status-precondition step needs either a higher per-step budget or to be left
+  as an explicitly model-driven step in the flow.
+- A fresh orchestrated flow sweep to re-measure end-to-end is blocked on Novita
+  balance.
