@@ -25,8 +25,33 @@ const CONTENT_TYPES = {
   '.json': 'application/json; charset=utf-8',
 }
 
-const sendFile = (res, file) => {
-  const body = fs.readFileSync(file)
+/**
+ * Drift simulation for repair-bench validation: while a mode is set (via
+ * /__drift?mode=labels), served frontend files are rewritten on the fly so
+ * the app presents renamed controls without touching the files on disk.
+ * `labels` renames visible control wording only (testids/ids stay) — the
+ * localized drift a locator chain should survive via fallbacks, and the
+ * post-session repair pass should then promote those fallbacks.
+ */
+const DRIFTS = {
+  labels: [
+    ['Add part', 'Attach part'],
+    ['New ticket', 'Create ticket'],
+    ['Mark ready', 'Set ready'],
+  ],
+}
+
+const applyDrift = (body, file, mode) => {
+  const rules = DRIFTS[mode]
+  const ext = path.extname(file).toLowerCase()
+  if (!rules || (ext !== '.js' && ext !== '.html')) return body
+  let text = body.toString('utf8')
+  for (const [from, to] of rules) text = text.split(from).join(to)
+  return Buffer.from(text, 'utf8')
+}
+
+const sendFile = (res, file, driftMode = null) => {
+  const body = applyDrift(fs.readFileSync(file), file, driftMode)
   res.writeHead(200, {
     'Content-Type': CONTENT_TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
     'Content-Length': body.length,
@@ -40,7 +65,7 @@ const sendFile = (res, file) => {
  * Any unknown non-API path falls back to index.html so that reloading
  * `#/tickets/t3` still lands on the app rather than a 404.
  */
-function serveStatic(req, res, url) {
+function serveStatic(req, res, url, driftMode = null) {
   const indexFile = path.join(PUBLIC_DIR, 'index.html')
   const rel = decodeURIComponent(url.pathname).replace(/^\/+/, '')
   const candidate = path.resolve(PUBLIC_DIR, rel)
@@ -49,12 +74,12 @@ function serveStatic(req, res, url) {
   const inside = candidate === PUBLIC_DIR || candidate.startsWith(PUBLIC_DIR + path.sep)
 
   if (rel !== '' && inside && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-    sendFile(res, candidate)
+    sendFile(res, candidate, driftMode)
     return
   }
 
   if (fs.existsSync(indexFile)) {
-    sendFile(res, indexFile)
+    sendFile(res, indexFile, driftMode)
     return
   }
 
@@ -73,12 +98,25 @@ export function start({ port = Number(process.env.PORT) || 4180, dataDir, fresh 
   const store = createStore({ dataDir, fresh })
   const api = createApi({ store })
 
+  let driftMode = null
+
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1')
 
+    // Test affordance, unauthenticated like /__reset: set or clear the UI
+    // drift the static files are served with. GET /__drift reports it.
+    if (url.pathname === '/__drift') {
+      const mode = url.searchParams.get('mode')
+      if (mode !== null) driftMode = mode && DRIFTS[mode] ? mode : null
+      const body = JSON.stringify({ drift: driftMode })
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) })
+      res.end(body)
+      return
+    }
+
     Promise.resolve(api.handle(req, res, url))
       .then((handled) => {
-        if (!handled) serveStatic(req, res, url)
+        if (!handled) serveStatic(req, res, url, driftMode)
       })
       .catch((err) => {
         // A handler throwing must not take the process down mid-benchmark.
