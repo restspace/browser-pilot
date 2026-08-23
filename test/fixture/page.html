@@ -29,6 +29,21 @@
   <button class="dup" type="button">Dup A</button>
   <button class="dup" type="button">Dup B</button>
 
+  <!-- delete-loop: each row removes itself; the Remove buttons share an
+       accessible name but carry a per-row testid, so a recording of deleting
+       two rows compiles into a loop that clears a list of any length. -->
+  <div id="dellist">
+    <div class="prow" data-row="1"><span>Part One</span><button data-testid="del-1" type="button">Remove</button></div>
+    <div class="prow" data-row="2"><span>Part Two</span><button data-testid="del-2" type="button">Remove</button></div>
+    <div class="prow" data-row="3"><span>Part Three</span><button data-testid="del-3" type="button">Remove</button></div>
+  </div>
+  <script>
+    document.getElementById('dellist').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-testid^="del-"]');
+      if (btn) btn.closest('.prow').remove();
+    });
+  </script>
+
   <!-- robust click: a zero-size button. A normal click can't land (not visible)
        and a force click throws (size 0), so only the dispatched-DOM-event
        fallback reaches the handler. -->

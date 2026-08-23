@@ -412,3 +412,56 @@ d('read-back synthesis (fixture page)', () => {
     }
   }, 30_000);
 });
+
+d('delete-loop replay (fixture page)', () => {
+  let home: string;
+  let session: BrowserSession;
+  let skill: Skill;
+  const dir = os.tmpdir();
+  const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, dir);
+  const DEL_INSTRUCTION = 'remove every part from the list';
+
+  beforeAll(async () => {
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-loop-'));
+    process.env.BROWSER_PILOT_HOME = home;
+    process.env.BROWSER_PILOT_SKILLS_DIR = path.join(home, 'skills');
+    session = new BrowserSession({ session: 'loop', persist: false, learn: true });
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    const recorder = session.script!;
+    const mark = recorder.mark();
+    recorder.beginInstruction(DEL_INSTRUCTION, { url: page.url() });
+    // Record deleting the first two rows — two identical actions that differ
+    // only in a per-row testid. That is exactly the shape foldLoops collapses.
+    await run('click', { target: 'button[data-testid="del-1"]' });
+    await run('click', { target: 'button[data-testid="del-2"]' });
+    const report = { status: 'success' as const, summary: 'Removed the parts.', evidence: { values: {} } };
+    skill = compileSkill({ entries: recorder.entriesSince(mark), instruction: DEL_INSTRUCTION, report, session: 'loop' })!;
+    session.learn!.put(skill);
+  }, 60_000);
+
+  afterAll(async () => {
+    await session?.close();
+    delete process.env.BROWSER_PILOT_SKILLS_DIR;
+    delete process.env.BROWSER_PILOT_HOME;
+    fs.rmSync(home, { recursive: true, force: true });
+  });
+
+  it('folds the two deletions into a single loop step', () => {
+    const loops = skill.steps.filter((s) => s.tool === 'loop');
+    expect(loops).toHaveLength(1);
+    expect(loops[0].body?.some((b) => b.tool === 'click')).toBe(true);
+    expect(loops[0].while?.length).toBeGreaterThan(0);
+  });
+
+  it('replays the loop to clear a list LONGER than the one recorded (2 → 3 rows)', async () => {
+    const page = await session.getPage();
+    await page.goto(fixtureUrl); // a fresh list of THREE rows
+    expect(await page.locator('#dellist > .prow').count()).toBe(3);
+    const out = await run('run_skill', { id: skill.id, params: {} });
+    expect(out.isError).toBe(false);
+    expect(out.replay?.ok).toBe(true);
+    // the loop kept going until the list was empty — past the two it saw recorded
+    expect(await page.locator('#dellist > .prow').count()).toBe(0);
+  }, 30_000);
+});
