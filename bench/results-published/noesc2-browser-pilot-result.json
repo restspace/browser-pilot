@@ -1,0 +1,64 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "a0df507"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/noesc2-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "noesc2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 985790,
+  "orchestrator": {
+    "input": 6015,
+    "cacheWrite": 0,
+    "cacheRead": 30976,
+    "output": 2195
+  },
+  "inner": {
+    "promptTokens": 977680,
+    "cachedTokens": 883968,
+    "completionTokens": 7413,
+    "instructions": 8,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 977680,
+        "completionTokens": 7413,
+        "cachedTokens": 883968,
+        "instructions": 8
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": null,
+    "provider": "novita"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 922947,
+  "commandBytes": 9994,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0261,
+  "maxUsd": 2,
+  "spendUsd": 0.0661,
+  "finalText": "All objectives complete. Final report:\n\n**Objective 1 — DONE.** Ticket titled `noesc2 RD Bench Ticket` created (ref **RD-1015**, customer \"Bench Customer\", initial status Draft), confirmed present in the tickets list.\n\n**Objective 2 — DONE.** Part `noesc2 RD Part A` added with cost 100, markup 25%. App-computed price: **$125.00**.\n\n**Objective 3 — DONE.** Part `noesc2 RD Part B` added with cost 200, markup 25%. App-computed price: **$250.00**. (Parts table total at that point: $375.00.)\n\n**Objective 4 — DONE.** Part A's cost edited from 100 → 150 (markup kept at 25%). App-computed price afterwards: **$187.50**. (Table total updated to $437.50; Part B unchanged at $250.00.)\n\n**Objective 5 — DONE.** Status set to **Ready**. Precondition discovered: the app refused with the alert — *\"Ticket is not ready — Part \"noesc2 RD Part A\" has no supplier — Part \"noesc2 RD Part B\" has no supplier\"*. What was required: **every part on the ticket must have a supplier assigned**. I edited both parts and set Supplier = \"Acme Supplies\", after which \"Mark Ready\" succeeded and the page showed status **Ready** (buttons changed to Mark Draft / Mark Closed).\n\n**Objective 6 — DONE.** Both parts deleted (each via a confirm dialog: *\"Delete the part \"…\" from this ticket? This cannot be undone.\"* → \"Delete part\"); the parts table then read **\"No parts on this ticket yet.\"** The ticket was then archived — the \"Archive ticket\" button flipped to \"Unarchive ticket\" with no error. The active tickets list (RD-1014 … RD-1004) no longer contains RD-1015, so nothing created by this run remains active.\n\nNote: one intermediate instruction timed out mid-way through the part deletions; I re-verified state on the next call (Part A was already gone, Part B remained) and completed the deletion from there, so the final state above is verified, not assumed.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/noesc2-browser-pilot-transcript.jsonl"
+}
