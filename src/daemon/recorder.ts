@@ -236,6 +236,29 @@ export class ScriptRecorder {
     }
   }
 
+  /** Append a synthetic step (a read-back captured at report time). */
+  addStep(step: RecordedStep): void {
+    this.append(step);
+  }
+
+  /** Values already read via a read step since the last instruction began. */
+  readResultsThisInstruction(): Set<string> {
+    const out = new Set<string>();
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      const e = this.entries[i];
+      if (e.k === 'instruction') break;
+      if (e.k === 'step' && (e.tool === 'read' || e.tool === 'read_all') && typeof e.result === 'string') {
+        try {
+          const v = JSON.parse(e.result);
+          if (typeof v === 'string') out.add(v);
+        } catch {
+          out.add(e.result);
+        }
+      }
+    }
+    return out;
+  }
+
   /** Index just past the last entry — pass to entriesSince() to read back one instruction. */
   mark(): number {
     return this.entries.length;
@@ -351,6 +374,73 @@ export async function describeTarget(page: Page, raw: string): Promise<LocatorEx
   if (!handle) return { expr: '', verified: false, raw };
   try {
     return await describeHandle(page, handle, raw);
+  } finally {
+    await handle.dispose().catch(() => {});
+  }
+}
+
+/**
+ * The identifying string a candidate matches on — the thing that would make it
+ * a *circular* locator if it equals the value we are trying to re-read. A price
+ * cell must not be located by "125.00"; it is located by its testid or its
+ * structural path instead.
+ */
+function candidateIdentity(c: LocatorCandidate): string | null {
+  switch (c.kind) {
+    case 'role':
+      return c.name;
+    case 'text':
+      return c.text;
+    case 'label':
+      return c.label;
+    case 'placeholder':
+      return c.placeholder;
+    case 'testid':
+      return c.value;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Record-time read-back synthesis (progressive automation option (c)): given a
+ * value the agent just reported, find the live element showing it and derive a
+ * durable, NON-value locator for it, so the same value can be re-read on a
+ * later replay instead of being reported from memory. Returns a synthetic
+ * `read` step, or null when the value cannot be pinned to a single element or
+ * only a value-based (circular) locator would resolve — in which case the
+ * value stays un-threadable and the caller falls back to recovery.
+ */
+export async function captureReadBack(page: Page, value: string): Promise<RecordedStep | null> {
+  const v = value.trim();
+  if (v.length < 2 || v.length > 80) return null; // too short to be distinctive, or prose
+  const loc = page.getByText(v, { exact: true });
+  const count = await loc.count().catch(() => 0);
+  if (count !== 1) return null; // ambiguous or absent — cannot pin it
+  const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
+  if (!handle) return null;
+  try {
+    const info = (await handle.evaluate(describeInPage)) as ElementInfo;
+    const chain: LocatorCandidate[] = [];
+    let winner: LocatorCandidate | null = null;
+    for (const candidate of candidatesFor(info)) {
+      // Skip any candidate whose identity IS the value — locating the price by
+      // "125.00" would never match a different price on the next run.
+      if (candidateIdentity(candidate.spec) === v) continue;
+      const match = await matchIndex(candidate.make(page), handle);
+      if (match === null) continue;
+      const spec = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
+      if (!winner) winner = spec;
+      chain.push(spec);
+    }
+    if (!winner) return null; // only a circular locator resolved — cannot re-read stably
+    return {
+      k: 'step',
+      tool: 'read',
+      args: { target: '(read-back)', what: 'text' },
+      locators: { target: { expr: candidateExpr(winner), verified: true, raw: '(read-back)', chain } },
+      result: JSON.stringify(v),
+    };
   } finally {
     await handle.dispose().catch(() => {});
   }

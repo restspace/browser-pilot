@@ -345,3 +345,39 @@ d('flow record and run (fixture page)', () => {
     expect(JSON.stringify(report.evidence!.values)).not.toContain('Ada Lovelace');
   }, 60_000);
 });
+
+d('read-back synthesis (fixture page)', () => {
+  it('captures a durable NON-value locator for a reported value, so it can be re-read', async () => {
+    const { captureReadBack } = await import('../src/daemon/recorder.js');
+    const session = new BrowserSession({ session: 'rb', persist: false });
+    try {
+      const page = await session.getPage();
+      // A record id shown in a cell that carries a stable testid, and a computed
+      // value in a plain cell. Both are read-back candidates.
+      await page.setContent(`
+        <table><tr>
+          <td data-testid="ticket-ref">RD-1015</td>
+          <td class="price">125.00</td>
+        </tr></table>`);
+      const ref = await captureReadBack(page, 'RD-1015');
+      expect(ref).toBeTruthy();
+      expect(ref!.tool).toBe('read');
+      expect(JSON.parse(ref!.result!)).toBe('RD-1015');
+      // located by the testid, NOT by the text "RD-1015" (which would be circular)
+      const kinds = ref!.locators.target.chain!.map((c) => c.kind);
+      expect(kinds).toContain('testid');
+      const identities = ref!.locators.target.chain!.map((c: any) => c.value ?? c.name ?? c.text ?? c.selector);
+      expect(identities).not.toContain('RD-1015');
+
+      // the price cell has no testid → a structural css locator, still not the value
+      const price = await captureReadBack(page, '125.00');
+      expect(price).toBeTruthy();
+      expect(price!.locators.target.chain!.every((c: any) => (c.text ?? '') !== '125.00')).toBe(true);
+
+      // a value that appears nowhere → nothing to capture
+      expect(await captureReadBack(page, 'RD-9999')).toBeNull();
+    } finally {
+      await session.close();
+    }
+  }, 30_000);
+});

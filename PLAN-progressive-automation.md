@@ -88,13 +88,23 @@ Addressed the reliability blocker from the previous entry. Three changes:
    a labelled read), so it soft-resolves to the title, recovers on glm-5.3, succeeds, and re-pins — 2/2,
    no halt (previously: hard block at step 2).
 
-Remaining, genuinely Stage 2: **the produced value must be a live read to thread cheaply.** Step 1
-reported the new ticket id from a snapshot, not a `read`, so it was dropped and step 2 had to recover on
-the strong model instead of replaying zero-model. Options: (a) strengthen the inner operating rule / a
-compile-time nudge so values a report declares are backed by a `read`; (b) at replay, re-read a skill's
-declared outputs from the page after it runs. Also: navigation locators whose "name" is a whole table
-row's text (date, status, counts) are not replayable — the recorder should prefer the record's own link
-over the row when both were in the click's ancestry.
+**Read-back synthesis (option (c), done).** Every value a step reports is now captured at record time as
+a durable read-back: `captureReadBack` (recorder) finds the live element showing the value and records a
+`read` located by a stable handle — test id, structural path — explicitly *excluding* any candidate whose
+identity equals the value (locating a price by "125.00" would never match a new price). So on replay the
+step re-reads this run's id/price live and the next step threads it zero-model. Verified: step 1's
+sign-in+create skill now carries a labelled `ticketReference` read and step 2 chains it. Chosen over (a)
+[enforce a read via an extra loop turn — model-driven, costs a turn] and (b) [re-read at replay — needs a
+selector, the same gap]; (c) is record-time, model-free, reuses trusted locator code, keeps the honesty
+rule (it IS a live read at replay), and also fixes app-computed values being dropped on plain Tier-A
+skill replay.
+
+Residual: read-back synthesis pays off only when the *producing* step replays cleanly; a big multi-step
+skill (sign-in+create+return-to-list) that itself drifts to recovery still may not emit the output
+reliably. That is the general skill-robustness axis (solidify/validate skills over runs), not specific to
+threading. Also still open: navigation locators whose "name" is a whole table row's text (date, status,
+counts) are not replayable — the recorder should prefer the record's own link over the row when both were
+in the click's ancestry.
 
 ### Solidified matching + strong-model recovery (2026-08-23)
 

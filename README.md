@@ -317,11 +317,15 @@ can be brought back to continue from exactly there. That last rung is the orches
 Navigation to a record is parameterised, not hard-coded: when a skill step clicks the row or link for a
 record whose identifier appears in the instruction (ticket `RD-1015`), that identifier becomes a slot, so
 replay navigates to *this* run's record. When the identifier is one an earlier step produced, it threads
-through as `{{step.output}}` — provided that step read it back live. If it did not (the identifier was in
-the recorded report only, so the honesty rule dropped it), the reference cannot be threaded; rather than
-halt, the step **soft-resolves to what is known** (the record's title, say) and recovers on the strong
-model, which finds the record by that instead — and re-pins the cleaner skill it produces. So a flow
-degrades to a model call on the coupled step rather than failing, and heals over runs.
+through as `{{step.output}}` — provided that step read it back live. To make identifiers threadable even when the agent reported them from prose rather than a `read`, every
+value a step reports is **captured at record time as a durable read-back**: the tool finds the live
+element showing the value and stores a `read` of it located by a stable handle (a test id, a structural
+path) — never by the value's own text, which would be circular. So on replay that step re-reads the
+current record's id/price live and the next step threads it, with no model call. When a value genuinely
+cannot be pinned to one element (it was computed or paraphrased), the reference cannot be threaded; rather
+than halt, the step **soft-resolves to what is known** (the record's title, say) and recovers on the
+strong model, which finds the record by that instead — and re-pins the cleaner skill it produces. So a
+flow degrades to a model call on the coupled step rather than failing, and heals over runs.
 
 Honesty carries over intact: a replayed step reports only values it read back live or that came from your
 own `--var` parameters; a value the recording captured as a literal (the ticket id from the run that made

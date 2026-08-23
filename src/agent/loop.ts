@@ -7,6 +7,7 @@ import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
 import { validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
+import { captureReadBack } from '../daemon/recorder.js';
 
 /** Tools that change the page URL, staleing every existing snapshot's refs. */
 const NAVIGATION_TOOLS = new Set(['goto', 'back', 'tabs']);
@@ -227,6 +228,23 @@ export async function runInstruction(
     if (browser.script) {
       const values: Record<string, string> = {};
       for (const [k, v] of Object.entries(report.evidence?.values ?? {})) values[k] = String(v);
+      // Read-back synthesis: for each value the agent reported, capture a
+      // durable read of the live element showing it, so a replay re-reads the
+      // value rather than dropping it as stale. Record-time only, best-effort,
+      // never blocks the report. Skip values already backed by a real read.
+      if (report.status === 'success' && Object.keys(values).length) {
+        try {
+          const page = await browser.getPage();
+          const alreadyRead = browser.script.readResultsThisInstruction();
+          for (const value of new Set(Object.values(values))) {
+            if (!value || alreadyRead.has(value)) continue;
+            const step = await captureReadBack(page, value);
+            if (step) browser.script.addStep(step);
+          }
+        } catch {
+          // a wedged/navigating page must never turn a good report into no report
+        }
+      }
       browser.script.endInstruction({
         status: report.status,
         summary: report.summary,
