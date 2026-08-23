@@ -5,6 +5,77 @@ import { ensureSessionDir } from '../shared/paths.js';
 import { isRefTarget } from './refs.js';
 
 /**
+ * One way of finding an element, in a form that can be rebuilt into a Locator
+ * on a different page load (no expression strings to parse). `nth` is present
+ * only when the candidate was checked against the recorded element and matched
+ * at that index; a candidate without it is a fallback that must resolve to
+ * exactly one element to be trusted at replay.
+ */
+export type LocatorCandidate = (
+  | { kind: 'testid'; attr: string; value: string }
+  | { kind: 'role'; role: string; name: string }
+  | { kind: 'label'; label: string }
+  | { kind: 'placeholder'; placeholder: string }
+  | { kind: 'id'; selector: string }
+  | { kind: 'text'; text: string }
+  | { kind: 'css'; selector: string }
+) & { nth?: number };
+
+/** Rebuild a candidate into a live Locator. Shared by recording and replay. */
+export function makeLocator(page: Page, c: LocatorCandidate): Locator {
+  let loc: Locator;
+  switch (c.kind) {
+    case 'testid':
+      loc = c.attr === 'data-testid' ? page.getByTestId(c.value) : page.locator(`[${c.attr}=${JSON.stringify(c.value)}]`);
+      break;
+    case 'role':
+      loc = page.getByRole(c.role as Parameters<Page['getByRole']>[0], { name: c.name });
+      break;
+    case 'label':
+      loc = page.getByLabel(c.label);
+      break;
+    case 'placeholder':
+      loc = page.getByPlaceholder(c.placeholder);
+      break;
+    case 'text':
+      loc = page.getByText(c.text, { exact: true });
+      break;
+    case 'id':
+    case 'css':
+      loc = page.locator(c.selector);
+      break;
+  }
+  return c.nth !== undefined && c.nth > 0 ? loc.nth(c.nth) : loc;
+}
+
+/** Source text for a candidate, e.g. `page.getByRole('button', { name: 'Save' })`. */
+export function candidateExpr(c: LocatorCandidate): string {
+  let expr: string;
+  switch (c.kind) {
+    case 'testid':
+      expr = c.attr === 'data-testid' ? `page.getByTestId(${q(c.value)})` : `page.locator(${q(`[${c.attr}=${JSON.stringify(c.value)}]`)})`;
+      break;
+    case 'role':
+      expr = `page.getByRole(${q(c.role)}, { name: ${q(c.name)} })`;
+      break;
+    case 'label':
+      expr = `page.getByLabel(${q(c.label)})`;
+      break;
+    case 'placeholder':
+      expr = `page.getByPlaceholder(${q(c.placeholder)})`;
+      break;
+    case 'text':
+      expr = `page.getByText(${q(c.text)}, { exact: true })`;
+      break;
+    case 'id':
+    case 'css':
+      expr = `page.locator(${q(c.selector)})`;
+      break;
+  }
+  return c.nth !== undefined && c.nth > 0 ? `${expr}.nth(${c.nth})` : expr;
+}
+
+/**
  * A durable Playwright locator expression for one element the agent acted on,
  * resolved from the live page at record time. `verified` means the expression
  * was replayed against the page and resolved to exactly the element that was
@@ -17,6 +88,18 @@ export interface LocatorExpr {
   verified: boolean;
   /** The agent's original target (an @ref or a raw selector), for TODO comments. */
   raw: string;
+  /**
+   * Every way the element could be found, best first; `expr` is the first one
+   * that verified. Replay walks this chain when the page has drifted.
+   */
+  chain?: LocatorCandidate[];
+}
+
+/** What a state-changing step visibly did, kept so replay can check for it. */
+export interface StepDiff {
+  url: string;
+  alerts: string[];
+  added: string[];
 }
 
 export interface RecordedStep {
@@ -27,11 +110,19 @@ export interface RecordedStep {
   locators: Record<string, LocatorExpr>;
   /** Tool result, kept only for the tools whose output becomes an assertion. */
   result?: string;
+  /** Page signature delta around a state-changing step (learning mode only). */
+  diff?: StepDiff;
+  /** Set when the step was executed by replaying a stored skill, not chosen by the agent. */
+  via?: { skill: string; step: number };
 }
 
 export interface RecordedInstruction {
   k: 'instruction';
   text: string;
+  /** Where the browser was when the instruction started (learning mode). */
+  url?: string;
+  /** Structural fingerprint of that page (learning mode; see fingerprint.ts). */
+  fingerprint?: number[];
 }
 
 export type RecordedEntry = RecordedStep | RecordedInstruction;
@@ -99,8 +190,17 @@ export class ScriptRecorder {
   }
 
   /** Mark the start of one `do` instruction; becomes a test.step in the script. */
-  beginInstruction(text: string): void {
-    this.append({ k: 'instruction', text });
+  beginInstruction(text: string, context: { url?: string; fingerprint?: number[] } = {}): void {
+    this.append({ k: 'instruction', text, ...context });
+  }
+
+  /** Index just past the last entry — pass to entriesSince() to read back one instruction. */
+  mark(): number {
+    return this.entries.length;
+  }
+
+  entriesSince(mark: number): RecordedEntry[] {
+    return this.entries.slice(mark);
   }
 
   clear(): void {
@@ -117,11 +217,26 @@ export class ScriptRecorder {
    * because a click can navigate or unmount the very element being described.
    * Returns null for tools that do not map onto a script line.
    */
-  async prepare(page: Page, tool: string, args: Record<string, unknown>): Promise<RecordedStep | null> {
+  async prepare(
+    page: Page,
+    tool: string,
+    args: Record<string, unknown>,
+    /** Pre-resolved locators (replay): described from the element itself, not from args. */
+    resolved?: Record<string, Locator>,
+  ): Promise<RecordedStep | null> {
     if (!RECORDABLE.has(tool)) return null;
     const locators: Record<string, LocatorExpr> = {};
     for (const key of ['target', 'source'] as const) {
       const raw = args[key];
+      if (resolved?.[key]) {
+        const rawText = typeof raw === 'string' ? raw : '';
+        locators[key] = await describeLocator(page, resolved[key], rawText).catch(() => ({
+          expr: '',
+          verified: false,
+          raw: rawText,
+        }));
+        continue;
+      }
       if (typeof raw !== 'string' || !raw.trim()) continue;
       locators[key] = await describeTarget(page, raw).catch(() => ({ expr: '', verified: false, raw }));
     }
@@ -129,9 +244,14 @@ export class ScriptRecorder {
   }
 
   /** Commit a prepared step once the action succeeded. Failed actions are dropped. */
-  commit(step: RecordedStep | null, result: string): void {
+  commit(step: RecordedStep | null, result: string, extra: { diff?: StepDiff; via?: RecordedStep['via'] } = {}): void {
     if (!step) return;
-    this.append(RESULT_TOOLS.has(step.tool) ? { ...step, result } : step);
+    const entry: RecordedStep = {
+      ...step,
+      ...(extra.diff ? { diff: extra.diff } : {}),
+      ...(extra.via ? { via: extra.via } : {}),
+    };
+    this.append(RESULT_TOOLS.has(step.tool) ? { ...entry, result } : entry);
   }
 }
 
@@ -152,6 +272,7 @@ interface ElementInfo {
 interface Candidate {
   expr: string;
   make: (page: Page) => Locator;
+  spec: LocatorCandidate;
 }
 
 /**
@@ -162,13 +283,21 @@ interface Candidate {
  */
 export async function describeTarget(page: Page, raw: string): Promise<LocatorExpr> {
   if (!isRefTarget(raw)) {
-    const expr = `page.locator(${q(raw)})`;
-    const verified = await page
-      .locator(raw)
-      .count()
-      .then((n) => n === 1)
-      .catch(() => false);
-    return { expr, verified, raw };
+    // A raw selector the agent chose: keep it as the primary, but still
+    // describe the element it hit so replay has attribute-based fallbacks.
+    const loc = page.locator(raw);
+    const count = await loc.count().catch(() => 0);
+    const primary: LocatorCandidate = { kind: 'css', selector: raw };
+    if (count !== 1) return { expr: candidateExpr(primary), verified: false, raw, chain: [primary] };
+    const handle = await loc.elementHandle({ timeout: 2_000 }).catch(() => null);
+    if (!handle) return { expr: candidateExpr(primary), verified: true, raw, chain: [primary] };
+    try {
+      const info = (await handle.evaluate(describeInPage)) as ElementInfo;
+      const chain = [primary, ...(await verifiedChain(page, info, handle)).chain];
+      return { expr: candidateExpr(primary), verified: true, raw, chain };
+    } finally {
+      await handle.dispose().catch(() => {});
+    }
   }
 
   const ref = raw.trim().replace(/^@/, '');
@@ -178,21 +307,57 @@ export async function describeTarget(page: Page, raw: string): Promise<LocatorEx
     .elementHandle({ timeout: 2_000 })
     .catch(() => null);
   if (!handle) return { expr: '', verified: false, raw };
-
   try {
-    const info = (await handle.evaluate(describeInPage)) as ElementInfo;
-    for (const candidate of candidatesFor(info)) {
-      const match = await matchIndex(candidate.make(page), handle);
-      if (match === null) continue;
-      const expr = match === 0 ? candidate.expr : `${candidate.expr}.nth(${match})`;
-      return { expr, verified: true, raw };
-    }
-    // Nothing resolved back to this element — hand over the structural path and
-    // let the generated script flag it, rather than inventing something clean.
-    return { expr: `page.locator(${q(info.cssPath)})`, verified: false, raw };
+    return await describeHandle(page, handle, raw);
   } finally {
     await handle.dispose().catch(() => {});
   }
+}
+
+/** Describe the element a live Locator resolves to (replay path). */
+export async function describeLocator(page: Page, locator: Locator, raw: string): Promise<LocatorExpr> {
+  const handle = await locator.elementHandle({ timeout: 2_000 }).catch(() => null);
+  if (!handle) return { expr: '', verified: false, raw };
+  try {
+    return await describeHandle(page, handle, raw);
+  } finally {
+    await handle.dispose().catch(() => {});
+  }
+}
+
+async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: string): Promise<LocatorExpr> {
+  const info = (await handle.evaluate(describeInPage)) as ElementInfo;
+  const { winner, chain } = await verifiedChain(page, info, handle);
+  if (winner) return { expr: candidateExpr(winner), verified: true, raw, chain };
+  // Nothing resolved back to this element — hand over the structural path and
+  // let the generated script flag it, rather than inventing something clean.
+  return { expr: `page.locator(${q(info.cssPath)})`, verified: false, raw, chain };
+}
+
+/**
+ * All candidates for an element, the first that resolves back to it marked
+ * with its index. Later candidates are kept unindexed as replay fallbacks —
+ * checking each costs round trips, and a fallback that resolves to exactly
+ * one element needs no index anyway.
+ */
+async function verifiedChain(
+  page: Page,
+  info: ElementInfo,
+  handle: ElementHandle<Node>,
+): Promise<{ winner: LocatorCandidate | null; chain: LocatorCandidate[] }> {
+  const chain: LocatorCandidate[] = [];
+  let winner: LocatorCandidate | null = null;
+  for (const candidate of candidatesFor(info)) {
+    if (winner) {
+      chain.push(candidate.spec);
+      continue;
+    }
+    const match = await matchIndex(candidate.make(page), handle);
+    if (match === null) continue;
+    winner = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
+    chain.push(winner);
+  }
+  return { winner, chain };
 }
 
 /**
@@ -217,45 +382,22 @@ function candidatesFor(info: ElementInfo): Candidate[] {
   const out: Candidate[] = [];
   if (info.testid) {
     const { attr, value } = info.testid;
-    if (attr === 'data-testid') {
-      out.push({ expr: `page.getByTestId(${q(value)})`, make: (p) => p.getByTestId(value) });
-    } else {
-      const sel = `[${attr}=${JSON.stringify(value)}]`;
-      out.push({ expr: `page.locator(${q(sel)})`, make: (p) => p.locator(sel) });
-    }
+    out.push(cand({ kind: 'testid', attr, value }));
   }
-  if (info.role && info.name) {
-    const role = info.role as Parameters<Page['getByRole']>[0];
-    const name = info.name;
-    out.push({
-      expr: `page.getByRole(${q(info.role)}, { name: ${q(name)} })`,
-      make: (p) => p.getByRole(role, { name }),
-    });
-  }
-  if (info.label) {
-    const label = info.label;
-    out.push({ expr: `page.getByLabel(${q(label)})`, make: (p) => p.getByLabel(label) });
-  }
-  if (info.placeholder) {
-    const placeholder = info.placeholder;
-    out.push({
-      expr: `page.getByPlaceholder(${q(placeholder)})`,
-      make: (p) => p.getByPlaceholder(placeholder),
-    });
-  }
+  if (info.role && info.name) out.push(cand({ kind: 'role', role: info.role, name: info.name }));
+  if (info.label) out.push(cand({ kind: 'label', label: info.label }));
+  if (info.placeholder) out.push(cand({ kind: 'placeholder', placeholder: info.placeholder }));
   if (info.id && isStableId(info.id)) {
     const sel = /^[A-Za-z][\w-]*$/.test(info.id) ? `#${info.id}` : `[id=${JSON.stringify(info.id)}]`;
-    out.push({ expr: `page.locator(${q(sel)})`, make: (p) => p.locator(sel) });
+    out.push(cand({ kind: 'id', selector: sel }));
   }
-  if (info.text && !info.role) {
-    const text = info.text;
-    out.push({
-      expr: `page.getByText(${q(text)}, { exact: true })`,
-      make: (p) => p.getByText(text, { exact: true }),
-    });
-  }
-  out.push({ expr: `page.locator(${q(info.cssPath)})`, make: (p) => p.locator(info.cssPath) });
+  if (info.text && !info.role) out.push(cand({ kind: 'text', text: info.text }));
+  out.push(cand({ kind: 'css', selector: info.cssPath }));
   return out;
+}
+
+function cand(spec: LocatorCandidate): Candidate {
+  return { spec, expr: candidateExpr(spec), make: (p) => makeLocator(p, spec) };
 }
 
 /**

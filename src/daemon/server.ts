@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
-import { runEscalatingInstruction } from '../agent/loop.js';
+import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
+import { executeTool } from '../agent/tools.js';
+import { learnFromInstruction, matchTemplate, synthesizeReport } from '../skills/learn.js';
+import { renderReplay } from '../skills/replay.js';
+import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
 import { snapshot } from './refs.js';
 import { ScriptRecorder } from './recorder.js';
@@ -16,6 +20,7 @@ interface DaemonOptions {
   headed?: boolean;
   record?: boolean;
   script?: boolean;
+  learn?: boolean;
 }
 
 /**
@@ -45,6 +50,7 @@ export class Daemon {
       headed: opts.headed,
       record: opts.record,
       script: opts.script,
+      learn: opts.learn,
     });
     this.state = new SessionState(opts.session);
   }
@@ -189,16 +195,55 @@ export class Daemon {
         const fallback = a.escalate === false ? null : this.fallbackProvider(overrides, provider);
         const controller = new AbortController();
         this.inflight = controller;
+        const instruction = String(a.instruction);
+        const screenshotDir = path.join(ensureSessionDir(this.opts.session), 'screenshots');
+        const loopOpts = {
+          maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
+          timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
+          ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
+          screenshotDir,
+          signal: controller.signal,
+          onProgress: progress,
+        };
+        // Where this instruction's recording starts, so learning can read back
+        // exactly what it did (and nothing from earlier instructions).
+        const mark = this.browser.script?.mark() ?? 0;
         try {
-          const result = await runEscalatingInstruction(provider, fallback, this.browser, this.state, String(a.instruction), {
-            maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
-            timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
-            ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
-            screenshotDir: path.join(ensureSessionDir(this.opts.session), 'screenshots'),
-            signal: controller.signal,
-            onProgress: progress,
-          });
-          return { ...result, model: provider.model, ...(fallback ? { fallbackModel: fallback.model } : {}) };
+          // Zero-model path: a validated skill whose template matches this
+          // instruction word for word replays without any LLM call. If it
+          // stops part-way the agent takes over with the partial result in
+          // hand, exactly as it would after calling run_skill itself.
+          const direct = await this.replayDirect(instruction, screenshotDir, controller.signal, progress);
+          let result: InstructionResult;
+          if (direct.done) {
+            result = direct.done;
+          } else {
+            result = await runEscalatingInstruction(
+              provider,
+              fallback,
+              this.browser,
+              this.state,
+              direct.prelude ? `${instruction}\n\n${direct.prelude}` : instruction,
+              loopOpts,
+            );
+            if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
+          }
+          const learned = this.browser.learn
+            ? learnFromInstruction(this.browser.learn, {
+                result,
+                instruction,
+                entries: this.browser.script?.entriesSince(mark) ?? [],
+                session: this.opts.session,
+                model: provider.model,
+              })
+            : null;
+          if (learned) progress(`[learn] ${describeLearned(learned)}`);
+          return {
+            ...result,
+            model: provider.model,
+            ...(fallback ? { fallbackModel: fallback.model } : {}),
+            ...(learned ? { learned } : {}),
+          };
         } finally {
           if (this.inflight === controller) this.inflight = null;
         }
@@ -254,6 +299,8 @@ export class Daemon {
           recording: this.browser.recording,
           scriptRecording: Boolean(this.browser.script),
           scriptSteps: this.browser.script?.entries.filter((e) => e.k === 'step').length ?? 0,
+          learning: Boolean(this.browser.learn),
+          skillsDir: this.browser.learn?.dir ?? null,
           notes: this.state.notes,
           usage: this.state.usage,
           usageByModel: this.state.usageByModel,
@@ -283,6 +330,71 @@ export class Daemon {
     }
   }
 
+  /**
+   * Tier A: try a validated, template-matching skill before the model is
+   * involved at all. Returns a finished result when the replay completed, a
+   * prelude for the agent when it stopped part-way, or nothing when no skill
+   * matched (the common case, and free: one store read, no page round trip).
+   */
+  private async replayDirect(
+    instruction: string,
+    screenshotDir: string,
+    signal: AbortSignal,
+    progress: (m: string) => void,
+  ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord> }> {
+    const store = this.browser.learn;
+    if (!store || !this.browser.isOpen) return {};
+    let url: string;
+    try {
+      url = (await this.browser.getPage()).url();
+    } catch {
+      return {};
+    }
+    const origin = originOf(url);
+    if (!origin) return {};
+    const match = matchTemplate(store.list(origin), instruction, url);
+    if (!match) return {};
+    progress(`[skill] ${match.skill.id} matches the instruction exactly — replaying without the model`);
+    this.browser.script?.beginInstruction(instruction, { url });
+    const execution = await executeTool(this.browser, 'run_skill', { id: match.skill.id, params: match.params }, screenshotDir, signal);
+    const replay = execution.replay;
+    if (!replay || replay.refused) return {};
+    const record: Partial<SkillRecord> = {
+      invoked: replay.skill,
+      stepsReplayed: replay.stepsRun,
+      stepsTotal: replay.stepsTotal,
+      refused: false,
+      fallthroughs: replay.fallthroughs,
+      similarity: replay.similarity,
+      deterministicActions: replay.stepsRun,
+      totalActions: replay.stepsRun,
+      tier: 'A',
+    };
+    if (!replay.ok) {
+      return {
+        prelude: `[replay] A stored procedure was replayed before you started and stopped part-way. Its output:\n${renderReplay(match.skill, replay)}`,
+        partial: record,
+      };
+    }
+    const report = synthesizeReport(match.skill, match.params, replay.values);
+    // Keep the conversation coherent for later instructions: the same one-line
+    // entry the loop would have written.
+    this.state.messages.push({ role: 'user', content: instruction });
+    const facts = Object.entries(report.evidence?.values ?? {})
+      .map(([k, v]) => `${k}=${v}`)
+      .join(', ');
+    this.state.messages.push({ role: 'assistant', content: `[report] success: ${report.summary}${facts ? ' | ' + facts : ''}` });
+    return {
+      done: {
+        report,
+        turns: 0,
+        usage: { promptTokens: 0, completionTokens: 0, cachedTokens: 0 },
+        screenshots: [],
+        skill: { listed: [match.skill.id], repaired: false, ...record } as SkillRecord,
+      },
+    };
+  }
+
   private async shutdown(): Promise<void> {
     await this.browser.close();
     this.server?.close();
@@ -290,6 +402,16 @@ export class Daemon {
     await new Promise((r) => setTimeout(r, 150));
     process.exit(0);
   }
+}
+
+function describeLearned(l: ReturnType<typeof learnFromInstruction>): string {
+  if (!l) return 'nothing';
+  const parts: string[] = [];
+  if (l.outcome) parts.push(`${l.outcome.skill} ${l.outcome.ok ? 'replayed ok' : 'replay stopped part-way'} → ${l.outcome.status}`);
+  if (l.compiled) parts.push(`stored ${l.compiled}${l.variantOf ? ` as a variant of ${l.variantOf}` : ''}`);
+  if (l.merged) parts.push(`merged into ${l.merged}`);
+  if (l.superseded) parts.push(`${l.superseded} superseded`);
+  return parts.join('; ') || 'nothing';
 }
 
 function delay(ms: number): Promise<void> {
@@ -312,6 +434,7 @@ if (isMain) {
     headed: argv.includes('--headed'),
     record: argv.includes('--record'),
     script: argv.includes('--script'),
+    learn: argv.includes('--learn'),
   });
   daemon
     .listen()

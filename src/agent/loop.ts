@@ -1,9 +1,12 @@
 import type { BrowserSession } from '../daemon/browser.js';
 import type { SessionState } from '../daemon/state.js';
 import type { ChatMessage, Provider } from './llm.js';
+import { fingerprintPage } from '../daemon/fingerprint.js';
+import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/replay.js';
+import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
 import { validateReport, type Report } from './report.js';
-import { executeTool, TOOL_DEFS, type ToolExecution } from './tools.js';
+import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 
 /** Tools that change the page URL, staleing every existing snapshot's refs. */
 const NAVIGATION_TOOLS = new Set(['goto', 'back', 'tabs']);
@@ -85,6 +88,30 @@ export interface InstructionResult {
    * pattern-matching the summary prose.
    */
   bailReason?: BailReason;
+  /**
+   * Learning-mode accounting: which stored skills were offered, which one
+   * (if any) the agent replayed and how far it got, and what fraction of the
+   * instruction's browser actions ran deterministically.
+   */
+  skill?: SkillRecord;
+}
+
+export interface SkillRecord {
+  listed: string[];
+  invoked?: string;
+  stepsReplayed: number;
+  stepsTotal: number;
+  /** The replay stopped part-way and the agent carried on. */
+  repaired: boolean;
+  /** Replay refused to start (wrong page / bad params). */
+  refused: boolean;
+  fallthroughs: number;
+  similarity: number | null;
+  /** Browser actions taken by replay vs. in total (batch steps count individually). */
+  deterministicActions: number;
+  totalActions: number;
+  /** 'A' = replayed by the daemon without any model call; 'B' = the agent invoked run_skill. */
+  tier?: 'A' | 'B';
 }
 
 export type BailReason = 'turn-cap' | 'timeout' | 'stalled' | 'stopped' | 'invalid-report';
@@ -138,12 +165,31 @@ export async function runInstruction(
   }
   state.trimHistory();
   const location = await describeLocation(browser);
-  state.messages.push({ role: 'user', content: location ? `${instruction}\n\n${location}` : instruction });
+  // Learning mode: offer the stored procedures that start on this page. They
+  // go in the user message, not the system prompt, so the cached prefix stays
+  // byte-identical across instructions.
+  const offered = await offerSkills(browser);
+  const skill: SkillRecord = {
+    listed: offered.ids,
+    stepsReplayed: 0,
+    stepsTotal: 0,
+    repaired: false,
+    refused: false,
+    fallthroughs: 0,
+    similarity: null,
+    deterministicActions: 0,
+    totalActions: 0,
+  };
+  state.messages.push({
+    role: 'user',
+    content: [instruction, location, offered.text].filter(Boolean).join('\n\n'),
+  });
   // Script recording (opt-in) groups this instruction's actions under one
   // test.step, so a generated spec reads as the plan that produced it.
-  browser.script?.beginInstruction(instruction);
+  browser.script?.beginInstruction(instruction, offered.context);
 
   const system: ChatMessage = { role: 'system', content: buildSystemPrompt(state) };
+  const toolDefs = toolDefsFor(browser);
 
   /** Resume advice differs sharply depending on whether anything actually ran. */
   const resumeHint = () =>
@@ -182,6 +228,9 @@ export async function runInstruction(
     // escalation model — needs to know what already ran. Clean successes stay lean.
     const includeTail = blockedTail || report.status === 'blocked';
     const finalState = includeTail ? await captureFinalState(browser) : undefined;
+    if (skill.invoked && !skill.refused && skill.stepsReplayed < skill.stepsTotal && report.status === 'success') {
+      skill.repaired = true;
+    }
     return {
       report,
       turns,
@@ -190,6 +239,7 @@ export async function runInstruction(
       ...(includeTail ? { transcriptTail: transcript.slice(-12), actions: actions.slice(-40) } : {}),
       ...(finalState ? { finalState } : {}),
       ...(bailReason ? { bailReason } : {}),
+      ...(browser.learn ? { skill } : {}),
     };
   };
 
@@ -291,7 +341,7 @@ export async function runInstruction(
 
     let completion;
     try {
-      completion = await provider.complete([system, ...state.messages], TOOL_DEFS, {
+      completion = await provider.complete([system, ...state.messages], toolDefs, {
         signal: watchdog.signal,
       });
     } catch (err) {
@@ -384,6 +434,7 @@ export async function runInstruction(
       const execution = await runTool(call.name, call.args);
       actions.push({ tool: call.name, args: summary, ok: !execution.isError });
       state.messages.push({ role: 'tool', tool_call_id: call.id, content: execution.result });
+      accountActions(skill, call.name, call.args, execution);
 
       if (call.name === 'screenshot' && !execution.isError) {
         const m = execution.result.match(/^screenshot saved: (.+)$/);
@@ -523,6 +574,59 @@ function escalationPrompt(instruction: string, first: InstructionResult): string
     `misread the page or probed the wrong values, so re-examine the evidence yourself and look for an ` +
     `approach it did not try.\n\nThe original instruction to complete is:\n${instruction}`
   );
+}
+
+/** What the stored-skill listing contributes to an instruction's first message. */
+async function offerSkills(
+  browser: BrowserSession,
+): Promise<{ ids: string[]; text: string; context: { url?: string; fingerprint?: number[] } }> {
+  const none = { ids: [], text: '', context: {} };
+  if (!browser.learn || !browser.isOpen) return none;
+  try {
+    const page = await browser.getPage();
+    const url = page.url();
+    const origin = originOf(url);
+    if (!origin) return none;
+    const candidates = candidatesFor(browser.learn.list(origin), url);
+    const fingerprint = (await fingerprintPage(page)) ?? undefined;
+    return {
+      ids: candidates.map((s) => s.id),
+      text: renderCandidates(candidates),
+      context: { url, ...(fingerprint ? { fingerprint } : {}) },
+    };
+  } catch {
+    return none;
+  }
+}
+
+/** Count browser actions per tool call, and fold a replay's outcome into the record. */
+function accountActions(skill: SkillRecord, name: string, args: Record<string, unknown>, execution: ToolExecution): void {
+  if (name === 'snapshot' || name === 'report') return;
+  if (name === 'run_skill') {
+    const r: ReplayResult | undefined = execution.replay;
+    if (!r) return;
+    // First replay wins the record; a second run_skill in one instruction is
+    // unusual and its steps still count as deterministic actions.
+    if (!skill.invoked) {
+      skill.tier = 'B';
+      skill.invoked = r.skill;
+      skill.stepsReplayed = r.stepsRun;
+      skill.stepsTotal = r.stepsTotal;
+      skill.refused = Boolean(r.refused);
+      skill.fallthroughs = r.fallthroughs;
+      skill.similarity = r.similarity;
+    }
+    skill.deterministicActions += r.stepsRun;
+    skill.totalActions += r.stepsRun;
+    return;
+  }
+  if (name === 'batch' && Array.isArray(args.steps)) {
+    // Only the steps that ran count; the result lists one line per step that did.
+    const ran = (execution.result.match(/^\d+\. /gm) ?? []).length;
+    skill.totalActions += ran || args.steps.length;
+    return;
+  }
+  skill.totalActions += 1;
 }
 
 function summarizeArgs(args: Record<string, unknown>): string {

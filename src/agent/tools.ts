@@ -5,7 +5,8 @@ import type { BrowserSession } from '../daemon/browser.js';
 import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
 import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
 import { resolveTarget, snapshot, truncate } from '../daemon/refs.js';
-import { isRecordable } from '../daemon/recorder.js';
+import { isRecordable, type StepDiff } from '../daemon/recorder.js';
+import { renderReplay, replaySkill, type ReplayResult } from '../skills/replay.js';
 import type { ToolDef } from './llm.js';
 
 const TARGET = {
@@ -333,6 +334,22 @@ export const TOOL_DEFS: ToolDef[] = [
     },
   },
   {
+    name: 'run_skill',
+    description:
+      'Replay a stored procedure listed under [skills] in the instruction, deterministically and without further reasoning: every recorded step runs in order with its parameters filled in, stopping at the first step that no longer works. Returns each step\'s outcome and every value read back from the live page. If it stops part-way, the steps that ran HAVE changed the page — observe, then continue from there yourself. Call it as your FIRST action when a listed procedure matches the instruction.',
+    parameters: {
+      type: 'object',
+      required: ['id', 'params'],
+      properties: {
+        id: { type: 'string', description: 'The skill id shown in the [skills] list, e.g. "s_9f2a1b".' },
+        params: {
+          type: 'object',
+          description: 'Values for every {{vN}} slot in the skill template, taken from the instruction (e.g. {"v1": "x7 RD Part A", "v2": "100"}).',
+        },
+      },
+    },
+  },
+  {
     name: 'report',
     description:
       'REQUIRED final call: report the outcome of the instruction. Nothing after this is executed. Keep summary to one short paragraph.',
@@ -359,6 +376,13 @@ export const TOOL_DEFS: ToolDef[] = [
 export interface ToolExecution {
   result: string;
   isError: boolean;
+  /** Present for run_skill: what the replay did, for the loop's accounting. */
+  replay?: ReplayResult;
+}
+
+/** Tool definitions for a session: run_skill only exists when a skill store is attached. */
+export function toolDefsFor(session: BrowserSession): ToolDef[] {
+  return session.learn ? TOOL_DEFS : TOOL_DEFS.filter((t) => t.name !== 'run_skill');
 }
 
 /**
@@ -375,10 +399,11 @@ export async function executeTool(
   signal?: AbortSignal,
 ): Promise<ToolExecution> {
   if (name === 'batch') return executeBatch(session, args, screenshotDir, signal);
+  if (name === 'run_skill') return executeSkill(session, args, screenshotDir, signal);
   try {
     const diffing = STATE_CHANGING.has(name) ? await session.getPage().catch(() => null) : null;
     const before: PageSignature | null = diffing ? await captureSignature(diffing) : null;
-    const result = await runStep(session, name, args, screenshotDir, signal);
+    const { result } = await runStep(session, name, args, screenshotDir, signal, { before });
     const stateNote = diffing && before ? await stateDiff(diffing, before) : '';
     return {
       result: truncate(result + stateNote + dialogNote(session), TOOL_RESULT_BUDGET + 8200),
@@ -390,9 +415,52 @@ export async function executeTool(
 }
 
 /**
- * One tool call with its recording, and nothing else: no diff, no dialog
- * drain. Shared by the single-tool path and by every step of a batch, which
- * needs the same recording behaviour but only ONE combined diff at the end.
+ * Replay a stored skill as one tool call. The replay goes through runStep
+ * for every step, so each replayed action is recorded exactly like an
+ * agent-chosen one — which is what lets a replay-then-repair be compiled into
+ * a variant afterwards. A refusal (wrong page, missing params) is an error
+ * result; a part-way stop is not, since the page has changed.
+ */
+async function executeSkill(
+  session: BrowserSession,
+  args: Record<string, unknown>,
+  screenshotDir: string,
+  signal?: AbortSignal,
+): Promise<ToolExecution> {
+  const store = session.learn;
+  if (!store) return { result: 'ERROR: no skill store is attached to this session.', isError: true };
+  const id = String(args.id ?? '').trim();
+  const skill = id ? store.get(id) : null;
+  if (!skill) return { result: `ERROR: unknown skill ${JSON.stringify(id)} — use an id from the [skills] list.`, isError: true };
+  const rawParams = args.params && typeof args.params === 'object' && !Array.isArray(args.params) ? (args.params as Record<string, unknown>) : {};
+  const params = Object.fromEntries(Object.entries(rawParams).map(([k, v]) => [k, String(v ?? '')]));
+
+  const page = await session.getPage();
+  const before = await captureSignature(page);
+  const replay = await replaySkill(skill, params, {
+    page,
+    signal,
+    exec: async (tool, stepArgs, resolved, via) => runStep(session, tool, stepArgs, screenshotDir, signal, { resolved, via }),
+  });
+  const stateNote = before && replay.stepsRun ? await stateDiff(page, before, BATCH_LINE_BUDGET) : '';
+  const body = renderReplay(skill, replay) + stateNote + dialogNote(session);
+  return { result: truncate(body, TOOL_RESULT_BUDGET + 8200), isError: Boolean(replay.refused), replay };
+}
+
+interface StepOptions {
+  /** Signature captured by the caller before the action, to avoid a second capture. */
+  before?: PageSignature | null;
+  /** Replay: locators already resolved through a skill's chain. */
+  resolved?: Record<string, Locator>;
+  via?: { skill: string; step: number };
+}
+
+/**
+ * One tool call with its recording, and nothing else: no dialog drain. Shared
+ * by the single-tool path, by every step of a batch, and by skill replay.
+ * In learning mode a per-step page diff is captured around state-changing
+ * steps and stored with the recording — that is what becomes a replayed
+ * step's expectation.
  */
 async function runStep(
   session: BrowserSession,
@@ -400,18 +468,43 @@ async function runStep(
   args: Record<string, unknown>,
   screenshotDir: string,
   signal?: AbortSignal,
-): Promise<string> {
+  opts: StepOptions = {},
+): Promise<{ result: string; diff?: StepDiff }> {
   // Describe the targets BEFORE acting: a click can navigate or unmount the
   // element, and a recorder that runs afterwards has nothing left to describe.
   // Recording never fails a run — a broken capture just means a missing step.
   const recorder = session.script;
+  const page = recorder || session.learn ? await session.getPage() : null;
   const pending =
-    recorder && isRecordable(name)
-      ? await recorder.prepare(await session.getPage(), name, args).catch(() => null)
+    recorder && page && isRecordable(name)
+      ? await recorder.prepare(page, name, args, opts.resolved).catch(() => null)
       : null;
-  const result = await dispatch(session, name, args, screenshotDir, signal);
-  recorder?.commit(pending, result);
-  return result;
+  const wantDiff = Boolean(session.learn) && page && STATE_CHANGING.has(name);
+  const before = wantDiff ? (opts.before ?? (await captureSignature(page!))) : null;
+  const result = await dispatch(session, name, args, screenshotDir, signal, opts.resolved);
+  let diff: StepDiff | undefined;
+  if (wantDiff && before) {
+    const after = await settledSignature(page!);
+    if (after) {
+      diff = {
+        url: after.url,
+        alerts: after.alerts.filter((a) => !before.alerts.includes(a)),
+        added: after.lines.filter((l) => !before.lines.includes(l)).slice(0, 20),
+      };
+    }
+  }
+  recorder?.commit(pending, result, { diff, via: opts.via });
+  return { result, diff };
+}
+
+async function settledSignature(page: Page): Promise<PageSignature | null> {
+  try {
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForTimeout(SETTLE_MS);
+    return await captureSignature(page);
+  } catch {
+    return null;
+  }
 }
 
 function explainError(err: unknown, args: Record<string, unknown>): string {
@@ -504,7 +597,7 @@ async function executeBatch(
     }
     const head = `${i + 1}. ${step.tool} ${summarize(step.args)} → `;
     try {
-      const result = await runStep(session, step.tool, step.args, screenshotDir, signal);
+      const { result } = await runStep(session, step.tool, step.args, screenshotDir, signal);
       lines.push(head + clip(result, BATCH_STEP_CHARS) + dialogNote(session).replace(/^\n/, ' '));
       ran++;
     } catch (err) {
@@ -565,10 +658,12 @@ async function dispatch(
   args: Record<string, unknown>,
   screenshotDir: string,
   signal?: AbortSignal,
+  /** Replay: pre-resolved locators that override args.target / args.source. */
+  resolved?: Record<string, Locator>,
 ): Promise<string> {
   if (signal?.aborted) throw new Error('cancelled before starting: instruction budget exhausted');
   const page = await session.getPage();
-  const t = (key = 'target') => resolveTarget(page, String(args[key]));
+  const t = (key = 'target') => resolved?.[key] ?? resolveTarget(page, String(args[key]));
   const timeout = 10_000;
 
   switch (name) {
@@ -618,8 +713,8 @@ async function dispatch(
       return 'scrolled into view';
 
     case 'drag': {
-      const source = resolveTarget(page, String(args.source));
-      const target = resolveTarget(page, String(args.target));
+      const source = t('source');
+      const target = t('target');
       try {
         await source.dragTo(target, { timeout });
         return 'dragged (mouse)';

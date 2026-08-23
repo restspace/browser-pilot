@@ -7,6 +7,9 @@ import { globalConfigPath, writeGlobalConfig } from './agent/llm.js';
 import type { Report } from './agent/report.js';
 import { encodeFrame, LineDecoder, type Frame, type Request, type ResultFrame } from './shared/protocol.js';
 import { sessionsDir, socketPath, validateSessionName } from './shared/paths.js';
+import { candidateExpr } from './daemon/recorder.js';
+import { fillParams } from './skills/compile.js';
+import { SkillStore, successRate, type Skill } from './skills/store.js';
 
 const USAGE = `browser-pilot — agent-in-the-loop Playwright CLI
 
@@ -19,6 +22,10 @@ Usage:
   browser-pilot reset                       # clear the LLM conversation only (browser/cookies/briefing/notes kept)
   browser-pilot peek [--selector <sel>] [--interactive]
   browser-pilot script [out.spec.ts] [--title T] [--clear]   # emit a Playwright spec from the recorded actions
+  browser-pilot skills list [--origin <origin>]             # stored procedures (learning mode; no daemon needed)
+  browser-pilot skills show <id>
+  browser-pilot skills rm <id>
+  browser-pilot skills clear --origin <origin> | --all
   browser-pilot screenshot [path]
   browser-pilot session list
   browser-pilot stop [--all]
@@ -45,6 +52,17 @@ Escalation:
   before repeating anything). Verified "failure" results are NOT retried. Disable with
   --no-escalate, or set the fallback model to "none".
 
+Learning (progressive automation):
+  Start a session with --learn (or BROWSER_PILOT_SKILLS=1) and every instruction that
+  reports success is compiled into a stored procedure: its actions, durable locators
+  with fallbacks, the values it typed turned into parameters, and what each step
+  changed. On later instructions the procedures that start on the current page are
+  offered to the internal agent, which replays one deterministically (run_skill) and
+  only reasons when a step no longer works — the repair is stored as a variant. A
+  validated procedure whose template matches an instruction word for word is replayed
+  with no model call at all. Procedures live under ~/.browser-pilot/skills/<origin>.json
+  (override with BROWSER_PILOT_SKILLS_DIR); inspect with "browser-pilot skills".
+
 Global flags:
   --session <name>   session name (default "default"; one daemon+browser per session)
   --verbose          stream the internal agent's actions + token accounting while it works
@@ -54,6 +72,8 @@ Global flags:
                      on stop, which is when Playwright writes them (first call only)
   --script           record every action as a replayable Playwright step (first call
                      only); write the spec out later with "browser-pilot script"
+  --learn            learning mode: compile successful instructions into stored
+                     procedures and replay them on later instructions (first call only)
   --json             machine-readable output
 
 Providers (presets; each field overridable by flag > env > config file):
@@ -75,6 +95,7 @@ Environment:
   BROWSER_PILOT_HEADED=1        headed browser
   BROWSER_PILOT_RECORD=1        record session video to <session dir>/video
   BROWSER_PILOT_SCRIPT=1        record actions as a Playwright script (see the script command)
+  BROWSER_PILOT_SKILLS=1        learning mode (see --learn); BROWSER_PILOT_SKILLS_DIR relocates the store
 
 Exit codes: 0 instruction succeeded · 1 failed/blocked · 2 infra error`;
 
@@ -98,6 +119,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'base-url',
     'selector',
     'title',
+    'origin',
   ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -151,7 +173,7 @@ async function connectValidated(sock: string): Promise<net.Socket> {
 
 async function connectOrSpawn(
   session: string,
-  opts: { headed: boolean; record: boolean; script: boolean },
+  opts: { headed: boolean; record: boolean; script: boolean; learn: boolean },
 ): Promise<net.Socket> {
   const sock = socketPath(session);
   try {
@@ -164,6 +186,7 @@ async function connectOrSpawn(
   if (opts.headed) args.push('--headed');
   if (opts.record) args.push('--record');
   if (opts.script) args.push('--script');
+  if (opts.learn) args.push('--learn');
   const child = spawn(process.execPath, args, {
     detached: true,
     stdio: 'ignore',
@@ -282,6 +305,10 @@ async function main(): Promise<void> {
     console.log('applies to the next instruction — running daemons re-read this file per call');
     return;
   }
+  if (command === 'skills') {
+    skillsCommand(positional, flags, json);
+    return;
+  }
   if (command === 'session') {
     if (positional[0] !== 'list') fail(`unknown subcommand "session ${positional[0] ?? ''}" (try: session list)`);
     await listSessions(json);
@@ -318,6 +345,7 @@ async function main(): Promise<void> {
     headed: flags.has('headed'),
     record: flags.has('record'),
     script: flags.has('script'),
+    learn: flags.has('learn'),
   }).catch((err) => fail(err.message));
 
   try {
@@ -363,6 +391,18 @@ async function main(): Promise<void> {
             };
             rescued: boolean;
           };
+          skill?: {
+            listed: string[];
+            invoked?: string;
+            stepsReplayed: number;
+            stepsTotal: number;
+            repaired: boolean;
+            refused: boolean;
+            tier?: string;
+            deterministicActions: number;
+            totalActions: number;
+          };
+          learned?: { compiled?: string; merged?: string; variantOf?: string; superseded?: string; outcome?: { skill: string; status: string; ok: boolean } };
         };
         if (json) {
           console.log(JSON.stringify(data, null, 2));
@@ -375,6 +415,22 @@ async function main(): Promise<void> {
               `  escalated: ${e.from} blocked after ${e.firstAttempt.turns} turns → retried on ${e.to} (${e.rescued ? 'rescued' : 'still not resolved'})`,
             );
             console.log(`    blocked because: ${e.reason}`);
+          }
+          if (data.skill?.invoked) {
+            const k = data.skill;
+            console.log(
+              `  skill: ${k.tier === 'A' ? 'replayed without the model' : 'replayed'} ${k.invoked} ${k.stepsReplayed}/${k.stepsTotal} steps${k.repaired ? ' — agent repaired the rest' : ''}${k.refused ? ' (refused)' : ''}`,
+            );
+          }
+          if (data.learned) {
+            const l = data.learned;
+            const bits = [
+              l.compiled ? `stored ${l.compiled}${l.variantOf ? ` (variant of ${l.variantOf})` : ''}` : '',
+              l.merged ? `merged into ${l.merged}` : '',
+              l.outcome ? `${l.outcome.skill} → ${l.outcome.status}` : '',
+              l.superseded ? `${l.superseded} superseded` : '',
+            ].filter(Boolean);
+            if (bits.length) console.log(`  learned: ${bits.join('; ')}`);
           }
           if (data.report.details) console.log(data.report.details);
           if (data.report.evidence?.values) {
@@ -510,6 +566,124 @@ async function main(): Promise<void> {
     conn.destroy();
   }
   process.exit(0);
+}
+
+// --- skills (reads the store directly; no daemon involved) ---
+
+function skillsCommand(positional: string[], flags: Map<string, string | boolean>, json: boolean): void {
+  const store = new SkillStore();
+  const sub = positional[0] ?? 'list';
+  const origin = flags.get('origin') ? String(flags.get('origin')) : undefined;
+  switch (sub) {
+    case 'list': {
+      const skills = (origin ? store.list(origin) : store.all()).sort((a, b) => a.origin.localeCompare(b.origin) || b.stats.uses - a.stats.uses);
+      if (json) {
+        console.log(JSON.stringify(skills.map(skillSummary), null, 2));
+        return;
+      }
+      if (!skills.length) {
+        console.log(`no stored procedures${origin ? ` for ${origin}` : ''} (store: ${store.dir})`);
+        return;
+      }
+      let last = '';
+      for (const s of skills) {
+        if (s.origin !== last) {
+          console.log(`${s.origin}`);
+          last = s.origin;
+        }
+        const pct = Math.round(successRate(s) * 100);
+        console.log(
+          `  ${s.id}  ${s.status.padEnd(11)} ${String(s.steps.length).padStart(2)} steps  ${s.stats.successes}/${s.stats.uses} (${pct}%)${s.variantOf ? `  variant of ${s.variantOf}` : ''}`,
+        );
+        console.log(`           ${clipText(s.template, 110)}`);
+      }
+      console.log(`store: ${store.dir}`);
+      return;
+    }
+    case 'show': {
+      const id = positional[1];
+      if (!id) fail('usage: skills show <id>', 2);
+      const s = store.get(id);
+      if (!s) fail(`no skill ${id}`, 1);
+      if (json) {
+        console.log(JSON.stringify(s, null, 2));
+        return;
+      }
+      console.log(`${s.id}  ${s.status}  ${s.origin}`);
+      console.log(`template: ${s.template}`);
+      console.log(`starts on: ${s.preconditions.urlPattern}`);
+      const params = Object.entries(s.params);
+      console.log(params.length ? `params: ${params.map(([k, p]) => `${k} = e.g. ${JSON.stringify(p.example)} (steps ${p.usedIn.join(',')})`).join('; ')}` : 'params: none');
+      console.log(
+        `stats: ${s.stats.successes}/${s.stats.uses} ok, ${s.stats.partial} partial, ${s.stats.fallthroughs} locator fallthrough(s)${
+          Object.keys(s.stats.failedAtStep).length ? `, failed at step ${Object.entries(s.stats.failedAtStep).map(([k, v]) => `${k}×${v}`).join(', ')}` : ''
+        }; created ${s.provenance.created} in session ${s.provenance.session}${s.provenance.model ? ` by ${s.provenance.model}` : ''}`,
+      );
+      if (s.variantOf) console.log(`variant of: ${s.variantOf}`);
+      console.log('steps:');
+      s.steps.forEach((st, i) => {
+        const target = st.locators.target?.[0] ? candidateExpr(st.locators.target[0]) : st.args.target ? String(st.args.target) : '';
+        const fallbacks = (st.locators.target?.length ?? 0) > 1 ? ` (+${st.locators.target!.length - 1} fallback)` : '';
+        const args = Object.entries(st.args)
+          .filter(([k]) => k !== 'target' && k !== 'source')
+          .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+          .join(' ');
+        const literal = Object.entries(st.args)
+          .filter(([k, v]) => ['value', 'text', 'option'].includes(k) && typeof v === 'string' && !/\{\{v\d+\}\}/.test(v))
+          .map(([, v]) => JSON.stringify(v));
+        console.log(
+          `  ${String(i + 1).padStart(2)}. ${st.tool.padEnd(14)} ${target}${fallbacks}${args ? '  ' + args : ''}${st.label ? `  → ${st.label}` : ''}${
+            literal.length ? `  [literal value ${literal.join(', ')} — not a parameter]` : ''
+          }${st.via ? `  (via ${st.via.skill} #${st.via.step})` : ''}`,
+        );
+        if (st.expect?.urlPattern) console.log(`      expect url ${st.expect.urlPattern}`);
+      });
+      if (s.reportTemplate?.summary) console.log(`report: ${clipText(fillParams(s.reportTemplate.summary, {}), 200)}`);
+      return;
+    }
+    case 'rm': {
+      const id = positional[1];
+      if (!id) fail('usage: skills rm <id>', 2);
+      if (!store.remove(id)) fail(`no skill ${id}`, 1);
+      console.log(`removed ${id}`);
+      return;
+    }
+    case 'clear': {
+      if (flags.has('all')) {
+        let n = 0;
+        for (const o of store.origins()) n += store.clear(o);
+        console.log(`cleared ${n} skill(s) across all origins`);
+        return;
+      }
+      if (!origin) fail('usage: skills clear --origin <origin> | --all', 2);
+      console.log(`cleared ${store.clear(origin)} skill(s) for ${origin}`);
+      return;
+    }
+    default:
+      fail(`unknown subcommand "skills ${sub}" (try: list, show <id>, rm <id>, clear)`, 2);
+  }
+}
+
+function skillSummary(s: Skill) {
+  return {
+    id: s.id,
+    origin: s.origin,
+    status: s.status,
+    template: s.template,
+    steps: s.steps.length,
+    params: Object.fromEntries(Object.entries(s.params).map(([k, p]) => [k, p.example])),
+    uses: s.stats.uses,
+    successes: s.stats.successes,
+    partial: s.stats.partial,
+    urlPattern: s.preconditions.urlPattern,
+    ...(s.variantOf ? { variantOf: s.variantOf } : {}),
+    created: s.provenance.created,
+  };
+}
+
+function clipText(text: string, max: number): string {
+  const one = text.replace(/\s+/g, ' ');
+  return one.length <= max ? one : one.slice(0, max) + '…';
 }
 
 function allSessionNames(): string[] {

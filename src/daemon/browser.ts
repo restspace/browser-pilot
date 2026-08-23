@@ -3,6 +3,7 @@ import { chromium, type BrowserContext, type Page, type Video } from 'playwright
 import { ensureSessionDir } from '../shared/paths.js';
 import { DialogManager } from './dialogs.js';
 import { ScriptRecorder } from './recorder.js';
+import { SkillStore } from '../skills/store.js';
 
 const VIEWPORT = { width: 1280, height: 900 };
 
@@ -27,6 +28,12 @@ export interface BrowserOptions {
    * selector), so it is opt-in and fixed for the life of the session.
    */
   script?: boolean;
+  /**
+   * Learning mode: successful instructions are compiled into stored skills
+   * and stored skills are offered back for replay. Implies script recording
+   * (the recording is what gets compiled).
+   */
+  learn?: boolean;
 }
 
 /**
@@ -41,10 +48,14 @@ export class BrowserSession {
   readonly dialogs = new DialogManager();
   /** Non-null only when script recording is on; tools feed it every action. */
   readonly script: ScriptRecorder | null;
+  /** Non-null only in learning mode: where compiled skills go and come from. */
+  readonly learn: SkillStore | null;
 
   constructor(private opts: BrowserOptions) {
+    const learning = Boolean(opts.learn) || process.env.BROWSER_PILOT_SKILLS === '1';
+    this.learn = learning ? new SkillStore() : null;
     this.script =
-      opts.script || process.env.BROWSER_PILOT_SCRIPT === '1' ? new ScriptRecorder(opts.session) : null;
+      learning || opts.script || process.env.BROWSER_PILOT_SCRIPT === '1' ? new ScriptRecorder(opts.session) : null;
   }
 
   private async launch(): Promise<BrowserContext> {

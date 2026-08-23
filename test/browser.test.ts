@@ -283,6 +283,7 @@ d('script recording (fixture page)', () => {
       expr: "page.locator('.dup')",
       verified: false, // two matches — the generated script says so rather than guessing
       raw: '.dup',
+      chain: [{ kind: 'css', selector: '.dup' }],
     });
   }, 30_000);
 
