@@ -94,23 +94,32 @@ export function learnFromInstruction(
  * style), and whose start page is the current one. Returns the bound params.
  */
 export function matchTemplate(skills: Skill[], instruction: string, url: string): { skill: Skill; params: Record<string, string> } | null {
-  const wanted = squash(instruction);
   for (const skill of skills) {
     if (skill.status !== 'validated') continue;
     if (!urlMatches(skill.preconditions.urlPattern, url)) continue;
-    const names: string[] = [];
-    const pattern = escapeRe(squash(skill.template)).replace(/\\\{\\\{(v\d+)\\\}\\\}/g, (_m, name: string) => {
-      names.push(name);
-      return '(.+?)';
-    });
-    const m = new RegExp(`^${pattern}$`, 'i').exec(wanted);
-    if (!m) continue;
-    const params: Record<string, string> = {};
-    names.forEach((n, i) => (params[n] = m[i + 1].trim()));
-    // Every slot must be bound, and the same slot bound twice must agree.
-    if (Object.keys(skill.params).every((n) => params[n])) return { skill, params };
+    const params = bindSkill(skill, instruction);
+    if (params) return { skill, params };
   }
   return null;
+}
+
+/**
+ * Bind a specific skill's {{vN}} slots from an instruction by reading its
+ * template as a pattern. Used by flow replay, where the skill is already
+ * chosen (pinned), so its status and the page are the flow's concern, not this
+ * function's. Returns null unless every slot binds.
+ */
+export function bindSkill(skill: Skill, instruction: string): Record<string, string> | null {
+  const names: string[] = [];
+  const pattern = escapeRe(squash(skill.template)).replace(/\\\{\\\{(v\d+)\\\}\\\}/g, (_m, name: string) => {
+    names.push(name);
+    return '(.+?)';
+  });
+  const m = new RegExp(`^${pattern}$`, 'i').exec(squash(instruction));
+  if (!m) return null;
+  const params: Record<string, string> = {};
+  names.forEach((n, i) => (params[n] = m[i + 1].trim()));
+  return Object.keys(skill.params).every((n) => params[n]) ? params : null;
 }
 
 function squash(text: string): string {
@@ -118,25 +127,44 @@ function squash(text: string): string {
 }
 
 /**
- * A report for a zero-model replay. Values are the live read-backs wherever
- * the original report had a labelled read; the stored summary is only reused
- * where those values are substituted into it, so a price that changed between
- * runs cannot be reported from memory.
+ * A report for a zero-model replay. A value is trustworthy only if it came
+ * from this run — either a live read-back, or a slot filled from the caller's
+ * own parameters. A recorded literal (the ticket id "RD-1017" from the run
+ * that made the skill) is stale on any later run, so it is dropped, never
+ * reported from memory; the same stale substrings are struck from the summary.
+ * This is the honesty rule the scref3 fabrication made load-bearing, applied
+ * to the model-free path.
  */
 export function synthesizeReport(skill: Skill, params: Record<string, string>, liveValues: Record<string, string>): Report {
   const template = skill.reportTemplate ?? { summary: '', values: {} };
   const values: Record<string, string> = {};
-  for (const [k, v] of Object.entries(template.values)) values[k] = fillParams(v, params);
+  const stale: string[] = [];
+  for (const [k, v] of Object.entries(template.values)) {
+    if (k in liveValues) continue; // a live read wins outright, below
+    const filled = fillParams(v, params);
+    // Kept only if every part of it came from a parameter: no residual literal.
+    if (/\{\{v\d+\}\}/.test(v) && !/\{\{v\d+\}\}/.test(filled)) values[k] = filled;
+    else stale.push(v);
+  }
+  for (const [k, live] of Object.entries(liveValues)) values[k] = live;
+
   let summary = fillParams(template.summary, params);
   for (const [k, live] of Object.entries(liveValues)) {
-    const old = values[k];
-    if (old !== undefined && old !== live && old) summary = summary.split(old).join(live);
-    values[k] = live;
+    const recorded = template.values[k];
+    const old = recorded ? fillParams(recorded, params) : undefined;
+    if (old && old !== live) summary = summary.split(old).join(live);
   }
+  // Strip stale recorded literals from the prose so the summary cannot state a
+  // value this run did not observe.
+  const dropped = stale.some((v) => summary.includes(v));
+  const clean = dropped
+    ? `Replayed stored procedure ${skill.id}${Object.keys(values).length ? `; observed ${Object.entries(values).map(([k, v]) => `${k}=${v}`).join(', ')}` : ''}.`
+    : summary;
+
   return {
     status: 'success',
-    summary: summary || `Replayed stored procedure ${skill.id} (${skill.steps.length} steps).`,
-    details: `Replayed stored procedure ${skill.id} without the model; every reported value was read back from the live page during this run.`,
+    summary: clean || `Replayed stored procedure ${skill.id} (${skill.steps.length} steps).`,
+    details: `Replayed stored procedure ${skill.id} without the model. Reported values are live read-backs or your own parameters; ${stale.length ? `${stale.length} recorded value(s) that could not be re-observed were omitted` : 'no stale values were carried over'}.`,
     evidence: { values },
   };
 }

@@ -1,0 +1,130 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import type { RecordedEntry } from '../src/daemon/recorder.js';
+import { buildFlow, resolveInstruction, type FlowStep } from '../src/skills/flow.js';
+import { bindSkill, synthesizeReport } from '../src/skills/learn.js';
+import { compileSkill } from '../src/skills/compile.js';
+
+let tmp: string;
+beforeAll(() => {
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-flow-'));
+  process.env.BROWSER_PILOT_SKILLS_DIR = tmp;
+});
+afterAll(() => {
+  delete process.env.BROWSER_PILOT_SKILLS_DIR;
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+const ORIGIN = 'http://127.0.0.1:4180';
+
+/** A session recording: two instructions, each with a report entry, as the loop writes them. */
+function recording(): RecordedEntry[] {
+  return [
+    { k: 'step', tool: 'goto', args: { url: `${ORIGIN}/` }, locators: {} },
+    { k: 'instruction', text: "Sign in and create a ticket titled 'fr1 RD Bench Ticket'; report its ref id.", url: `${ORIGIN}/` },
+    { k: 'step', tool: 'fill', args: { target: '@e1', value: 'fr1 RD Bench Ticket' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'label', label: 'Title' }] } } },
+    { k: 'report', status: 'success', summary: "Created ticket 'fr1 RD Bench Ticket', ref RD-1015.", values: { ref: 'RD-1015', title: 'fr1 RD Bench Ticket' }, skill: 's_create' },
+    { k: 'instruction', text: "On ticket RD-1015, add a part named 'fr1 RD Part A' with cost 100 and markup 25; report the price.", url: `${ORIGIN}/#/tickets/t15` },
+    { k: 'step', tool: 'fill', args: { target: '@e2', value: 'fr1 RD Part A' }, locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'label', label: 'Name' }] } } },
+    { k: 'report', status: 'success', summary: 'Added part; price 125.00.', values: { price: '125.00' }, skill: 's_addpart' },
+  ];
+}
+
+describe('buildFlow', () => {
+  it('turns declared vars and earlier outputs into references, and pins skills', () => {
+    const flow = buildFlow(recording(), {
+      name: 'ticketflow',
+      origin: ORIGIN,
+      startUrl: `${ORIGIN}/`,
+      vars: { runid: 'fr1' },
+      session: 's',
+      now: '2026-08-23T00:00:00Z',
+    });
+    expect(flow).toBeTruthy();
+    expect(flow!.vars).toEqual(['runid']);
+    expect(flow!.steps).toHaveLength(2);
+    const [s1, s2] = flow!.steps;
+    // runid became {{runid}} everywhere
+    expect(s1.instruction).toBe("Sign in and create a ticket titled '{{runid}} RD Bench Ticket'; report its ref id.");
+    expect(s1.skill).toBe('s_create');
+    expect(s1.outputs).toEqual(['ref', 'title']);
+    // step 2 referenced RD-1015 (step 1's `ref` output) → becomes {{01-....ref}}, and runid → {{runid}}
+    expect(s2.instruction).toMatch(/On ticket \{\{01-\w+\.ref\}\}, add a part named '\{\{runid\}\} RD Part A'/);
+    expect(s2.skill).toBe('s_addpart');
+  });
+
+  it('drops instructions that did not end in success', () => {
+    const entries = recording();
+    (entries[3] as { status: string }).status = 'blocked';
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' });
+    expect(flow!.steps).toHaveLength(1);
+    expect(flow!.steps[0].skill).toBe('s_addpart');
+  });
+});
+
+describe('resolveInstruction', () => {
+  const step: FlowStep = {
+    id: '02-add',
+    instruction: "On ticket {{01-create.ref}}, add '{{runid}} RD Part A' cost {{cost}}",
+    outputs: [],
+    recorded: {},
+  };
+  it('fills vars and prior outputs, and reports what is missing', () => {
+    const r = resolveInstruction(step, { runid: 'z9', cost: '100' }, { '01-create': { ref: 'RD-1099' } });
+    expect(r.text).toBe("On ticket RD-1099, add 'z9 RD Part A' cost 100");
+    expect(r.missing).toEqual([]);
+  });
+  it('halts on an unresolved reference rather than substituting nothing', () => {
+    const r = resolveInstruction(step, { runid: 'z9' }, {});
+    expect(r.missing).toContain('01-create.ref');
+    expect(r.missing).toContain('cost');
+    expect(r.text).toContain('{{01-create.ref}}'); // left intact, not blanked
+  });
+});
+
+describe('bindSkill', () => {
+  it('binds a pinned skill by reading its template as a pattern, any status', () => {
+    const skill = compileSkill({
+      entries: [
+        { k: 'instruction', text: "add a part named 'x7 RD Part A' with cost 100 and markup 25", url: `${ORIGIN}/#/tickets/t15` },
+        { k: 'step', tool: 'fill', args: { target: '@e1', value: 'x7 RD Part A' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'label', label: 'Name' }] } } },
+        { k: 'step', tool: 'fill', args: { target: '@e2', value: '100' }, locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'label', label: 'Cost' }] } } },
+        { k: 'step', tool: 'fill', args: { target: '@e3', value: '25' }, locators: { target: { expr: 'x', verified: true, raw: '@e3', chain: [{ kind: 'label', label: 'Markup' }] } } },
+      ],
+      instruction: "add a part named 'x7 RD Part A' with cost 100 and markup 25",
+      report: { status: 'success', summary: 'ok', evidence: { values: {} } },
+      session: 's',
+    })!;
+    expect(skill.status).toBe('provisional'); // bindSkill ignores status, unlike matchTemplate
+    expect(bindSkill(skill, "add a part named 'q9 RD Part B' with cost 300 and markup 40")).toEqual({ v1: 'q9 RD Part B', v2: '300', v3: '40' });
+    expect(bindSkill(skill, 'something completely different')).toBeNull();
+  });
+});
+
+describe('synthesizeReport honesty', () => {
+  const skill = compileSkill({
+    entries: [
+      { k: 'instruction', text: "add a part named 'x7 RD Part A' with cost 100", url: `${ORIGIN}/#/tickets/t15` },
+      { k: 'step', tool: 'fill', args: { target: '@e1', value: 'x7 RD Part A' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'label', label: 'Name' }] } } },
+    ],
+    instruction: "add a part named 'x7 RD Part A' with cost 100",
+    report: { status: 'success', summary: "Added 'x7 RD Part A' to ticket RD-1017; price 125.00.", evidence: { values: { part: 'x7 RD Part A', ticket: 'RD-1017', price: '125.00' } } },
+    session: 's',
+  })!;
+
+  it('keeps parameter-derived and live values, drops stale recorded literals', () => {
+    // no live reads: only the parameter-derived `part` survives; ticket/price were recorded literals → dropped
+    const r = synthesizeReport(skill, { v1: 'q9 RD Part B' }, {});
+    expect(r.evidence!.values).toEqual({ part: 'q9 RD Part B' });
+    expect(r.summary).not.toContain('RD-1017');
+    expect(r.summary).not.toContain('125.00');
+    expect(r.details).toMatch(/omitted/);
+  });
+
+  it('a live read-back overrides and is reported verbatim', () => {
+    const r = synthesizeReport(skill, { v1: 'q9 RD Part B' }, { price: '375.00', ticket: 'RD-1099' });
+    expect(r.evidence!.values).toMatchObject({ part: 'q9 RD Part B', price: '375.00', ticket: 'RD-1099' });
+  });
+});

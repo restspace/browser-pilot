@@ -21,6 +21,12 @@ export class SessionState {
   messages: ChatMessage[] = [];
   briefing = '';
   notes: string[] = [];
+  /**
+   * Run variables declared by the caller (`var runid=k7`): values that will
+   * differ on the next execution of the same flow. A flow exported from this
+   * session turns every occurrence of them into a {{name}} reference.
+   */
+  vars: Record<string, string> = {};
   usage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0, instructions: 0 };
   /**
    * The same totals split by model id. A session can bill against more than one
@@ -116,17 +122,23 @@ export class SessionState {
       const raw = JSON.parse(fs.readFileSync(this.metaPath(), 'utf8'));
       this.briefing = typeof raw.briefing === 'string' ? raw.briefing : '';
       this.notes = Array.isArray(raw.notes) ? raw.notes.filter((n: unknown) => typeof n === 'string') : [];
+      this.vars = raw.vars && typeof raw.vars === 'object' ? Object.fromEntries(Object.entries(raw.vars).map(([k, v]) => [k, String(v)])) : {};
     } catch {
       // first run for this session
     }
   }
 
   save(): void {
-    fs.writeFileSync(this.metaPath(), JSON.stringify({ briefing: this.briefing, notes: this.notes }, null, 2));
+    fs.writeFileSync(this.metaPath(), JSON.stringify({ briefing: this.briefing, notes: this.notes, vars: this.vars }, null, 2));
   }
 
   setBriefing(text: string, append: boolean): void {
     this.briefing = append && this.briefing ? this.briefing + '\n\n' + text : text;
+    this.save();
+  }
+
+  setVar(name: string, value: string): void {
+    this.vars[name] = value;
     this.save();
   }
 

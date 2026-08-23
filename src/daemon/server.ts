@@ -4,7 +4,8 @@ import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
-import { learnFromInstruction, matchTemplate, synthesizeReport } from '../skills/learn.js';
+import { bindSkill, learnFromInstruction, matchTemplate, synthesizeReport } from '../skills/learn.js';
+import { buildFlow, listFlows, loadFlow, resolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -238,6 +239,8 @@ export class Daemon {
               })
             : null;
           if (learned) progress(`[learn] ${describeLearned(learned)}`);
+          const pinned = learned?.compiled ?? learned?.merged ?? result.skill?.invoked;
+          if (pinned) this.browser.script?.pinSkill(pinned);
           if (result.skill) this.state.recordSkill(result.skill, learned);
           return {
             ...result,
@@ -310,6 +313,42 @@ export class Daemon {
         };
       }
 
+      case 'var': {
+        const name = String(a.name ?? '').trim();
+        if (!name) throw new Error('var requires a name (e.g. `var runid=k7`)');
+        this.state.setVar(name, String(a.value ?? ''));
+        return { vars: this.state.vars };
+      }
+
+      case 'flow': {
+        // Read-only flow inspection served from disk; the daemon holds no flow state.
+        if (a.op === 'list') return { flows: listFlowsSummary() };
+        if (a.op === 'show') {
+          const flow = loadFlow(String(a.name ?? ''));
+          if (!flow) throw new Error(`no flow "${a.name}"`);
+          return { flow };
+        }
+        throw new Error(`unknown flow op ${JSON.stringify(a.op)}`);
+      }
+
+      case 'run': {
+        const controller = new AbortController();
+        this.inflight = controller;
+        try {
+          return await this.runFlow(String(a.name ?? ''), (a.vars as Record<string, string>) ?? {}, {
+            maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
+            timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
+            ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
+            provider: this.provider(),
+            fallback: a.escalate === false ? null : this.fallbackProvider({}, this.provider()),
+            signal: controller.signal,
+            progress,
+          });
+        } finally {
+          if (this.inflight === controller) this.inflight = null;
+        }
+      }
+
       case 'stop': {
         // Preempt rather than wait: an operator reaching for `stop` wants the
         // run dead now. The aborted instruction still returns a blocked report
@@ -323,13 +362,193 @@ export class Daemon {
         // recorded video is only written out when the context closes, so the
         // files must exist before this result frame goes out. close() is
         // idempotent, so shutdown()'s call becomes a no-op.
+        // Export the session as a replayable flow before the context closes.
+        let savedFlow;
+        if (a.saveFlow) {
+          try {
+            savedFlow = this.exportFlow(String(a.saveFlow));
+          } catch (err) {
+            savedFlow = { error: err instanceof Error ? err.message : String(err) };
+          }
+        }
         const videos = await this.browser.close();
-        return { stopping: true, preempted, videos };
+        return { stopping: true, preempted, videos, ...(savedFlow ? { flow: savedFlow } : {}) };
       }
 
       default:
         throw new Error(`unknown command: ${(req as Request).command}`);
     }
+  }
+
+  /**
+   * Export the current learning session as a flow: the instructions it issued,
+   * in order, each pinned to the skill it used and to the values it read back,
+   * with declared run variables turned into references. Requires learning mode
+   * (the recording is the source) and a session that ran at least one step.
+   */
+  private exportFlow(name: string): { path: string; name: string; steps: number; vars: string[] } {
+    if (!this.browser.learn || !this.browser.script) {
+      throw new Error('not a learning session — start it with --learn to record a flow');
+    }
+    const entries = this.browser.script.entries;
+    const firstGoto = entries.find((e) => e.k === 'step' && e.tool === 'goto');
+    const startUrl =
+      (firstGoto && 'args' in firstGoto ? String(firstGoto.args.url ?? '') : '') ||
+      entries.find((e): e is Extract<typeof e, { k: 'instruction' }> => e.k === 'instruction' && Boolean(e.url))?.url ||
+      '';
+    const origin = startUrl ? originOf(startUrl) : null;
+    if (!origin || !startUrl) throw new Error('could not determine the session start url — was anything opened?');
+    const flow = buildFlow(entries, {
+      name,
+      origin,
+      startUrl,
+      vars: this.state.vars,
+      session: this.opts.session,
+      model: this.provider().model,
+    });
+    if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
+    const file = saveFlow(flow);
+    return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars };
+  }
+
+  /**
+   * Replay a saved flow with no caller in the loop. Each step resolves its
+   * {{var}}/{{step.output}} references, then runs through the normal escalating
+   * instruction path — which itself tries the pinned skill first (Tier A/B),
+   * repairs on the cheap model if the page drifted, and escalates on blocked.
+   * The flow halts at the first step that ends non-success, returning the
+   * per-step report so a caller can be brought back in to continue.
+   */
+  private async runFlow(
+    name: string,
+    varsIn: Record<string, string>,
+    opts: {
+      maxTurns: number;
+      timeoutMs: number;
+      turnTimeoutMs?: number;
+      provider: Provider;
+      fallback: Provider | null;
+      signal: AbortSignal;
+      progress: (m: string) => void;
+    },
+  ): Promise<unknown> {
+    const flow = loadFlow(name);
+    if (!flow) throw new Error(`no flow "${name}" (looked in the flows dir and as a path)`);
+    const missingVars = flow.vars.filter((v) => !(v in varsIn));
+    if (missingVars.length) throw new Error(`flow "${flow.name}" needs --var for: ${missingVars.join(', ')}`);
+
+    if (this.browser.learn) {
+      // A run's own repairs should be learned, but not re-pin from a fresh
+      // store elsewhere; the flow's pinned skills come from its own file.
+    }
+    const page = await this.browser.getPage();
+    await page.goto(flow.startUrl, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
+    this.browser.script?.commit(await this.browser.script.prepare(page, 'goto', { url: flow.startUrl }).catch(() => null), 'ok');
+
+    const screenshotDir = path.join(ensureSessionDir(this.opts.session), 'screenshots');
+    const outputs: Record<string, Record<string, string>> = {};
+    const stepResults: Array<Record<string, unknown>> = [];
+    const started = Date.now();
+    let halted = false;
+
+    for (const step of flow.steps) {
+      if (opts.signal.aborted) {
+        stepResults.push({ id: step.id, status: 'blocked', reason: 'run stopped' });
+        halted = true;
+        break;
+      }
+      const { text, missing } = resolveInstruction(step, varsIn, outputs);
+      if (missing.length) {
+        stepResults.push({ id: step.id, status: 'blocked', reason: `unresolved reference(s): ${missing.join(', ')}` });
+        halted = true;
+        break;
+      }
+      opts.progress(`[flow ${flow.name}] ${step.id}: ${text.slice(0, 80)}`);
+      const mark = this.browser.script?.mark() ?? 0;
+      // Zero-model first: replay the step's pinned skill directly. Only if it
+      // stops part-way (or is gone) does the cheap model come in — with the
+      // partial replay already in front of it, exactly as a `do` would get it.
+      const direct = step.skill ? await this.replayDirect(text, screenshotDir, opts.signal, opts.progress, { id: step.skill }) : {};
+      let result: InstructionResult;
+      if (direct.done) {
+        result = direct.done;
+      } else {
+        result = await runEscalatingInstruction(
+          opts.provider,
+          opts.fallback,
+          this.browser,
+          this.state,
+          direct.prelude ? `${text}
+
+${direct.prelude}` : text,
+          {
+            maxTurns: opts.maxTurns,
+            timeoutMs: opts.timeoutMs,
+            ...(opts.turnTimeoutMs ? { turnTimeoutMs: opts.turnTimeoutMs } : {}),
+            screenshotDir,
+            signal: opts.signal,
+            onProgress: opts.progress,
+          },
+        );
+        if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
+      }
+      // Learn from a repair so the flow's steps get cheaper over successive runs.
+      let repinned;
+      if (this.browser.learn) {
+        const learned = learnFromInstruction(this.browser.learn, {
+          result,
+          instruction: text,
+          entries: this.browser.script?.entriesSince(mark) ?? [],
+          session: this.opts.session,
+          model: opts.provider.model,
+        });
+        if (learned?.compiled && result.skill?.repaired) repinned = learned.compiled;
+      }
+      const values: Record<string, string> = {};
+      for (const [k, v] of Object.entries(result.report.evidence?.values ?? {})) values[k] = String(v);
+      outputs[step.id] = values;
+      const sk = result.skill;
+      stepResults.push({
+        id: step.id,
+        status: result.report.status,
+        summary: result.report.summary,
+        values,
+        tier: sk?.tier ?? null,
+        replayed: sk?.invoked ? `${sk.stepsReplayed}/${sk.stepsTotal}` : null,
+        repaired: Boolean(sk?.repaired),
+        turns: result.turns,
+        ...(repinned ? { repinned } : {}),
+      });
+      if (result.report.status !== 'success') {
+        halted = true;
+        break;
+      }
+    }
+
+    // Re-pin any repaired steps so the flow file itself gets cheaper next run.
+    let updated = 0;
+    for (const r of stepResults) {
+      if (r.repinned) {
+        const step = flow.steps.find((st) => st.id === r.id);
+        if (step) {
+          step.skill = String(r.repinned);
+          updated++;
+        }
+      }
+    }
+    if (updated) saveFlow(flow);
+
+    const passed = stepResults.filter((r) => r.status === 'success').length;
+    return {
+      flow: flow.name,
+      status: halted && passed < flow.steps.length ? 'halted' : 'success',
+      steps: stepResults,
+      passed,
+      total: flow.steps.length,
+      repinned: updated,
+      wallMs: Date.now() - started,
+      model: opts.provider.model,
+    };
   }
 
   /**
@@ -343,6 +562,8 @@ export class Daemon {
     screenshotDir: string,
     signal: AbortSignal,
     progress: (m: string) => void,
+    /** Flow replay pins the skill; without it, fall back to a validated template match. */
+    chosen?: { id: string },
   ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord> }> {
     const store = this.browser.learn;
     if (!store || !this.browser.isOpen) return {};
@@ -354,7 +575,14 @@ export class Daemon {
     }
     const origin = originOf(url);
     if (!origin) return {};
-    const match = matchTemplate(store.list(origin), instruction, url);
+    let match: { skill: import('../skills/store.js').Skill; params: Record<string, string> } | null;
+    if (chosen) {
+      const skill = store.get(chosen.id);
+      const params = skill ? bindSkill(skill, instruction) : null;
+      match = skill && params ? { skill, params } : null;
+    } else {
+      match = matchTemplate(store.list(origin), instruction, url);
+    }
     if (!match) return {};
     progress(`[skill] ${match.skill.id} matches the instruction exactly — replaying without the model`);
     this.browser.script?.beginInstruction(instruction, { url });
@@ -404,6 +632,10 @@ export class Daemon {
     await new Promise((r) => setTimeout(r, 150));
     process.exit(0);
   }
+}
+
+function listFlowsSummary() {
+  return listFlows().map((f) => ({ name: f.name, origin: f.origin, steps: f.steps.length, vars: f.vars, created: f.provenance.created }));
 }
 
 function describeLearned(l: ReturnType<typeof learnFromInstruction>): string {

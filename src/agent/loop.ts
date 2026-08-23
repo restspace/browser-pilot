@@ -222,6 +222,19 @@ export async function runInstruction(
       role: 'assistant',
       content: `[report] ${report.status}: ${report.summary}${facts}`,
     });
+    // Close the recording's instruction group with its outcome, so a flow can
+    // be built from what each step achieved (values, the skill it used).
+    if (browser.script) {
+      const values: Record<string, string> = {};
+      for (const [k, v] of Object.entries(report.evidence?.values ?? {})) values[k] = String(v);
+      browser.script.endInstruction({
+        status: report.status,
+        summary: report.summary,
+        values,
+        ...(skill.invoked ? { skill: skill.invoked } : {}),
+        ...(skill.tier ? { tier: skill.tier } : {}),
+      });
+    }
     state.recordUsage(provider.model, usage);
     // Any blocked outcome carries its evidence, not just loop-enforced bail-outs:
     // an agent that declares itself stuck is exactly when a caller — or the

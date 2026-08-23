@@ -10,6 +10,7 @@ import { sessionsDir, socketPath, validateSessionName } from './shared/paths.js'
 import { candidateExpr } from './daemon/recorder.js';
 import { fillParams } from './skills/compile.js';
 import { SkillStore, successRate, type Skill } from './skills/store.js';
+import { listFlows, loadFlow } from './skills/flow.js';
 
 const USAGE = `browser-pilot — agent-in-the-loop Playwright CLI
 
@@ -26,9 +27,12 @@ Usage:
   browser-pilot skills show <id>
   browser-pilot skills rm <id>
   browser-pilot skills clear --origin <origin> | --all
+  browser-pilot var <name>=<value>          # declare a run variable (learning session; becomes {{name}} in a flow)
+  browser-pilot flow list | show <name>     # saved flows (recorded sessions you can replay with run)
+  browser-pilot run <flow> [--var k=v ...]  # replay a saved flow deterministically, repairing drifted steps
   browser-pilot screenshot [path]
   browser-pilot session list
-  browser-pilot stop [--all]
+  browser-pilot stop [--all] [--save-flow <name>]
   browser-pilot config                      # show resolved provider/model/paths
   browser-pilot config set <key> <value>    # persist a default (provider, model, fallbackModel, baseUrl, apiKey)
 
@@ -120,6 +124,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'selector',
     'title',
     'origin',
+    'save-flow',
   ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -309,6 +314,10 @@ async function main(): Promise<void> {
     skillsCommand(positional, flags, json);
     return;
   }
+  if (command === 'flow' && positional[0] !== undefined && positional[0] !== 'run') {
+    flowCommand(positional, json);
+    return;
+  }
   if (command === 'session') {
     if (positional[0] !== 'list') fail(`unknown subcommand "session ${positional[0] ?? ''}" (try: session list)`);
     await listSessions(json);
@@ -328,10 +337,12 @@ async function main(): Promise<void> {
         // Generous: the daemon aborts any in-flight instruction and lets it
         // unwind before closing the browser. Reachable-but-unresponsive is a
         // real failure worth reporting, not a silent "not running".
-        const res = await request(conn, 'stop', {}, undefined, 20_000);
-        const data = res.data as { preempted?: boolean; videos?: string[] } | undefined;
+        const res = await request(conn, 'stop', { saveFlow: flags.get('save-flow') || undefined }, undefined, 20_000);
+        const data = res.data as { preempted?: boolean; videos?: string[]; flow?: { path?: string; name?: string; steps?: number; vars?: string[]; error?: string } } | undefined;
         console.log(`stopped: ${name}${data?.preempted ? ' (interrupted a running instruction)' : ''}`);
         for (const video of data?.videos ?? []) console.log(`  video: ${video}`);
+        if (data?.flow?.error) console.error(`  flow not saved: ${data.flow.error}`);
+        else if (data?.flow?.path) console.log(`  flow "${data.flow.name}" saved: ${data.flow.steps} step(s)${data.flow.vars?.length ? `, vars ${data.flow.vars.join(', ')}` : ''} → ${data.flow.path}`);
       } catch (err) {
         console.error(`browser-pilot: could not stop ${name}: ${(err as Error).message}`);
       } finally {
@@ -468,6 +479,58 @@ async function main(): Promise<void> {
           );
         }
         process.exit(data.report.status === 'success' ? 0 : 1);
+        break;
+      }
+
+      case 'var': {
+        const spec = positional.join(' ');
+        const eq = spec.indexOf('=');
+        if (eq < 1) fail('usage: var <name>=<value>', 2);
+        const data = printResult(await request(conn, 'var', { name: spec.slice(0, eq).trim(), value: spec.slice(eq + 1) }), json) as { vars: Record<string, string> };
+        if (!json) console.log(`vars: ${Object.entries(data.vars).map(([k, v]) => `${k}=${v}`).join(', ')}`);
+        break;
+      }
+
+      case 'run': {
+        const flowName = positional[0];
+        if (!flowName) fail('run requires a flow name (see: flow list)', 2);
+        const vars: Record<string, string> = {};
+        // --var k=v may repeat; parseArgv keeps only the last, so re-scan argv.
+        for (let i = 0; i < process.argv.length - 1; i++) {
+          if (process.argv[i] === '--var') {
+            const kv = process.argv[i + 1];
+            const eq = kv.indexOf('=');
+            if (eq > 0) vars[kv.slice(0, eq)] = kv.slice(eq + 1);
+          }
+        }
+        const res = await request(
+          conn,
+          'run',
+          {
+            name: flowName,
+            vars,
+            maxTurns: flags.has('max-turns') ? Number(flags.get('max-turns')) : undefined,
+            timeoutS: flags.has('timeout') ? Number(flags.get('timeout')) : undefined,
+            escalate: flags.has('no-escalate') ? false : undefined,
+          },
+          onProgress,
+        );
+        if (!res.ok) fail(res.error ?? 'unknown error', res.errorKind === 'infra' ? 2 : 1);
+        const data = res.data as {
+          flow: string; status: string; passed: number; total: number; repinned: number; wallMs: number;
+          steps: { id: string; status: string; summary?: string; tier?: string | null; replayed?: string | null; repaired?: boolean; turns?: number; repinned?: string }[];
+        };
+        if (json) console.log(JSON.stringify(data, null, 2));
+        else {
+          for (const st of data.steps) {
+            const mark = st.status === 'success' ? 'OK' : st.status.toUpperCase();
+            const how = st.tier === 'A' ? 'replay' : st.replayed ? (st.repaired ? `replay+repair ${st.replayed}` : `replay ${st.replayed}`) : 'agent';
+            console.log(`[${mark}] ${st.id}  (${how}${st.turns ? `, ${st.turns} turns` : ''})${st.repinned ? ` re-pinned ${st.repinned}` : ''}`);
+            if (st.status !== 'success' && st.summary) console.log(`       ${st.summary}`);
+          }
+          console.log(`${data.flow}: ${data.passed}/${data.total} steps, ${(data.wallMs / 1000).toFixed(1)}s${data.repinned ? `, ${data.repinned} step(s) re-pinned` : ''} — ${data.status}`);
+        }
+        process.exit(data.status === 'success' ? 0 : 1);
         break;
       }
 
@@ -684,6 +747,34 @@ function skillSummary(s: Skill) {
 function clipText(text: string, max: number): string {
   const one = text.replace(/\s+/g, ' ');
   return one.length <= max ? one : one.slice(0, max) + '…';
+}
+
+function flowCommand(positional: string[], json: boolean): void {
+  const op = positional[0] ?? 'list';
+  if (op === 'list') {
+    const flows = listFlows();
+    if (json) console.log(JSON.stringify(flows.map((f) => ({ name: f.name, steps: f.steps.length, vars: f.vars, origin: f.origin })), null, 2));
+    else if (!flows.length) console.log('no saved flows');
+    else for (const f of flows) console.log(`${f.name}  ${f.steps.length} step(s)  ${f.vars.length ? `vars ${f.vars.join(', ')}` : 'no vars'}  ${f.origin}`);
+    return;
+  }
+  if (op === 'show') {
+    const flow = loadFlow(positional[1] ?? '');
+    if (!flow) fail(`no flow "${positional[1] ?? ''}"`, 1);
+    if (json) {
+      console.log(JSON.stringify(flow, null, 2));
+      return;
+    }
+    console.log(`${flow.name}  ${flow.origin}  (recorded ${flow.provenance.created} in session ${flow.provenance.session})`);
+    console.log(`starts at: ${flow.startUrl}`);
+    console.log(flow.vars.length ? `vars: ${flow.vars.join(', ')}` : 'vars: none');
+    for (const st of flow.steps) {
+      console.log(`  ${st.id}${st.skill ? ` [${st.skill}]` : ' [no skill]'}${st.outputs.length ? ` → ${st.outputs.join(', ')}` : ''}`);
+      console.log(`     ${st.instruction.length > 120 ? st.instruction.slice(0, 120) + '…' : st.instruction}`);
+    }
+    return;
+  }
+  fail(`unknown "flow ${op}" (try: list, show <name>)`, 2);
 }
 
 function allSessionNames(): string[] {

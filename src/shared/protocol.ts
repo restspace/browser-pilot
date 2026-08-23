@@ -14,6 +14,9 @@ export type CommandName =
   | 'config'
   | 'reset'
   | 'script'
+  | 'var'
+  | 'flow'
+  | 'run'
   | 'stop';
 
 export interface Request {

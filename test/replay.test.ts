@@ -281,3 +281,67 @@ d('structural fingerprint (fixture page)', () => {
     }
   }, 60_000);
 });
+
+d('flow record and run (fixture page)', () => {
+  let home: string, session: BrowserSession;
+  const dir = os.tmpdir();
+  const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, dir);
+
+  beforeAll(async () => {
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-flowtest-'));
+    process.env.BROWSER_PILOT_HOME = home;
+    process.env.BROWSER_PILOT_SKILLS_DIR = path.join(home, 'skills');
+    process.env.BROWSER_PILOT_FLOWS_DIR = path.join(home, 'flows');
+    session = new BrowserSession({ session: 'flowt', persist: false, learn: true });
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+  }, 60_000);
+  afterAll(async () => {
+    await session?.close();
+    for (const k of ['BROWSER_PILOT_FLOWS_DIR', 'BROWSER_PILOT_SKILLS_DIR', 'BROWSER_PILOT_HOME']) delete process.env[k];
+    fs.rmSync(home, { recursive: true, force: true });
+  });
+
+  it('records a session into a replayable flow and runs it zero-model with new params', async () => {
+    const { buildFlow, saveFlow, loadFlow, resolveInstruction } = await import('../src/skills/flow.js');
+    const { compileSkill } = await import('../src/skills/compile.js');
+    const { bindSkill, synthesizeReport } = await import('../src/skills/learn.js');
+    const rec = session.script!;
+    const page = await session.getPage();
+
+    // Record one instruction the way the loop would: instruction + steps + report.
+    const mark = rec.mark();
+    const instr = "fill the form with name 'Ada Lovelace' and quantity 42 and submit";
+    rec.beginInstruction(instr, { url: page.url() });
+    const snap = (await run('snapshot', {})).result;
+    const ref = (re: RegExp) => re.exec(snap)![1];
+    await run('fill', { target: ref(/textbox "Name" \[(@e\d+)\]/), value: 'Ada Lovelace' });
+    await run('fill', { target: ref(/spinbutton "Qty" \[(@e\d+)\]/), value: '42' });
+    await run('click', { target: ref(/button "Submit" \[(@e\d+)\]/) });
+    const skill = compileSkill({ entries: rec.entriesSince(mark), instruction: instr, report: { status: 'success', summary: 'submitted', evidence: { values: {} } }, session: 'flowt' })!;
+    session.learn!.put(skill);
+    rec.endInstruction({ status: 'success', summary: 'submitted', values: {}, skill: skill.id });
+
+    // Build + save the flow with `name` as a declared var.
+    const flow = buildFlow(rec.entries, { name: 'formflow', origin: new URL(fixtureUrl).origin, startUrl: fixtureUrl, vars: { name: 'Ada Lovelace' }, session: 'flowt' })!;
+    expect(flow.steps[0].skill).toBe(skill.id);
+    expect(flow.steps[0].instruction).toContain('{{name}}');
+    saveFlow(flow);
+    expect(loadFlow('formflow')!.name).toBe('formflow');
+
+    // Now replay the step's pinned skill directly, as `run` does — new name, no model.
+    const step = flow.steps[0];
+    const { text } = resolveInstruction(step, { name: 'Grace Hopper' }, {});
+    expect(text).toContain('Grace Hopper');
+    await page.goto(fixtureUrl);
+    const params = bindSkill(session.learn!.get(step.skill!)!, text)!;
+    expect(params.v1).toBe('Grace Hopper');
+    const replay = await run('run_skill', { id: step.skill!, params });
+    expect(replay.replay?.ok).toBe(true);
+    expect(await page.inputValue('#name')).toBe('Grace Hopper');
+    expect(await page.inputValue('#qty')).toBe('42');
+    // synthesized report carries the new name, never a stale recorded value
+    const report = synthesizeReport(session.learn!.get(step.skill!)!, params, replay.replay!.values);
+    expect(JSON.stringify(report.evidence!.values)).not.toContain('Ada Lovelace');
+  }, 60_000);
+});

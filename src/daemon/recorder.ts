@@ -125,7 +125,18 @@ export interface RecordedInstruction {
   fingerprint?: number[];
 }
 
-export type RecordedEntry = RecordedStep | RecordedInstruction;
+/** How one instruction ended — closes the group opened by the matching `instruction` entry. */
+export interface RecordedReport {
+  k: 'report';
+  status: 'success' | 'failure' | 'blocked';
+  summary: string;
+  values: Record<string, string>;
+  /** The skill this instruction compiled into, merged into, or fully replayed (learning mode). */
+  skill?: string;
+  tier?: 'A' | 'B';
+}
+
+export type RecordedEntry = RecordedStep | RecordedInstruction | RecordedReport;
 
 /** Tools that map onto Playwright script lines; everything else is agent-only scaffolding. */
 const RECORDABLE = new Set([
@@ -192,6 +203,37 @@ export class ScriptRecorder {
   /** Mark the start of one `do` instruction; becomes a test.step in the script. */
   beginInstruction(text: string, context: { url?: string; fingerprint?: number[] } = {}): void {
     this.append({ k: 'instruction', text, ...context });
+  }
+
+  /** Close the current instruction with its outcome (learning mode; flows are built from these). */
+  endInstruction(report: Omit<RecordedReport, 'k'>): void {
+    this.append({ k: 'report', ...report });
+  }
+
+  /**
+   * Pin the skill this instruction produced onto its report entry, after
+   * compilation (which happens once the report is already recorded). Rewrites
+   * the last report entry in memory and in script.jsonl so a flow exported
+   * later has the skill to replay.
+   */
+  pinSkill(skill: string): void {
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      const e = this.entries[i];
+      if (e.k === 'report') {
+        if (!e.skill) e.skill = skill;
+        this.rewrite();
+        return;
+      }
+      if (e.k === 'instruction') return; // no report for this instruction
+    }
+  }
+
+  private rewrite(): void {
+    try {
+      fs.writeFileSync(this.file(), this.entries.map((e) => JSON.stringify(e)).join('\n') + '\n');
+    } catch {
+      // recording must never break the run it observes
+    }
   }
 
   /** Index just past the last entry — pass to entriesSince() to read back one instruction. */

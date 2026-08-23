@@ -72,6 +72,16 @@ for (let n = 1; n <= own.k; n++) {
     verified = total ? `${passes}/${total}${mismatch ? ' +MISMATCH' : ''}` : 'n/a';
   }
   let row = { n, runid, verified, stop: '?', turns: null, cmds: null, total_usd: null, A_n: '', replayed: '', wall_s: null };
+  if (replayOnly) {
+    try {
+      const fr = JSON.parse(fs.readFileSync(path.join(outDir, `${runid}-flowrun.json`), 'utf8'));
+      row = { ...row, stop: fr.status, cmds: fr.total, turns: fr.steps.reduce((a, s) => a + (s.turns ?? 0), 0), total_usd: 0, wall_s: +(fr.wallMs / 1000).toFixed(0), A_n: 1, replayed: `${fr.passed}/${fr.total} (flow)` };
+    } catch (err) {
+      console.error(`[sweep] no flowrun for ${runid}: ${err.message}`);
+    }
+    rows.push(row);
+    continue;
+  }
   try {
     const res = JSON.parse(fs.readFileSync(file, 'utf8'));
     const { totalUsd } = priceRun(rates, res);

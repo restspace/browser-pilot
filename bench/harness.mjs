@@ -342,6 +342,12 @@ if (learnDir) {
   process.env.BROWSER_PILOT_SKILLS = '1';
   process.env.BROWSER_PILOT_SKILLS_DIR = learnDir;
 }
+// Flow recording: export this session as a replayable flow at cleanup. The
+// harness — not the model — declares the run variable (so the flow
+// parameterises the runid) and issues `stop --save-flow`, keeping the
+// orchestrator's contract unchanged. Requires learning mode.
+const saveFlow = args.saveFlow && args.arm === 'browser-pilot' && learnDir ? String(args.saveFlow) : null;
+if (args.flowsDir) process.env.BROWSER_PILOT_FLOWS_DIR = path.resolve(String(args.flowsDir));
 const coarseBlock = coarse
   ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Equally, do NOT spend a call just exploring or cataloguing the UI ("describe the app's structure", "open the dialog and list every field, option and button", "report the full contents") — that sends the agent on an open-ended survey that burns its whole budget without moving the goal forward. Ask for the outcome and let the agent read only what it needs to achieve it; if you need a specific fact back, request that one fact as part of an action, not an exhaustive inventory. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there.`
   : '';
@@ -1012,6 +1018,10 @@ let contextTruncations = 0;
 const rates = loadRates(typeof args.rates === 'string' ? args.rates : undefined);
 
 log({ k: 'meta', arm: args.arm, target: targetName, provider: providerName, model, runid, task: args.task, briefing: args.briefing ?? null, reset: Boolean(args.reset), captureBytes: args.captureBytes, startedAt });
+if (saveFlow) {
+  const r = await runCommand(`${arm.bin} --session ${runid} var runid=${runid}`);
+  log({ k: 'flow-var', runid, code: r.code });
+}
 
 try {
   while (turns < args.maxTurns) {
@@ -1172,7 +1182,7 @@ await collectInnerUsage();
 try {
   const stop =
     args.arm === 'browser-pilot'
-      ? `${arm.bin} stop --session ${runid}`
+      ? `${arm.bin} stop --session ${runid}${saveFlow ? ` --save-flow ${saveFlow}` : ''}`
       : `${arm.bin} --session ${runid} close`;
   const r = await runCommand(stop);
   log({ k: 'cleanup', cmd: stop, code: r.code });

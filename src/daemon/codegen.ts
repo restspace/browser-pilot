@@ -39,6 +39,7 @@ export function generateScript(entries: RecordedEntry[], opts: CodegenOptions): 
   const indent = () => (inStep ? '    ' : '  ');
 
   for (const entry of entries) {
+    if (entry.k === 'report') continue;
     if (entry.k === 'instruction') {
       if (inStep) out.push('  });', '');
       out.push(`  await test.step(${q(entry.text)}, async () => {`);

@@ -72,10 +72,12 @@ browser-pilot do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' a
 # recording (opt-in, see below)
 browser-pilot script tests/flow.spec.ts                # emit a Playwright spec from what was done
 browser-pilot skills list|show <id>|rm <id>            # stored procedures learned with --learn
+browser-pilot var runid=k7x2                          # declare a run variable (learning session)
+browser-pilot run ticket-flow --var runid=k7x2        # replay a recorded session, no agent tokens in steady state
 
 # housekeeping
 browser-pilot session list
-browser-pilot stop [--all]                          # prints video paths if --record was used
+browser-pilot stop [--all] [--save-flow <name>]     # prints video paths if --record was used; --save-flow exports the session as a replayable flow
 browser-pilot config
 ```
 
@@ -261,6 +263,63 @@ one-line `[report]` entry, which carries the reported `evidence.values` alongsid
 facts established in step 3 are still available in step 4. Use `note` for anything that must
 outlive an instruction verbatim, and `reset` to clear the conversation while keeping the browser,
 cookies, briefing, and notes.
+
+## Flows: record a whole session, replay it deterministically
+
+A skill makes one instruction cheap on repeat. A **flow** makes a *whole session* cheap: the orchestrator
+drives browser-pilot normally the first time — deciding each step as it goes, reacting to what it sees —
+and the session is exported as a replayable script. Later runs need no orchestrator at all: each step
+replays its pinned skill with zero model calls, drops to the cheap model only for a step whose page has
+drifted, and halts (returning per-step state) only when a step genuinely cannot complete.
+
+Crucially the flow is **not authored up front** — writing the plan in advance would throw away the
+orchestrator's ability to branch on what it finds. It is *recorded from what the orchestrator actually
+did*, so its mid-run decisions are captured as ordinary steps.
+
+```sh
+# 1. record — the orchestrator works normally, one --learn session, deciding as it goes
+browser-pilot --session run1 --learn open http://app.local/
+browser-pilot --session run1 var runid=k7            # declare what will differ next time → becomes {{runid}}
+browser-pilot --session run1 do "sign in as ops@example.com / pw1 and create a ticket titled 'k7 Bench'; report its id"
+browser-pilot --session run1 do "on that ticket add a part 'k7 Part A' cost 100 markup 25; report the price"
+browser-pilot --session run1 stop --save-flow ticket-flow
+
+# 2. replay — no orchestrator, new value, fresh app
+browser-pilot run ticket-flow --var runid=m3
+#   [OK] 01-signin  (replay)      ← pinned skill, zero model calls
+#   [OK] 02-add     (replay)
+#   ticket-flow: 2/2 steps, 8s — success
+browser-pilot flow list | show ticket-flow
+```
+
+What the export does automatically (no configuration):
+
+- **Variables**: values you declared with `var` (the runid) become `{{name}}` everywhere they appear.
+- **Chaining**: a value one step *read back* and a later step *used* (the ticket id from step 2 quoted
+  in step 3) becomes `{{step.output}}`, so replay threads live values between steps rather than replaying
+  a stale id. A step that referenced a value no earlier step produced can't resolve → the run halts there
+  rather than guessing.
+- **Pinning**: each step records the skill it produced, so `run` replays that skill directly (true
+  zero-model, Tier A) instead of re-matching. A repair during a `run` is compiled and, once it validates,
+  **re-pinned into the flow file**, so the flow heals itself over successive runs.
+- Only steps that ended in `success` are exported — a step the orchestrator tried, hit a wall on, and
+  worked around is not part of the resolved path.
+
+The execution ladder per step, halting as soon as a rung succeeds: **replay the pinned skill** (0 tokens)
+→ **cheap-model repair** of just that step, with the partial replay already in hand → **escalation model**
+→ **halt** and return the step's state, so a caller can be brought back to continue from exactly there.
+That last rung is the orchestrator returning to the *top* of the ladder for one step, not rejoining the
+whole run.
+
+Honesty carries over intact: a replayed step reports only values it read back live or that came from your
+own `--var` parameters; a value the recording captured as a literal (the ticket id from the run that made
+the flow) is **dropped, never reported from memory**, and struck from the summary — the same rule that
+makes skill replay trustworthy. A corollary worth knowing: a flow reliably reproduces *actions* and echoes
+*your parameters*, but it surfaces an *app-computed* value (a price the server calculated) on replay only
+when the original recording read it back explicitly; otherwise that output is omitted rather than faked.
+
+Flows live in `~/.browser-pilot/flows/<name>.json` (`BROWSER_PILOT_FLOWS_DIR` relocates), one file per
+flow, human-readable and hand-editable.
 
 ## Providers
 
