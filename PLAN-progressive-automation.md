@@ -529,3 +529,49 @@ will do before it runs.
   for the raw recording; skills export can reuse it).
 - The cost/probability mechanism-selection optimiser (§15) and learned thresholds (§12).
 - Demotion on environmental drift beyond the simple two-strikes rule.
+
+## Multi-run flow sweep: full 6-objective flow, record-once then replay (2026-08-23)
+
+Ran `bench/sweep.mjs --flow` (K=4) on the full `repairdesk-ticket-flow` task (6
+objectives: create ticket, add two parts, edit a cost, drive status to Ready
+under its precondition, remove both parts, archive). First added the missing
+`--flow` parse to the sweep (it computed `flowsDir`/`replayOnly` from
+`own.flow` but never populated it). Run 1 records with the orchestrator
+(GLM-5.3, novita) in a `--learn` session and exports flow `rd-flow`; runs 2-4
+replay that flow with **no orchestrator** (`browser-pilot run`), each app-reset
+and re-parameterised by runid, each externally scored against `/__log`.
+
+Result — every run 6/6 objectives externally verified:
+
+| run | mode | verified | orch cmds | wall_s | notes |
+|-----|------|----------|-----------|--------|-------|
+| n1  | record (orchestrator) | 6/6 | 11 | 1442 | $0.4565; compiled 11 skills |
+| n2  | replay (no orchestrator) | 6/6 | 0 | 803 | 11/11 steps ran |
+| n3  | replay (no orchestrator) | 6/6 | 0 | 472 | 11/11 steps ran |
+| n4  | replay (no orchestrator) | 6/6 | 0 | 508 | 11/11 steps ran |
+
+Per-step honesty (consistent across n2/n3/n4): all 11 steps carry a pinned
+skill, but they replay in three tiers —
+- **Tier A, genuinely zero-model** (0 turns): add part A, add part B, both
+  edits (steps 02-05). The core mutation steps are deterministic.
+- **Tier B, small inner-agent** (`run_skill`, 2-5 turns): the status-change,
+  report, and final-verify steps (06-08, 11).
+- **Full recovery every run** (`tier:null`, 12-22 turns): sign-in+create (01),
+  remove-both-parts (09), archive (10). Their pinned skill does not replay
+  cleanly, so each falls to the recovery model (deepseek-v4-flash) from scratch.
+
+So the strong, defensible claim is **orchestrator-free**: the caller pays once
+(run 1), and later executions reproduce the entire 6-objective outcome with no
+orchestrator in the loop, faster than the record run (~8-13 min vs 24 min).
+It is **not** end-to-end zero-model: 3 of 11 steps recover via the cheap model
+on every replay. `repinned:0` on all replays — the flow-recovery path is not
+yet healing those steps back into the flow, so they never converge to Tier A.
+
+Known reporting gap: the sweep prints `usd=0` for replay runs because
+`flowrun.json` carries no cost field. That is a measurement gap, not truth —
+the recovery/Tier-B steps spend real (cheap) inner-model tokens. Next durability
+targets: (a) make sign-in/create, bulk-remove, and archive compile into stable
+replayable skills (the remove step is a repeat-until-empty loop the single-shot
+recorder captures poorly); (b) wire the flow-recovery path to re-pin an improved
+skill so a recovered step converges to Tier A on the next run; (c) price inner
+spend in flow replays so the cost curve is honest.

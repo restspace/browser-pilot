@@ -34,6 +34,7 @@ for (let i = 0; i < argv.length; i++) {
   if (a === '--k') own.k = Number(argv[++i]);
   else if (a === '--base') own.base = argv[++i];
   else if (a === '--learn') own.learn = argv[++i] ?? '';
+  else if (a === '--flow') own.flow = argv[++i];
   else if (a === '--verify') own.verify = true;
   else if (a === '--out') {
     own.out = argv[++i];
