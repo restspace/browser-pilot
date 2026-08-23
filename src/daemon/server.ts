@@ -747,6 +747,12 @@ ${direct.prelude}` : recoveryText,
       agg.misses.push(...r.misses.map((m) => ({ ...m, skill: next.id })));
       Object.assign(agg.values, r.values);
     }
+    // The walk records each segment when it advances PAST it, and the
+    // instruction-level learning records the head (record.invoked). A chain's
+    // FINAL segment is neither — record it here, or it could never validate.
+    if (replay.ok && last.id !== match.skill.id) {
+      store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
+    }
 
     const record: Partial<SkillRecord> = {
       // On success the chain head answers for the whole run; on a stop, the
