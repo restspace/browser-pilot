@@ -217,6 +217,38 @@ What holds and what doesn't:
   pricey glm-5.3 retry; (c) a stronger/steadier orchestrator model. Note the inner 30-turn cap is
   itself the escalation trigger for these survey instructions.
 
+### A3: escalation OFF (noesc1–3) — the tail was pure cost, no benefit on this task
+
+Ran coarse+batch with `BROWSER_PILOT_FALLBACK_MODEL=none` (no glm-5.3 escalation, confirmed:
+inner.byModel deepseek only). N=3, **all 6/6, 0 escalations, 0 truncations, 0 price-claim
+mismatches**, cost median **$0.072 (0.066–0.110)** vs sbatch's $0.084 (0.054–**0.311**). The hard
+step (supplier-precondition / mark-ready) that drove every prior escalation **passed on plain
+deepseek within the default 30-turn budget in all three runs.** So on this task escalation never
+rescued anything — across the whole campaign it only ever added cost (scoarse2, sbatch3) — and
+turning it off made browser-pilot **cheaper AND tighter** with no loss of success. The $0.31 tail
+is gone (max now $0.110).
+
+**Final optimized browser-pilot vs agent-browser (both 6/6, OpenRouter→Z.AI orchestrator):**
+
+| | optimized bp (coarse+batch+no-escalate) | agent-browser |
+|---|---|---|
+| cost median (range) | **$0.072 (0.066–0.110)** | $0.133 (0.129–0.136) |
+| orchestrator context | **~9.8 KB** | ~27.5 KB |
+| objectives | 3/3 runs 6/6 | 4/4 runs 6/6 |
+
+With the three prompt changes (coarse delegation + anti-survey + batching) and escalation off,
+browser-pilot is **~1.8× cheaper on median and ~2.8× lighter on orchestrator context** than
+agent-browser, at equal correctness. That is the opposite of where the sweep started ($0.247 vs
+$0.133) — the gap was configuration, not architecture.
+
+**On the "let the model choose a cap in advance" idea:** on repairdesk it turns out unnecessary —
+the hard step just needed its *default* deepseek turns, not a smarter model or more budget, so a
+flat no-escalate is the win here. The predictive cap (orchestrator sets per-`do` `--max-turns` /
+`--fallback-model` by predicted difficulty — all existing flags, just a prompt affordance) is the
+right *general* mechanism for tasks where some step genuinely exceeds the cheap model's budget;
+this task simply has no such step once thrashing is removed. Worth building if a harder target is
+added (next-steps item 4).
+
 ### Batching unlocked by an inner-prompt fix (sbatch1–3), commit 2c704fa
 
 The inner agent never batched (0 of 783 do-calls) because rule 1 ("plan at most one step ahead,
