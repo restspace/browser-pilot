@@ -1,0 +1,194 @@
+{
+  "name": "rdflow",
+  "origin": "http://127.0.0.1:4180",
+  "startUrl": "http://127.0.0.1:4180/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then report what the app's main screen shows (what kind of app it is, what sections/lists exist, and what actions are available).",
+      "skill": "s_8e34d4",
+      "outputs": [
+        "appName",
+        "loggedInAs",
+        "totalTickets",
+        "displayedTickets",
+        "currentPage"
+      ],
+      "recorded": {
+        "appName": "Repair Desk",
+        "loggedInAs": "Bench User",
+        "totalTickets": "13",
+        "displayedTickets": "10",
+        "currentPage": "1"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "Create a new repair ticket with title exactly '{{runid}} RD Bench Ticket'. Fill in any required fields sensibly (e.g. a customer name) and submit. After submitting, wait for the list/detail to refresh and confirm the ticket exists — report the ticket's Ref, title, customer, and status as shown on the page.",
+      "skill": "s_bfa466",
+      "outputs": [
+        "ref",
+        "title",
+        "customer",
+        "status",
+        "parts",
+        "created"
+      ],
+      "recorded": {
+        "ref": "RD-1015",
+        "title": "flowsweep-n1 RD Bench Ticket",
+        "customer": "Bench Customer",
+        "status": "Draft",
+        "parts": "0",
+        "created": "2026-08-23"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open ticket {{02-create.ref}} (title '{{runid}} RD Bench Ticket') and add a part named '{{runid}} RD Part A' with cost 100 and markup 25. Submit the part form, wait for the detail view to refresh, and report the part row exactly as shown: name, cost, markup, and the computed price the app displays for it.",
+      "skill": "s_782104",
+      "outputs": [
+        "ref",
+        "title",
+        "partName",
+        "cost",
+        "markup",
+        "qty",
+        "price"
+      ],
+      "recorded": {
+        "ref": "RD-1015",
+        "title": "flowsweep-n1 RD Bench Ticket",
+        "partName": "flowsweep-n1 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "qty": "1",
+        "price": "$125.00"
+      }
+    },
+    {
+      "id": "04-add",
+      "instruction": "On ticket {{02-create.ref}}, add a second part named '{{runid}} RD Part B' with cost 200 and markup 25. Submit the part form, wait for the detail view to refresh, and report the part row exactly as shown: name, cost, markup, and the computed price the app displays for it. Also confirm Part A is still present with its price.",
+      "skill": "s_ab62ee",
+      "outputs": [
+        "parts",
+        "total",
+        "ticketRef",
+        "ticketTitle",
+        "ticketStatus"
+      ],
+      "recorded": {
+        "parts": "[object Object], [object Object]",
+        "total": "$375.00",
+        "ticketRef": "RD-1015",
+        "ticketTitle": "flowsweep-n1 RD Bench Ticket",
+        "ticketStatus": "Draft"
+      }
+    },
+    {
+      "id": "05-edit",
+      "instruction": "On ticket {{02-create.ref}}, edit the part named '{{runid}} RD Part A' and change its cost from 100 to 150, keeping markup at 25. Save the change, wait for the detail view to refresh, and report the part row exactly as shown afterwards: name, cost, markup, and the computed price the app displays. Also report Part B's row and the ticket total.",
+      "skill": "s_f338ec",
+      "outputs": [
+        "partA",
+        "partB",
+        "total",
+        "ticketRef",
+        "ticketTitle",
+        "ticketStatus"
+      ],
+      "recorded": {
+        "partA": "{\"name\":\"flowsweep-n1 RD Part A\",\"cost\":\"$150.00\",\"markup\":\"25%\",\"qty\":1,\"supplier\":\"No supplier\",\"price\":\"$187.50\"}",
+        "partB": "{\"name\":\"flowsweep-n1 RD Part B\",\"cost\":\"$200.00\",\"markup\":\"25%\",\"qty\":1,\"supplier\":\"No supplier\",\"price\":\"$250.00\"}",
+        "total": "$437.50",
+        "ticketRef": "RD-1015",
+        "ticketTitle": "flowsweep-n1 RD Bench Ticket",
+        "ticketStatus": "Draft"
+      }
+    },
+    {
+      "id": "06-change",
+      "instruction": "On ticket {{02-create.ref}}, attempt to change the ticket status to 'Ready'. The app enforces preconditions before accepting that status — if it refuses, read the exact error/validation message it shows and report it verbatim, along with what fields or UI controls are involved. Do NOT try to work around it yet; just report exactly what the app says is required.",
+      "skill": "s_5a5bca",
+      "outputs": [
+        "errorTitle",
+        "errorDetails",
+        "involvedFields",
+        "currentStatus",
+        "availableActions"
+      ],
+      "recorded": {
+        "errorTitle": "Ticket is not ready",
+        "errorDetails": "Part \"flowsweep-n1 RD Part A\" has no supplier, Part \"flowsweep-n1 RD Part B\" has no supplier",
+        "involvedFields": "Supplier field on each part",
+        "currentStatus": "Draft",
+        "availableActions": "Mark Ready, Archive ticket"
+      }
+    },
+    {
+      "id": "07-edit",
+      "instruction": "On ticket {{02-create.ref}}, edit each part to assign a supplier. For '{{runid}} RD Part A' set supplier to 'Acme Parts' and for '{{runid}} RD Part B' set supplier to 'Acme Parts' (or whatever supplier options the app offers — pick a real one from the list). Keep cost and markup unchanged. Save both edits, wait for the detail view to refresh, and report each part row showing its supplier. Then click 'Mark Ready' and report the ticket's resulting status and any confirmation message shown.",
+      "skill": "s_d1844d",
+      "outputs": [
+        "ticketRef",
+        "ticketTitle",
+        "status",
+        "partA",
+        "partB",
+        "total"
+      ],
+      "recorded": {
+        "ticketRef": "RD-1015",
+        "ticketTitle": "flowsweep-n1 RD Bench Ticket",
+        "status": "Ready",
+        "partA": "{\"name\":\"flowsweep-n1 RD Part A\",\"cost\":\"$150.00\",\"markup\":\"25%\",\"qty\":1,\"supplier\":\"Acme Parts\",\"price\":\"$187.50\"}",
+        "partB": "{\"name\":\"flowsweep-n1 RD Part B\",\"cost\":\"$200.00\",\"markup\":\"25%\",\"qty\":1,\"supplier\":\"Acme Parts\",\"price\":\"$250.00\"}",
+        "total": "$437.50"
+      }
+    },
+    {
+      "id": "08-delete",
+      "instruction": "On ticket {{02-create.ref}}, delete both parts: '{{runid}} RD Part A' and '{{runid}} RD Part B'. Confirm any confirmation dialogs. Wait for the detail view to refresh after each delete and verify both parts are gone (parts count 0, no part rows). Report what the page shows afterwards, including the ticket's status and any confirmation text. If deleting a part is blocked or changes the ticket status, report exactly what the app says.",
+      "skill": "s_6f2e78",
+      "outputs": [
+        "ticketRef",
+        "ticketTitle",
+        "status",
+        "partsCount",
+        "partsMessage",
+        "availableActions"
+      ],
+      "recorded": {
+        "ticketRef": "RD-1015",
+        "ticketTitle": "flowsweep-n1 RD Bench Ticket",
+        "status": "Ready",
+        "partsCount": "0",
+        "partsMessage": "No parts on this ticket yet.",
+        "availableActions": "Mark Draft, Mark Closed, Archive ticket, Add part"
+      }
+    },
+    {
+      "id": "09-archive",
+      "instruction": "On ticket {{02-create.ref}}, archive the ticket using the 'Archive ticket' button (confirm any dialog). Then go back to the tickets list, make sure 'Show archived' is unchecked, and verify that the ticket '{{runid}} RD Bench Ticket' / {{02-create.ref}} no longer appears in the active list. Also check with 'Show archived' checked that it does appear as archived. Report exactly what you observe in both cases, including any confirmation text.",
+      "skill": "s_626565",
+      "outputs": [
+        "archivedConfirmation",
+        "showArchivedUnchecked",
+        "showArchivedChecked"
+      ],
+      "recorded": {
+        "archivedConfirmation": "Archive ticket button changed to Unarchive ticket",
+        "showArchivedUnchecked": "{\"refsOnPage1\":[\"RD-1014\",\"RD-1012\",\"RD-1011\",\"RD-1010\",\"RD-1009\",\"RD-1008\",\"RD-1007\",\"RD-1006\",\"RD-1005\",\"RD-1004\"],\"refsOnPage2\":[\"RD-1003\",\"RD-1002\",\"RD-1001\"],\"rd1015Found\":false,\"totalTickets\":13}",
+        "showArchivedChecked": "{\"firstRow\":\"RD-1015 flowsweep-n1 RD Bench Ticket Archived Bench Customer Ready 0 2026-08-23\",\"rd1015Found\":true,\"titleAppended\":\"Archived\",\"status\":\"Ready\"}"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "flowsweep-n1",
+    "created": "2026-08-23T12:58:21.411Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

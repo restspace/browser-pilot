@@ -70,6 +70,34 @@ Reading it honestly:
 - What worked exactly as designed: validation/demotion (the add-part skill was repaired in run 1 and its
   variant reached 3/3 validated and superseded it), refusal from the wrong page, live read-backs.
 
+### Flows: whole-session record-and-replay (2026-08-23)
+
+Built on top of Stage 1 (commit e519981): a session's resolved path is exported as a flow and replayed
+with no orchestrator. First real test on the repairdesk task, inner model deepseek-v4-flash, escalation
+off:
+
+- **Record (run 1):** the orchestrator drove the task normally under `--learn`; the harness declared
+  `runid` and exported a **9-step flow** at `stop`. It captured the chaining exactly — the ticket id
+  step 2 reported threads into steps 3–9 as `{{02-create.ref}}`, and the runid as `{{runid}}`
+  (`bench/results-published/flows/rdflow.json`). 6/6 externally verified.
+- **Replay A (new runid `ft9`, no orchestrator):** **9/9 steps, 158s**. Four steps replayed pure
+  (Tier A/B, zero model), three drifted → cheap-model repair → variant compiled and **re-pinned into the
+  flow file** (self-healing). `{{02-create.ref}}` resolved to the live ticket id — proof both that
+  inter-step threading works and that the honesty rule holds (an unresolved reference halts; it did not).
+- **Replay B (new runid, healed flow):** **halted at step 3/9** — the inner model blocked on the
+  agentic fallback for one step whose skill did not Tier-A match. The flow halted and returned state;
+  external verify shows 1/6 with **zero false claims** — the halt-safety and no-fabrication guarantees
+  both held under a genuine failure.
+
+Reading it: the mechanism is sound and correctly halt-safe, and when the pinned skills replay it is
+near-script (zero-model steps, no orchestrator). But replay reliability rides on the cheap inner model,
+which is flaky on any step that still needs repair rather than a clean replay — so a K-run flow sweep is
+not yet uniformly green at K=2. The levers are the same as for skills (solidify/merge skills so more
+steps Tier-A match on the first replay) plus: (a) 01-open and a couple of others never Tier-A matched
+even with a pinned skill — worth finding why bindSkill misses there; (b) a step that blocks on the
+agentic fallback might be worth one escalation before halting, even with inner escalation otherwise off.
+
+
 Next, in order: (1) merge skills by *outcome* rather than by template — same origin + same start page +
 same step sequence modulo parameters already merges; extend to "same tools and same primary locator kinds
 with different literals", and let a validated skill absorb a provisional one whose steps are a prefix

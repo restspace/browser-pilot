@@ -1,0 +1,94 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e519981"
+  },
+  "mutationLogPath": "C:\\dev\\browser-pilot\\bench\\results\\flowsweep-n1-browser-pilot-mutationlog.json",
+  "provider": "novita",
+  "model": "zai-org/glm-5.3",
+  "runid": "flowsweep-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 538351,
+  "orchestrator": {
+    "input": 13838,
+    "cacheWrite": 0,
+    "cacheRead": 24832,
+    "output": 1757
+  },
+  "inner": {
+    "promptTokens": 1322864,
+    "cachedTokens": 1089792,
+    "completionTokens": 13414,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1322864,
+        "completionTokens": 13414,
+        "cachedTokens": 1089792,
+        "instructions": 9
+      }
+    },
+    "skills": {
+      "instructions": 9,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 69,
+      "compiled": 9,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": null,
+    "provider": "novita"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "do": 9
+  },
+  "invocationCount": 9,
+  "commandMs": 452430,
+  "commandBytes": 8208,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "C:\\dev\\browser-pilot\\bench\\results\\flowsweep-skills",
+    "instructions": 9,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 69,
+    "compiled": 9,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [],
+  "orReportedCostUsd": null,
+  "maxUsd": 2,
+  "spendUsd": 0.1005,
+  "finalText": "All objectives complete and verified.\n\n**Final report**\n\n1. **DONE** — Ticket created: Ref **RD-1015**, title **\"flowsweep-n1 RD Bench Ticket\"**, customer \"Bench Customer\", created 2026-08-23, initial status Draft.\n2. **DONE** — Part **flowsweep-n1 RD Part A** (cost $100.00, markup 25%) computed price **$125.00**.\n3. **DONE** — Part **flowsweep-n1 RD Part B** (cost $200.00, markup 25%) computed price **$250.00** (ticket total at that point: $375.00).\n4. **DONE** — After editing Part A's cost 100 → 150 (markup still 25%), computed price **$187.50**. Part B unchanged at $250.00; ticket total $437.50.\n5. **DONE** — Ticket reached status **Ready**. Precondition discovered: the app refused the first \"Mark Ready\" attempt with a red alert titled **\"Ticket is not ready\"** listing *\"Part 'flowsweep-n1 RD Part A' has no supplier\"* and *\"Part 'flowsweep-n1 RD Part B' has no supplier\"*. What was required: **every part on the ticket must have a supplier assigned**. I set supplier \"Acme Parts\" on both parts (costs/markups unchanged), after which \"Mark Ready\" succeeded silently — status showed **Ready** and the action buttons changed to \"Mark Draft\" / \"Mark Closed\".\n6. **DONE** — Both parts deleted (each via Delete → \"Delete part\" confirm dialog); parts table then read **\"No parts on this ticket yet.\"** (parts count 0, status stayed Ready). Ticket then archived via \"Archive ticket\" (button flipped to \"Unarchive ticket\"). Verified on the tickets list: with \"Show archived\" unchecked, RD-1015 appears on neither page (13 active tickets, none from this run); with it checked, RD-1015 appears as \"flowsweep-n1 RD Bench Ticket Archived\", status Ready, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\flowsweep-n1-browser-pilot-transcript.jsonl"
+}

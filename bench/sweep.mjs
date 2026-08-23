@@ -48,14 +48,29 @@ const learnDir = own.learn ? path.resolve(own.learn) : null;
 if (learnDir) fs.mkdirSync(learnDir, { recursive: true });
 const rates = loadRates();
 const rows = [];
+const flowsDir = own.flow ? path.resolve(learnDir ? path.join(learnDir, '..', 'flows') : outDir) : null;
+const armBin = process.platform === 'win32' ? 'browser-pilot.cmd' : 'browser-pilot';
 
 for (let n = 1; n <= own.k; n++) {
   const runid = `${own.base}-n${n}`;
-  const args = [path.join(here, 'harness.mjs'), ...pass, '--runid', runid, '--reset'];
-  if (learnDir) args.push('--learn', learnDir);
-  console.error(`\n[sweep] run ${n}/${own.k}: ${runid}${learnDir ? ` (store: ${learnDir})` : ' (no store)'}`);
-  const r = spawnSync(process.execPath, args, { stdio: 'inherit', env: process.env });
-  if (r.status !== 0) console.error(`[sweep] harness exited ${r.status} for ${runid} — scoring whatever it wrote`);
+  // Flow mode: run 1 records the flow with the orchestrator; runs 2..K replay
+  // it with NO orchestrator (`browser-pilot run`) — the whole point: the caller
+  // pays once, later executions are near-script.
+  const replayOnly = Boolean(own.flow) && n > 1;
+  console.error(`\n[sweep] run ${n}/${own.k}: ${runid}${replayOnly ? ` (replay flow ${own.flow}, no orchestrator)` : learnDir ? ` (store: ${learnDir})` : ' (no store)'}`);
+  if (replayOnly) {
+    spawnSync(process.execPath, [path.join(here, 'reset-app.mjs')], { stdio: 'inherit', env: process.env });
+    const env = { ...process.env, BROWSER_PILOT_SKILLS: '1', ...(learnDir ? { BROWSER_PILOT_SKILLS_DIR: learnDir } : {}), ...(flowsDir ? { BROWSER_PILOT_FLOWS_DIR: flowsDir } : {}) };
+    const fr = spawnSync(armBin, ['--session', runid, 'run', own.flow, '--var', `runid=${runid}`, '--json'], { stdio: ['inherit', 'pipe', 'inherit'], env, shell: process.platform === 'win32' });
+    if (fr.stdout) fs.writeFileSync(path.join(outDir, `${runid}-flowrun.json`), fr.stdout);
+    spawnSync(armBin, ['stop', '--session', runid], { stdio: 'ignore', env, shell: process.platform === 'win32' });
+  } else {
+    const args = [path.join(here, 'harness.mjs'), ...pass, '--runid', runid, '--reset'];
+    if (learnDir) args.push('--learn', learnDir);
+    if (own.flow) args.push('--save-flow', own.flow, '--flowsDir', flowsDir);
+    const r = spawnSync(process.execPath, args, { stdio: 'inherit', env: process.env });
+    if (r.status !== 0) console.error(`[sweep] harness exited ${r.status} for ${runid} — scoring whatever it wrote`);
+  }
 
   const arm = pass[pass.indexOf('--arm') + 1] ?? 'browser-pilot';
   const file = path.join(outDir, `${runid}-${arm}-result.json`);
