@@ -217,6 +217,41 @@ What holds and what doesn't:
   pricey glm-5.3 retry; (c) a stronger/steadier orchestrator model. Note the inner 30-turn cap is
   itself the escalation trigger for these survey instructions.
 
+### Batching unlocked by an inner-prompt fix (sbatch1–3), commit 2c704fa
+
+The inner agent never batched (0 of 783 do-calls) because rule 1 ("plan at most one step ahead,
+smallest observation, look at the result") contradicted rule 3a (batch mechanical steps); the
+cheap inner model followed rule 1. Rule 1 now carves out the exception (one-per-turn is for
+judgement points, not typing), rule 3a makes batching the default for form-fills with a worked
+example, and a new clause requires reading back any value before reporting it (targets scref3).
+
+N=3, all 6/6, all `contextTruncations: 0`, and **batching now fires in every run** (6–7 do-outputs
+reference it, vs 0 across all prior runs):
+
+| config (browser-pilot) | doCalls med | cost med (range) | escalations | notes |
+|---|---|---|---|---|
+| fine (s1–4bp) | 17 | 0.247 (0.149–0.284) | 5 | one-op-per-turn, no batching |
+| coarse (scoarse1–4) | 11 | 0.118 (0.084–0.375) | 2 | coarse delegation |
+| coarse+refined (scref1–4) | 10 | 0.105 (0.089–0.138) | 1 | + anti-survey |
+| **coarse+batch (sbatch1–3)** | **7** | **0.084 (0.054–0.311)** | 2 | + batching default |
+| agent-browser (s1–4ab) | — | 0.133 (0.129–0.136) | 0 | reference |
+
+Progression: **0.247 → 0.118 → 0.105 → 0.084**, doCalls 17 → 7, all via prompt changes on the
+same cheap inner model — no model swap. sbatch's median ($0.084) is now the lowest of any config
+and below agent-browser's $0.133, and the scref3-style fabrication did not recur (verify clause
+held; all sbatch 6/6). **So batching was a prompt bug, not a model limit — the answer to "can a
+better internal prompt fix batching" is yes.**
+
+**What prompt fixes did NOT fix — the escalation tail.** sbatch3 still cost $0.311 (2 escalations).
+Its expensive steps were #5 (555s) and #6 (BLOCKED→escalated): the supplier-precondition /
+mark-ready sequence — discover the app requires a supplier on every part, add both, retry Ready.
+That is a genuine multi-step *reasoning* loop, not mechanical form-filling, so batching can't
+touch it; the cheap inner model burns its turn budget and escalates to glm-5.3. This is now the
+sole remaining source of browser-pilot's cost tail, and it is a model-capability limit. Levers:
+`--no-escalate` (A3) to cap the cost (accepting the step may fail), or a stronger inner model.
+Net decomposition of bp's cost: mechanical-work overhead → fixed by batching; exploration
+blow-up → fixed by the anti-survey clause; hard-reasoning-step escalation → not prompt-fixable.
+
 ### Refined `--coarse` (scref1–4), commit 9c2e090 — cost tail fixed, a correctness failure surfaced
 
 Added an anti-survey clause to `--coarse` (don't spend a call exploring/enumerating). N=4:
