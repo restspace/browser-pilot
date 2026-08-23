@@ -712,3 +712,42 @@ Both roles run on OpenRouter with no code change (glm-5.3 orchestrator + glm-5.2
 inner, escalation off). Across flow4+flow5, 8/8 runs were 6/6 verified, the record
 run costs ~$0.04 (vs novita $0.46), and replays run ~2× faster than novita. That
 part is a clear win; the convergence work is where the open problem now sits.
+
+## 2026-08-24 — overnight build: the design decision landed (and validated)
+
+Both "recommended next" items above were built overnight, plus the drift/repair
+machinery (spec: PLAN-overnight.md; commits da4048f..93a28b5):
+
+1. **Lifecycle-gated adoption** replaced the blind re-pin: candidates are chosen
+   per run by track record (validated > success rate > uses; demoted excluded),
+   failures recorded so promote/demote governs adoption, and a step re-pins only
+   to a validated skill that just replayed cleanly.
+2. **Segmentation**: compile splits recordings at page-template seams (url
+   pattern change + a live structural fingerprint captured at each seam) into a
+   chain of per-page skills (`seq {chain,index,of}`), each independently gated,
+   recoverable, and promotable. The sign-in+create monolith now auto-splits.
+3. **Drift telemetry**: every primary-locator miss becomes a structured
+   DriftTicket (with the localized-vs-redesign similarity attached) in
+   `<runid>-drift.json`. Recording only — never inline repair.
+4. **Post-session repair** (`browser-pilot skills repair --drift <file>`):
+   promote proven fallbacks (no model), model-patch dead locators on the live
+   page into provisional variants that must earn adoption, flag redesigns for
+   re-record.
+
+flow7 validation (K=4 + post-repair replay, OpenRouter glm-5.3): 6/6 verified
+every run; zero-model steps 5/8 on every replay run — **monotone at last** (flow5
+was 7/12→3/12→3/12). The head chain validated to 7/7; store stayed at 14 skills
+(flow5: 24 for fewer steps). Running `skills repair` on run 4's 11 tickets gave
+3 fallback promotions + 1 honest re-record flag; the next replay emitted 4
+tickets (11→4) and was the fastest of the sweep. The remaining tier-B steps
+(06 supplier-gate branch, 07 delete-loop order, 08 list verify) recover on app
+logic/non-determinism, not selector drift — the next frontier is behavioural
+branches inside skills, not locators.
+
+Two cascade defects found and fixed by the sweeps: goto-first skills were
+refused by start-url (redirect race — now replay skips the start-page gate when
+step 1 navigates), and recovery models renaming read-back keys broke
+`{{step.output}}` threading (now aliased when cosmetically equal).
+
+The bench app gained `/__drift?mode=labels` (serve renamed control wording
+in-memory) for repair validation against simulated redesigns.
