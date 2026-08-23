@@ -156,6 +156,10 @@ d('skill replay (fixture page)', () => {
     expect(out.replay?.fallthroughs).toBe(1);
     expect(out.result).toContain('used fallback');
     expect(out.replay?.values.banner).toBe('Saved Ada Lovelace!');
+    // drift telemetry: the miss is recorded structurally, not just as prose
+    expect(out.replay?.misses).toHaveLength(1);
+    expect(out.replay?.misses[0].used).toBeTruthy();
+    expect(out.replay?.misses[0].key).toBe('target');
   }, 30_000);
 
   it('perturbation: a removed field stops the replay and hands back exactly what ran', async () => {

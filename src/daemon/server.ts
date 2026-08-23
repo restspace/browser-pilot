@@ -4,6 +4,7 @@ import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
+import { urlPattern as compiledUrlPattern } from '../skills/compile.js';
 import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
@@ -42,6 +43,32 @@ const STOP_DRAIN_MS = 3_000;
  * Refusals (wrong page, unbindable params) are free and do not count.
  */
 const MAX_CANDIDATE_ATTEMPTS = 3;
+
+/**
+ * A drift observation from one flow-step replay: the primary locator missed
+ * (fallthrough or dead chain) or the step needed model recovery. Recording
+ * only — repair happens AFTER the session, by the post-session repair pass
+ * draining these. `similarity` is the localized-vs-redesign classifier: high
+ * similarity + a missed locator = localized drift (patchable); low similarity
+ * = broad redesign (re-record the segment, do not patch selectors).
+ */
+export interface DriftTicket {
+  flow: string;
+  step: string;
+  skill: string;
+  /** Skill-internal step tag the miss happened at, when known. */
+  atStep?: string;
+  /** Which arg the locator was for ("target"/"source"), when known. */
+  key?: string;
+  similarity: number | null;
+  missedLocator: string | null;
+  /** The fallback that resolved, or null when nothing did. */
+  fallbackUsed: string | null;
+  /** The step went to model recovery. */
+  recovered: boolean;
+  reason?: string;
+  pageUrlPattern?: string;
+}
 
 export class Daemon {
   private browser: BrowserSession;
@@ -480,6 +507,7 @@ export class Daemon {
     const screenshotDir = path.join(ensureSessionDir(this.opts.session), 'screenshots');
     const outputs: Record<string, Record<string, string>> = {};
     const stepResults: Array<Record<string, unknown>> = [];
+    const driftTickets: DriftTicket[] = [];
     const started = Date.now();
     let halted = false;
 
@@ -562,6 +590,26 @@ ${direct.prelude}` : recoveryText,
       for (const [k, v] of Object.entries(result.report.evidence?.values ?? {})) values[k] = String(v);
       outputs[step.id] = values;
       const sk = result.skill;
+      // Drift telemetry: record, never repair inline. One ticket per primary-
+      // locator miss, plus one for a recovery with no structured miss to blame.
+      if (sk?.invoked) {
+        const pageUrlPattern = sk.replayUrl ? compiledUrlPattern(sk.replayUrl) : undefined;
+        for (const m of sk.misses ?? []) {
+          driftTickets.push({
+            flow: flow.name, step: step.id, skill: sk.invoked, atStep: m.step, key: m.key,
+            similarity: sk.similarity, missedLocator: m.primary, fallbackUsed: m.used, recovered,
+            ...(pageUrlPattern ? { pageUrlPattern } : {}),
+          });
+        }
+        if (recovered && !(sk.misses ?? []).length) {
+          driftTickets.push({
+            flow: flow.name, step: step.id, skill: sk.invoked, similarity: sk.similarity,
+            missedLocator: null, fallbackUsed: null, recovered: true,
+            ...(sk.failReason ? { reason: sk.failReason } : {}),
+            ...(pageUrlPattern ? { pageUrlPattern } : {}),
+          });
+        }
+      }
       stepResults.push({
         id: step.id,
         status: result.report.status,
@@ -600,6 +648,8 @@ ${direct.prelude}` : recoveryText,
       passed,
       total: flow.steps.length,
       repinned: updated,
+      drift: driftTickets.length,
+      ...(driftTickets.length ? { driftTickets } : {}),
       wallMs: Date.now() - started,
       model: opts.provider.model,
     };
@@ -675,6 +725,10 @@ ${direct.prelude}` : recoveryText,
       refused: false,
       fallthroughs: replay.fallthroughs,
       similarity: replay.similarity,
+      ...(replay.misses.length ? { misses: replay.misses } : {}),
+      ...(replay.reason ? { failReason: replay.reason } : {}),
+      ...(replay.failedAt !== undefined ? { failedAt: replay.failedAt } : {}),
+      replayUrl: replay.url,
       deterministicActions: replay.stepsRun,
       totalActions: replay.stepsRun,
       tier: 'A',

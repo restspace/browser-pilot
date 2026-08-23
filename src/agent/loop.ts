@@ -108,6 +108,14 @@ export interface SkillRecord {
   refused: boolean;
   fallthroughs: number;
   similarity: number | null;
+  /** Structured locator misses from the replay (drift telemetry). */
+  misses?: import('../skills/replay.js').LocatorMiss[];
+  /** Why the replay stopped, when it did (drift telemetry). */
+  failReason?: string;
+  /** 1-based skill step the replay failed at, when it did. */
+  failedAt?: number;
+  /** The url the replay finished (or stopped) on. */
+  replayUrl?: string;
   /** Browser actions taken by replay vs. in total (batch steps count individually). */
   deterministicActions: number;
   totalActions: number;
@@ -723,6 +731,10 @@ function accountActions(skill: SkillRecord, name: string, args: Record<string, u
       skill.refused = Boolean(r.refused);
       skill.fallthroughs = r.fallthroughs;
       skill.similarity = r.similarity;
+      if (r.misses.length) skill.misses = r.misses;
+      if (r.reason) skill.failReason = r.reason;
+      if (r.failedAt !== undefined) skill.failedAt = r.failedAt;
+      skill.replayUrl = r.url;
     }
     skill.deterministicActions += r.stepsRun;
     skill.totalActions += r.stepsRun;

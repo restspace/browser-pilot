@@ -64,6 +64,15 @@ for (let n = 1; n <= own.k; n++) {
     const env = { ...process.env, BROWSER_PILOT_SKILLS: '1', ...(learnDir ? { BROWSER_PILOT_SKILLS_DIR: learnDir } : {}), ...(flowsDir ? { BROWSER_PILOT_FLOWS_DIR: flowsDir } : {}) };
     const fr = spawnSync(armBin, ['--session', runid, 'run', own.flow, '--var', `runid=${runid}`, '--json'], { stdio: ['inherit', 'pipe', 'inherit'], env, shell: process.platform === 'win32' });
     if (fr.stdout) fs.writeFileSync(path.join(outDir, `${runid}-flowrun.json`), fr.stdout);
+    // Drift tickets are the post-session repair work-list; split them out so
+    // the repair pass can consume one file per run.
+    try {
+      const run = JSON.parse(fr.stdout);
+      if (run.driftTickets?.length) {
+        fs.writeFileSync(path.join(outDir, `${runid}-drift.json`), JSON.stringify(run.driftTickets, null, 2));
+        console.error(`[sweep] ${runid}: ${run.driftTickets.length} drift ticket(s) → ${runid}-drift.json`);
+      }
+    } catch { /* no parseable flow result */ }
     spawnSync(armBin, ['stop', '--session', runid], { stdio: 'ignore', env, shell: process.platform === 'win32' });
   } else {
     const args = [path.join(here, 'harness.mjs'), ...pass, '--runid', runid, '--reset'];

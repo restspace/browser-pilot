@@ -20,6 +20,24 @@ export interface ReplayOptions {
   signal?: AbortSignal;
 }
 
+/**
+ * One locator that did not resolve as recorded: either a fallback candidate
+ * had to stand in (`used` set — localized drift that self-healed) or nothing
+ * in the chain matched (`used` null — the step failed or the read was
+ * skipped). Structured so post-session repair can act on it; the prose
+ * `warnings` remain for humans and the agent.
+ */
+export interface LocatorMiss {
+  /** Human step tag, e.g. "5" or "9.2.1" inside a loop. */
+  step: string;
+  /** Which arg the locator was for: "target" or "source". */
+  key: string;
+  /** The primary (recorded) locator that missed. */
+  primary: string;
+  /** The fallback that resolved, or null when the whole chain missed. */
+  used: string | null;
+}
+
 export interface ReplayResult {
   ok: boolean;
   skill: string;
@@ -35,6 +53,8 @@ export interface ReplayResult {
   /** Soft-expectation misses: logged, never fatal in Stage 1. */
   warnings: string[];
   fallthroughs: number;
+  /** Structured record of every locator that missed its primary. */
+  misses: LocatorMiss[];
   /** Cosine similarity between the stored start-page fingerprint and the live page, if both exist. */
   similarity: number | null;
   url: string;
@@ -65,6 +85,7 @@ export async function replaySkill(
     lines: [],
     warnings: [],
     fallthroughs: 0,
+    misses: [],
     similarity: null,
     url: page.url(),
   };
@@ -117,11 +138,13 @@ export async function replaySkill(
       const hit = await resolveChain(page, chain, typeof args[key] === 'string' ? String(args[key]) : '', step.tool === 'read_all');
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
+        res.misses.push({ step: tag, key, primary: chain[0] ? candidateExpr(chain[0]) : '(none recorded)', used: null });
         break;
       }
       resolved[key] = hit.locator;
       if (hit.index > 0) {
         res.fallthroughs++;
+        res.misses.push({ step: tag, key, primary: candidateExpr(chain[0]), used: candidateExpr(hit.candidate) });
         res.warnings.push(`step ${tag}: primary locator did not resolve; used fallback #${hit.index + 1} ${candidateExpr(hit.candidate)}`);
       }
     }
