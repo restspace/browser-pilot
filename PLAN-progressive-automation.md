@@ -70,6 +70,32 @@ Reading it honestly:
 - What worked exactly as designed: validation/demotion (the add-part skill was repaired in run 1 and its
   variant reached 3/3 validated and superseded it), refusal from the wrong page, live read-backs.
 
+### Parameterised intra-skill navigation (2026-08-23)
+
+Addressed the reliability blocker from the previous entry. Three changes:
+
+1. **Slot discovery now scans locator identifying values**, not just tool args. A record identifier that
+   appears in the instruction and in a navigation locator's name/text (`getByRole('link', {name:
+   'RD-1015'})`) becomes a slot, so the locator parameterises to `{{v}}` and replay navigates to this
+   run's record. Guarded to record-specific values (a digit or id-like token, or an existing arg slot),
+   so stable UI labels ("Save") that merely appear in the instruction stay literal.
+2. **Unresolved references route to recovery, not a halt.** If a step needs an id an earlier step did not
+   read back live (so the honesty rule dropped it), the flow soft-resolves the instruction to what IS
+   known — the record's title — and recovers on the strong model, which finds the record by that. The
+   repaired step is re-pinned.
+3. Confirmed live on the deliberately-coupled flow (step 1 ends on the list, step 2 opens the ticket by
+   id then adds a part): step 1 replays zero-model; step 2's id cannot thread (step 1 reported it without
+   a labelled read), so it soft-resolves to the title, recovers on glm-5.3, succeeds, and re-pins — 2/2,
+   no halt (previously: hard block at step 2).
+
+Remaining, genuinely Stage 2: **the produced value must be a live read to thread cheaply.** Step 1
+reported the new ticket id from a snapshot, not a `read`, so it was dropped and step 2 had to recover on
+the strong model instead of replaying zero-model. Options: (a) strengthen the inner operating rule / a
+compile-time nudge so values a report declares are backed by a `read`; (b) at replay, re-read a skill's
+declared outputs from the page after it runs. Also: navigation locators whose "name" is a whole table
+row's text (date, status, counts) are not replayable — the recorder should prefer the record's own link
+over the row when both were in the click's ancestry.
+
 ### Solidified matching + strong-model recovery (2026-08-23)
 
 Two changes after the first flow test:

@@ -103,6 +103,7 @@ export function compileSkill(input: CompileInput): Skill | null {
  */
 export function discoverSlots(instruction: string, steps: RecordedStep[]): Map<string, string> {
   const values = new Set<string>();
+  const locatorCandidates = new Set<string>();
   for (const step of steps) {
     if (step.tool === 'read' || step.tool === 'read_all' || step.tool === 'eval') continue;
     for (const [key, v] of Object.entries(step.args)) {
@@ -116,6 +117,22 @@ export function discoverSlots(instruction: string, steps: RecordedStep[]): Map<s
     if (step.tool === 'wait_for' && typeof step.args.text === 'string' && occursAsToken(instruction, step.args.text.trim())) {
       values.add(step.args.text.trim());
     }
+    // A locator that IDENTIFIES a record — clicking the row for ticket
+    // "RD-1015", a link named after the value — hard-codes that record unless
+    // its identifying string is parameterised too. Collect candidates now;
+    // add them below only if they look record-specific, so a plain UI label
+    // ("Save") that happens to appear in the instruction is not parameterised.
+    for (const loc of Object.values(step.locators)) {
+      for (const value of locatorValues(loc.chain ?? [])) {
+        const v = value.trim();
+        if (v.length >= 2 && v.length <= 200 && occursAsToken(instruction, v)) locatorCandidates.add(v);
+      }
+    }
+  }
+  for (const v of locatorCandidates) {
+    // Record-specific = already a value the caller typed (an arg slot), or
+    // carries an identifier (a digit / id-like token). Excludes stable UI text.
+    if (values.has(v) || /\d/.test(v) || v.split(/\s+/).some(isIdLike)) values.add(v);
   }
   const ordered = [...values]
     .map((v) => ({ v, at: instruction.indexOf(v) }))
@@ -130,6 +147,23 @@ function occursAsToken(text: string, value: string): boolean {
   if (!value) return false;
   const re = new RegExp(`(^|[^A-Za-z0-9])${escapeRe(value)}(?=$|[^A-Za-z0-9])`);
   return re.test(text);
+}
+
+/**
+ * The human-meaningful identifying strings in a locator chain — the ones that
+ * can carry a record identifier (a role/link name, visible text, a label). Id
+ * and css selectors are excluded: their embedded ids are already handled by
+ * stableFirst (demoted) and are not values a caller would supply.
+ */
+function locatorValues(chain: LocatorCandidate[]): string[] {
+  const out: string[] = [];
+  for (const c of chain) {
+    if (c.kind === 'role') out.push(c.name);
+    else if (c.kind === 'text') out.push(c.text);
+    else if (c.kind === 'label') out.push(c.label);
+    else if (c.kind === 'placeholder') out.push(c.placeholder);
+  }
+  return out.filter(Boolean);
 }
 
 export function escapeRe(s: string): string {

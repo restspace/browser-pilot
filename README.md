@@ -314,11 +314,14 @@ configured fallback model, even when per-step escalation is otherwise off, or an
 can be brought back to continue from exactly there. That last rung is the orchestrator returning to the
 *top* of the ladder for one step, not rejoining the whole run.
 
-A limitation to know: a step replays cleanly only when the previous steps leave the browser where its
-skill expects. A skill that embeds navigation to a *specific* record (clicking a particular ticket row)
-can drift when the record differs on a later run — the flow references it correctly at the instruction
-level (`{{02-create.ref}}`), but the skill's own locators may not, so that step falls to recovery. Making
-skills navigate by parameter rather than by recorded position is the next improvement.
+Navigation to a record is parameterised, not hard-coded: when a skill step clicks the row or link for a
+record whose identifier appears in the instruction (ticket `RD-1015`), that identifier becomes a slot, so
+replay navigates to *this* run's record. When the identifier is one an earlier step produced, it threads
+through as `{{step.output}}` — provided that step read it back live. If it did not (the identifier was in
+the recorded report only, so the honesty rule dropped it), the reference cannot be threaded; rather than
+halt, the step **soft-resolves to what is known** (the record's title, say) and recovers on the strong
+model, which finds the record by that instead — and re-pins the cleaner skill it produces. So a flow
+degrades to a model call on the coupled step rather than failing, and heals over runs.
 
 Honesty carries over intact: a replayed step reports only values it read back live or that came from your
 own `--var` parameters; a value the recording captured as a literal (the ticket id from the run that made

@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, resolveInstruction, resolveStepParams, type FlowStep } from '../src/skills/flow.js';
+import { buildFlow, resolveInstruction, resolveStepParams, softResolveInstruction, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, synthesizeReport } from '../src/skills/learn.js';
 import { compileSkill } from '../src/skills/compile.js';
 
@@ -98,6 +98,14 @@ describe('resolveInstruction', () => {
     expect(r.missing).toContain('01-create.ref');
     expect(r.missing).toContain('cost');
     expect(r.text).toContain('{{01-create.ref}}'); // left intact, not blanked
+  });
+
+  it('softResolveInstruction keeps what resolves and blanks unthreaded refs', () => {
+    const st: FlowStep = { id: '02', instruction: "open the ticket with reference {{01.ref}} (title '{{runid}} Bench')", outputs: [], recorded: {} };
+    // ref unthreaded, runid known → the id clause blanks, the title survives
+    expect(softResolveInstruction(st, { runid: 'z9' }, {})).toBe("open the ticket with reference (title 'z9 Bench')");
+    // both known → fully resolved
+    expect(softResolveInstruction(st, { runid: 'z9' }, { '01': { ref: 'RD-9' } })).toBe("open the ticket with reference RD-9 (title 'z9 Bench')");
   });
 
   it('resolveStepParams fills stored bindings from vars and prior outputs', () => {

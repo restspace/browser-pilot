@@ -209,6 +209,25 @@ export function resolveInstruction(step: FlowStep, vars: Record<string, string>,
   return { text, missing };
 }
 
+/**
+ * Like resolveInstruction, but for the recovery path: fill every reference that
+ * can be filled and blank the rest (rather than leaving `{{...}}` in the text),
+ * so the strong model gets a readable instruction built from what IS known —
+ * e.g. the ticket title even when its id could not be threaded.
+ */
+export function softResolveInstruction(step: FlowStep, vars: Record<string, string>, outputs: Record<string, Record<string, string>>): string {
+  return step.instruction
+    .replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
+      if (ref.includes('.')) {
+        const [sid, out] = ref.split('.');
+        return outputs[sid]?.[out] ?? '';
+      }
+      return ref in vars ? vars[ref] : '';
+    })
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
 /** Resolve a step's stored param bindings from run vars and prior outputs. */
 export function resolveStepParams(
   step: FlowStep,

@@ -90,6 +90,26 @@ describe('parameterisation', () => {
     const slots = discoverSlots(INSTRUCTION, recording().filter((e): e is RecordedStep => e.k === 'step'));
     expect([...slots.values()]).toEqual(['x7 RD Part A', '100', '25']);
   });
+  it('parameterises a navigation locator that identifies a record', () => {
+    const instr = "On ticket RD-1015, add a part named 'x7 Part A'";
+    const steps = [
+      // a click whose ONLY record reference is the link name RD-1015 (not in any arg)
+      step('click', { target: '@e1' }, [{ kind: 'role', role: 'link', name: 'RD-1015' }, { kind: 'testid', attr: 'data-testid', value: 'ticket-link-t15' }]),
+      step('fill', { target: '@e2', value: 'x7 Part A' }, [{ kind: 'label', label: 'Name' }]),
+    ];
+    const slots = discoverSlots(instr, steps);
+    // RD-1015 (record id, digit) and 'x7 Part A' (typed value) both become slots
+    expect([...slots.values()]).toContain('RD-1015');
+    expect([...slots.values()]).toContain('x7 Part A');
+  });
+
+  it('does NOT parameterise a plain UI-label locator that happens to match a word', () => {
+    const instr = 'Add a part and save it';
+    const steps = [step('click', { target: '@e1' }, [{ kind: 'role', role: 'button', name: 'Add' }, { kind: 'role', role: 'button', name: 'save' }])];
+    // "Add"/"save" are stable affordances (no digit, not id-like) → stay literal
+    expect([...discoverSlots(instr, steps).values()]).toEqual([]);
+  });
+
   it('substitutes on token boundaries only', () => {
     const slots = new Map([['v1', '25']]);
     expect(substitute('markup 25 in li:nth-of-type(25) and 250', slots)).toBe('markup {{v1}} in li:nth-of-type(25) and 250');

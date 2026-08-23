@@ -5,7 +5,7 @@ import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Pr
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
 import { bindSkill, learnFromInstruction, matchTemplate, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, saveFlow } from '../skills/flow.js';
+import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -483,23 +483,20 @@ export class Daemon {
         break;
       }
       const { text, missing } = resolveInstruction(step, varsIn, outputs);
-      if (missing.length) {
-        stepResults.push({ id: step.id, status: 'blocked', reason: `unresolved reference(s): ${missing.join(', ')}` });
-        halted = true;
-        break;
-      }
-      opts.progress(`[flow ${flow.name}] ${step.id}: ${text.slice(0, 80)}`);
+      const bound = resolveStepParams(step, varsIn, outputs);
+      // A reference that could not be threaded (an output an earlier step did
+      // not read back live) does NOT halt the flow: the zero-model replay is
+      // skipped and the step goes to recovery on the strong model, built from
+      // what IS known (softResolve keeps the resolved title even when the id is
+      // missing). Only a genuine failure there halts.
+      const unresolved = missing.length > 0 || Boolean(bound && bound.missing.length);
+      const recoveryText = unresolved ? softResolveInstruction(step, varsIn, outputs) : text;
+      opts.progress(`[flow ${flow.name}] ${step.id}: ${(unresolved ? recoveryText : text).slice(0, 80)}`);
       const mark = this.browser.script?.mark() ?? 0;
       // Zero-model first: replay the step's pinned skill directly, binding its
       // params from the flow's stored bindings (robust to reworded steps)
       // rather than re-deriving them from the instruction text.
-      const bound = resolveStepParams(step, varsIn, outputs);
-      if (bound && bound.missing.length) {
-        stepResults.push({ id: step.id, status: 'blocked', reason: `unresolved param reference(s): ${bound.missing.join(', ')}` });
-        halted = true;
-        break;
-      }
-      const direct = step.skill
+      const direct = step.skill && !unresolved
         ? await this.replayDirect(text, screenshotDir, opts.signal, opts.progress, { id: step.skill, params: bound?.params })
         : {};
       let result: InstructionResult;
@@ -510,15 +507,15 @@ export class Daemon {
         // Recovery is hard by definition → strong model, one shot, no cheap
         // pre-attempt. The partial replay (if any) is handed to it directly.
         recovered = true;
-        opts.progress(`[flow ${flow.name}] ${step.id}: recovering on ${opts.recovery.model}`);
+        opts.progress(`[flow ${flow.name}] ${step.id}: ${unresolved ? 'reference could not be threaded — ' : ''}recovering on ${opts.recovery.model}`);
         result = await runEscalatingInstruction(
           opts.recovery,
           null,
           this.browser,
           this.state,
-          direct.prelude ? `${text}
+          direct.prelude ? `${recoveryText}
 
-${direct.prelude}` : text,
+${direct.prelude}` : recoveryText,
           {
             maxTurns: opts.maxTurns,
             timeoutMs: opts.timeoutMs,
