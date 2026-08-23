@@ -305,11 +305,20 @@ What the export does automatically (no configuration):
 - Only steps that ended in `success` are exported — a step the orchestrator tried, hit a wall on, and
   worked around is not part of the resolved path.
 
-The execution ladder per step, halting as soon as a rung succeeds: **replay the pinned skill** (0 tokens)
-→ **cheap-model repair** of just that step, with the partial replay already in hand → **escalation model**
-→ **halt** and return the step's state, so a caller can be brought back to continue from exactly there.
-That last rung is the orchestrator returning to the *top* of the ladder for one step, not rejoining the
-whole run.
+The execution ladder per step, halting as soon as a rung succeeds: **replay the pinned skill** (0 tokens,
+binding its parameters from the flow's own stored bindings rather than re-parsing the wording) → **recover
+on the strong model** — a step that failed to replay is by definition no longer the straightforward case
+the cheap model handled at record time, so recovery goes *straight* to the strongest model available (the
+configured fallback model, even when per-step escalation is otherwise off, or an explicit
+`--recovery-model`), with the partial replay in hand → **halt** and return the step's state, so a caller
+can be brought back to continue from exactly there. That last rung is the orchestrator returning to the
+*top* of the ladder for one step, not rejoining the whole run.
+
+A limitation to know: a step replays cleanly only when the previous steps leave the browser where its
+skill expects. A skill that embeds navigation to a *specific* record (clicking a particular ticket row)
+can drift when the record differs on a later run — the flow references it correctly at the instruction
+level (`{{02-create.ref}}`), but the skill's own locators may not, so that step falls to recovery. Making
+skills navigate by parameter rather than by recorded position is the next improvement.
 
 Honesty carries over intact: a replayed step reports only values it read back live or that came from your
 own `--var` parameters; a value the recording captured as a literal (the ticket id from the run that made

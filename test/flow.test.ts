@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, resolveInstruction, type FlowStep } from '../src/skills/flow.js';
+import { buildFlow, resolveInstruction, resolveStepParams, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, synthesizeReport } from '../src/skills/learn.js';
 import { compileSkill } from '../src/skills/compile.js';
 
@@ -55,6 +55,23 @@ describe('buildFlow', () => {
     expect(s2.skill).toBe('s_addpart');
   });
 
+  it('captures each step skill param bindings, with references, via the bind callback', () => {
+    // bind() returns the slot values the skill would have been given at record time.
+    const bind = (id: string, instr: string): Record<string, string> | null => {
+      if (id === 's_create') return { v1: /titled '([^']+)'/.exec(instr)![1] };
+      if (id === 's_addpart') {
+        const m = /named '([^']+)' with cost (\d+) and markup (\d+)/.exec(instr)!;
+        return { v1: m[1], v2: m[2], v3: m[3] };
+      }
+      return null;
+    };
+    const flow = buildFlow(recording(), { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: { runid: 'fr1' }, session: 's', bind })!;
+    // create: the title slot is the runid + a constant → the runid becomes a ref
+    expect(flow.steps[0].params).toEqual({ v1: '{{runid}} RD Bench Ticket' });
+    // add: name carries the runid ref; cost/markup are constants kept literal
+    expect(flow.steps[1].params).toEqual({ v1: '{{runid}} RD Part A', v2: '100', v3: '25' });
+  });
+
   it('drops instructions that did not end in success', () => {
     const entries = recording();
     (entries[3] as { status: string }).status = 'blocked';
@@ -81,6 +98,15 @@ describe('resolveInstruction', () => {
     expect(r.missing).toContain('01-create.ref');
     expect(r.missing).toContain('cost');
     expect(r.text).toContain('{{01-create.ref}}'); // left intact, not blanked
+  });
+
+  it('resolveStepParams fills stored bindings from vars and prior outputs', () => {
+    const withParams: FlowStep = { ...step, params: { v1: '{{runid}} RD Part A', v2: '{{01-create.ref}}' } };
+    const ok = resolveStepParams(withParams, { runid: 'z9' }, { '01-create': { ref: 'RD-1099' } });
+    expect(ok).toEqual({ params: { v1: 'z9 RD Part A', v2: 'RD-1099' }, missing: [] });
+    const bad = resolveStepParams(withParams, {}, {});
+    expect(bad!.missing).toEqual(expect.arrayContaining(['runid', '01-create.ref']));
+    expect(resolveStepParams(step, {}, {})).toBeNull(); // no stored params
   });
 });
 

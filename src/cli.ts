@@ -125,6 +125,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'title',
     'origin',
     'save-flow',
+    'recovery-model',
   ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -512,6 +513,7 @@ async function main(): Promise<void> {
             maxTurns: flags.has('max-turns') ? Number(flags.get('max-turns')) : undefined,
             timeoutS: flags.has('timeout') ? Number(flags.get('timeout')) : undefined,
             escalate: flags.has('no-escalate') ? false : undefined,
+            recoveryModel: flags.get('recovery-model') || undefined,
           },
           onProgress,
         );

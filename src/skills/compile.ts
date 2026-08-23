@@ -290,8 +290,23 @@ export function sameProcedure(a: Skill, b: Skill): boolean {
   return a.steps.every((s, i) => {
     const t = b.steps[i];
     if (s.tool !== t.tool) return false;
-    const pa = s.locators.target?.[0];
-    const pb = t.locators.target?.[0];
-    return JSON.stringify(pa ?? null) === JSON.stringify(pb ?? null);
+    // Same procedure = same tools driven by the same KIND of primary locator,
+    // regardless of the literal value (a label of 'Name' vs 'Name *', a role
+    // name that is a parameter or a record id). This is what lets two runs'
+    // "add a part" skills merge instead of fragmenting the store; the literal
+    // differences are exactly the parameters the skills already carry.
+    return locatorShape(s.locators.target?.[0]) === locatorShape(t.locators.target?.[0]);
   });
+}
+
+/** A locator's structural shape for merge comparison: its kind, plus the stable
+ * part of a css/id selector (tag/structure, not any embedded id). */
+function locatorShape(c: LocatorCandidate | undefined): string {
+  if (!c) return 'none';
+  if (c.kind === 'css' || c.kind === 'id') {
+    // Drop id-like and numeric tokens so `#row-1042 > a` and `#row-77 > a` match.
+    const skeleton = c.selector.replace(/[A-Za-z0-9_-]+/g, (tok) => (isIdLike(tok) ? '*' : tok));
+    return `${c.kind}:${skeleton}`;
+  }
+  return c.kind;
 }

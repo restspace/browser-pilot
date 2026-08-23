@@ -30,6 +30,12 @@ export interface FlowStep {
   instruction: string;
   /** The skill this instruction used, replayed first on `run`. Re-pinned when a repair validates. */
   skill?: string;
+  /**
+   * The skill's slot bindings, captured at record time so replay does not have
+   * to re-derive them from the (reworded) instruction. Values may hold
+   * {{var}}/{{step.output}} references, resolved the same way as the instruction.
+   */
+  params?: Record<string, string>;
   /** Report values this step produced, named, so later steps can reference them. */
   outputs: string[];
   /** Values observed at record time, kept for reference and as soft assertions. */
@@ -86,7 +92,17 @@ export function listFlows(): Flow[] {
  */
 export function buildFlow(
   entries: RecordedEntry[],
-  opts: { name: string; origin: string; startUrl: string; vars: Record<string, string>; session: string; model?: string; now?: string },
+  opts: {
+    name: string;
+    origin: string;
+    startUrl: string;
+    vars: Record<string, string>;
+    session: string;
+    model?: string;
+    now?: string;
+    /** Given a skill id and the raw recorded instruction, return the slot bindings. */
+    bind?: (skillId: string, instruction: string) => Record<string, string> | null;
+  },
 ): Flow | null {
   const groups = groupByInstruction(entries);
   if (!groups.length) return null;
@@ -104,10 +120,28 @@ export function buildFlow(
       if (p.value.length >= 2) text = replaceToken(text, p.value, `{{${p.stepId}.${p.output}}}`);
     }
     const outputs = Object.keys(g.report?.values ?? {});
+    // Capture the skill's slot bindings, referencized like the instruction, so
+    // replay binds params from the flow rather than re-parsing the wording.
+    let params: Record<string, string> | undefined;
+    if (g.report?.skill && opts.bind) {
+      const raw = opts.bind(g.report.skill, g.instruction.text);
+      if (raw) {
+        params = {};
+        for (const [k, v] of Object.entries(raw)) {
+          let rv = v;
+          for (const [name, value] of varEntries) rv = replaceToken(rv, value, `{{${name}}}`);
+          for (const pr of [...produced].sort((a, b) => b.value.length - a.value.length)) {
+            if (pr.value.length >= 2) rv = replaceToken(rv, pr.value, `{{${pr.stepId}.${pr.output}}}`);
+          }
+          params[k] = rv;
+        }
+      }
+    }
     steps.push({
       id,
       instruction: text,
       ...(g.report?.skill ? { skill: g.report.skill } : {}),
+      ...(params ? { params } : {}),
       outputs,
       recorded: g.report?.values ?? {},
     });
@@ -173,4 +207,29 @@ export function resolveInstruction(step: FlowStep, vars: Record<string, string>,
     return m;
   });
   return { text, missing };
+}
+
+/** Resolve a step's stored param bindings from run vars and prior outputs. */
+export function resolveStepParams(
+  step: FlowStep,
+  vars: Record<string, string>,
+  outputs: Record<string, Record<string, string>>,
+): { params: Record<string, string>; missing: string[] } | null {
+  if (!step.params) return null;
+  const params: Record<string, string> = {};
+  const missing: string[] = [];
+  for (const [k, tmpl] of Object.entries(step.params)) {
+    params[k] = tmpl.replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
+      if (ref.includes('.')) {
+        const [sid, out] = ref.split('.');
+        const v = outputs[sid]?.[out];
+        if (v === undefined) { missing.push(ref); return m; }
+        return v;
+      }
+      if (ref in vars) return vars[ref];
+      missing.push(ref);
+      return m;
+    });
+  }
+  return { params, missing };
 }

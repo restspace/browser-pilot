@@ -70,6 +70,28 @@ Reading it honestly:
 - What worked exactly as designed: validation/demotion (the add-part skill was repaired in run 1 and its
   variant reached 3/3 validated and superseded it), refusal from the wrong page, live read-backs.
 
+### Solidified matching + strong-model recovery (2026-08-23)
+
+Two changes after the first flow test:
+
+1. **Flows carry their skills' parameter bindings.** At export each step stores the skill's slot values
+   (with `{{runid}}`/`{{step.output}}` references), so `run` binds params from the flow rather than
+   re-deriving them from the (reworded) instruction. This removes the "pinned step did not Tier-A match"
+   failures — confirmed: a sign-in+create step replays zero-model from stored params on a fresh runid.
+2. **Recovery goes straight to the strong model.** A step that failed to replay is not the straightforward
+   case the cheap model recorded, so `run` recovers on the configured fallback model (even when per-step
+   escalation is off) or an explicit `--recovery-model`, one shot, no cheap pre-attempt.
+3. **Store fragmentation**: `sameProcedure` now merges by locator *kind* (and id-stripped selector
+   skeleton), not exact literal, so two runs' "add a part" skills coalesce instead of proliferating.
+
+Finding from the same test — the real reliability blocker is now visible: **skills that embed navigation
+to a specific record**. Step 1 (sign-in+create) ends on the tickets list; step 2 (add part) was recorded
+re-navigating list→ticket via record-specific locators, so on a new runid its replay drifts and even the
+strong model struggles to recover from the half-navigated state. The flow references the ticket correctly
+at the instruction level, but the skill's locators do not. Fix (Stage 2): parameterise intra-skill
+navigation — a skill step that clicks a record link should bind that link from a parameter/output, the
+same way instructions already do.
+
 ### Flows: whole-session record-and-replay (2026-08-23)
 
 Built on top of Stage 1 (commit e519981): a session's resolved path is exported as a flow and replayed

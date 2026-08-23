@@ -5,7 +5,7 @@ import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Pr
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
 import { bindSkill, learnFromInstruction, matchTemplate, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, listFlows, loadFlow, resolveInstruction, saveFlow } from '../skills/flow.js';
+import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -72,6 +72,19 @@ export class Daemon {
     const config = resolveProviderConfig(overrides);
     if (!config.fallbackModel || config.fallbackModel === primary?.model) return null;
     return build({ ...config, model: config.fallbackModel });
+  }
+
+  /**
+   * The model flow recovery uses. Unlike the escalation fallback this is NOT
+   * gated by whether per-step escalation is enabled — recovering a drifted
+   * flow step is a deliberate, hard task, so it goes to the strongest model
+   * available: an explicit override, else the configured fallback model, else
+   * the routine model (when none is configured).
+   */
+  private recoveryProvider(overrideModel?: string): Provider {
+    const config = resolveProviderConfig();
+    const model = overrideModel || (config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model);
+    return build({ ...config, model });
   }
 
   async listen(): Promise<void> {
@@ -341,6 +354,12 @@ export class Daemon {
             ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
             provider: this.provider(),
             fallback: a.escalate === false ? null : this.fallbackProvider({}, this.provider()),
+            // Recovery goes STRAIGHT to the strong model: a step that failed to
+            // replay is, by definition, no longer the straightforward case the
+            // cheap model handled at record time. Resolves to the configured
+            // fallback model (even when per-step escalation is off), or an
+            // explicit --recovery-model, falling back to the routine model.
+            recovery: this.recoveryProvider(a.recoveryModel ? String(a.recoveryModel) : undefined),
             signal: controller.signal,
             progress,
           });
@@ -398,6 +417,7 @@ export class Daemon {
       '';
     const origin = startUrl ? originOf(startUrl) : null;
     if (!origin || !startUrl) throw new Error('could not determine the session start url — was anything opened?');
+    const store = this.browser.learn;
     const flow = buildFlow(entries, {
       name,
       origin,
@@ -405,6 +425,10 @@ export class Daemon {
       vars: this.state.vars,
       session: this.opts.session,
       model: this.provider().model,
+      bind: (id, instr) => {
+        const sk = store.get(id);
+        return sk ? bindSkill(sk, instr) : null;
+      },
     });
     if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
     const file = saveFlow(flow);
@@ -428,6 +452,7 @@ export class Daemon {
       turnTimeoutMs?: number;
       provider: Provider;
       fallback: Provider | null;
+      recovery: Provider;
       signal: AbortSignal;
       progress: (m: string) => void;
     },
@@ -465,17 +490,30 @@ export class Daemon {
       }
       opts.progress(`[flow ${flow.name}] ${step.id}: ${text.slice(0, 80)}`);
       const mark = this.browser.script?.mark() ?? 0;
-      // Zero-model first: replay the step's pinned skill directly. Only if it
-      // stops part-way (or is gone) does the cheap model come in — with the
-      // partial replay already in front of it, exactly as a `do` would get it.
-      const direct = step.skill ? await this.replayDirect(text, screenshotDir, opts.signal, opts.progress, { id: step.skill }) : {};
+      // Zero-model first: replay the step's pinned skill directly, binding its
+      // params from the flow's stored bindings (robust to reworded steps)
+      // rather than re-deriving them from the instruction text.
+      const bound = resolveStepParams(step, varsIn, outputs);
+      if (bound && bound.missing.length) {
+        stepResults.push({ id: step.id, status: 'blocked', reason: `unresolved param reference(s): ${bound.missing.join(', ')}` });
+        halted = true;
+        break;
+      }
+      const direct = step.skill
+        ? await this.replayDirect(text, screenshotDir, opts.signal, opts.progress, { id: step.skill, params: bound?.params })
+        : {};
       let result: InstructionResult;
+      let recovered = false;
       if (direct.done) {
         result = direct.done;
       } else {
+        // Recovery is hard by definition → strong model, one shot, no cheap
+        // pre-attempt. The partial replay (if any) is handed to it directly.
+        recovered = true;
+        opts.progress(`[flow ${flow.name}] ${step.id}: recovering on ${opts.recovery.model}`);
         result = await runEscalatingInstruction(
-          opts.provider,
-          opts.fallback,
+          opts.recovery,
+          null,
           this.browser,
           this.state,
           direct.prelude ? `${text}
@@ -492,6 +530,7 @@ ${direct.prelude}` : text,
         );
         if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
       }
+      void recovered;
       // Learn from a repair so the flow's steps get cheaper over successive runs.
       let repinned;
       if (this.browser.learn) {
@@ -562,8 +601,8 @@ ${direct.prelude}` : text,
     screenshotDir: string,
     signal: AbortSignal,
     progress: (m: string) => void,
-    /** Flow replay pins the skill; without it, fall back to a validated template match. */
-    chosen?: { id: string },
+    /** Flow replay pins the skill (and may supply its params); without it, fall back to a validated template match. */
+    chosen?: { id: string; params?: Record<string, string> },
   ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord> }> {
     const store = this.browser.learn;
     if (!store || !this.browser.isOpen) return {};
@@ -578,7 +617,8 @@ ${direct.prelude}` : text,
     let match: { skill: import('../skills/store.js').Skill; params: Record<string, string> } | null;
     if (chosen) {
       const skill = store.get(chosen.id);
-      const params = skill ? bindSkill(skill, instruction) : null;
+      // Prefer the flow's stored bindings; fall back to deriving from wording.
+      const params = skill ? (chosen.params && Object.keys(chosen.params).length ? chosen.params : bindSkill(skill, instruction)) : null;
       match = skill && params ? { skill, params } : null;
     } else {
       match = matchTemplate(store.list(origin), instruction, url);
