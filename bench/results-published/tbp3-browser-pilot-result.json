@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tbp3",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "error: API 402: {\"error\":{\"message\":\"This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.\",\"code\":402,\"metadata\":{\"reason\":\"in_flight_budget_exhausted\",\"limit_source\":\"openrouter_in_flight_budget\",\"remedy_hint\":\"Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.\",\"headers\":{\"Retry-After\":\"120",
+  "turns": 3,
+  "wallMs": 48466,
+  "orchestrator": {
+    "input": 1975,
+    "cacheWrite": 0,
+    "cacheRead": 2752,
+    "output": 576
+  },
+  "inner": {
+    "promptTokens": 74198,
+    "cachedTokens": 41636,
+    "completionTokens": 594,
+    "instructions": 1,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 74198,
+        "completionTokens": 594,
+        "cachedTokens": 41636,
+        "instructions": 1
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 2,
+  "subcommands": {
+    "do": 2
+  },
+  "invocationCount": 2,
+  "commandMs": 35304,
+  "commandBytes": 1403,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.006,
+  "maxUsd": 2,
+  "spendUsd": 0.0473,
+  "finalText": "",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tbp3-browser-pilot-transcript.jsonl"
+}
