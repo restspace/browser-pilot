@@ -1,0 +1,53 @@
+{
+  "arm": "browser-use",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-use@0.13.8",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/dbu2-browser-use-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "dbu2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 153996,
+  "orchestrator": {
+    "input": 0,
+    "cacheWrite": 0,
+    "cacheRead": 0,
+    "output": 0
+  },
+  "inner": {
+    "promptTokens": 10090,
+    "cachedTokens": 6720,
+    "completionTokens": 1590,
+    "model": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 1,
+  "subcommands": {
+    "browser-use": 1
+  },
+  "invocationCount": 1,
+  "commandMs": 153984,
+  "commandBytes": 1296,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [],
+  "orReportedCostUsd": 0,
+  "maxUsd": 2,
+  "spendUsd": 0.0135,
+  "finalText": "FINAL REPORT — Runid: dbu2\n\nThe task could NOT be completed. The agent repeatedly failed to produce valid action output and was terminated before any meaningful work was done. The only progress made was loading the app's login page at http://127.0.0.1:4180/#/login (which showed the sign-in form for Repair Desk). Sign-in with «redacted» was never performed, and no ticket, parts, prices, statuses, or archive actions were ever observed.\n\nObjective-by-objective status:\n1. FAILED — Ticket 'dbu2 RD Bench Ticket' was never created (never got past the login page).\n2. FAILED — Part 'dbu2 RD Part A' (cost 100, markup 25) was never added; no price observed.\n3. FAILED — Part 'dbu2 RD Part B' (cost 200, markup 25) was never added; no price observed.\n4. FAILED — No cost change from 100 to 150 was made; no price observed.\n5. FAILED — Ticket status was never set to 'Ready'; preconditions were never discovered.\n6. FAILED — Parts were never removed and the ticket was never archived.\n\nNo values are reported because none were observed on any page during this session. I am not guessing any prices or statuses.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/dbu2-browser-use-transcript.jsonl"
+}
