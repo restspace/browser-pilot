@@ -1,0 +1,58 @@
+{
+  "arm": "playwright-mcp",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "@playwright/mcp@0.0.79",
+    "commit": "a7d126b"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/smk1pm-playwright-mcp-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "smk1pm",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 74,
+  "wallMs": 338027,
+  "orchestrator": {
+    "input": 38365,
+    "cacheWrite": 0,
+    "cacheRead": 1544704,
+    "output": 3033
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 73,
+  "subcommands": {
+    "browser_navigate": 1,
+    "browser_snapshot": 24,
+    "browser_fill_form": 7,
+    "browser_click": 25,
+    "browser_wait_for": 10,
+    "browser_find": 6
+  },
+  "invocationCount": 73,
+  "commandMs": 32995,
+  "commandBytes": 97106,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.4687,
+  "maxUsd": 2,
+  "spendUsd": 0.4687,
+  "finalText": "All objectives verified. The ticket RD-1015 shows status Ready, 0 parts, and the \"Archived\" badge, and only appears when \"Show archived\" is checked (active list count returned to 13).\n\n## Final Report\n\n**1. DONE** — Ticket created: title `smk1pm RD Bench Ticket`, ref **RD-1015** (id t15), customer \"Bench Customer\", raised 2026-08-24. It appeared in the ticket list as a new row.\n\n**2. DONE** — Part `smk1pm RD Part A` created with cost **$100.00** and markup **25%**. The app computed a price of **$125.00** (ticket total showed $125.00).\n\n**3. DONE** — Part `smk1pm RD Part B` created with cost **$200.00** and markup **25%**. The app computed a price of **$250.00** (ticket total showed $437.50 = 125 + 250 at that point).\n\n**4. DONE** — Part A's cost edited from 100 to **$150.00** (markup still 25%). The app recomputed the price to **$187.50** (ticket total updated to $437.50 = 187.50 + 250).\n\n**5. DONE** — Status set to **Ready**. The precondition the app enforces: **every part on the ticket must have a supplier**. The first \"Mark Ready\" attempt was rejected with an alert reading:\n> \"Ticket is not ready\" — \"Part 'smk1pm RD Part A' has no supplier\" and \"Part 'smk1pm RD Part B' has no supplier\"\n\nI satisfied it by editing each part and filling the Supplier field with \"Acme Parts Co\" (both parts showed \"No supplier\" before, \"Acme Parts Co\" after). The second \"Mark Ready\" click succeeded and the status badge changed from Draft to **Ready**.\n\n**6. DONE** — Both parts removed: Part A deleted via its Delete button + \"Delete part\" confirm (row disappeared, total dropped to $250.00), then Part B deleted the same way, leaving the parts table showing \"No parts on this ticket yet.\" and a parts count of **0**. The ticket was then archived via \"Archive ticket\" — the detail page showed the status line \"Ready · Archived\" and the button changed to \"Unarchive ticket\". Verification: with \"Show archived\" unchecked the active list showed \"Showing 1–10 of 13\" and a search for \"smk1pm\" returned no matches; with \"Show archived\" checked, RD-1015 appears with the \"Archived\" badge, status Ready, and 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/smk1pm-playwright-mcp-transcript.jsonl"
+}
