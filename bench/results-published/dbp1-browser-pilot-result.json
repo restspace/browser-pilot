@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/dbp1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "dbp1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 787026,
+  "orchestrator": {
+    "input": 6660,
+    "cacheWrite": 0,
+    "cacheRead": 35968,
+    "output": 2537
+  },
+  "inner": {
+    "promptTokens": 1424813,
+    "cachedTokens": 1299264,
+    "completionTokens": 6497,
+    "instructions": 9,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 1424813,
+        "completionTokens": 6497,
+        "cachedTokens": 1299264,
+        "instructions": 9
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "do": 9
+  },
+  "invocationCount": 9,
+  "commandMs": 725892,
+  "commandBytes": 8979,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0298,
+  "maxUsd": 2,
+  "spendUsd": null,
+  "finalText": "All objectives verified complete.\n\n## Final Report\n\n**Objective 1 — DONE.** Ticket created with title `dbp1 RD Bench Ticket`, Ref **RD-1015**, customer Marlow Bakery, initial status Draft, created 2026-08-24. The New ticket form required only Title (Customer was optional free text).\n\n**Objective 2 — DONE.** Part `dbp1 RD Part A` added with cost $100.00 and markup 25%. App-computed price: **$125.00** (100 × 1.25).\n\n**Objective 3 — DONE.** Part `dbp1 RD Part B` added with cost $200.00 and markup 25%. App-computed price: **$250.00** (200 × 1.25). Ticket parts total at that point: $375.00.\n\n**Objective 4 — DONE.** Part A's cost edited from 100 to 150 (markup unchanged at 25%). App-computed price afterwards: **$187.50** (150 × 1.25). Ticket parts total became $437.50.\n\n**Objective 5 — DONE.** Status control is a single \"Mark Ready\" button. First attempt was refused with a banner alert headed **\"Ticket is not ready\"** listing, verbatim:\n- `Part \"dbp1 RD Part A\" has no supplier`\n- `Part \"dbp1 RD Part B\" has no supplier`\n\n**What was required:** every part on the ticket must have a supplier. I edited both parts to set supplier \"Acme Parts\" (all other values unchanged), after which \"Mark Ready\" succeeded and the status changed from Draft to **Ready** (button set changed to \"Mark Draft\" / \"Mark Closed\").\n\n**Objective 6 — DONE.** Both parts deleted via each row's Delete button → Confirm dialog → \"Delete part\" (accepted twice). Parts table then read \"No parts on this ticket yet.\" (0 parts). Ticket archived via the \"Archive ticket\" button, which changed to \"Unarchive ticket\". Verified: with \"Show archived\" unchecked, RD-1015 does not appear in the ticket list (13 tickets, refs RD-1014…RD-1004) and no text containing \"dbp1\" appears anywhere in the active list; with \"Show archived\" checked, RD-1015 appears at the top labelled \"dbp1 RD Bench Ticket Archived\", status Ready, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/dbp1-browser-pilot-transcript.jsonl"
+}
