@@ -775,7 +775,12 @@ function runCommand(cmd) {
  */
 async function startMcp() {
   const spec = `${arm.pkg}@${arm.pin}`;
-  const child = spawn(`npx -y ${spec} --isolated --headless --browser chromium`, {
+  // --output-dir: the server otherwise dumps per-snapshot page/console files
+  // into the working directory (47 files in one smoke run), which pollutes the
+  // repo checkout every run makes its home. Session traces belong in tmp; the
+  // transcript already records what the orchestrator saw.
+  const outScratch = path.join(os.tmpdir(), `pw-mcp-${runid}`);
+  const child = spawn(`npx -y ${spec} --isolated --headless --browser chromium --output-dir "${outScratch}"`, {
     shell: true,
     windowsHide: true,
   });
@@ -1232,7 +1237,10 @@ async function runMonolithic() {
     maxSteps: args.maxTurns,
     headless: true,
   });
-  const py = process.platform === 'win32' ? 'bench/arms/.venv-bu/Scripts/python.exe' : 'bench/arms/.venv-bu/bin/python';
+  // Absolute, because the child runs with cwd=here (the bench directory): a
+  // path relative to the REPO would resolve to bench/bench/... and exit 127 —
+  // which is exactly how smoke run smk1bu died in 17ms.
+  const py = path.join(here, process.platform === 'win32' ? 'arms/.venv-bu/Scripts/python.exe' : 'arms/.venv-bu/bin/python');
   const runnerPath = path.join(here, arm.runner);
   return await new Promise((resolve) => {
     const child = spawn(`"${py}" "${runnerPath}"`, { shell: true, windowsHide: true, cwd: here });
