@@ -77,16 +77,34 @@ function claimedPrices(runid) {
   const g = path.join(OUT, `${runid}-agent-browser-result.json`)
   const p = fs.existsSync(f) ? f : fs.existsSync(g) ? g : null
   if (!p) return null
-  const text = JSON.parse(fs.readFileSync(p, 'utf8')).finalText || ''
-  const grab = (re) => {
-    const m = text.match(re)
-    return m ? Number(m[1]) : null
+  const result = JSON.parse(fs.readFileSync(p, 'utf8'))
+  const text = result.finalText || ''
+  // Reports number their lines per objective ("**2. DONE** — ... Price =
+  // 133.33"), but the price rarely shares a sentence with the item name — the
+  // original single-sentence regexes matched nothing on a fully successful run
+  // (tbp1) and scored its claims UNVERIFIABLE. Split the report into
+  // per-objective blocks on the leading numbers instead, and take the first
+  // price-shaped figure inside each block.
+  const blocks = {}
+  const marks = []
+  const re = /(?:^|\n)[^\S\n]*(?:\*\*|__)?([1-6])[.)]/g
+  let m
+  while ((m = re.exec(text))) marks.push({ n: Number(m[1]), i: m.index })
+  for (let k = 0; k < marks.length; k++)
+    blocks[marks[k].n] = text.slice(marks[k].i, marks[k + 1]?.i ?? text.length)
+  const price = (s) => {
+    const hit = s?.match(/price[^0-9]{0,24}(\d+(?:\.\d+)?)/i)
+    return hit ? Number(hit[1]) : null
+  }
+  const grab = (re2) => {
+    const hit = text.match(re2)
+    return hit ? Number(hit[1]) : null
   }
   return {
-    stopReason: JSON.parse(fs.readFileSync(p, 'utf8')).stopReason,
-    itemA: grab(/Item A[^.]*?price\s*=\s*(\d+(?:\.\d+)?)/i),
-    itemB: grab(/Item B[^.]*?price\s*=\s*(\d+(?:\.\d+)?)/i),
-    itemAAfter: grab(/cost changed to 150[^.]*?price\s*=\s*(\d+(?:\.\d+)?)/i),
+    stopReason: result.stopReason,
+    itemA: price(blocks[2]) ?? grab(/Item A[^.]*?price\s*=\s*(\d+(?:\.\d+)?)/i),
+    itemB: price(blocks[3]) ?? grab(/Item B[^.]*?price\s*=\s*(\d+(?:\.\d+)?)/i),
+    itemAAfter: price(blocks[4]) ?? grab(/cost changed to 150[^.]*?price\s*=\s*(\d+(?:\.\d+)?)/i),
   }
 }
 
