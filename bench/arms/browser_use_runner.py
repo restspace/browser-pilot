@@ -49,7 +49,15 @@ async def main() -> None:
             task=cfg["task"],
             llm=llm,
             use_vision=False,
-            browser_profile=BrowserProfile(headless=bool(cfg.get("headless", True))),
+            # chromium_sandbox=False because the bench boxes run as root, and
+            # Chromium refuses to start sandboxed as root — smk2bu's browser
+            # never launched and its start watchdog timed out at 30s. This is
+            # the same effective launch mode Playwright uses for the other
+            # arms on those boxes, not a special concession to this one.
+            browser_profile=BrowserProfile(
+                headless=bool(cfg.get("headless", True)),
+                chromium_sandbox=False,
+            ),
         )
         history = await agent.run(max_steps=int(cfg.get("maxSteps", 120)))
         result["finalText"] = history.final_result() or ""
