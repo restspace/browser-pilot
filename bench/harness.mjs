@@ -961,6 +961,15 @@ function httpPost(url, body, headers) {
       },
     );
     req.on('timeout', () => req.destroy(new Error('request timeout')));
+    // Hard deadline over the WHOLE request lifecycle. The socket-inactivity
+    // timeout above demonstrably does not cover every stall: dpm1 sat on one
+    // OpenRouter request for 60+ minutes with zero CPU and the 300s timeout
+    // never fired, freezing the run mid-slice. Whatever the event-semantics
+    // hole was, this closes it: no single request may outlive 600s, and the
+    // retry loop in post() treats the destroy as a transport failure.
+    const hardDeadline = setTimeout(() => req.destroy(new Error('request hard deadline (600s)')), 600_000);
+    const clearHard = () => clearTimeout(hardDeadline);
+    req.on('close', clearHard);
     req.on('error', reject);
     req.write(payload);
     req.end();
