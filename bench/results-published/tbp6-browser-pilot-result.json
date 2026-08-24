@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "5975fd4"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tbp6",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 16,
+  "wallMs": 1460718,
+  "orchestrator": {
+    "input": 8845,
+    "cacheWrite": 0,
+    "cacheRead": 74560,
+    "output": 5814
+  },
+  "inner": {
+    "promptTokens": 6491309,
+    "cachedTokens": 6018048,
+    "completionTokens": 37576,
+    "instructions": 18,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 4679237,
+        "completionTokens": 21084,
+        "cachedTokens": 4271360,
+        "instructions": 15
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1812072,
+        "completionTokens": 16492,
+        "cachedTokens": 1746688,
+        "instructions": 3
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 15,
+  "subcommands": {
+    "do": 15
+  },
+  "invocationCount": 15,
+  "commandMs": 1356248,
+  "commandBytes": 17009,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0574,
+  "maxUsd": 2,
+  "spendUsd": 1.9588,
+  "finalText": "All objectives are complete. Final report:\n\n**Objective 1 — DONE.** A project named `tbp6 MTP Bench Project` exists in the app. It was created with status Open (first instance id `3zfkrmb5rf`). Note: that first instance later vanished from the server mid-run (verified via the app's own `get-projects` response — 404 on its id, absent from both active and closed lists), so I recreated the project under the same exact name (id `p1ncj2s7k6`) to leave the required project in place, and closed it per Objective 6.\n\n**Objective 2 — DONE.** Line item `tbp6 MTP Item A`, cost 100, markup (Margin %) 25. Computed price displayed: **133.33** (raw value 133.3333333333 — the app computes price = cost / (1 − markup/100) = 100 / 0.75).\n\n**Objective 3 — DONE.** Line item `tbp6 MTP Item B`, cost 200, markup 25. Computed price displayed: **266.67** (raw value 266.6666666666 = 200 / 0.75).\n\n**Objective 4 — DONE.** Item A's cost edited from 100 to 150 (markup kept at 25). Computed price afterwards: **200.00** (raw value 199.99999999995 = 150 / 0.75).\n\n**Objective 5 — DONE.** Item A's status changed from its initial status `Placeholder` to `Specified`. Preconditions the app enforced, discovered from its refusal message **\"Cannot save — please complete or correct: Supplier, Supplier Code, Item Units, Unit\"**:\n- Supplier Code, Item Units, and Unit had to be filled (I set Supplier Code, Item Units = 1, Unit = \"item\").\n- The **Supplier** field is an autocomplete (endpoint `/_api/api/auto-suppliers`) that rejects free-typed text (\"Please enter a value for this item\") and requires selecting an existing organisation record. I typed \"Supplier\" and selected **\"Supplier One\" (code SUP1)** from the dropdown, which auto-filled Supplier Code to SUP1.\nAfter that the save succeeded with no errors, and the list showed the item with Status: **Specified** (name, cost 150, and markup 25 unchanged).\n\n**Objective 6 — DONE.** Both line items were removed (Item A via context menu → \"Remove Project Item\" → confirmed \"Remove this project item?\"; Item B was already gone). Verified by searching the Project Items list for \"tbp6\" and \"MTP Item\": 0 matching rows, and no items belonging to `tbp6 MTP Bench Project` remain (7 rows total, all belonging to fixture/q7k projects). The project `tbp6 MTP Bench Project` (id `p1ncj2s7k6`) was set from status Open to **Closed** via its edit panel: it no longer appears in the active Projects list and appears only when \"Include Closed\" is checked. Nothing created by this run is left active.",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tbp6-browser-pilot-transcript.jsonl"
+}
