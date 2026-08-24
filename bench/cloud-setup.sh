@@ -201,6 +201,18 @@ if [ -n "$WITH_TARGET" ]; then
     for _ in $(seq 1 30); do docker info >/dev/null 2>&1 && break; sleep 1; done
     docker info >/dev/null 2>&1 || die "dockerd did not come up; see /tmp/dockerd.log"
   fi
+  # Docker Hub rate-limits anonymous pulls and the 429 kills compose outright
+  # (smko1 needed manual retries). Pull each image with backoff first; compose
+  # then starts from the local cache.
+  for img in $(grep -E '^\s*image:' "bench/thirdparty/${WITH_TARGET}/docker-compose.yml" | awk '{print $2}'); do
+    docker image inspect "$img" >/dev/null 2>&1 && continue
+    for i in 1 2 3 4 5 6; do
+      docker pull "$img" >/dev/null 2>&1 && break
+      echo "    pull of $img failed (attempt $i); backing off $((i*20))s"
+      sleep $((i*20))
+    done
+    docker image inspect "$img" >/dev/null 2>&1 || die "could not pull $img (rate limit?)"
+  done
   docker compose -f "bench/thirdparty/${WITH_TARGET}/docker-compose.yml" up -d
   case "$WITH_TARGET" in
     odoo)

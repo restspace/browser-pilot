@@ -12,6 +12,16 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE="${ODOO_URL:-http://127.0.0.1:8069}"
 DB="${ODOO_DB:-bench}"
 
+# The compose stack reports the container up before Odoo is listening, and a
+# database/create posted into that gap fails the whole seed (smko1's box hit
+# exactly this). Wait for the HTTP server first.
+echo "==> waiting for odoo to listen at $BASE"
+for _ in $(seq 1 60); do
+  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$BASE/web/database/selector" || true)"
+  case "$code" in 2*|3*) break ;; esac
+  sleep 2
+done
+
 echo "==> creating database '$DB' with demo data (a few minutes)"
 curl -sS -X POST "$BASE/web/database/create" \
   -F master_pwd=admin -F name="$DB" -F login=admin -F password=admin \
