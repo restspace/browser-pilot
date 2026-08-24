@@ -1,0 +1,63 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "aod3",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 56,
+  "wallMs": 335131,
+  "orchestrator": {
+    "input": 85360,
+    "cacheWrite": 0,
+    "cacheRead": 3179712,
+    "output": 5097
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 141,
+  "subcommands": {
+    "open": 3,
+    "skills": 1,
+    "snapshot": 41,
+    "fill": 7,
+    "click": 36,
+    "get": 2,
+    "wait": 37,
+    "type": 4,
+    "press": 3,
+    "eval": 6,
+    "close": 1
+  },
+  "invocationCount": 141,
+  "commandMs": 124307,
+  "commandBytes": 269275,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.9687,
+  "maxUsd": 2,
+  "spendUsd": 0.9687,
+  "finalText": "All six objectives completed and verified in the Odoo 17 app.\n\n**Final report:**\n\n1. **DONE** — Customer `aod3 Bench Customer` created (Contacts app, \"New\"). Verified on the saved contact form: Name = `aod3 Bench Customer`, City field = `Benchville`.\n\n2. **DONE** — Quotation `S00023` created for that customer with one order line. Product chosen: **[FURN_7777] Office Chair** (selected from the autocomplete dropdown, confirmed by the \"Internal link\" button appearing on the field). Unit price auto-filled by the app: **70.00**. Quantity 3 → untaxed amount **£210.00** (line \"Tax excl.\" cell).\n\n3. **DONE** — Second order line added: **[FURN_7800] Desk Combination** (also chosen from the dropdown), quantity 2, unit price 450.00, line amount £900.00. New order-level untaxed amount: **£1,110.00** (read from the page's \"Untaxed Amount\" total).\n\n4. **DONE** — First line's quantity changed from 3 to 5 (line amount became £350.00). Untaxed amount afterwards: **£1,250.00**.\n\n5. **DONE** — Quotation confirmed via the \"Confirm\" button. Order reference: **S00023**. Status shown by the status bar: **\"Sales Order\"** (the \"Sales Order\" radio was checked; the \"Create Invoice\" button appeared, confirming it is now a sales order).\n\n6. **DONE** — Sales order cancelled via Cancel → \"Cancel\" (declining the \"Send and cancel\" email option). Status shown afterwards: **\"Cancelled\"** (the \"Cancelled\" radio was checked, and the status bar read `Cancelled | Sales Order | Quotation Sent | Quotation`). Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/aod3-agent-browser-transcript.jsonl"
+}
