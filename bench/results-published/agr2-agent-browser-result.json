@@ -1,0 +1,63 @@
+{
+  "arm": "agent-browser",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "agr2",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "spend-cap",
+  "turns": 99,
+  "wallMs": 775678,
+  "orchestrator": {
+    "input": 115019,
+    "cacheWrite": 0,
+    "cacheRead": 6179712,
+    "output": 57518
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 149,
+  "subcommands": {
+    "open": 6,
+    "skills": 1,
+    "snapshot": 14,
+    "fill": 4,
+    "click": 13,
+    "get": 10,
+    "wait": 25,
+    "eval": 72,
+    "back": 1,
+    "press": 2,
+    "keyboard": 1
+  },
+  "invocationCount": 149,
+  "commandMs": 80618,
+  "commandBytes": 199886,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 2.0208,
+  "maxUsd": 2,
+  "spendUsd": 2.0208,
+  "finalText": "",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/agr2-agent-browser-transcript.jsonl"
+}
