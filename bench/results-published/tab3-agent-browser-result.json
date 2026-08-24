@@ -1,0 +1,63 @@
+{
+  "arm": "agent-browser",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": null
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tab3",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "error: API 402: {\"error\":{\"message\":\"This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.\",\"code\":402,\"metadata\":{\"reason\":\"in_flight_budget_exhausted\",\"limit_source\":\"openrouter_in_flight_budget\",\"remedy_hint\":\"Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.\",\"headers\":{\"Retry-After\":\"120",
+  "turns": 24,
+  "wallMs": 99762,
+  "orchestrator": {
+    "input": 23186,
+    "cacheWrite": 0,
+    "cacheRead": 285120,
+    "output": 2481
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 41,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 10,
+    "fill": 3,
+    "click": 7,
+    "eval": 9,
+    "wait": 6,
+    "console": 1,
+    "errors": 1,
+    "network": 1,
+    "select": 1,
+    "dblclick": 1
+  },
+  "invocationCount": 41,
+  "commandMs": 14437,
+  "commandBytes": 53008,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.1175,
+  "maxUsd": 2,
+  "spendUsd": 0.1175,
+  "finalText": "",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tab3-agent-browser-transcript.jsonl"
+}
