@@ -28,17 +28,29 @@ export async function snapshot(page: Page, opts: SnapshotOptions = {}): Promise<
   return truncate(text, opts.maxChars ?? 8000);
 }
 
-/** Rewrite Playwright's `[ref=e12]` markers to the compact `[@e12]` form the agent uses. */
+/**
+ * Rewrite Playwright's `[ref=e12]` markers to the compact `[@e12]` form the
+ * agent uses. Elements inside an iframe are referenced `f<frame>e<element>`
+ * ("f1e2"), and those must be rewritten too: the snapshot descends into
+ * frames, and `aria-ref=f1e2` resolves through to the element, so the only
+ * thing that ever stopped the agent reaching inside an iframe was this
+ * pattern not recognising the ref.
+ */
 export function normalizeRefs(snapshotText: string): string {
-  return snapshotText.replace(/\[ref=(e\d+)\]/g, '[@$1]');
+  return snapshotText.replace(/\[ref=((?:f\d+)?e\d+)\]/g, '[@$1]');
 }
 
 const INTERACTIVE_ROLES =
   /\b(button|link|textbox|searchbox|combobox|checkbox|radio|switch|slider|spinbutton|menuitem|option|tab|listbox|grid|row|cell|dialog|alertdialog|heading|alert|status)\b/;
 
-/** The per-line heuristic behind filterInteractive; shared with signature capture. */
+/**
+ * The per-line heuristic behind filterInteractive; shared with signature
+ * capture. Matches any ref, in-frame ones included — testing for "[@e"
+ * silently dropped every line inside an iframe, so an embedded editor or
+ * payment form was invisible in the snapshot the agent works from.
+ */
 export function isInteractiveLine(line: string): boolean {
-  return line.includes('[@e') || INTERACTIVE_ROLES.test(line);
+  return line.includes('[@') || INTERACTIVE_ROLES.test(line);
 }
 
 /**
@@ -102,7 +114,8 @@ export function truncate(text: string, maxChars: number): string {
   return `${head}\n… [truncated ${dropped.length} chars of this page.${scope}]`;
 }
 
-const REF_RE = /^@?(e\d+)$/;
+/** `@e12`, or `@f1e2` for an element inside the page's first iframe. */
+const REF_RE = /^@?((?:f\d+)?e\d+)$/;
 
 /**
  * Resolve an agent-supplied target to a Locator. `@e12` (or bare `e12`)
