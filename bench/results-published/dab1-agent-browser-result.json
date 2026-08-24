@@ -1,0 +1,63 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/dab1-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "dab1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 59,
+  "wallMs": 303646,
+  "orchestrator": {
+    "input": 55895,
+    "cacheWrite": 0,
+    "cacheRead": 2731648,
+    "output": 4354
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 103,
+  "subcommands": {
+    "open": 4,
+    "skills": 1,
+    "snapshot": 11,
+    "fill": 13,
+    "click": 10,
+    "get": 3,
+    "read": 3,
+    "eval": 28,
+    "wait": 16,
+    "find": 13,
+    "close": 1
+  },
+  "invocationCount": 103,
+  "commandMs": 23315,
+  "commandBytes": 180796,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.8076,
+  "maxUsd": 2,
+  "spendUsd": 0.8076,
+  "finalText": "All objectives completed and verified.\n\n## Final Report\n\n**1. DONE** — Ticket created: `RD-1015`, title \"dab1 RD Bench Ticket\", customer \"Bench Customer\", status Draft. Verified present in the ticket list.\n\n**2. DONE** — Part \"dab1 RD Part A\" (cost $100.00, markup 25%, qty 1) added. **Computed price: $125.00** (row read: `dab1 RD Part A | $100.00 | 25% | 1 | No supplier | $125.00`).\n\n**3. DONE** — Part \"dab1 RD Part B\" (cost $200.00, markup 25%, qty 1) added. **Computed price: $250.00** (row read: `dab1 RD Part B | $200.00 | 25% | 1 | No supplier | $250.00`). Ticket total at that point: $375.00.\n\n**4. DONE** — Part A's cost edited from 100 → 150. **Computed price afterwards: $187.50** (row read: `dab1 RD Part A | $150.00 | 25% | 1 | No supplier | $187.50`; ticket total $437.50).\n\n**5. DONE** — Status set to **Ready**. The precondition I had to discover and satisfy: **every part on the ticket must have a supplier**. The first \"Mark Ready\" attempt was rejected with HTTP 409, rendered in the shared error region as:\n- Title: `Ticket is not ready`\n- Unmet list: `Part \"dab1 RD Part A\" has no supplier` and `Part \"dab1 RD Part B\" has no supplier`\n\nI satisfied it by editing each part and setting Supplier = \"Northgate Parts\" on both. The second \"Mark Ready\" attempt succeeded with no error, and the status badge read `Ready` (with \"Mark Draft\" / \"Mark Closed\" buttons appearing, confirming the transition).\n\n**6. DONE** — Both parts removed and the ticket archived. Each delete required a confirm dialog (\"Delete the part \\\"dab1 RD Part A\\\" from this ticket? This cannot be undone.\" / same for Part B), which I accepted. After the delayed refresh the parts table showed \"No parts on this ticket yet.\" with 0 part rows. Clicking \"Archive ticket\" flipped the button label to \"Unarchive ticket\" and added an \"Archived\" badge. Final verification on the detail page: `{\"title\":\"dab1 RD Bench Ticket\",\"status\":\"Ready\",\"archived\":true,\"partRows\":0,\"noParts\":true}`. The default ticket list (13 items) no longer contains RD-1015; it appears only under \"Show archived\" (15 items) as `RD-1015 | dab1 RD Bench Ticket Archived | Bench Customer | Ready | 0 | 2026-08-24`. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/dab1-agent-browser-transcript.jsonl"
+}
