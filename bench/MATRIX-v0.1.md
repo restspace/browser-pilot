@@ -56,8 +56,12 @@ Incumbent = agent-browser, picked on depth-slice medians before breadth ran.
 
 | arm | verified | cost | stop |
 |---|---|---|---|
-| browser-pilot | 6/6, 6/6, 4/6* | $0.83, $1.10, $0.95* | completed, completed, 402* |
-| agent-browser | 6/6, 0/6, 6/6 | $1.53, $2.02, $1.33 | completed, **spend-cap**, completed |
+| browser-pilot (bgr1, bgr2, bgr4) | 6/6, 6/6, 5/6 | $0.83, $1.10, $0.70 | completed ×3 |
+| agent-browser (agr1-3) | 6/6, 0/6, 6/6 | $1.53, $2.02, $1.33 | completed, **spend-cap**, completed |
+
+(bgr4's 5/6 is an honest miss: dashboard saved with panels/tags/refresh
+correct but no time range persisted. bgr3, the 402 casualty, stands on its
+own branch at 4/6.)
 
 ### atelyr (private; runs locally) â€” INCOMPLETE
 
@@ -73,7 +77,7 @@ credit-crunch window and its wall/cost are inflated by 429-retry churn
 to parse price claims from a successful run's report (verifier defect, to be
 fixed before the reruns).
 
-## What the completed cells say (draft reading)
+## What the completed cells say
 
 1. Reliability on real apps: browser-pilot and agent-browser both complete
    Odoo and Grafana; agent-browser burned its whole $2 ceiling once in three
