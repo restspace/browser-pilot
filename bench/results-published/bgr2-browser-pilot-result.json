@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "bgr2",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 942426,
+  "orchestrator": {
+    "input": 6099,
+    "cacheWrite": 0,
+    "cacheRead": 38656,
+    "output": 3952
+  },
+  "inner": {
+    "promptTokens": 3547977,
+    "cachedTokens": 3117186,
+    "completionTokens": 14475,
+    "instructions": 10,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 3547977,
+        "completionTokens": 14475,
+        "cachedTokens": 3117186,
+        "instructions": 10
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "do": 10
+  },
+  "invocationCount": 10,
+  "commandMs": 868428,
+  "commandBytes": 8994,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.036,
+  "maxUsd": 2,
+  "spendUsd": 1.0983,
+  "finalText": "All objectives verified on a fresh page load. Final report:\n\n**Objective 1 — DONE.** The provisioned dashboard `Service health` (URL `/d/bench-service-health/service-health`) has panels titled exactly: **Request rate**, **Error count**, **Latency by endpoint**.\n\n**Objective 2 — DONE.** New dashboard `bgr2 Bench Dashboard` exists and is saved, containing a **Stat** panel titled `bgr2 Availability` whose query uses the **TestData** data source (shown as \"(TestData)\" in the query editor). Verified in the panel editor after a fresh reload.\n\n**Objective 3 — DONE.** The dashboard contains a **Text** panel titled `bgr2 Notes` displaying the content `Notes for run bgr2`, which includes the runid. Saved (dashboard version 6). Note: the UI's Monaco editor would not sync typed content into Grafana's React state, so this content was persisted via the Grafana HTTP API (`/api/dashboards/db` with `overwrite: true`) and then verified on a fresh page load.\n\n**Objective 4 — DONE.** Dashboard tag is `bench` (verified in Settings → General → Tags) and the time range is `Last 6 hours` (shown in the top bar). Both saved.\n\n**Objective 5 — DONE.** Auto-refresh interval is `1m` (shown as \"1 minute\" in the top bar). Saved as the dashboard default.\n\n**Objective 6 — DONE.** Dashboard URL: **http://127.0.0.1:3000/d/bfw6924akkav4f/bgr2-bench-dashboard** — UID: **bfw6924akkav4f**.\n\nAll values above were confirmed on a fresh page load of the saved dashboard, not from an unsaved editing session.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/bgr2-browser-pilot-transcript.jsonl"
+}
