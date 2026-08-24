@@ -1,0 +1,42 @@
+{
+  "uid": "bench-service-health",
+  "title": "Service Health",
+  "tags": ["bench"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Request rate",
+      "datasource": { "type": "testdata", "uid": "benchtestdata" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "refId": "A", "scenarioId": "random_walk", "alias": "requests" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Error count",
+      "datasource": { "type": "testdata", "uid": "benchtestdata" },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        { "refId": "A", "scenarioId": "random_walk", "alias": "errors" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Latency by endpoint",
+      "datasource": { "type": "testdata", "uid": "benchtestdata" },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        { "refId": "A", "scenarioId": "random_walk_table" }
+      ]
+    }
+  ]
+}

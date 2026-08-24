@@ -1,0 +1,9 @@
+# A datasource that generates its own series, so the target needs no metrics
+# backend and every run sees the same shapes.
+apiVersion: 1
+datasources:
+  - name: TestData
+    uid: benchtestdata
+    type: testdata
+    access: proxy
+    isDefault: true

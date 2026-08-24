@@ -1,0 +1,41 @@
+# Third-party benchmark target: Grafana 11 (real production app we did not write).
+#
+# Pairs with the Odoo target by being its opposite in UI character: Odoo is
+# dense server-rendered CRUD, Grafana is a React SPA with drag-and-drop panels,
+# monaco-style query editors and modal-heavy flows. Between them they cover the
+# two shapes most business apps take.
+#
+# Single container: Grafana keeps its own state in SQLite, and the TestData
+# datasource generates series without anything to scrape.
+#
+#   up:    docker compose -f bench/thirdparty/grafana/docker-compose.yml up -d
+#   reset: docker compose -f bench/thirdparty/grafana/docker-compose.yml down -v && up -d
+#   web:   http://127.0.0.1:3000   (admin / admin)
+services:
+  grafana:
+    image: grafana/grafana:11.3.0
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      # The first-login password-change interstitial is a modal that exists
+      # only once, so it would make run 1 structurally different from runs
+      # 2..K and poison a replay sweep.
+      GF_AUTH_DISABLE_LOGIN_FORM: "false"
+      GF_USERS_DEFAULT_THEME: light
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:3000/api/health | grep -q ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  grafana-data:
