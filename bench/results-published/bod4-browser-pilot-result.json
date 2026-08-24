@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "5975fd4"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "bod4",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1007124,
+  "orchestrator": {
+    "input": 5143,
+    "cacheWrite": 0,
+    "cacheRead": 26560,
+    "output": 2103
+  },
+  "inner": {
+    "promptTokens": 2532858,
+    "cachedTokens": 2296832,
+    "completionTokens": 21257,
+    "instructions": 9,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 2128831,
+        "completionTokens": 16235,
+        "cachedTokens": 1912768,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 404027,
+        "completionTokens": 5022,
+        "cachedTokens": 384064,
+        "instructions": 2
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 968057,
+  "commandBytes": 7932,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0234,
+  "maxUsd": 2,
+  "spendUsd": 0.8008,
+  "finalText": "All objectives completed and verified.\n\n**Final report:**\n\n1. **DONE** — Customer `bod4 Bench Customer` created (res.partner id=44) with City = `Benchville`. Verified by re-opening the saved form and reading the City field value back.\n\n2. **DONE** — Quotation `S00021` created for that customer with one order line: product **[FURN_6666] Acoustic Bloc Screens**, quantity 3. Unit price filled in by the app: **£295.00**. Untaxed Amount computed: **£885.00** (TAX 20% £177.00, Total £1,062.00).\n\n3. **DONE** — Second order line added: product **[FURN_0096] Customizable Desk (Steel, White), 160x80cm, with large legs** (a product configurator dialog appeared and was confirmed), quantity 2, unit price £750.00. New Untaxed Amount: **£2,385.00** (Total £2,862.00).\n\n4. **DONE** — First line's quantity changed from 3 to 5 (verified as 5.00 on the saved form). New Untaxed Amount: **£2,975.00** (line 1: 5 × £295.00 = £1,475.00; line 2: 2 × £750.00 = £1,500.00; TAX 20% £595.00, Total £3,570.00).\n\n5. **DONE** — Quotation confirmed via the Confirm button. Order reference: **S00021**. Status shown: **\"Sales Order\"** (status bar button `sale` marked current/aria-checked=true; \"Create Invoice\" button appeared, Confirm button gone).\n\n6. **DONE** — Sales order cancelled (accepted the \"Are you sure you want to cancel this order?\" alert, then clicked \"Send and cancel\" in the Cancel Sales Order dialog). Status shown after cancelling: **\"Cancelled\"** (active in the status bar, aria-checked=true). Final read-only verification confirmed: S00021, customer `bod4 Bench Customer`, status Cancelled, Untaxed Amount £2,975.00 — nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/bod4-browser-pilot-transcript.jsonl"
+}
