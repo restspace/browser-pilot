@@ -30,7 +30,8 @@ lightly exercised; a correction is a useful result in its own right.
 
 ## 2. Run
 
-Substitute `<ARM>` (`browser-pilot` or `agent-browser`) and `<RUNID>`:
+Substitute `<ARM>` (`browser-pilot`, `agent-browser`, `playwright-mcp` or
+`browser-use`) and `<RUNID>`, and `--target` (`repairdesk`, `odoo`, `grafana`):
 
 ```sh
 export BROWSER_PILOT_PROVIDER=novita

@@ -37,9 +37,33 @@ import os from 'node:os';
 import path from 'node:path';
 import { loadRates, priceRun } from './pricing.mjs';
 
+/**
+ * Three arm SHAPES, because the incumbents are not the same kind of thing:
+ *
+ *   cli         the orchestrator model calls one `run_command` tool wrapping
+ *               the arm's own binary (browser-pilot, agent-browser).
+ *   mcp         the orchestrator model calls the arm's NATIVE tool set,
+ *               served by an MCP server the harness spawns and proxies to.
+ *               Playwright MCP is designed to be driven this way; wrapping it
+ *               in a CLI would benchmark a shim nobody ships.
+ *   monolithic  no orchestrator at all: the arm IS a complete agent. The
+ *               harness hands it the task once and takes back the final
+ *               report and token usage (browser-use). invocationCount is 1
+ *               by construction and `turns` counts the agent's own steps.
+ *
+ * The controls that still hold across every shape: same task text, same
+ * orchestrator model and provider where an orchestrator exists, same spend
+ * accounting, same external verification. What CANNOT be held constant is the
+ * loop shape itself — that difference is the thing being measured, exactly as
+ * the layer-count difference is for cli arms (see file header).
+ */
 const ARMS = {
-  'browser-pilot': { bin: 'browser-pilot', docs: 'armdocs/browser-pilot.md' },
-  'agent-browser': { bin: 'agent-browser', docs: 'armdocs/agent-browser.md' },
+  'browser-pilot': { kind: 'cli', bin: 'browser-pilot', docs: 'armdocs/browser-pilot.md' },
+  'agent-browser': { kind: 'cli', bin: 'agent-browser', docs: 'armdocs/agent-browser.md' },
+  // Pinned for the same reason AGENT_BROWSER_VERSION is pinned in
+  // cloud-setup.sh: two boxes set up a week apart must not quietly disagree.
+  'playwright-mcp': { kind: 'mcp', pkg: '@playwright/mcp', pin: '0.0.79', docs: 'armdocs/playwright-mcp.md' },
+  'browser-use': { kind: 'monolithic', runner: 'arms/browser_use_runner.py', pin: '0.13.8', docs: 'armdocs/browser-use.md' },
 };
 
 /**
@@ -95,6 +119,49 @@ const TARGETS = {
     // matters most for a cloud run, where the box is gone minutes afterwards.
     logUrl: () => new URL('/__log', process.env.APP_URL),
   },
+  // The two self-hosted third-party targets (bench/thirdparty). Neither rolls
+  // back state on --reset: every write the task makes is named by the runid,
+  // verification (verify-odoo.mjs / verify-grafana.mjs) matches those exact
+  // names over the app's API, and runs therefore cannot claim each other's
+  // work. Rebuilding either container between runs would cost minutes per run
+  // and buy nothing that runid-scoping does not already give.
+  odoo: {
+    task: 'tasks/odoo-sale-flow.md',
+    defaults: {
+      APP_URL: 'http://127.0.0.1:8069/',
+      APP_EMAIL: 'admin',
+      APP_PASSWORD: 'admin',
+    },
+    reset() {
+      console.log('[harness] odoo: no rollback — writes are runid-scoped, verified by name over JSON-RPC');
+    },
+    notReadyHint:
+      'Start it with: docker compose -f bench/thirdparty/odoo/docker-compose.yml up -d (then seed.sh once)',
+  },
+  grafana: {
+    task: 'tasks/grafana-dashboard-flow.md',
+    defaults: {
+      APP_URL: 'http://127.0.0.1:3000/',
+      APP_EMAIL: 'admin',
+      APP_PASSWORD: 'admin',
+    },
+    // Clear leftovers from earlier runs: everything the task creates carries
+    // the `bench` tag, and provisioned dashboards (Service health) refuse API
+    // deletion, so this can only ever remove benchmark debris.
+    async reset() {
+      const base = process.env.APP_URL.replace(/\/$/, '');
+      const auth = 'Basic ' + Buffer.from(`${process.env.APP_EMAIL}:${process.env.APP_PASSWORD}`).toString('base64');
+      const res = await fetch(`${base}/api/search?tag=bench&type=dash-db`, { headers: { authorization: auth } });
+      if (!res.ok) throw new Error(`grafana search failed: ${res.status}`);
+      const hits = await res.json();
+      for (const h of hits) {
+        const del = await fetch(`${base}/api/dashboards/uid/${h.uid}`, { method: 'DELETE', headers: { authorization: auth } });
+        console.log(`[harness] grafana: deleted leftover dashboard "${h.title}" (${del.status})`);
+      }
+      if (!hits.length) console.log('[harness] grafana: no leftover bench-tagged dashboards');
+    },
+    notReadyHint: 'Start it with: docker compose -f bench/thirdparty/grafana/docker-compose.yml up -d',
+  },
 };
 
 /**
@@ -111,21 +178,26 @@ function describeMachine(bin) {
     cpus: os.cpus().length,
     memGB: Math.round(os.totalmem() / 1e9),
   };
-  // spawnSync, not execFileSync: browser-pilot prints its banner for --version
-  // and exits 2, which execFileSync turns into a throw and records as null.
-  // shell:true because on Windows both CLIs are .cmd shims that execFile
-  // cannot exec directly. Take whatever was printed, whatever the exit code.
-  const v = spawnSync(bin, ['--version'], {
-    encoding: 'utf8',
-    timeout: 30_000,
-    shell: true,
-    windowsHide: true,
-  });
-  const line = `${v.stdout || ''}${v.stderr || ''}`
-    .split('\n')
-    .map((l) => l.trim())
-    .find(Boolean);
-  out.tool = line ? line.slice(0, 80) : null;
+  if (bin) {
+    // spawnSync, not execFileSync: browser-pilot prints its banner for --version
+    // and exits 2, which execFileSync turns into a throw and records as null.
+    // shell:true because on Windows both CLIs are .cmd shims that execFile
+    // cannot exec directly. Take whatever was printed, whatever the exit code.
+    const v = spawnSync(bin, ['--version'], {
+      encoding: 'utf8',
+      timeout: 30_000,
+      shell: true,
+      windowsHide: true,
+    });
+    const line = `${v.stdout || ''}${v.stderr || ''}`
+      .split('\n')
+      .map((l) => l.trim())
+      .find(Boolean);
+    out.tool = line ? line.slice(0, 80) : null;
+  } else {
+    // Non-cli arms have no binary to ask; the pin IS the version, by definition.
+    out.tool = `${arm.pkg ?? args.arm}@${arm.pin}`;
+  }
   try {
     out.commit = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
       encoding: 'utf8',
@@ -352,18 +424,28 @@ const coarseBlock = coarse
   ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Equally, do NOT spend a call just exploring or cataloguing the UI ("describe the app's structure", "open the dialog and list every field, option and button", "report the full contents") — that sends the agent on an open-ended survey that burns its whole budget without moving the goal forward. Ask for the outcome and let the agent read only what it needs to achieve it; if you need a specific fact back, request that one fact as part of an action, not an exhaustive inventory. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there.`
   : '';
 
+// The cli text is kept byte-for-byte what it was before other arm shapes
+// existed, so every earlier cli run stays comparable with later ones.
+const armLabel = arm.bin ?? args.arm;
+const toolIntro =
+  arm.kind === 'mcp'
+    ? `You have a set of browser tools, served natively by ${arm.pkg}. You cannot see the screen; tool output is your only view of the browser.`
+    : `You have exactly one tool: \`run_command\`, which runs the \`${arm.bin}\` command-line tool and returns its output. You cannot see the screen; the command output is your only view of the browser.`;
+const sessionPara =
+  arm.kind === 'cli'
+    ? `\n\nPass \`--session ${runid}\` on every command. Both tools take this flag; it isolates this run's
+browser and state from any other, so a run never inherits leftovers from a previous one.`
+    : '';
+
 const systemText = `You are an automation agent completing a goal in a real web browser.
 
-You have exactly one tool: \`run_command\`, which runs the \`${arm.bin}\` command-line tool and returns its output. You cannot see the screen; the command output is your only view of the browser.
+${toolIntro}
 
 Work through the goal to completion. Verify what you did rather than assuming a command succeeded. When the whole goal is done (or you are certain you cannot finish it), stop calling tools and reply with a final plain-text report stating, for each part of the goal, whether it succeeded and the concrete values you observed.${coarseBlock}
 
-Runid for this run: ${runid}. Where the goal says to name something with the runid, use exactly this value.
+Runid for this run: ${runid}. Where the goal says to name something with the runid, use exactly this value.${sessionPara}
 
-Pass \`--session ${runid}\` on every command. Both tools take this flag; it isolates this run's
-browser and state from any other, so a run never inherits leftovers from a previous one.
-
---- ${arm.bin} DOCUMENTATION ---
+--- ${armLabel} DOCUMENTATION ---
 ${toolDocs}${
   briefing
     ? `\n\n--- APP BRIEFING (conventions and selector knowledge for the app under test) ---\n${briefing}`
@@ -379,6 +461,14 @@ const TOOL_SCHEMA = {
     command: { type: 'string', description: `Full command line, e.g. "${arm.bin} ..."` },
   },
 };
+
+/**
+ * The tool set the orchestrator sees. For cli arms this is the single
+ * run_command wrapper; for the mcp arm it is filled in from the server's own
+ * tools/list after startup (see startMcp), which is the point: the arm is
+ * benchmarked with the exact tool schemas its authors ship.
+ */
+let TOOLS = arm.kind === 'cli' ? [{ name: TOOL_NAME, description: TOOL_DESC, schema: TOOL_SCHEMA }] : [];
 
 /** Accounting. Orchestrator tokens and the inner model's tokens are kept apart: they bill at different rates. */
 const usage = { input: 0, cacheWrite: 0, cacheRead: 0, output: 0 };
@@ -674,6 +764,107 @@ function runCommand(cmd) {
 }
 
 /**
+ * Minimal MCP client over stdio, for the mcp arm shape. Deliberately not a
+ * dependency: the protocol surface this needs is four messages (initialize,
+ * initialized, tools/list, tools/call) over newline-delimited JSON-RPC, and a
+ * benchmark harness should have as few moving parts of its own as possible.
+ *
+ * The server is spawned with --isolated so each run gets a fresh in-memory
+ * browser profile — the same guarantee --session gives the cli arms — and
+ * --headless --browser chromium for parity with how the cli arms run.
+ */
+async function startMcp() {
+  const spec = `${arm.pkg}@${arm.pin}`;
+  const child = spawn(`npx -y ${spec} --isolated --headless --browser chromium`, {
+    shell: true,
+    windowsHide: true,
+  });
+  const pending = new Map();
+  let nextId = 0;
+  let buf = '';
+  let stderrTail = '';
+  child.stdout.on('data', (d) => {
+    buf += d.toString();
+    let nl;
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl);
+      buf = buf.slice(nl + 1);
+      if (!line.trim()) continue;
+      let msg;
+      try {
+        msg = JSON.parse(line);
+      } catch {
+        continue; // npx progress noise on stdout, not a protocol message
+      }
+      const waiter = pending.get(msg.id);
+      if (waiter) {
+        pending.delete(msg.id);
+        waiter(msg);
+      }
+    }
+  });
+  child.stderr.on('data', (d) => (stderrTail = (stderrTail + d.toString()).slice(-2000)));
+  child.on('exit', () => {
+    for (const [id, waiter] of pending) {
+      pending.delete(id);
+      waiter({ error: { message: `mcp server exited; stderr tail: ${stderrTail.slice(-300)}` } });
+    }
+  });
+  const send = (obj) => child.stdin.write(JSON.stringify(obj) + '\n');
+  const request = (method, params, timeoutMs = args.timeoutMs) =>
+    new Promise((resolve, reject) => {
+      const id = ++nextId;
+      const timer = setTimeout(() => {
+        pending.delete(id);
+        reject(new Error(`mcp ${method} timed out after ${timeoutMs}ms; stderr tail: ${stderrTail.slice(-300)}`));
+      }, timeoutMs);
+      pending.set(id, (msg) => {
+        clearTimeout(timer);
+        if (msg.error) reject(new Error(msg.error.message ?? JSON.stringify(msg.error)));
+        else resolve(msg.result);
+      });
+      send({ jsonrpc: '2.0', id, method, params });
+    });
+
+  // First contact may include an npx download of the pinned package.
+  await request(
+    'initialize',
+    { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'bench-harness', version: '1' } },
+    180_000,
+  );
+  send({ jsonrpc: '2.0', method: 'notifications/initialized' });
+  const listed = await request('tools/list', {}, 60_000);
+
+  return {
+    tools: (listed.tools ?? []).map((t) => ({
+      name: t.name,
+      description: t.description ?? '',
+      schema: t.inputSchema ?? { type: 'object', properties: {} },
+    })),
+    async call(name, input) {
+      const started = Date.now();
+      try {
+        const res = await request('tools/call', { name, arguments: input ?? {} });
+        // The orchestrator model is text-only (a control shared by every arm),
+        // so image content is dropped and SAID to be dropped rather than
+        // silently vanishing from the record.
+        const text = (res.content ?? [])
+          .map((c) => (c.type === 'text' ? c.text : `[${c.type} content omitted — this benchmark is text-only]`))
+          .join('\n');
+        return { text: text || '(no output)', isError: Boolean(res.isError), ms: Date.now() - started };
+      } catch (err) {
+        return { text: `Error: ${err.message}`, isError: true, ms: Date.now() - started };
+      }
+    },
+    close() {
+      try {
+        killTree(child.pid);
+      } catch {}
+    },
+  };
+}
+
+/**
  * Ask browser-pilot's daemon what its inner model(s) actually spent.
  *
  * Scraping stdout does not work: the orchestrator is free to call `do` without
@@ -845,14 +1036,15 @@ const adapters = {
           model,
           max_tokens: 4096,
           system: [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }],
-          tools: [
-            {
-              name: TOOL_NAME,
-              description: TOOL_DESC,
-              input_schema: TOOL_SCHEMA,
-              cache_control: { type: 'ephemeral' },
-            },
-          ],
+          // One cache breakpoint on the LAST tool covers the whole tool block;
+          // per-tool breakpoints would exceed Anthropic's limit of 4 once an
+          // mcp arm brings its own 20+ tools.
+          tools: TOOLS.map((t, i) => ({
+            name: t.name,
+            description: t.description,
+            input_schema: t.schema,
+            ...(i === TOOLS.length - 1 ? { cache_control: { type: 'ephemeral' } } : {}),
+          })),
           messages,
         },
         { 'x-api-key': apiKey, 'anthropic-version': API_VERSION },
@@ -862,7 +1054,7 @@ const adapters = {
         assistant: { role: 'assistant', content: reply.content },
         calls: reply.content
           .filter((c) => c.type === 'tool_use')
-          .map((c) => ({ id: c.id, command: String(c.input?.command ?? '') })),
+          .map((c) => ({ id: c.id, name: c.name, input: c.input ?? {}, command: String(c.input?.command ?? '') })),
         text: reply.content.filter((c) => c.type === 'text').map((c) => c.text).join('\n'),
         usage: {
           input: u.input_tokens ?? 0,
@@ -890,12 +1082,10 @@ const adapters = {
         model,
         temperature: 0,
         messages: [{ role: 'system', content: systemText }, ...messages],
-        tools: [
-          {
-            type: 'function',
-            function: { name: TOOL_NAME, description: TOOL_DESC, parameters: TOOL_SCHEMA },
-          },
-        ],
+        tools: TOOLS.map((t) => ({
+          type: 'function',
+          function: { name: t.name, description: t.description, parameters: t.schema },
+        })),
         tool_choice: 'auto',
       };
       if (providerName === 'openrouter') {
@@ -908,7 +1098,8 @@ const adapters = {
       const reply = await post(body, { authorization: `Bearer ${apiKey}` });
       const msg = reply.choices?.[0]?.message;
       if (!msg) throw new Error(`no choices: ${JSON.stringify(reply).slice(0, 300)}`);
-      const raw = (msg.tool_calls ?? []).filter((c) => c?.function?.name === TOOL_NAME);
+      const known = new Set(TOOLS.map((t) => t.name));
+      const raw = (msg.tool_calls ?? []).filter((c) => known.has(c?.function?.name));
       const u = reply.usage ?? {};
       const cached = u.prompt_tokens_details?.cached_tokens ?? 0;
       // Rebuild the assistant message from just the fields the wire format
@@ -932,13 +1123,13 @@ const adapters = {
       return {
         assistant,
         calls: raw.map((c, i) => {
-          let command = '';
+          let input = {};
           try {
-            command = String(JSON.parse(c.function.arguments || '{}').command ?? '');
+            input = JSON.parse(c.function.arguments || '{}');
           } catch {
-            command = '';
+            input = {};
           }
-          return { id: c.id || `call_${i}`, command };
+          return { id: c.id || `call_${i}`, name: c.function.name, input, command: String(input.command ?? '') };
         }),
         text: msg.content ?? '',
         usage: {
@@ -1007,6 +1198,85 @@ if (process.env.APP_URL) {
   }
 }
 
+let mcp = null;
+if (arm.kind === 'mcp') {
+  mcp = await startMcp();
+  TOOLS = mcp.tools;
+  if (!TOOLS.length) {
+    console.error('[harness] mcp server listed no tools — aborting before any model spend');
+    process.exit(2);
+  }
+  log({ k: 'mcp-tools', count: TOOLS.length, names: TOOLS.map((t) => t.name) });
+}
+
+/**
+ * The monolithic arm shape: hand the whole task to the arm's own agent, once.
+ *
+ * The runner process prints exactly one JSON object on its last stdout line:
+ * { finalText, steps, usage: {prompt, cached, completion}, model, error? }.
+ * Its stdout above that line is the agent's own progress noise and goes to the
+ * transcript only. Token usage lands in `inner` (the arm's model does the
+ * browser-level work, exactly what `inner` prices for browser-pilot), and the
+ * orchestrator block stays zero — there is no orchestrator to bill.
+ *
+ * What is NOT enforced here, and is disclosed in the result: --maxUsd cannot
+ * stop a monolithic run mid-flight, because usage is only reported at the end.
+ * The step cap (maxTurns, passed through) and the wall-clock kill in
+ * runCommand's timeout are the only in-flight bounds.
+ */
+async function runMonolithic() {
+  const payload = JSON.stringify({
+    task,
+    runid,
+    model,
+    maxSteps: args.maxTurns,
+    headless: true,
+  });
+  const py = process.platform === 'win32' ? 'bench/arms/.venv-bu/Scripts/python.exe' : 'bench/arms/.venv-bu/bin/python';
+  const runnerPath = path.join(here, arm.runner);
+  return await new Promise((resolve) => {
+    const child = spawn(`"${py}" "${runnerPath}"`, { shell: true, windowsHide: true, cwd: here });
+    let out = '';
+    let err = '';
+    const timer = setTimeout(() => {
+      killTree(child.pid);
+    }, args.timeoutMs * 4); // one budget per quarter of the run, same order as a full cli run
+    child.stdout.on('data', (d) => (out += d.toString()));
+    child.stderr.on('data', (d) => (err += d.toString()));
+    child.on('error', (e) => (err += String(e)));
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      log({ k: 'mono-exit', code, stderr: err.slice(-2000) });
+      const lines = out.trim().split('\n');
+      let parsed = null;
+      for (let i = lines.length - 1; i >= 0 && !parsed; i--) {
+        try {
+          const p = JSON.parse(lines[i]);
+          if (p && typeof p === 'object' && ('finalText' in p || 'error' in p)) parsed = p;
+        } catch {}
+      }
+      if (!parsed) {
+        stopReason = `error: monolithic runner produced no result JSON (exit ${code})`;
+        finalText = '';
+        resolve(null);
+        return;
+      }
+      turns = parsed.steps ?? 1;
+      finalText = parsed.finalText ?? '';
+      inner.promptTokens = parsed.usage?.prompt ?? 0;
+      inner.cachedTokens = parsed.usage?.cached ?? 0;
+      inner.completionTokens = parsed.usage?.completion ?? 0;
+      inner.model = parsed.model ?? model;
+      inner.provider = providerName;
+      commands.push({ turn: 1, cmd: `${args.arm} agent.run`, ms: Date.now() - startedAt, bytes: Buffer.byteLength(out), code: code ?? -1, killed: false });
+      if (parsed.error) stopReason = `error: ${String(parsed.error).slice(0, 300)}`;
+      resolve(parsed);
+    });
+    child.stdin.write(payload);
+    child.stdin.end();
+  });
+}
+
 const startedAt = Date.now();
 const messages = [adapter.firstMessage(task)];
 let turns = 0;
@@ -1023,7 +1293,9 @@ if (saveFlow) {
   log({ k: 'flow-var', runid, code: r.code });
 }
 
-try {
+if (arm.kind === 'monolithic') {
+  await runMonolithic();
+} else try {
   while (turns < args.maxTurns) {
     turns++;
     // What the harness is about to SEND, measured before the call. If this grows
@@ -1069,6 +1341,30 @@ try {
 
     const results = [];
     for (const call of reply.calls) {
+      if (arm.kind === 'mcp') {
+        // No shell, no segments, no allow-list: the call IS the tool call,
+        // proxied to the arm's own server. What gets recorded per command is
+        // the tool name plus its arguments, which is this arm's equivalent of
+        // a command line.
+        const r = await mcp.call(call.name, call.input);
+        const cmdText = `${call.name} ${JSON.stringify(call.input ?? {})}`;
+        const bytes = Buffer.byteLength(r.text, 'utf8');
+        commands.push({ turn: turns, cmd: cmdText, ms: r.ms, bytes, code: r.isError ? 1 : 0, killed: false });
+        const entry = { k: 'cmd', turn: turns, cmd: cmdText, ms: r.ms, code: r.isError ? 1 : 0, killed: false, bytes };
+        if (args.captureBytes > 0) {
+          entry.out = r.text.slice(0, args.captureBytes);
+          if (r.text.length > args.captureBytes) entry.outTruncated = r.text.length;
+        }
+        log(entry);
+        let content = r.text;
+        const repeat = repeatedOutput(content);
+        if (repeat >= LOOP_NUDGE) {
+          log({ k: 'loop-advice', turn: turns, repeat });
+          content += `\n\n[harness] This is the ${repeat}th turn in a row with byte-identical output, so these commands are not revealing anything new. Consider acting on what you have already observed instead of observing again.`;
+        }
+        results.push({ id: call.id, isError: r.isError, content });
+        continue;
+      }
       const { segments, ops } = splitSegments(call.command);
       const bad = segments.find((seg) => !commandIsAllowed(seg));
       if (!segments.length || bad) {
@@ -1180,12 +1476,18 @@ await collectInnerUsage();
  * worse than leaking a process.
  */
 try {
-  const stop =
-    args.arm === 'browser-pilot'
-      ? `${arm.bin} stop --session ${runid}${saveFlow ? ` --save-flow ${saveFlow}` : ''}`
-      : `${arm.bin} --session ${runid} close`;
-  const r = await runCommand(stop);
-  log({ k: 'cleanup', cmd: stop, code: r.code });
+  if (arm.kind === 'cli') {
+    const stop =
+      args.arm === 'browser-pilot'
+        ? `${arm.bin} stop --session ${runid}${saveFlow ? ` --save-flow ${saveFlow}` : ''}`
+        : `${arm.bin} --session ${runid} close`;
+    const r = await runCommand(stop);
+    log({ k: 'cleanup', cmd: stop, code: r.code });
+  } else if (mcp) {
+    mcp.close();
+    log({ k: 'cleanup', cmd: 'mcp close', code: 0 });
+  }
+  // monolithic: the runner owns its browser and has already exited with it.
 } catch (err) {
   log({ k: 'cleanup-failed', message: String(err) });
 }
@@ -1226,8 +1528,23 @@ const result = {
   orchestrator: usage,
   inner,
   commandCount: commands.length,
-  subcommands: subcommandCounts(commands, arm.bin),
-  invocationCount: Object.values(subcommandCounts(commands, arm.bin)).reduce((n, v) => n + v, 0),
+  // For cli arms an invocation is a subcommand of the binary; for mcp it is a
+  // tool call (the first token of the recorded command IS the tool name); for
+  // monolithic it is the single hand-off, by construction.
+  subcommands:
+    arm.kind === 'cli'
+      ? subcommandCounts(commands, arm.bin)
+      : commands.reduce((acc, c) => {
+          const name = String(c.cmd).split(/\s+/)[0];
+          acc[name] = (acc[name] || 0) + 1;
+          return acc;
+        }, {}),
+  invocationCount:
+    arm.kind === 'cli'
+      ? Object.values(subcommandCounts(commands, arm.bin)).reduce((n, v) => n + v, 0)
+      : arm.kind === 'mcp'
+        ? commands.length
+        : 1,
   commandMs: commands.reduce((n, c) => n + c.ms, 0),
   commandBytes: commands.reduce((n, c) => n + c.bytes, 0),
   timeouts: commands.filter((c) => c.killed).length,

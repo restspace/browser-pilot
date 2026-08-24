@@ -38,6 +38,29 @@ model; agent-browser leaves both on the orchestrator. Cost is therefore reported
 total = O_tokens Ã— O_rate  +  M_tokens Ã— M_rate
 ```
 
+### The other two arm shapes
+
+The matrix adds two incumbents that are not CLIs, so they cannot be driven
+through `run_command` without benchmarking a wrapper nobody ships:
+
+- **playwright-mcp** — the orchestrator model gets the tool set Playwright MCP's
+  authors publish, served by `@playwright/mcp` (pinned) over stdio and proxied
+  by the harness. Same orchestrator model, same task text, same accounting; the
+  tool schemas are the arm's own.
+- **browser-use** — a complete agent, so there is no orchestrator at all: the
+  harness hands it the task once and takes back the final report, step count and
+  token usage (from browser-use's own accounting, the same self-reporting basis
+  as browser-pilot's inner usage). Disclosures: it runs on the SAME model as the
+  other arms' orchestrator (model quality is a control, so this is "browser-use
+  on the benchmark's model", not peak browser-use); `use_vision` is off because
+  that model takes no images and every arm is text-only; and `--maxUsd` cannot
+  stop it mid-flight because usage is only reported at the end — the step cap
+  and wall-clock timeout are its only in-flight bounds.
+
+What stays constant across all four arms: task text, verification (external,
+against the app's own records), spend accounting, and the model where one
+exists. What varies is the loop shape itself — which is the thing under test.
+
 ### Why not drive the arms with a coding agent
 
 An earlier iteration drove one arm from a coding-agent session and the other from a subagent.

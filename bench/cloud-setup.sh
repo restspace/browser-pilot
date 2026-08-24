@@ -44,6 +44,10 @@ START_APP=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --with-arm-b) WITH_ARM_B=1 ;;
+    --with-target) WITH_TARGET="$2"; shift ;;
+    --with-arm-mcp) WITH_ARM_MCP=1 ;;
+    --with-arm-bu) WITH_ARM_BU=1 ;;
+    --with-all-arms) WITH_ARM_B=1; WITH_ARM_MCP=1; WITH_ARM_BU=1 ;;
     --skip-browser) SKIP_BROWSER=1 ;;
     --no-start) START_APP=0 ;;
     --port) PORT="$2"; shift ;;
@@ -145,6 +149,78 @@ if [ "$WITH_ARM_B" = "1" ]; then
     npm install -g "agent-browser@${AGENT_BROWSER_VERSION}"
     echo "    $(agent-browser --version 2>/dev/null | head -1)"
   fi
+fi
+
+# ---------------------------------------------------------------- arm C (playwright-mcp)
+
+# Pins live in bench/harness.mjs (ARMS) — these must match them.
+PLAYWRIGHT_MCP_VERSION="${PLAYWRIGHT_MCP_VERSION:-0.0.79}"
+BROWSER_USE_VERSION="${BROWSER_USE_VERSION:-0.13.8}"
+
+if [ "$WITH_ARM_MCP" = "1" ]; then
+  say "Preparing Playwright MCP (arm: playwright-mcp)"
+  # The package itself came in with npm ci (it is a devDependency); what a
+  # fresh box lacks is the server's own browser build, which is NOT the
+  # chromium the step above installed.
+  npx --yes "@playwright/mcp@${PLAYWRIGHT_MCP_VERSION}" install-browser chrome-for-testing     || die "playwright-mcp browser install failed"
+  echo "    @playwright/mcp@${PLAYWRIGHT_MCP_VERSION} ready"
+fi
+
+# ---------------------------------------------------------------- arm D (browser-use)
+
+if [ "$WITH_ARM_BU" = "1" ]; then
+  say "Preparing browser-use (arm: browser-use)"
+  py="$(command -v python3 || command -v python)" || die "python3 is not installed"
+  if [ ! -d bench/arms/.venv-bu ]; then "$py" -m venv bench/arms/.venv-bu; fi
+  vpy="bench/arms/.venv-bu/bin/python"; [ -x "$vpy" ] || vpy="bench/arms/.venv-bu/Scripts/python.exe"
+  "$vpy" -m pip install -q "browser-use==${BROWSER_USE_VERSION}"
+  "$vpy" -c "import browser_use" || die "browser-use import failed after install"
+  # browser-use finds a system chrome/chromium or downloads its own on first
+  # run; on a bare box that first download happens INSIDE run one and can eat
+  # minutes of its wall clock, so trigger it now instead.
+  echo '{"task":"noop","runid":"warm","model":"x","maxSteps":1}' | "$vpy" bench/arms/browser_use_runner.py >/dev/null 2>&1 || true
+  echo "    browser-use==${BROWSER_USE_VERSION} ready"
+fi
+
+# ---------------------------------------------------------------- third-party targets
+
+# --with-target odoo|grafana brings up a bench/thirdparty compose stack. On the
+# cloud image the docker daemon is NOT running at boot and `service docker
+# start` dies on a ulimit it may not set — but plain `dockerd` as root works
+# (probed 2026-08-24: engine 29.3.1, compose v5.1.1, both stacks healthy).
+if [ -n "$WITH_TARGET" ]; then
+  say "Starting target: ${WITH_TARGET}"
+  [ -f "bench/thirdparty/${WITH_TARGET}/docker-compose.yml" ] || die "unknown target ${WITH_TARGET}"
+  if ! docker info >/dev/null 2>&1; then
+    echo "    docker daemon not running; starting dockerd"
+    [ "$(id -u)" = "0" ] || die "docker daemon is down and this is not root; start it and re-run"
+    nohup dockerd >/tmp/dockerd.log 2>&1 &
+    for _ in $(seq 1 30); do docker info >/dev/null 2>&1 && break; sleep 1; done
+    docker info >/dev/null 2>&1 || die "dockerd did not come up; see /tmp/dockerd.log"
+  fi
+  docker compose -f "bench/thirdparty/${WITH_TARGET}/docker-compose.yml" up -d
+  case "$WITH_TARGET" in
+    odoo)
+      # Seed only when the bench DB is absent; the seed takes minutes.
+      if curl -s --max-time 10 http://127.0.0.1:8069/web/database/list -X POST            -H 'content-type: application/json' -d '{}' | grep -q '"bench"'; then
+        echo "    bench database already present"
+      else
+        bash bench/thirdparty/odoo/seed.sh
+      fi
+      for _ in $(seq 1 60); do
+        code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:8069/web/login || true)"
+        [ "$code" = "200" ] && break; sleep 2
+      done
+      echo "    odoo login page: HTTP ${code:-unreachable}"
+      ;;
+    grafana)
+      for _ in $(seq 1 45); do
+        code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:3000/login || true)"
+        [ "$code" = "200" ] && break; sleep 2
+      done
+      echo "    grafana login page: HTTP ${code:-unreachable}"
+      ;;
+  esac
 fi
 
 # ---------------------------------------------------------------- preflight
