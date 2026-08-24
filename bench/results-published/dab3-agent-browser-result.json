@@ -1,0 +1,59 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/dab3-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "dab3",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 32,
+  "wallMs": 124160,
+  "orchestrator": {
+    "input": 20105,
+    "cacheWrite": 0,
+    "cacheRead": 361216,
+    "output": 2325
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 88,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 26,
+    "fill": 13,
+    "click": 22,
+    "wait": 23,
+    "get": 2,
+    "check": 1
+  },
+  "invocationCount": 88,
+  "commandMs": 28333,
+  "commandBytes": 32901,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.1323,
+  "maxUsd": 2,
+  "spendUsd": 0.1323,
+  "finalText": "All objectives verified. Final report:\n\n**1. DONE** — Ticket created: **RD-1015**, title \"dab3 RD Bench Ticket\", customer \"Bench Customer\", raised 2026-08-24. It appeared at the top of the tickets list after the create refresh.\n\n**2. DONE** — Part \"dab3 RD Part A\" (cost $100.00, markup 25%, qty 1) computed price: **$125.00** (ticket total showed $125.00).\n\n**3. DONE** — Part \"dab3 RD Part B\" (cost $200.00, markup 25%, qty 1) computed price: **$250.00** (ticket total showed $375.00).\n\n**4. DONE** — After editing Part A's cost from 100 to 150, its computed price was **$187.50** (ticket total updated to $437.50).\n\n**5. DONE** — Status reached **Ready**. The precondition discovered: clicking \"Mark Ready\" while parts had no supplier produced an alert reading \"Ticket is not ready\" with the bullet items `Part \"dab3 RD Part A\" has no supplier` and `Part \"dab3 RD Part B\" has no supplier`. **The requirement was that every part on the ticket must have a supplier assigned.** I set supplier \"Bench Supplier\" on both parts via Edit, after which \"Mark Ready\" succeeded and the status changed from Draft to Ready (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n**6. DONE** — Both parts were deleted (each via a \"Confirm\" dialog: \"Delete the part \\\"dab3 RD Part A\\\" from this ticket? This cannot be undone.\" → \"Delete part\", and the same for Part B). The parts table then read \"No parts on this ticket yet.\" The ticket was then archived — the detail page showed \"Status: Ready\" plus an \"Archived\" badge and the button changed to \"Unarchive ticket\". In the tickets list with \"Show archived\" unchecked, RD-1015 no longer appears; with \"Show archived\" checked it appears as \"dab3 RD Bench Ticket Archived\", status Ready, 0 parts. Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/dab3-agent-browser-transcript.jsonl"
+}
