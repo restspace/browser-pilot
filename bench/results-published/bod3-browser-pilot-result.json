@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "bod3",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 693241,
+  "orchestrator": {
+    "input": 4960,
+    "cacheWrite": 0,
+    "cacheRead": 32640,
+    "output": 2379
+  },
+  "inner": {
+    "promptTokens": 1441005,
+    "cachedTokens": 1287537,
+    "completionTokens": 7351,
+    "instructions": 7,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 1441005,
+        "completionTokens": 7351,
+        "cachedTokens": 1287537,
+        "instructions": 7
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "do": 9
+  },
+  "invocationCount": 9,
+  "commandMs": 647534,
+  "commandBytes": 5653,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0259,
+  "maxUsd": 2,
+  "spendUsd": 0.4452,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE:** Customer `bod3 Bench Customer` created (record id 46) with City set to `Benchville`. Verified on the saved record: name combobox shows \"bod3 Bench Customer\", City field shows \"Benchville\".\n\n**Objective 2 — DONE:** Quotation `S00023` created for that customer with one order line. Product chosen: `[FURN_6666] Acoustic Bloc Screens`, quantity 3. Unit price auto-filled by the app: **£295.00**. Untaxed amount computed: **£885.00**.\n\n**Objective 3 — DONE:** Second order line added with a different product: `[E-COM11] Cabinet with Doors`, quantity 2 (unit price £140.00). New untaxed amount: **£1,165.00** (£885.00 + £280.00).\n\n**Objective 4 — DONE:** First line's quantity changed from 3 to 5 (unit price £295.00, line subtotal £1,475.00). Untaxed amount afterwards: **£1,755.00** (£1,475.00 + £280.00).\n\n**Objective 5 — DONE:** Quotation confirmed. Order reference: **S00023**. Status shown after confirmation: **\"Sales Order\"** (active status in the status bar).\n\n**Objective 6 — DONE:** Sales order cancelled (via the Cancel button and the \"Cancel Sales Order\" wizard, accepted with \"Send and cancel\"). Status shown after cancelling: **\"Cancelled\"**. Final verified state: S00023 is Cancelled with untaxed amount £1,755.00 — nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/bod3-browser-pilot-transcript.jsonl"
+}
