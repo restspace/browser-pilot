@@ -1230,8 +1230,13 @@ if (arm.kind === 'mcp') {
  * runCommand's timeout are the only in-flight bounds.
  */
 async function runMonolithic() {
+  // The task text reaches this arm verbatim, so the runid has to be carried
+  // IN it: the other arms get theirs from the orchestrator system prompt,
+  // which this shape does not have. smk3bu ran the whole task with the
+  // literal placeholder because this line was missing.
+  const monoTask = `Runid for this run: ${runid}. Where the goal says to name something with the runid (written <RUNID>), use exactly this value.\n\n${task}`;
   const payload = JSON.stringify({
-    task,
+    task: monoTask,
     runid,
     model,
     maxSteps: args.maxTurns,

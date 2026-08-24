@@ -42,9 +42,23 @@ async def main() -> None:
     }
     agent = None
     try:
-        from browser_use import Agent, BrowserProfile, ChatOpenRouter
+        from browser_use import Agent, BrowserProfile, ChatOpenAI
 
-        llm = ChatOpenRouter(model=cfg["model"], api_key=os.environ["OPENROUTER_API_KEY"])
+        # ChatOpenAI against OpenRouter's OpenAI-compatible endpoint, NOT
+        # ChatOpenRouter. The latter requests response_format json_schema
+        # (strict) and nothing else; the Z.ai backend serving this model
+        # accepts that parameter without enforcing it, so the model never sees
+        # the action schema it must emit — smk3bu produced 135 validation
+        # errors and 0 successful actions that way. add_schema_to_system_prompt
+        # puts the schema where the model can read it. Enablement, not tuning:
+        # every other arm's tool schemas reach the model as a matter of course.
+        llm = ChatOpenAI(
+            model=cfg["model"],
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.environ["OPENROUTER_API_KEY"],
+            add_schema_to_system_prompt=True,
+            reasoning_effort=None,
+        )
         agent = Agent(
             task=cfg["task"],
             llm=llm,
