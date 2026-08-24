@@ -87,7 +87,9 @@ function claimedPrices(runid) {
   // price-shaped figure inside each block.
   const blocks = {}
   const marks = []
-  const re = /(?:^|\n)[^\S\n]*(?:\*\*|__)?([1-6])[.)]/g
+  // Reports number their objectives as "1." or "**Objective 1 — DONE.**";
+  // accept both shapes (tbp1 used the former, tbp6 the latter).
+  const re = /(?:^|\n)[^\S\n]*(?:\*\*|__)?(?:Objective\s+)?([1-6])(?:[.)]|\s*[—–-])/g
   let m
   while ((m = re.exec(text))) marks.push({ n: Number(m[1]), i: m.index })
   for (let k = 0; k < marks.length; k++)
