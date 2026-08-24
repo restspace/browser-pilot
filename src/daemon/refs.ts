@@ -25,7 +25,41 @@ export async function snapshot(page: Page, opts: SnapshotOptions = {}): Promise<
   }
   let text = normalizeRefs(raw);
   if (opts.interactiveOnly) text = filterInteractive(text);
+  if (!text.trim()) {
+    // An empty tree and a broken page look identical, and the operator has no
+    // other way to tell them apart — so say which this is likely to be
+    // instead of returning nothing and letting it guess.
+    return '(no accessible content on this page yet — it may still be rendering; wait_for a concrete element you expect, or re-snapshot)';
+  }
   return truncate(text, opts.maxChars ?? 8000);
+}
+
+/**
+ * Wait until the page exposes something to act on, or the deadline passes.
+ *
+ * `load` fires before a client-rendered app has painted, so snapshotting a
+ * heavy SPA the instant navigation "finishes" returns an EMPTY tree —
+ * NocoDB's dashboard did exactly that, with an empty title to match. Polling
+ * for content is the app-agnostic way to wait: network idleness is unusable
+ * (Odoo long-polls forever) and a fixed sleep is either too short or wasted.
+ *
+ * Best-effort and bounded: a page that really has nothing costs the deadline
+ * and no more.
+ */
+export async function waitForContent(page: Page, timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const ready = await page
+      .evaluate(() => {
+        const b = document.body;
+        if (!b) return false;
+        if (b.querySelector('a,button,input,select,textarea,[role],h1,h2')) return true;
+        return (b.innerText ?? '').trim().length > 0;
+      })
+      .catch(() => true); // a page we cannot evaluate against is not ours to wait on
+    if (ready || Date.now() >= deadline) return;
+    await page.waitForTimeout(150).catch(() => {});
+  }
 }
 
 /**

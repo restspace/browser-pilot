@@ -11,7 +11,7 @@ import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, 
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
-import { snapshot } from './refs.js';
+import { snapshot, waitForContent } from './refs.js';
 import { ScriptRecorder } from './recorder.js';
 import { encodeFrame, LineDecoder, type CommandName, type Frame, type Request } from '../shared/protocol.js';
 import { ensureSessionDir, socketPath, validateSessionName } from '../shared/paths.js';
@@ -159,6 +159,9 @@ export class Daemon {
       case 'open': {
         const page = await this.browser.getPage();
         await page.goto(String(a.url), { waitUntil: 'load', timeout: 30_000 });
+        // `load` fires before a client-rendered app has painted, and the very
+        // next thing anyone does with an opened page is snapshot it.
+        await waitForContent(page);
         // `open` drives the page directly rather than through a tool call, so
         // it has to record its own navigation or a recorded script would start
         // wherever the first instruction happened to find the browser.
