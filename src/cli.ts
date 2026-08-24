@@ -129,6 +129,35 @@ function parseArgv(argv: string[]): ParsedArgs {
     'save-flow',
     'recovery-model',
     'drift',
+    'var',
+  ]);
+  /**
+   * Every flag that takes no value. Unknown options are rejected rather than
+   * assumed boolean: an unrecognised `--url http://…` used to set a phantom
+   * boolean and drop the URL into the positionals, where `do` appended it to
+   * the instruction. The run still worked, so nothing looked wrong — but the
+   * compiled skill's template carried the URL and a slot for it, and no later
+   * instruction could bind that template. A typo silently changing what the
+   * agent was asked to do is not a defensible default for a tool whose
+   * results are meant to be reproducible.
+   */
+  const booleanFlags = new Set([
+    'all',
+    'append',
+    'clear',
+    'dry-run',
+    'full-page',
+    'headed',
+    'help',
+    'interactive',
+    'json',
+    'learn',
+    'no-escalate',
+    'progress',
+    'record',
+    'script',
+    'verbose',
+    'version',
   ]);
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -136,8 +165,11 @@ function parseArgv(argv: string[]): ParsedArgs {
       const name = arg.slice(2);
       if (valueFlags.has(name)) {
         flags.set(name, argv[++i] ?? '');
-      } else {
+      } else if (booleanFlags.has(name)) {
         flags.set(name, true);
+      } else {
+        const known = [...valueFlags, ...booleanFlags].sort();
+        throw new Error(`unknown option "--${name}". Known options: ${known.map((f) => `--${f}`).join(' ')}`);
       }
     } else {
       positional.push(arg);
