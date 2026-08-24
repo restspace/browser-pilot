@@ -1,0 +1,68 @@
+{
+  "arm": "agent-browser",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "c4d92a3"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tab4",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "spend-cap",
+  "turns": 79,
+  "wallMs": 364390,
+  "orchestrator": {
+    "input": 115971,
+    "cacheWrite": 0,
+    "cacheRead": 7065920,
+    "output": 6142
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 187,
+  "subcommands": {
+    "open": 1,
+    "skills": 1,
+    "snapshot": 25,
+    "fill": 15,
+    "click": 25,
+    "get": 53,
+    "select": 7,
+    "wait": 38,
+    "press": 2,
+    "dblclick": 5,
+    "type": 1,
+    "keyboard": 1,
+    "dialog": 4,
+    "check": 5,
+    "is": 1,
+    "uncheck": 3
+  },
+  "invocationCount": 187,
+  "commandMs": 69760,
+  "commandBytes": 484114,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 2.0265,
+  "maxUsd": 2,
+  "spendUsd": 2.0265,
+  "finalText": "",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tab4-agent-browser-transcript.jsonl"
+}
