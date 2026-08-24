@@ -1,0 +1,60 @@
+{
+  "arm": "playwright-mcp",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "@playwright/mcp@0.0.79",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/dpm3-playwright-mcp-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "dpm3",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 76,
+  "wallMs": 243124,
+  "orchestrator": {
+    "input": 27262,
+    "cacheWrite": 0,
+    "cacheRead": 1406720,
+    "output": 2952
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 75,
+  "subcommands": {
+    "browser_navigate": 2,
+    "browser_snapshot": 25,
+    "browser_fill_form": 5,
+    "browser_click": 23,
+    "browser_wait_for": 10,
+    "browser_find": 7,
+    "browser_type": 2,
+    "browser_console_messages": 1
+  },
+  "invocationCount": 75,
+  "commandMs": 30477,
+  "commandBytes": 71423,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.4169,
+  "maxUsd": 2,
+  "spendUsd": 0.4169,
+  "finalText": "All objectives complete. The console errors were expected: two 401s from the pre-login session check, and one 409 Conflict from my deliberate first attempt at \"Mark Ready\" that revealed the precondition.\n\n## Final Report\n\n**1. DONE** — Ticket created: ref **RD-1015**, title **\"dpm3 RD Bench Ticket\"**, customer \"Bench User\", raised 2026-08-24, initial status Draft.\n\n**2. DONE** — Part **\"dpm3 RD Part A\"** created with cost $100.00 and markup 25%. App-computed price: **$125.00**.\n\n**3. DONE** — Part **\"dpm3 RD Part B\"** created with cost $200.00 and markup 25%. App-computed price: **$250.00**. (Ticket total at that point: $375.00.)\n\n**4. DONE** — Part A's cost edited from 100 to **$150.00** (markup still 25%). App-computed price afterwards: **$187.50**. (Ticket total became $437.50.)\n\n**5. DONE** — Ticket ends in status **Ready**. The precondition I discovered and satisfied: **every part on the ticket must have a supplier**. My first \"Mark Ready\" attempt was rejected with an alert titled \"Ticket is not ready\" listing:\n- `Part \"dpm3 RD Part A\" has no supplier`\n- `Part \"dpm3 RD Part B\" has no supplier`\n\nI edited both parts to set supplier \"Northline Supply\" (leaving cost/markup/qty unchanged), after which \"Mark Ready\" succeeded and the status badge changed from Draft to **Ready** (the button set changed to \"Mark Draft\" / \"Mark Closed\" / \"Archive ticket\").\n\n**6. DONE** — Both parts deleted (each via Delete → confirm dialog \"Delete the part … This cannot be undone.\" → \"Delete part\"), leaving the parts table showing \"No parts on this ticket yet.\" The ticket was then archived via \"Archive ticket\"; the detail page now shows \"Status: Ready · Archived\" with an \"Unarchive ticket\" button. Verified on the tickets list: with \"Show archived\" unchecked the list shows 13 tickets and no `dpm3` match; with it checked, RD-1015 appears as \"dpm3 RD Bench Ticket Archived\", status Ready, **0 parts**. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/dpm3-playwright-mcp-transcript.jsonl"
+}
