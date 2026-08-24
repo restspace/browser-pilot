@@ -1,0 +1,43 @@
+# Third-party benchmark target: Odoo 17 (real production app we did not write).
+#
+# Why Odoo: dense server-rendered enterprise CRUD with genuinely multi-page
+# flows (quote -> sales order -> invoice), no anti-bot measures, and a
+# reset story we control. Chosen over ERPNext because the frappe stack needs
+# ~10 containers (mariadb, three redises, workers, scheduler, websocket)
+# against Odoo's two.
+#
+#   up:    docker compose -f bench/thirdparty/odoo/docker-compose.yml up -d
+#   reset: docker compose -f bench/thirdparty/odoo/docker-compose.yml down -v
+#   web:   http://127.0.0.1:8069
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    volumes:
+      - odoo-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  odoo:
+    image: odoo:17
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8069:8069"
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - odoo-web:/var/lib/odoo
+
+volumes:
+  odoo-db:
+  odoo-web:

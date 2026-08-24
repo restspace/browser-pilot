@@ -117,9 +117,24 @@ separately.
 |---|---|---|---|
 | `bench/app` (repair desk, ships here) | `bench/tasks/repairdesk-ticket-flow.md` | yes — `node bench/app/server.mjs`, no install, credentials committed | yes, via the mutation log |
 | atelyr (private) | `bench/tasks/atelyr-project-flow.md` | no | only objectives 1 and 6 |
+| Odoo 17 (third-party, self-hosted) | _to be written_ | yes — `docker compose -f bench/thirdparty/odoo/docker-compose.yml up -d` then `bash bench/thirdparty/odoo/seed.sh` | yes, via a fresh `down -v` |
 
 Every result published so far is from the private target. The neutral one exists so that can
 change; see gap 2.
+
+### Why a third-party target, and why Odoo
+
+The first two targets share a weakness a sceptical reader will find immediately: we wrote both
+of them. A tool that learns page structure can be flattered by pages its authors shaped. Odoo
+is a real production ERP nobody here has touched — dense server-rendered CRUD, genuinely
+multi-page flows (quote → sales order → invoice), and a UI that was never considered while
+building the recorder.
+
+It is self-hosted deliberately. Benchmarking against live public sites would mean fighting
+anti-bot measures, which is both out of scope for this tool and useless as a measurement: a run
+that dies on a CAPTCHA says nothing about browser-pilot. Self-hosting also gives the clean
+per-run reset that K-replay sweeps require. Odoo was chosen over ERPNext purely on footprint —
+two containers (2.3 GB) against the frappe stack's ten.
 
 `--target` selects which one a run uses, and decides what `--reset` means. It defaults to
 `atelyr`, so command lines recorded against earlier runs still reproduce.
