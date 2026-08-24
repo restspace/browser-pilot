@@ -1,0 +1,73 @@
+{
+  "arm": "browser-pilot",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tbp2",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "error: API 402: {\"error\":{\"message\":\"This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.\",\"code\":402,\"metadata\":{\"reason\":\"in_flight_budget_exhausted\",\"limit_source\":\"openrouter_in_flight_budget\",\"remedy_hint\":\"Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.\",\"headers\":{\"Retry-After\":\"120",
+  "turns": 16,
+  "wallMs": 2196195,
+  "orchestrator": {
+    "input": 21949,
+    "cacheWrite": 0,
+    "cacheRead": 158336,
+    "output": 47012
+  },
+  "inner": {
+    "promptTokens": 4308954,
+    "cachedTokens": 4115136,
+    "completionTokens": 40796,
+    "instructions": 12,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 2697323,
+        "completionTokens": 20828,
+        "cachedTokens": 2554560,
+        "instructions": 9
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1611631,
+        "completionTokens": 19968,
+        "cachedTokens": 1560576,
+        "instructions": 3
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 15,
+  "subcommands": {
+    "do": 10,
+    "peek": 4,
+    "reset": 1
+  },
+  "invocationCount": 15,
+  "commandMs": 1644278,
+  "commandBytes": 62033,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.2787,
+  "maxUsd": 2,
+  "spendUsd": 1.5385,
+  "finalText": "",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tbp2-browser-pilot-transcript.jsonl"
+}
