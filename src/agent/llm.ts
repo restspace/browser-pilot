@@ -80,6 +80,14 @@ export interface ProviderConfig {
    */
   fallbackModel?: string;
   temperature?: number;
+  /**
+   * Extra fields merged verbatim into every chat/completions request body.
+   * Escape hatch for provider-specific routing that no preset should know
+   * about — e.g. OpenRouter's {"provider":{"only":["Baidu"]}} backend pin.
+   * Set via BROWSER_PILOT_EXTRA_BODY as a JSON object; it is spread LAST, so
+   * it can override anything, deliberately.
+   */
+  extraBody?: Record<string, unknown>;
   /** Env vars that were consulted for the key — for error messages. */
   keyEnvVars: string[];
 }
@@ -219,8 +227,24 @@ export function resolveProviderConfig(overrides: ProviderOverrides = {}): Provid
     ),
     apiKey,
     temperature: overrides.temperature ?? 0,
+    extraBody: parseExtraBody(process.env.BROWSER_PILOT_EXTRA_BODY),
     keyEnvVars,
   };
+}
+
+function parseExtraBody(raw: string | undefined): Record<string, unknown> | undefined {
+  if (!raw || !raw.trim()) return undefined;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    // fall through to the throw below
+  }
+  // A malformed value silently ignored would defeat the point of setting it:
+  // the caller believes a routing pin is in force when it is not.
+  throw new Error('BROWSER_PILOT_EXTRA_BODY must be a JSON object');
 }
 
 function normalizeFallback(value: string | undefined): string | undefined {
@@ -253,6 +277,9 @@ export class OpenAICompatProvider implements Provider {
         function: { name: t.name, description: t.description, parameters: t.parameters },
       })),
       tool_choice: 'auto',
+      // Spread last on purpose: extraBody is the caller's explicit override
+      // channel (see ProviderConfig.extraBody) and must win over defaults.
+      ...this.config.extraBody,
     };
 
     const url = this.config.baseUrl.replace(/\/$/, '') + '/chat/completions';
