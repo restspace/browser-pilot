@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "bgr3",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "error: API 402: {\"error\":{\"message\":\"This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.\",\"code\":402,\"metadata\":{\"reason\":\"in_flight_budget_exhausted\",\"limit_source\":\"openrouter_in_flight_budget\",\"remedy_hint\":\"Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.\",\"headers\":{\"Retry-After\":\"120",
+  "turns": 13,
+  "wallMs": 1212054,
+  "orchestrator": {
+    "input": 10191,
+    "cacheWrite": 0,
+    "cacheRead": 68416,
+    "output": 5785
+  },
+  "inner": {
+    "promptTokens": 3529819,
+    "cachedTokens": 3384448,
+    "completionTokens": 17740,
+    "instructions": 11,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 3043012,
+        "completionTokens": 15166,
+        "cachedTokens": 2914560,
+        "instructions": 10
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 486807,
+        "completionTokens": 2574,
+        "cachedTokens": 469888,
+        "instructions": 1
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 12,
+  "subcommands": {
+    "do": 12
+  },
+  "invocationCount": 12,
+  "commandMs": 1112353,
+  "commandBytes": 20881,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0575,
+  "maxUsd": 2,
+  "spendUsd": 0.9479,
+  "finalText": "",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/bgr3-browser-pilot-transcript.jsonl"
+}
