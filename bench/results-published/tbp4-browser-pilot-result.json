@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "5975fd4"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tbp4",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "spend-cap",
+  "turns": 5,
+  "wallMs": 1239688,
+  "orchestrator": {
+    "input": 2626,
+    "cacheWrite": 0,
+    "cacheRead": 14016,
+    "output": 3823
+  },
+  "inner": {
+    "promptTokens": 7052753,
+    "cachedTokens": 6442560,
+    "completionTokens": 51366,
+    "instructions": 17,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 6188709,
+        "completionTokens": 43722,
+        "cachedTokens": 5618496,
+        "instructions": 15
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 864044,
+        "completionTokens": 7644,
+        "cachedTokens": 824064,
+        "instructions": 2
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 5,
+  "subcommands": {
+    "do": 5
+  },
+  "invocationCount": 5,
+  "commandMs": 1181383,
+  "commandBytes": 6486,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0241,
+  "maxUsd": 2,
+  "spendUsd": 2.0971,
+  "finalText": "",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tbp4-browser-pilot-transcript.jsonl"
+}
