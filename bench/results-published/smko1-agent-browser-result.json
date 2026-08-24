@@ -1,0 +1,66 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "9e2ed75"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "smko1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 73,
+  "wallMs": 426664,
+  "orchestrator": {
+    "input": 88245,
+    "cacheWrite": 0,
+    "cacheRead": 4142656,
+    "output": 7378
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 178,
+  "subcommands": {
+    "open": 10,
+    "skills": 1,
+    "snapshot": 47,
+    "fill": 6,
+    "click": 34,
+    "get": 8,
+    "wait": 47,
+    "tab": 3,
+    "type": 1,
+    "back": 1,
+    "press": 3,
+    "eval": 14,
+    "dblclick": 2,
+    "close": 1
+  },
+  "invocationCount": 178,
+  "commandMs": 148092,
+  "commandBytes": 270735,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 1.2331,
+  "maxUsd": 2,
+  "spendUsd": 1.2331,
+  "finalText": "All six objectives completed and verified in the Odoo 17 app.\n\n**Final report:**\n\n1. **DONE** — Customer `smko1 Bench Customer` created (res.partner id 44). Verified on the contact form: Name field = `smko1 Bench Customer`, City field = `Benchville`. The order page also shows the link label \"smko1 Bench Customer Benchville\".\n\n2. **DONE** — Quotation `S00021` created for that customer with one order line. Product chosen: **[E-COM11] Cabinet with Doors** (selected from the product autocomplete dropdown). Quantity 3.00, unit price auto-filled by the app: **140.00**, untaxed amount computed: **£420.00**.\n\n3. **DONE** — Second order line added: **Conference Chair** (variant **[E-COM12] Conference Chair (Steel)**, Steel legs), quantity 2.00, unit price 33.00, line total £66.00. New untaxed amount: **£486.00**.\n\n4. **DONE** — First line's quantity changed from 3.00 to 5.00 (line total £700.00). Untaxed amount afterwards: **£766.00**.\n\n5. **DONE** — Quotation confirmed. Order reference: **S00021**. Status shown by the status bar: **\"Sales Order\"** (the \"Sales Order\" radio was checked/`current`; the Confirm button was replaced by \"Create Invoice\").\n\n6. **DONE** — Sales order cancelled via the Cancel wizard (chose \"Cancel\" rather than \"Send and cancel\"). Status shown afterwards: **\"Cancelled\"** (the \"Cancelled\" radio is the current status; the action buttons are now \"Preview\" and \"Set to Quotation\"). Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/smko1-agent-browser-transcript.jsonl"
+}
