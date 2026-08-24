@@ -1,75 +1,81 @@
 {
-  "_comment": [
-    "USD per 1M tokens. Captured from provider catalogues on 2026-08-20; verify before",
-    "republishing, since these change. Raw token counts are kept in every result file so",
-    "any figure here can be recomputed without re-running the benchmark.",
-    "cacheRead is the discounted rate for a prompt-cache hit; cacheWrite is the premium",
-    "for establishing one (OpenAI-compatible providers do not bill a separate write)."
-  ],
-  "novita": {
-    "zai-org/glm-5.3": {
-      "input": 1.4,
-      "cacheRead": 0.26,
-      "cacheWrite": 1.4,
-      "output": 4.4
-    },
-    "zai-org/glm-5.2": {
-      "input": 1.4,
-      "cacheRead": 0.26,
-      "cacheWrite": 1.4,
-      "output": 4.4
-    },
-    "deepseek/deepseek-v4-flash": {
-      "input": 0.14,
-      "cacheRead": 0.028,
-      "cacheWrite": 0.14,
-      "output": 0.28
-    },
-    "deepseek/deepseek-v4-pro": {
-      "input": 1.6,
-      "cacheRead": 0.135,
-      "cacheWrite": 1.6,
-      "output": 3.2
-    },
-    "moonshotai/kimi-k3": {
-      "input": 3,
-      "cacheRead": 0.3,
-      "cacheWrite": 3,
-      "output": 15
-    },
-    "minimax/minimax-m2.5": {
-      "input": 0.3,
-      "cacheRead": 0.03,
-      "cacheWrite": 0.3,
-      "output": 1.2
-    },
-    "xiaomimimo/mimo-v2.5": {
-      "input": 0.168,
-      "cacheRead": 0.0034,
-      "cacheWrite": 0.168,
-      "output": 0.336
-    }
+ "_comment": [
+  "USD per 1M tokens. Captured from provider catalogues on 2026-08-20; verify before",
+  "republishing, since these change. Raw token counts are kept in every result file so",
+  "any figure here can be recomputed without re-running the benchmark.",
+  "cacheRead is the discounted rate for a prompt-cache hit; cacheWrite is the premium",
+  "for establishing one (OpenAI-compatible providers do not bill a separate write)."
+ ],
+ "novita": {
+  "zai-org/glm-5.3": {
+   "input": 1.4,
+   "cacheRead": 0.26,
+   "cacheWrite": 1.4,
+   "output": 4.4
   },
-  "anthropic": {
-    "claude-sonnet-5": {
-      "input": 3,
-      "cacheRead": 0.3,
-      "cacheWrite": 3.75,
-      "output": 15
-    },
-    "claude-opus-5": {
-      "input": 5,
-      "cacheRead": 0.5,
-      "cacheWrite": 6.25,
-      "output": 25
-    }
+  "zai-org/glm-5.2": {
+   "input": 1.4,
+   "cacheRead": 0.26,
+   "cacheWrite": 1.4,
+   "output": 4.4
   },
-  "openrouter": {
-    "z-ai/glm-5.3": {
-      "input": 1.4,
-      "cacheRead": 0.26,
-      "cacheWrite": 1.4,
-      "output": 4.4
-    }
+  "deepseek/deepseek-v4-flash": {
+   "input": 0.14,
+   "cacheRead": 0.028,
+   "cacheWrite": 0.14,
+   "output": 0.28
+  },
+  "deepseek/deepseek-v4-pro": {
+   "input": 1.6,
+   "cacheRead": 0.135,
+   "cacheWrite": 1.6,
+   "output": 3.2
+  },
+  "moonshotai/kimi-k3": {
+   "input": 3,
+   "cacheRead": 0.3,
+   "cacheWrite": 3,
+   "output": 15
+  },
+  "minimax/minimax-m2.5": {
+   "input": 0.3,
+   "cacheRead": 0.03,
+   "cacheWrite": 0.3,
+   "output": 1.2
+  },
+  "xiaomimimo/mimo-v2.5": {
+   "input": 0.168,
+   "cacheRead": 0.0034,
+   "cacheWrite": 0.168,
+   "output": 0.336
   }
+ },
+ "anthropic": {
+  "claude-sonnet-5": {
+   "input": 3,
+   "cacheRead": 0.3,
+   "cacheWrite": 3.75,
+   "output": 15
+  },
+  "claude-opus-5": {
+   "input": 5,
+   "cacheRead": 0.5,
+   "cacheWrite": 6.25,
+   "output": 25
+  }
+ },
+ "openrouter": {
+  "z-ai/glm-5.3": {
+   "input": 1.4,
+   "cacheRead": 0.26,
+   "cacheWrite": 1.4,
+   "output": 4.4
+  },
+  "z-ai/glm-5.2": {
+   "input": 0.966,
+   "cacheRead": 0.1932,
+   "cacheWrite": 0.966,
+   "output": 3.036
+  }
+ }
 }
