@@ -1,0 +1,24 @@
+# Third-party target: NocoDB (Vue 3, virtualised data grid).
+#
+# Chosen for a virtualised table, and it turned out to be something more
+# useful than that: NocoDB draws its grid to a <canvas>. The 120 seeded rows
+# appear in ZERO DOM nodes, so no selector, snapshot or read can reach them.
+#
+# That makes this the honest limit case for a text-only operator, and it is
+# kept deliberately. It is the one target where a vision-based tool should
+# beat browser-pilot outright, and a benchmark that quietly omitted it would
+# be picking its own ground.
+#
+#   up:  docker compose -f bench/thirdparty/nocodb/docker-compose.yml up -d
+#   web: http://127.0.0.1:8090
+services:
+  nocodb:
+    image: nocodb/nocodb:latest
+    environment:
+      NC_DISABLE_TELE: "true"
+    ports:
+      - "127.0.0.1:8090:8080"
+    volumes:
+      - nocodb-data:/usr/app/data
+volumes:
+  nocodb-data:
