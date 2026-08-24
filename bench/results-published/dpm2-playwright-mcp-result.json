@@ -1,0 +1,58 @@
+{
+  "arm": "playwright-mcp",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "@playwright/mcp@0.0.79",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/dpm2-playwright-mcp-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "dpm2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 76,
+  "wallMs": 284537,
+  "orchestrator": {
+    "input": 28921,
+    "cacheWrite": 0,
+    "cacheRead": 1405440,
+    "output": 2970
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 75,
+  "subcommands": {
+    "browser_navigate": 1,
+    "browser_snapshot": 26,
+    "browser_fill_form": 7,
+    "browser_click": 25,
+    "browser_wait_for": 9,
+    "browser_find": 7
+  },
+  "invocationCount": 75,
+  "commandMs": 32501,
+  "commandBytes": 77011,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.419,
+  "maxUsd": 2,
+  "spendUsd": 0.419,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE.** Ticket created with title `dpm2 RD Bench Ticket`, assigned reference **RD-1015** (URL `#/tickets/t15`), customer \"Bench Customer\", created 2026-08-24. It appeared in the tickets list after the create mutation settled.\n\n**Objective 2 — DONE.** Part `dpm2 RD Part A` added with cost $100.00 and markup 25%. The app computed a price of **$125.00**.\n\n**Objective 3 — DONE.** Part `dpm2 RD Part B` added with cost $200.00 and markup 25%. The app computed a price of **$250.00**. (Ticket total at that point: $375.00.)\n\n**Objective 4 — DONE.** Part A's cost was edited from 100 to 150 (markup unchanged at 25%). The app recomputed the price to **$187.50**. (Ticket total then: $437.50.)\n\n**Objective 5 — DONE.** The ticket ends in status **Ready**. The precondition the app enforces: **every part on the ticket must have a supplier set.** Clicking \"Mark Ready\" with unsupplied parts produced an alert reading:\n> Ticket is not ready\n> - Part \"dpm2 RD Part A\" has no supplier\n> - Part \"dpm2 RD Part B\" has no supplier\n\nI satisfied it by editing each part and filling the Supplier field with \"Acme Parts Co\" for both. After that, \"Mark Ready\" succeeded and the status badge changed from Draft to **Ready** (the button set changed to \"Mark Draft\" / \"Mark Closed\" / \"Archive ticket\").\n\n**Objective 6 — DONE.** Both parts were deleted via their Delete buttons plus the confirmation dialog (\"Delete the part \"dpm2 RD Part A\" from this ticket? This cannot be undone.\" → \"Delete part\", and the same for Part B). The parts table then read \"No parts on this ticket yet.\" The ticket was then archived via \"Archive ticket\"; the detail page now shows Status: **Ready** plus an **Archived** badge, and the button changed to \"Unarchive ticket\". In the tickets list with \"Show archived\" unchecked, the count returned to \"Showing 1–10 of 13\" and no `dpm2` ticket was present; with \"Show archived\" checked, RD-1015 appears with the \"Archived\" tag, status Ready, and 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/dpm2-playwright-mcp-transcript.jsonl"
+}
