@@ -1,0 +1,24 @@
+# Third-party target: Ghost (Ember.js admin).
+#
+# The only Ember app in the set, and framework family matters — every defect
+# found so far came from DOM idioms we had not seen before. Ghost's admin
+# also has a genuinely hard editor (Koenig: contenteditable with slash
+# commands and drag handles), which is the shape most likely to defeat a
+# text-only operator.
+#
+# NODE_ENV=development keeps it on sqlite, so no database container.
+#
+#   up:  docker compose -f bench/thirdparty/ghost/docker-compose.yml up -d
+#   web: http://127.0.0.1:2368/ghost/
+services:
+  ghost:
+    image: ghost:5-alpine
+    environment:
+      NODE_ENV: development
+      url: http://127.0.0.1:2368
+    ports:
+      - "127.0.0.1:2368:2368"
+    volumes:
+      - ghost-data:/var/lib/ghost/content
+volumes:
+  ghost-data:
