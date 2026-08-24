@@ -1,0 +1,53 @@
+{
+  "arm": "browser-use",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-use@0.13.8",
+    "commit": "42e099a"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/smk4bu-browser-use-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "smk4bu",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 55,
+  "wallMs": 830203,
+  "orchestrator": {
+    "input": 0,
+    "cacheWrite": 0,
+    "cacheRead": 0,
+    "output": 0
+  },
+  "inner": {
+    "promptTokens": 150928,
+    "cachedTokens": 126592,
+    "completionTokens": 14515,
+    "model": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 1,
+  "subcommands": {
+    "browser-use": 1
+  },
+  "invocationCount": 1,
+  "commandMs": 830181,
+  "commandBytes": 1565,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [],
+  "orReportedCostUsd": 0,
+  "maxUsd": 2,
+  "spendUsd": 0.1309,
+  "finalText": "Final report for runid smk4bu (repair ticket flow at http://127.0.0.1:4180/):\n\n1. DONE — Ticket 'smk4bu RD Bench Ticket' exists as RD-1015 (status Draft, raised 2026-08-24, customer 'Not recorded').\n2. DONE — Part 'smk4bu RD Part A' with cost 100 and markup 25: the app computed price $125.00.\n3. DONE — Part 'smk4bu RD Part B' with cost 200 and markup 25: the app computed price $250.00.\n4. DONE — After changing Part A's cost from 100 to 150 (markup still 25), the app computed price $187.50 (ticket total shown as $437.50).\n5. FAILED (preconditions discovered, not satisfied) — Clicking 'Mark Ready' was rejected by the app with these exact messages: 'Ticket is not ready', 'Part \"smk4bu RD Part A\" has no supplier', 'Part \"smk4bu RD Part B\" has no supplier'. The enforced preconditions are that every part on the ticket must have a supplier assigned before the ticket can be marked Ready. I ran out of steps before editing both parts to add suppliers and re-attempting 'Mark Ready', so the ticket never reached status Ready.\n6. FAILED — Both parts were not removed and the ticket was not archived; RD-1015 remains active in Draft status with both parts still attached.\n\nNote: Objectives 1-4 were verified directly on the ticket detail page (RD-1015). The agent was terminated before completing objectives 5 and 6, so the ticket and its parts created by this run remain active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/smk4bu-browser-use-transcript.jsonl"
+}
