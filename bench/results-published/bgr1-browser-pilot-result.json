@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "bgr1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 911683,
+  "orchestrator": {
+    "input": 5283,
+    "cacheWrite": 0,
+    "cacheRead": 25856,
+    "output": 3222
+  },
+  "inner": {
+    "promptTokens": 3059856,
+    "cachedTokens": 2926307,
+    "completionTokens": 17722,
+    "instructions": 8,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 2501228,
+        "completionTokens": 10641,
+        "cachedTokens": 2388643,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 558628,
+        "completionTokens": 7081,
+        "cachedTokens": 537664,
+        "instructions": 1
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 850148,
+  "commandBytes": 8235,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0283,
+  "maxUsd": 2,
+  "spendUsd": 0.8311,
+  "finalText": "All objectives verified. Final report:\n\n**Objective 1 — DONE.** The provisioned dashboard `Service health` (URL: `/d/bench-service-health/service-health`) contains three panels, titled exactly:\n- Request rate\n- Error count\n- Latency by endpoint\n\n**Objective 2 — DONE.** New dashboard `bgr1 Bench Dashboard` created and saved, containing a **Stat** panel titled `bgr1 Availability` whose query uses the **TestData** data source (verified by opening the panel editor: visualization type \"Stat\", data source \"TestData\").\n\n**Objective 3 — DONE.** The dashboard also contains a **Text** panel titled `bgr1 Notes` with content: \"## bgr1 Notes / Benchmark run bgr1 — created for the dashboard build flow test.\" (includes the runid). Saved — verified after a fresh reload.\n\n**Objective 4 — DONE.** Dashboard has the tag `bench` (confirmed in Dashboard settings → General) and its time range is \"Last 6 hours\" (URL params `from=now-6h&to=now`). Saved.\n\n**Objective 5 — DONE.** Auto-refresh interval is `1m` (1 minute), shown in the top bar and in the URL (`refresh=1m`). Saved with \"Update default refresh value\" checked.\n\n**Objective 6 — DONE.** Dashboard URL: `http://127.0.0.1:3000/d/ffw67qqlln1fkf/bgr1-bench-dashboard` — UID: `ffw67qqlln1fkf`.\n\nAll state was verified after a fresh page reload, with no unsaved-changes indicator present.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/bgr1-browser-pilot-transcript.jsonl"
+}
