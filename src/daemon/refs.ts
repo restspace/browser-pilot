@@ -41,13 +41,65 @@ export function isInteractiveLine(line: string): boolean {
   return line.includes('[@e') || INTERACTIVE_ROLES.test(line);
 }
 
+/**
+ * A structural wrapper carrying nothing at all: an unnamed generic or image
+ * with no name, no content and no state. A React-heavy app emits these by the
+ * hundred — on Grafana's panel editor they were 27% of the snapshot budget,
+ * budget the actionable controls further down the page never got, which left
+ * the operator unable to see the field it had been asked to fill. Dropping
+ * them loses no hierarchy: filterInteractive keeps lines independently, so the
+ * tree is already non-contiguous. Anything named, clickable, stateful or
+ * content-bearing is kept.
+ */
+const PURE_WRAPPER = /^\s*-\s+(?:generic|img)\s*(?:\[@e\d+\])?\s*:?\s*$/;
+
 export function filterInteractive(snapshotText: string): string {
-  return snapshotText.split('\n').filter(isInteractiveLine).join('\n');
+  return snapshotText
+    .split('\n')
+    .filter((line) => isInteractiveLine(line) && !PURE_WRAPPER.test(line))
+    .join('\n');
 }
 
+/** Roles worth naming in a truncation notice as somewhere to scope into. */
+const SCOPE_ROLES =
+  /^(region|dialog|alertdialog|navigation|main|form|group|tablist|tabpanel|menu|listbox|table|grid|complementary|search|article|banner|contentinfo|heading|tab|button)$/;
+
+/**
+ * Named elements in a dropped tail, so a truncation notice can say what was
+ * lost rather than only how much. Deduped by ref and capped — this is a
+ * signpost, not a second snapshot.
+ */
+function droppedLandmarks(dropped: string, limit = 12): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const line of dropped.split('\n')) {
+    const m = /^\s*-\s+([a-z]+)\s+"([^"]{1,60})"[^\n]*?\[@(e\d+)\]/.exec(line);
+    if (!m || !SCOPE_ROLES.test(m[1])) continue;
+    if (seen.has(m[3])) continue;
+    seen.add(m[3]);
+    out.push(`${m[1]} "${m[2]}" [@${m[3]}]`);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/**
+ * Truncation that says what it lost, not just how much. A blind tail cut is
+ * worse than it looks: "use a scoped snapshot" is unusable advice when the
+ * containers worth scoping into were themselves in the discarded tail, and an
+ * operator with no way to see the rest of the page falls back to DOM
+ * archaeology with eval. Cut on a line boundary, then name what lies past it.
+ */
 export function truncate(text: string, maxChars: number): string {
   if (text.length <= maxChars) return text;
-  return text.slice(0, maxChars) + `\n… [truncated ${text.length - maxChars} chars — use a scoped snapshot or read()]`;
+  const boundary = text.lastIndexOf('\n', maxChars);
+  const head = text.slice(0, boundary > 0 ? boundary : maxChars);
+  const dropped = text.slice(head.length);
+  const landmarks = droppedLandmarks(dropped);
+  const scope = landmarks.length
+    ? ` It contains: ${landmarks.join('; ')}. Snapshot one with selector "aria-ref=eNN" to see inside it.`
+    : ' Use a scoped snapshot (selector) or read()/read_all to reach it.';
+  return `${head}\n… [truncated ${dropped.length} chars of this page.${scope}]`;
 }
 
 const REF_RE = /^@?(e\d+)$/;
