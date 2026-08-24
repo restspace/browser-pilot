@@ -1,0 +1,64 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "aod2",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 56,
+  "wallMs": 327644,
+  "orchestrator": {
+    "input": 78692,
+    "cacheWrite": 0,
+    "cacheRead": 3074304,
+    "output": 4729
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 135,
+  "subcommands": {
+    "open": 1,
+    "skills": 1,
+    "snapshot": 34,
+    "fill": 7,
+    "click": 30,
+    "get": 4,
+    "wait": 38,
+    "type": 3,
+    "press": 3,
+    "eval": 11,
+    "find": 2,
+    "close": 1
+  },
+  "invocationCount": 135,
+  "commandMs": 109870,
+  "commandBytes": 248153,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.9303,
+  "maxUsd": 2,
+  "spendUsd": 0.9303,
+  "finalText": "All six objectives completed and verified in Odoo 17 at http://127.0.0.1:8069/ (signed in as `«redacted»`).\n\n**1. DONE** — Customer `aod2 Bench Customer` created (Company type). City field verified as `Benchville` (read back from the saved record's City input, and shown as \"aod2 Bench Customer Benchville\" on the order).\n\n**2. DONE** — Quotation `S00022` created for that customer with one order line:\n- Product: **Customizable Desk** (chosen from the autocomplete dropdown; resolved to `[FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.`)\n- Quantity: 3\n- Unit price the app filled in: **750.00** (£750.00)\n- Untaxed amount: **£2,250.00**\n\n**3. DONE** — Second order line added:\n- Product: **Conference Chair** (chosen from dropdown; resolved to `[E-COM12] Conference Chair (Steel)`)\n- Quantity: 2, unit price 33.00, line total £66.00\n- New untaxed amount: **£2,316.00** (TAX 20% £463.20, Total £2,779.20)\n\n**4. DONE** — First line quantity changed 3 → 5 (line total £3,750.00). Untaxed amount afterwards: **£3,816.00** (TAX 20% £763.20, Total £4,579.20)\n\n**5. DONE** — Quotation confirmed. Order reference: **S00022**. Status shown: **Sales Order** (status bar radio \"Sales Order\" checked; \"Create Invoice\" button appeared).\n\n**6. DONE** — Order cancelled via the Cancel wizard (chose \"Cancel\" rather than \"Send and cancel\"). Status shown afterwards: **Cancelled** (status bar radio \"Cancelled\" checked; only \"Set to Quotation\" / \"Preview\" remain). The list view confirms S00022 / aod2 Bench Customer / £4,579.20 / Cancelled, so nothing from this run stays active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/aod2-agent-browser-transcript.jsonl"
+}
