@@ -85,6 +85,28 @@ describe('url patterns', () => {
     expect(urlMatches('http://h:1/#/tickets/:id', 'http://h:1/#/tickets/t99')).toBe(true);
     expect(urlMatches('http://h:1/#/tickets/:id', 'http://h:1/#/tickets')).toBe(false);
   });
+  it('reduces a query-shaped hash route, keys kept and order-independent', () => {
+    // Odoo's shape: the fragment is the route AND volatile per-session state.
+    expect(urlPattern('http://h:1/web#action=123&cids=1&menu_id=81')).toBe('http://h:1/web#action=:id&cids=:id&menu_id=:id');
+    // Same page, different session ids and a different key order.
+    expect(urlMatches('http://h:1/web#action=123&cids=1&menu_id=81', 'http://h:1/web#menu_id=99&cids=2&action=456')).toBe(true);
+    // Non-id values still distinguish one template from another.
+    expect(urlPattern('http://h:1/web#action=315&model=sale.order&view_type=list')).toBe(
+      'http://h:1/web#action=:id&model=sale.order&view_type=list',
+    );
+    expect(urlMatches('http://h:1/web#action=315&model=sale.order', 'http://h:1/web#action=9&model=res.partner')).toBe(false);
+  });
+  it('treats query-shaped hash state as a necessary, not exact, condition', () => {
+    // State accumulates: recorded at "#cids=1", the page has grown an action
+    // and a menu id by the time a later segment starts on it.
+    expect(urlMatches('http://h:1/web#cids=1', 'http://h:1/web#action=133&cids=2&menu_id=91')).toBe(true);
+    // Missing a required pair is still a mismatch...
+    expect(urlMatches('http://h:1/web#model=sale.order', 'http://h:1/web#action=133&cids=2')).toBe(false);
+    // ...as is a different path, however well the fragment lines up.
+    expect(urlMatches('http://h:1/web#cids=1', 'http://h:1/other#action=1&cids=2')).toBe(false);
+    // A path-shaped fragment is a route, so it keeps matching exactly.
+    expect(urlMatches('http://h:1/#/tickets/:id', 'http://h:1/#/tickets/t9/edit')).toBe(false);
+  });
 });
 
 describe('parameterisation', () => {

@@ -333,7 +333,43 @@ export function urlPattern(url: string, slots: Map<string, string> = new Map()):
         return isIdLike(seg) ? ':id' : seg;
       })
       .join('/');
-  const hash = u.hash && u.hash.length > 1 ? '#' + norm(u.hash.slice(1).split('?')[0]) : '';
+  /**
+   * A hash-routed app puts its route in the fragment, in one of two shapes: a
+   * path ("#/orders/123") or a query-like state string
+   * ("#action=123&cids=1&menu_id=81", which is Odoo). Only the path shape was
+   * being reduced, because norm() splits on "/" and a query-shaped fragment
+   * has none — so the whole fragment survived verbatim, volatile ids and all.
+   *
+   * That made a segment's precondition unmatchable by anything but the run
+   * that recorded it: Odoo hands out a fresh action id per session, so a
+   * chain's second segment refused every replay and the work fell back to the
+   * model, run after run, with the store looking perfectly healthy.
+   *
+   * Keys are kept (they are what distinguishes one template from another) and
+   * id-like values reduced. Pairs are sorted because the app is free to emit
+   * them in any order between runs, and two orderings of the same state are
+   * the same page.
+   */
+  const normHash = (raw: string): string => {
+    const body = raw.split('?')[0];
+    if (!body) return '';
+    if (body.startsWith('/') || !body.includes('=')) return '#' + norm(body);
+    const pairs = body
+      .split('&')
+      .filter(Boolean)
+      .map((pair) => {
+        const eq = pair.indexOf('=');
+        if (eq < 0) return pair;
+        const key = pair.slice(0, eq);
+        const value = pair.slice(eq + 1);
+        const filled = substitute(decodeURIComponent(value), slots);
+        if (filled !== value && filled.includes('{{')) return `${key}=${filled}`;
+        return `${key}=${isIdLike(value) ? ':id' : value}`;
+      })
+      .sort();
+    return '#' + pairs.join('&');
+  };
+  const hash = u.hash && u.hash.length > 1 ? normHash(u.hash.slice(1)) : '';
   const origin = u.protocol === 'file:' ? 'file://' : u.origin;
   return `${origin}${norm(u.pathname)}${hash}`;
 }
@@ -354,7 +390,41 @@ export function urlMatches(pattern: string, url: string, params: Record<string, 
   if (filled === expected) return true;
   // Pattern may carry a raw (unreduced) slot value where the live url now has
   // an id-like segment, or vice versa — compare with both reduced.
-  return urlPattern(expected) === filled;
+  if (urlPattern(expected) === filled) return true;
+  return hashStateSatisfies(urlPattern(expected), filled);
+}
+
+/**
+ * Whether a live url carries at least the hash state the pattern requires,
+ * everything before the fragment being identical.
+ *
+ * A query-shaped fragment is application STATE, and state accumulates: Odoo
+ * lands on "#cids=1" after login and has grown "#action=…&menu_id=…" by the
+ * time the next segment starts, on the same page it was recorded on. Demanding
+ * equality there makes a precondition unsatisfiable in practice — the second
+ * segment of every chain refused, and the work silently fell back to the model
+ * while the store looked healthy.
+ *
+ * So the fragment is treated as a necessary condition rather than an exact
+ * one: every pair the pattern names must be present, extra pairs are allowed.
+ * Paths and origins are still compared exactly, and a segment additionally
+ * carries a structural fingerprint precondition, so this loosens one of two
+ * gates rather than opening the door.
+ */
+function hashStateSatisfies(expected: string, live: string): boolean {
+  const split = (s: string): [string, string] => {
+    const i = s.indexOf('#');
+    return i < 0 ? [s, ''] : [s.slice(0, i), s.slice(i + 1)];
+  };
+  const [expBase, expHash] = split(expected);
+  const [liveBase, liveHash] = split(live);
+  if (expBase !== liveBase || !expHash) return false;
+  // Only the query-shaped fragment accumulates; a path fragment is a route and
+  // must still match exactly.
+  if (expHash.startsWith('/') || !expHash.includes('=')) return false;
+  if (liveHash.startsWith('/') || !liveHash.includes('=')) return false;
+  const livePairs = new Set(liveHash.split('&'));
+  return expHash.split('&').every((pair) => livePairs.has(pair));
 }
 
 function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExpectation | undefined {
