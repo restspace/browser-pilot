@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "bod1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 14,
+  "wallMs": 1866989,
+  "orchestrator": {
+    "input": 7677,
+    "cacheWrite": 0,
+    "cacheRead": 62016,
+    "output": 5435
+  },
+  "inner": {
+    "promptTokens": 6384324,
+    "cachedTokens": 5756670,
+    "completionTokens": 32417,
+    "instructions": 14,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 6018811,
+        "completionTokens": 25753,
+        "cachedTokens": 5420350,
+        "instructions": 13
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 365513,
+        "completionTokens": 6664,
+        "cachedTokens": 336320,
+        "instructions": 1
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 13,
+  "subcommands": {
+    "do": 13
+  },
+  "invocationCount": 13,
+  "commandMs": 1771905,
+  "commandBytes": 11983,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0508,
+  "maxUsd": 2,
+  "spendUsd": 1.9119,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE:** Customer `bod1 Bench Customer` created (partner id 44) with City = `Benchville`. Verified on the saved record: Name \"bod1 Bench Customer\", City \"Benchville\". (Created via Invoicing > Customers, since the Contacts app isn't installed as a top-level app on this instance — same res.partner model.)\n\n**Objective 2 — DONE:** Quotation `S00021` created for that customer with one order line: product **Acoustic Bloc Screens** [FURN_6666], quantity 3. Unit price auto-filled by the app: **£295.00**. Untaxed Amount computed: **£885.00**.\n\n**Objective 3 — DONE:** Second line added: product **Office Chair** [FURN_7777], quantity 2, unit price auto-filled **£70.00**. New Untaxed Amount after saving: **£1,025.00** (£885 + £140).\n\n**Objective 4 — DONE:** First line's quantity changed from 3 to 5. Untaxed Amount afterwards: **£1,615.00** (5 × £295 = £1,475 + 2 × £70 = £140; Total £1,938.00 with 20% tax £323.00).\n\n**Objective 5 — DONE:** Quotation confirmed. Order reference: **S00021**. Status shown: **\"Sales Order\"** (status bar, checked). Note: during confirmation the second line was unexpectedly dropped (untaxed briefly read £1,475.00); I re-added the Office Chair line on the confirmed order and verified the saved record showed both lines with Untaxed Amount £1,615.00 before proceeding.\n\n**Objective 6 — DONE:** Sales order cancelled (via the Cancel button, confirming the alert and the \"Send and cancel\" wizard). Status shown after cancelling: **\"Cancelled\"** (status bar checked and disabled, with a \"Set to Quotation\" revert button available). Final verified state: S00021, Cancelled, 2 order lines, Untaxed Amount £1,615.00 — nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/bod1-browser-pilot-transcript.jsonl"
+}
