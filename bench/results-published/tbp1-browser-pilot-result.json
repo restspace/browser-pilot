@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "be6a853"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tbp1",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 13,
+  "wallMs": 1082207,
+  "orchestrator": {
+    "input": 7908,
+    "cacheWrite": 0,
+    "cacheRead": 57600,
+    "output": 3771
+  },
+  "inner": {
+    "promptTokens": 4008904,
+    "cachedTokens": 3582562,
+    "completionTokens": 19908,
+    "instructions": 13,
+    "byModel": {
+      "z-ai/glm-5.2": {
+        "promptTokens": 3447577,
+        "completionTokens": 15038,
+        "cachedTokens": 3037090,
+        "instructions": 12
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 561327,
+        "completionTokens": 4870,
+        "cachedTokens": 545472,
+        "instructions": 1
+      }
+    },
+    "model": "z-ai/glm-5.2",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 12,
+  "subcommands": {
+    "do": 12
+  },
+  "invocationCount": 12,
+  "commandMs": 1000513,
+  "commandBytes": 15847,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0426,
+  "maxUsd": 2,
+  "spendUsd": 1.257,
+  "finalText": "All objectives completed. Final report:\n\n**1. DONE** — Project `tbp1 MTP Bench Project` created (auto-generated reference `yb0wunn28b`). The create form required two fields: Project Name and Status (set to \"Open\"). It appeared as a new row in the Projects list (count went 2 → 3).\n\n**2. DONE** — Line item `tbp1 MTP Item A` created with cost 100 and markup 25. App-computed **Price = 133.33** (full precision 133.3333333333). Initial status was \"Placeholder\".\n\n**3. DONE** — Line item `tbp1 MTP Item B` created with cost 200 and markup 25. App-computed **Price = 266.67** (full precision 266.6666666666).\n\n**4. DONE** — Item A's cost changed from 100 to 150 (markup kept at 25). App-computed **Price = 200.00** (full precision 199.99999999995).\n\n**5. DONE** — Item A's status ended as **Specified** (verified via the row's status marker: `data-status=\"Specified\"`, `aria-label=\"Status: Specified\"`). Preconditions discovered and satisfied:\n   - First save attempt was refused with: *\"Cannot save — please complete or correct: Supplier, Supplier Code, Item Units, Unit\"* — i.e. a \"Specified\" item requires all four of those fields to be filled (a Placeholder does not).\n   - Required: Supplier = \"Supplier One\" (an Organisation, chosen via the autocomplete — this field only committed with real keyboard interaction: type + ArrowDown + Enter; synthetic DOM events left it in error state), Supplier Code auto-populated as \"SUP1\", Item Units = 1, Unit = \"item\".\n   - On final submit a confirm dialog appeared: *\"Your catalogue already has a similar item: \\\"ab13 MTP Item A\\\". OK = use that existing entry (don't add a duplicate). Cancel = add this as a new catalogue item.\"* — dismissed with Cancel to save as a new catalogue entry.\n\n**6. DONE** — Both line items deleted (each via the edit form's Delete button, confirming the \"Remove this project item?\" dialog). A search for \"tbp1\" in Project Items returns **0 matches**, and the 7 pre-existing fixture items remain intact (count 7). The project `tbp1 MTP Bench Project` was then set from \"Open\" to **Closed** (the only two status options offered were Open and Closed; no preconditions were enforced). Verified: the project now only appears in the Projects list when \"Include Closed\" is checked, and its edit form shows Status = Closed. Nothing created by this run remains active.",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tbp1-browser-pilot-transcript.jsonl"
+}
