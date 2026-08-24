@@ -121,6 +121,28 @@ describe('parameterisation', () => {
     const steps = [step('fill', { target: '@e1', value: 'Some Customer' })];
     expect(discoverSlots('create a ticket', steps).size).toBe(0);
   });
+
+  it('refuses a slot for a literal that appears twice in different roles', () => {
+    // Odoo's demo credentials are admin/admin. One slot cannot stand for two
+    // roles: bindSkill emits a capture group per occurrence, so a shared name
+    // binds to the LAST group and the password lands in the email field.
+    const instr = 'sign in with email admin and password admin';
+    const steps = [
+      step('fill', { target: '@e1', value: 'admin' }, [{ kind: 'label', label: 'Email' }]),
+      step('fill', { target: '@e2', value: 'admin' }, [{ kind: 'label', label: 'Password' }]),
+    ];
+    expect([...discoverSlots(instr, steps).values()]).toEqual([]);
+  });
+
+  it('still parameterises a value that appears once alongside a repeated one', () => {
+    const instr = "sign in as admin with password admin then open project 'Apollo'";
+    const steps = [
+      step('fill', { target: '@e1', value: 'admin' }, [{ kind: 'label', label: 'User' }]),
+      step('fill', { target: '@e2', value: 'admin' }, [{ kind: 'label', label: 'Password' }]),
+      step('fill', { target: '@e3', value: 'Apollo' }, [{ kind: 'label', label: 'Project' }]),
+    ];
+    expect([...discoverSlots(instr, steps).values()]).toEqual(['Apollo']);
+  });
 });
 
 describe('foldLoops', () => {

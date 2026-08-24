@@ -209,12 +209,34 @@ export function discoverSlots(instruction: string, steps: RecordedStep[]): Map<s
     if (values.has(v) || /\d/.test(v) || v.split(/\s+/).some(isIdLike)) values.add(v);
   }
   const ordered = [...values]
+    // A value appearing twice in the instruction cannot be given a slot: one
+    // slot name would stand for two roles. "sign in with email admin and
+    // password admin" compiled to "email {{v1}} and password {{v1}}", and
+    // bindSkill emits a capture group per OCCURRENCE, so replaying it with
+    // "email alice@example.com and password hunter2" bound v1 to the last
+    // group and typed the password into the email field — silently, and with
+    // a credential. Leaving such a value literal costs generality (the skill
+    // only replays for the values it was recorded with) and keeps
+    // correctness, which is the right way round. Distinct positional slots
+    // per occurrence would recover the generality, but they also need the
+    // step-to-occurrence mapping that plain textual substitution cannot
+    // recover, so that is a separate change.
+    .filter((v) => countTokenOccurrences(instruction, v) === 1)
     .map((v) => ({ v, at: instruction.indexOf(v) }))
     .sort((a, b) => a.at - b.at || b.v.length - a.v.length)
     .slice(0, MAX_SLOT_VALUES);
   const slots = new Map<string, string>();
   ordered.forEach(({ v }, i) => slots.set(`v${i + 1}`, v));
   return slots;
+}
+
+/** How many times `value` stands as a whole token in `text`. */
+export function countTokenOccurrences(text: string, value: string): number {
+  if (!value) return 0;
+  const re = new RegExp(`(^|[^A-Za-z0-9])${escapeRe(value)}(?=$|[^A-Za-z0-9])`, 'g');
+  let n = 0;
+  while (re.exec(text) !== null) n++;
+  return n;
 }
 
 function occursAsToken(text: string, value: string): boolean {
