@@ -1,0 +1,72 @@
+{
+  "arm": "agent-browser",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "c4d92a3"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "tab5",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 89,
+  "wallMs": 478824,
+  "orchestrator": {
+    "input": 77320,
+    "cacheWrite": 0,
+    "cacheRead": 7129664,
+    "output": 9087
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 185,
+  "subcommands": {
+    "open": 1,
+    "skills": 1,
+    "snapshot": 23,
+    "fill": 13,
+    "click": 24,
+    "get": 26,
+    "read": 1,
+    "wait": 38,
+    "select": 6,
+    "dblclick": 6,
+    "type": 1,
+    "dialog": 7,
+    "check": 6,
+    "scroll": 2,
+    "set": 1,
+    "mouse": 1,
+    "eval": 25,
+    "press": 1,
+    "uncheck": 1,
+    "close": 1
+  },
+  "invocationCount": 185,
+  "commandMs": 76589,
+  "commandBytes": 351456,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 2.0019,
+  "maxUsd": 2,
+  "spendUsd": 2.0019,
+  "finalText": "## Final Report\n\n**1. DONE** — Project `tab5 MTP Bench Project` created (internal id `4ny7nleyfag`). It appeared in the Projects list and the Projects tab count went from 2 → 3.\n\n**2. DONE** — Line item `tab5 MTP Item A` created with cost 100, markup 25. **Price computed: 133.33** (raw title attribute `133.3333333333`). The pricing editor's live \"Budget Price\" field also showed `133.33` before submit. (Formula is cost ÷ (1 − markup/100) = 100/0.75.)\n\n**3. DONE** — Line item `tab5 MTP Item B` created with cost 200, markup 25. **Price computed: 266.67** (raw title attribute `266.6666666666`; live editor field showed `266.67`).\n\n**4. DONE** — Item A's cost changed from 100 → 150 via the edit form's pricing editor. **Price computed afterwards: 200.00** (raw title attribute `199.99999999995`). Confirmed in both the edit form (`Price` = 200) and the list row after save.\n\n**5. DONE** — Item A's status ended as **`Specified`** (row status marker `data-status=\"Specified\"`, colour `#2563eb`), up from its initial status `Placeholder`.\n\n**Preconditions the app enforced** — on submitting with status `Specified`, the form refused with the alert banner:\n> `Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit`\n\nEach missing field also showed the inline error `Please enter a value for this item`. So exactly five fields had to be filled: **Supplier** (I picked the autocomplete suggestion `Supplier One`), **Supplier Code** (`TAB5-A`), **Item Cost** (150), **Item Units** (1), and **Unit** (`item`). Note that `Item Cost`/`Item Units`/`Unit` are only required once the item stops being a Placeholder — they were blank and unvalidated while the status was `Placeholder`.\n\nOne additional interactive hurdle: on submit the app raised a `confirm()` dialog — *\"Your catalogue already has a similar item: 'ab13 MTP Item A'. OK = use that existing entry (don't add a duplicate) / Cancel = add this as a new catalogue item\"* — which I dismissed (Cancel) to keep the item as its own catalogue entry.\n\n**6. DONE** — Both line items removed and the project closed:\n- Deleted `tab5 MTP Item A` via the edit form's Delete button, confirming the dialog `Remove this project item?`.\n- Deleted `tab5 MTP Item B` the same way, confirming `Remove this project item?`.\n- Set the project's Status from `Open` → `Closed` and submitted. Verified by reopening the edit form: `#status` = `Closed`.\n- With \"INCLUDE CLOSED\" unchecked, the Projects list shows only `Fixture Project One | Fixture Project Two` — the tab5 project is gone from the active list. With \"INCLUDE CLOSED\" checked it does appear (as expected for a closed project).\n- The Project Items list contains no `tab5` rows, and no `tab5` text remains anywhere on the page.",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\tab5-agent-browser-transcript.jsonl"
+}
