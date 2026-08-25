@@ -96,3 +96,55 @@ fixed before the reruns).
    inner (deepseek-v4-flash, ~12x cheaper), its costs above would drop
    substantially; that configuration is unmeasured today and is claimed as
    possibility, not result.
+
+## v0.2 addendum — browser-pilot column rerun on the latest build (2026-08-25)
+
+The bp arm only, all four targets, K=3, run locally (Windows 11 box, runids
+`m2rd*/m2od*/m2gr*/m2at*`; raw files in bench/results, not committed per the
+results policy). Conditions as above EXCEPT the two deliberate changes:
+
+- **The build**: replay v2 (evidence-based page/record re-resolution),
+  navigation-by-recorded-destination fallback, and component recipes
+  (seeded monaco/CodeMirror/contenteditable/combobox procedures with
+  mandatory verification reads). Each run got a fresh per-run components
+  file, so cells stay independent — seed recipes only, no cross-run learning.
+- **The inner model**: the designed configuration v0.1 disclosed as
+  unmeasured — deepseek-v4-flash via OpenRouter pinned to Baidu, glm-5.3
+  escalation (v0.1's bp cells ran the inner on glm-5.2).
+
+Orchestrator glm-5.3 (OpenRouter/Z.AI), `--coarse`, $2.00 ceiling, turn cap
+120, `--reset`, external verification per run, all unchanged. atelyr ran
+against the local RS2 backend (127.0.0.1:3100) with the vite dev server on
+localhost:5174 — v0.1's atelyr attempts used the same app on port 5173.
+
+| target | verified (K=3) | cost per run | wall | v0.1 bp cell (verified / cost) |
+|---|---|---|---|---|
+| repairdesk | 6/6, 6/6, 6/6 | $0.11, $0.06, $0.22 | 1325s, 922s, 871s | 6/6 x3 / $0.42, $0.27, $0.60 |
+| odoo | 6/6, 6/6, 6/6 | $0.21, $0.75, $0.15 | 1136s, 1619s, 1380s | 6/6, 5/6*, 6/6 / $1.91†, $0.62*, $0.45 |
+| grafana | 5/6, 6/6, 6/6 | $0.36, $0.31, $0.25 | 1931s, 1082s, 1232s | 6/6, 6/6, 5/6 / $0.83, $1.10, $0.70 |
+| atelyr | max‡, max‡, incomplete | $0.89, $0.85, $2.19 | 2042s, 1842s, 4550s | 1 partial + 2x 402 / $1.26, — |
+
+‡ atelyr's verifier can externally confirm only objectives 1 and 6 (the
+task's own cleanup destroys the evidence for 2–5; those are checked as
+claim-consistency only). m2at1 and m2at2 passed both verifiable objectives
+with all four claims consistent — the maximum score the verifier can award.
+m2at3 hit the $2 spend ceiling at turn 28 (obj 6 unfinished) and is an arm
+result, not a casualty: the first completed-K atelyr cell, at 2 clean of 3.
+
+What changed vs v0.1, in the cells' own terms:
+
+1. **Cost dropped ~3–5x everywhere** (repairdesk $0.06–0.22 vs $0.27–0.60;
+   odoo $0.15–0.75 vs $0.45–1.91; grafana $0.25–0.36 vs $0.70–1.10). Two
+   causes, not separable in this data: the ~12x-cheaper inner model, and the
+   component recipes removing long fights with hard widgets (grafana's
+   Notes/monaco objective passed in all three runs, previously bp's
+   costliest page).
+2. **Verified scores held or improved**: 17 of 18 non-atelyr objective-runs
+   at 6/6; the single 5/6 (m2gr1) is the same honest miss class v0.1's bgr4
+   had — dashboard saved, time range not persisted.
+3. **The atelyr cell exists now** — v0.1 had no completed atelyr column at
+   all (credit-crunch casualties). Two of three runs completed and verified
+   at ceiling; the third shows the target's real difficulty (spend-capped,
+   4550s), not an infra failure.
+4. v0.1's note 5 (the flash inner "claimed as possibility, not result") is
+   now measured: this whole addendum IS that configuration.
