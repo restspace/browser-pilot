@@ -1,0 +1,88 @@
+{
+  "flow": "swo",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_55a99e; observed city=Benchville, name=swo-n3 Bench Customer.",
+      "values": {
+        "city": "Benchville",
+        "name": "swo-n3 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_66c723"
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Created draft quotation S00022 for customer 'swo-n3 Bench Customer' (selected from the customer autocomplete dropdown). Added one order line with product 'Chair floor protection' (selected from the product autocomplete dropdown), quantity 3, unit price auto-filled at 12.00. Untaxed Amount computed as £ 36.00 (TAX 20% £ 7.20, Total £ 43.20). Quotation left as draft — not confirmed.",
+      "values": {
+        "product": "Chair floor protection",
+        "quotation": "S00022",
+        "status": "Draft (not confirmed)",
+        "tax": "£ 7.20",
+        "total": "£ 43.20",
+        "unit_price": "12.00",
+        "untaxed_amount": "£ 36.00"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 28
+    },
+    {
+      "id": "03-open",
+      "status": "blocked",
+      "summary": "Instruction timed out after 300s (17 turns, 17 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 17
+    }
+  ],
+  "passed": 2,
+  "total": 7,
+  "repinned": 1,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "swo",
+      "step": "01-report",
+      "skill": "s_55a99e",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('div > div:nth-of-type(1) > div:nth-of-type(2) > div > div:nth-of-type(1) > span')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    },
+    {
+      "flow": "swo",
+      "step": "02-report",
+      "skill": "s_5cfa17",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "swo",
+      "step": "03-open",
+      "skill": "s_3bc09e",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 556490,
+  "model": "deepseek/deepseek-v4-flash"
+}
