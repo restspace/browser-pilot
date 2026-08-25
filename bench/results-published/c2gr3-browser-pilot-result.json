@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e9f8968"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2gr3",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 1306494,
+  "orchestrator": {
+    "input": 4897,
+    "cacheWrite": 0,
+    "cacheRead": 20800,
+    "output": 2200
+  },
+  "inner": {
+    "promptTokens": 5484193,
+    "cachedTokens": 4994496,
+    "completionTokens": 33064,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 4289231,
+        "completionTokens": 25135,
+        "cachedTokens": 3855616,
+        "instructions": 6
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1194962,
+        "completionTokens": 7929,
+        "cachedTokens": 1138880,
+        "instructions": 3
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 1275338,
+  "commandBytes": 7005,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0219,
+  "maxUsd": 2,
+  "spendUsd": 0.5,
+  "finalText": "All objectives verified. Final report:\n\n**Objective 1 — DONE.** The provisioned dashboard `Service health` (URL: http://127.0.0.1:3000/d/bench-service-health/service-health) contains 3 panels, titled exactly:\n- `Request rate`\n- `Error count`\n- `Latency by endpoint`\n\n**Objective 2 — DONE.** New dashboard created and saved, titled `c2gr3 Bench Dashboard`, containing a **Stat** panel titled `c2gr3 Availability` whose query uses the **TestData** data source (Random Walk scenario). Verified in the panel editor: visualization type \"Stat\", data source \"TestData\".\n\n**Objective 3 — DONE.** The same dashboard contains a **Text** panel titled `c2gr3 Notes` with content \"Notes for run c2gr3\" (includes the runid). Saved — \"Dashboard saved\" confirmation observed.\n\n**Objective 4 — DONE.** Dashboard tags are `[\"bench\"]` (verified in Settings), and the time range is `Last 6 hours` (verified in the top-bar time picker after a clean reload with no query params). Saved with \"Update default time range\" checked.\n\n**Objective 5 — DONE.** Auto-refresh interval is `1m` (verified in the top-bar refresh picker after a clean reload, and in Settings > Time options where 1m is the active default). Saved with \"Update default refresh value\" checked.\n\n**Objective 6 — DONE.** Dashboard URL: **http://127.0.0.1:3000/d/ffwa7is2aqbr4a/c2gr3-bench-dashboard** — UID: **ffwa7is2aqbr4a**\n\nFinal verification on a clean reload confirmed all values persisted: title `c2gr3 Bench Dashboard`, panels `c2gr3 Notes` (Text) and `c2gr3 Availability` (Stat), time range `Last 6 hours`, refresh `1m`, tags `[\"bench\"]`.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2gr3-browser-pilot-transcript.jsonl"
+}
