@@ -1,0 +1,55 @@
+{
+  "flow": "swo",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Signed in to Odoo at http://127.0.0.1:8069/ as admin, navigated via Sales → Orders → Customers, and created a new contact. The record saved successfully (URL shows id=45, \"Contact created\" notification appeared, form switched to read mode with an Edit button). Verified on the saved contact page: Name = \"swo-n2 Bench Customer\" and City = \"Benchville\" (both read back from the live DOM via the form's name heading/combobox and the City textbox). Screenshot saved at /tmp/saved_contact.png.",
+      "values": {
+        "city": "Benchville",
+        "contact_id": "45",
+        "name": "swo-n2 Bench Customer"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "02-report",
+      "status": "failure",
+      "summary": "Turn cap hit mid-task. Partially complete: new quotation created with Customer 'swo-n2 Bench Customer' (selected from the autocomplete dropdown, verified) and one order line with product 'Customizable Desk' (selected from the product dropdown, verified). However the 'Configure your product' dialog for the desk is still open and unconfirmed, so the quantity is still 1.00 (not 3), the unit price is still 0.00 (not auto-filled), and the Untaxed Amount is still £ 0.00 — none of the three requested report values are final. The quotation remains an unsaved draft and was NOT confirmed, as required.",
+      "values": {
+        "customer": "swo-n2 Bench Customer",
+        "dialog_open": "Configure your product — Customizable Desk (Steel, White) £ 750.00",
+        "product_selected": "Customizable Desk",
+        "quantity_current": "1.00",
+        "unit_price_current": "0.00",
+        "untaxed_amount_current": "£ 0.00"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 1,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "swo",
+      "step": "02-report",
+      "skill": "s_5cfa17",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+  ],
+  "wallMs": 573296,
+  "model": "deepseek/deepseek-v4-flash"
+}
