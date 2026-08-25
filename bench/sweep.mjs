@@ -62,10 +62,20 @@ for (let n = 1; n <= own.k; n++) {
   const replayOnly = Boolean(own.flow) && n > 1;
   console.error(`\n[sweep] run ${n}/${own.k}: ${runid}${replayOnly ? ` (replay flow ${own.flow}, no orchestrator)` : learnDir ? ` (store: ${learnDir})` : ' (no store)'}`);
   if (replayOnly) {
-    spawnSync(process.execPath, [path.join(here, 'reset-app.mjs')], { stdio: 'inherit', env: process.env });
+    // A spend-capped/incomplete run 1 saves no flow; replaying it anyway
+    // writes empty flowrun files that LOOK like runs (swa-n2/n3). Skip with
+    // an explicit row instead.
+    const flowFile = flowsDir ? path.join(flowsDir, `${own.flow.replace(/[^A-Za-z0-9._-]+/g, '_')}.json`) : own.flow;
+    if (!fs.existsSync(own.flow) && !fs.existsSync(flowFile)) {
+      console.error(`[sweep] ${runid}: flow "${own.flow}" was never saved (run 1 incomplete?) — SKIPPING replay`);
+      rows.push({ n, runid, verified: '', stop: 'no-flow', turns: null, cmds: null, total_usd: null, A_n: '', replayed: 'skipped', wall_s: null });
+      continue;
+    }
+    if (own.resetCmd) spawnSync(own.resetCmd, { stdio: 'inherit', env: process.env, shell: true });
+    else spawnSync(process.execPath, [path.join(here, 'reset-app.mjs')], { stdio: 'inherit', env: process.env });
     const env = { ...process.env, BROWSER_PILOT_SKILLS: '1', ...(learnDir ? { BROWSER_PILOT_SKILLS_DIR: learnDir } : {}), ...(flowsDir ? { BROWSER_PILOT_FLOWS_DIR: flowsDir } : {}) };
     const fr = spawnSync(armBin, ['--session', runid, 'run', own.flow, '--var', `runid=${runid}`, '--json'], { stdio: ['inherit', 'pipe', 'inherit'], env, shell: process.platform === 'win32' });
-    if (fr.stdout) fs.writeFileSync(path.join(outDir, `${runid}-flowrun.json`), fr.stdout);
+    if (fr.stdout && fr.stdout.length) fs.writeFileSync(path.join(outDir, `${runid}-flowrun.json`), fr.stdout);
     // Drift tickets are the post-session repair work-list; split them out so
     // the repair pass can consume one file per run.
     try {
