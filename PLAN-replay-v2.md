@@ -107,15 +107,15 @@ run (glm-5.2 inner or raised cap) before its replays are testable at all.
 
 ## Task checklist
 
-- [ ] 1. Per-step output capture at record time (recorder/compile): post-nav
+- [x] 1. Per-step output capture at record time (recorder/compile): post-nav
       URL segments + created ids from diffs, stored on the step.
-- [ ] 2. Provenance substitution pass in compile.ts (extend discoverSlots
+- [x] 2. Provenance substitution pass in compile.ts (extend discoverSlots
       value sources); params bound from live outputs in runFlow.
-- [ ] 3. Soft URL matching + confirm-on-success segment generalisation
+- [x] 3. Soft URL matching + confirm-on-success segment generalisation
       (urlMatches callers in replay.ts/flow.ts; persistence in store.ts).
-- [ ] 4. Demote isIdLike to ordering-only (stableFirst keeps it; matching
+- [x] 4. Demote isIdLike to ordering-only (stableFirst keeps it; matching
       paths stop consulting it).
-- [ ] 5. sweep.mjs: skip-and-mark replays when the flow was never saved;
+- [x] 5. sweep.mjs: skip-and-mark replays when the flow was never saved;
       --verify-cmd.
 - [ ] 6. Validation sweeps swo2/swg2/swa2; record per-n curves in
       bench/MATRIX-v0.1.md as a follow-up section.

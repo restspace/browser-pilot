@@ -27,7 +27,7 @@ import { loadRates, priceRun } from './pricing.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
-const own = { k: 3, base: `lrn-${Date.now().toString(36)}`, learn: '', verify: false, out: 'bench/results' };
+const own = { k: 3, base: `lrn-${Date.now().toString(36)}`, learn: '', verify: false, verifyCmd: '', resetCmd: '', out: 'bench/results' };
 const pass = [];
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
@@ -36,6 +36,8 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--learn') own.learn = argv[++i] ?? '';
   else if (a === '--flow') own.flow = argv[++i];
   else if (a === '--verify') own.verify = true;
+  else if (a === '--verify-cmd') own.verifyCmd = argv[++i] ?? '';
+  else if (a === '--reset-cmd') own.resetCmd = argv[++i] ?? '';
   else if (a === '--out') {
     own.out = argv[++i];
     pass.push('--out', own.out);
@@ -85,7 +87,16 @@ for (let n = 1; n <= own.k; n++) {
   const arm = pass[pass.indexOf('--arm') + 1] ?? 'browser-pilot';
   const file = path.join(outDir, `${runid}-${arm}-result.json`);
   let verified = '';
-  if (own.verify) {
+  if (own.verifyCmd) {
+    // Generic per-run verification (odoo/grafana/atelyr sweeps): {runid} in
+    // the command is substituted; PASS/FAIL lines are counted like --verify.
+    const cmd = own.verifyCmd.includes('{runid}') ? own.verifyCmd.replaceAll('{runid}', runid) : `${own.verifyCmd} ${runid}`;
+    const v = spawnSync(cmd, { encoding: 'utf8', env: { ...process.env, BENCH_OUT: outDir }, shell: true });
+    process.stderr.write((v.stdout ?? '') + (v.stderr ?? ''));
+    const passes = ((v.stdout ?? '').match(/PASS/g) ?? []).length;
+    const total = ((v.stdout ?? '').match(/(PASS|FAIL)/g) ?? []).length;
+    verified = total ? `${passes}/${total}` : 'n/a';
+  } else if (own.verify) {
     const v = spawnSync(process.execPath, [path.join(here, 'verify-repairdesk.mjs'), runid], {
       encoding: 'utf8',
       env: { ...process.env, BENCH_OUT: outDir },

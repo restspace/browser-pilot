@@ -3,7 +3,7 @@ import { captureSignature } from '../daemon/diff.js';
 import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
 import { isRefTarget } from '../daemon/refs.js';
-import { fillParams, fillParamsDeep, urlMatches, urlPattern } from './compile.js';
+import { fillParams, fillParamsDeep, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
 import type { Skill, SkillStep } from './store.js';
 
 /** Executes one step against the live page, recording it; throws on failure. */
@@ -59,6 +59,16 @@ export interface ReplayResult {
   fallthroughs: number;
   /** Structured record of every locator that missed its primary. */
   misses: LocatorMiss[];
+  /** Values this replay itself minted and bound ({{dN}} derived params), for later segments and callers. */
+  derivedValues: Record<string, string>;
+  /**
+   * Url patterns whose literal segment(s) disagreed with the live url while
+   * everything else matched (mechanism 2, PLAN-replay-v2). The replay
+   * proceeded optimistically; the caller persists the generalised pattern
+   * onto the skill only once the run past that point succeeded — the segment
+   * has then demonstrated volatility.
+   */
+  generalisations: { kind: 'precondition' | 'expect'; step?: number; pattern: string }[];
   /** Cosine similarity between the stored start-page fingerprint and the live page, if both exist. */
   similarity: number | null;
   url: string;
@@ -90,9 +100,15 @@ export async function replaySkill(
     warnings: [],
     fallthroughs: 0,
     misses: [],
+    derivedValues: {},
+    generalisations: [],
     similarity: null,
     url: page.url(),
   };
+
+  // Copy the caller's bindings: derived ({{dN}}) values minted mid-replay are
+  // bound into this map as steps execute, so later steps see them.
+  params = { ...params };
 
   const missing = Object.keys(skill.params).filter((p) => !(p in params) || params[p] === '');
   if (missing.length) {
@@ -109,9 +125,21 @@ export async function replaySkill(
   // capture and the redirect) — the flow6 head step failed exactly this way.
   const navigatesItself = skill.steps[0]?.tool === 'goto';
   if (!navigatesItself && !urlMatches(skill.preconditions.urlPattern, startUrl, params)) {
-    res.refused = true;
-    res.reason = `not on the page this procedure starts from (expects ${fillParams(skill.preconditions.urlPattern, params)}, browser is at ${urlPattern(startUrl)}) — nothing was run`;
-    return res;
+    // Same page shape with 1-2 disagreeing segments is likely an
+    // environment-minted id (an Odoo action id, a Grafana uid): proceed
+    // optimistically instead of refusing — a hard fail here is what turned a
+    // one-segment difference into a dead flow, and it also makes the
+    // volatility evidence uncollectible.
+    const soft = softUrlMatch(skill.preconditions.urlPattern, startUrl, params);
+    if (!soft) {
+      res.refused = true;
+      res.reason = `not on the page this procedure starts from (expects ${fillParams(skill.preconditions.urlPattern, params)}, browser is at ${urlPattern(startUrl)}) — nothing was run`;
+      return res;
+    }
+    res.warnings.push(
+      `start url differs from the recorded pattern in ${soft.diffs.length} segment(s) (${soft.diffs.map((d) => `${d.expected}→${d.actual}`).join(', ')}) — proceeding optimistically`,
+    );
+    res.generalisations.push({ kind: 'precondition', pattern: soft.generalised });
   }
 
   if (skill.preconditions.fingerprint) {
@@ -186,12 +214,35 @@ export async function replaySkill(
       return 'stop';
     }
 
+    // Bind values this step just minted (derived params) from the live url,
+    // BEFORE the expectation check: the minting step's own expectation refers
+    // to the value it produced, so it must compare against the replay's own.
+    if (skill.derived) {
+      for (const [name, d] of Object.entries(skill.derived)) {
+        if (d.step !== failIndex) continue;
+        const v = urlPart(page.url(), d.at);
+        if (v !== undefined) {
+          params[name] = v;
+          res.derivedValues[name] = v;
+        }
+      }
+    }
+
     // Hard expectation: where the step was supposed to leave the browser.
+    // A same-shape url whose literal segment(s) disagree is treated as
+    // volatile (mechanism 2): warn, stage the generalisation, continue.
     if (step.expect?.urlPattern && !urlMatches(step.expect.urlPattern, page.url(), params)) {
-      res.failedAt = failIndex;
-      res.reason = `after step ${tag} expected url ${fillParams(step.expect.urlPattern, params)} but browser is at ${urlPattern(page.url())}`;
-      res.lines.push(`${head} → ran, but ${res.reason}`);
-      return 'stop';
+      const soft = softUrlMatch(step.expect.urlPattern, page.url(), params);
+      if (!soft) {
+        res.failedAt = failIndex;
+        res.reason = `after step ${tag} expected url ${fillParams(step.expect.urlPattern, params)} but browser is at ${urlPattern(page.url())}`;
+        res.lines.push(`${head} → ran, but ${res.reason}`);
+        return 'stop';
+      }
+      res.warnings.push(
+        `step ${tag}: url segment(s) differ from recorded (${soft.diffs.map((d) => `${d.expected}→${d.actual}`).join(', ')}) — treated as volatile`,
+      );
+      res.generalisations.push({ kind: 'expect', step: failIndex, pattern: soft.generalised });
     }
     // Page-change expectations. Lines that carry a parameter are HARD: they
     // are what distinguishes this run from the recorded one (the new title

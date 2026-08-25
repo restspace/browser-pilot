@@ -4,7 +4,7 @@ import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
-import { urlPattern as compiledUrlPattern } from '../skills/compile.js';
+import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
@@ -580,7 +580,22 @@ ${direct.prelude}` : recoveryText,
           if (hits.length === 1) values[want] = values[hits[0]];
         }
       }
-      outputs[step.id] = values;
+      // Mechanism 1 at the flow level (PLAN-replay-v2): the step's end-url
+      // parts are outputs too, so a later step whose recorded value was
+      // minted here (a dashboard uid in the post-create url) binds to THIS
+      // run's value. Kept out of the step's reported values in the flow
+      // result — they are addresses, not findings.
+      const stepOutputs: Record<string, string> = { ...values };
+      try {
+        const liveUrl = (await this.browser.getPage()).url();
+        for (const part of urlParts(liveUrl)) {
+          const key = `url.${part.label}`;
+          if (part.value.length >= 4 && !(key in stepOutputs)) stepOutputs[key] = part.value;
+        }
+      } catch {
+        /* browser gone — nothing to bind */
+      }
+      outputs[step.id] = stepOutputs;
       const sk = result.skill;
       // Drift telemetry: record, never repair inline. One ticket per primary-
       // locator miss, plus one for a recovery with no structured miss to blame.
@@ -726,6 +741,10 @@ ${direct.prelude}` : recoveryText,
       values: { ...replay.values },
       segmentsDone: 0,
     };
+    // Values the replay itself minted ({{dN}}): bound in the segment that
+    // minted them, threaded into every later segment's params so a later
+    // precondition/locator references THIS run's identifier.
+    const derived: Record<string, string> = { ...replay.derivedValues };
     let current = match.skill;
     let last = match.skill; // whose replay `replay` currently holds
     while (replay.ok && current.seq && current.seq.index < current.seq.of - 1) {
@@ -738,9 +757,10 @@ ${direct.prelude}` : recoveryText,
       store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
       agg.segmentsDone++;
       progress(`[skill] chain ${current.seq.chain}: segment ${next.seq!.index + 1}/${next.seq!.of} → ${next.id}`);
-      const nextExec = await executeTool(this.browser, 'run_skill', { id: next.id, params: match.params }, screenshotDir, signal);
+      const nextExec = await executeTool(this.browser, 'run_skill', { id: next.id, params: { ...match.params, ...derived } }, screenshotDir, signal);
       const r = nextExec.replay;
       if (!r) return {};
+      Object.assign(derived, r.derivedValues ?? {});
       replay = r;
       last = next;
       current = next;

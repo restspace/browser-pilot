@@ -162,3 +162,42 @@ describe('synthesizeReport honesty', () => {
     expect(r.evidence!.values).toMatchObject({ part: 'q9 RD Part B', price: '375.00', ticket: 'RD-1099' });
   });
 });
+
+describe('flow url outputs (mechanism 1 at the flow level)', () => {
+  function mintingSession(): RecordedEntry[] {
+    return [
+      { k: 'instruction', text: "Create a dashboard titled 'fr1 Bench Dashboard' and save it.", url: `${ORIGIN}/dashboards` },
+      {
+        k: 'step', tool: 'click', args: { target: '@e1' },
+        locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'Save' }] } },
+        diff: { url: `${ORIGIN}/d/afw6yy5xx9/fr1-bench-dashboard`, alerts: [], added: [] },
+      },
+      { k: 'report', status: 'success', summary: 'Saved.', values: {}, skill: 's_create' },
+      { k: 'instruction', text: 'Open the dashboard at /d/afw6yy5xx9 and set its refresh to 1m.', url: `${ORIGIN}/d/afw6yy5xx9/fr1-bench-dashboard` },
+      { k: 'report', status: 'success', summary: 'Done.', values: {}, skill: 's_refresh' },
+    ];
+  }
+  it('minted end-url segments become outputs a later instruction references', () => {
+    const flow = buildFlow(mintingSession(), { name: 'g', origin: ORIGIN, startUrl: `${ORIGIN}/dashboards`, vars: { runid: 'fr1' }, session: 's' })!;
+    const [s1, s2] = flow.steps;
+    // the uid the run minted is now a reference to step 1's end url, never a literal
+    expect(s2.instruction).toContain(`{{${s1.id}.url.p1}}`);
+    expect(s2.instruction).not.toContain('afw6yy5xx9');
+    // digitless route words stay literal
+    expect(s1.instruction).not.toContain('{{0');
+  });
+  it('resolveInstruction threads url.* outputs (refs split at the FIRST dot)', () => {
+    const flowStep: FlowStep = { id: '02-open', instruction: 'Open /d/{{01-create.url.p1}} now', outputs: [], recorded: {} };
+    const { text, missing } = resolveInstruction(flowStep, {}, { '01-create': { 'url.p1': 'zzz91' } });
+    expect(missing).toEqual([]);
+    expect(text).toBe('Open /d/zzz91 now');
+    const soft = softResolveInstruction(flowStep, {}, {});
+    expect(soft).toBe('Open /d/ now');
+  });
+  it('resolveStepParams threads url.* outputs too', () => {
+    const flowStep: FlowStep = { id: '02-open', instruction: 'x', params: { v1: '{{01-create.url.p1}}' }, outputs: [], recorded: {} };
+    const bound = resolveStepParams(flowStep, {}, { '01-create': { 'url.p1': 'zzz91' } })!;
+    expect(bound.missing).toEqual([]);
+    expect(bound.params).toEqual({ v1: 'zzz91' });
+  });
+});

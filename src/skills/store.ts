@@ -32,6 +32,14 @@ export interface Skill {
    * reached by following the chain, each gated by its own precondition.
    */
   seq?: { chain: string; index: number; of: number };
+  /**
+   * Values this procedure MINTS while running (a created record's id, a
+   * generated uid), keyed by their {{dN}} marker: after `step` executes,
+   * replay reads url part `at` (urlParts label) from the live page and binds
+   * it, so later steps/segments reference the replay's own value, never the
+   * recorded run's. `example` is what the recording observed.
+   */
+  derived?: Record<string, { step: number; at: string; example: string }>;
   provenance: { session: string; instruction: string; model?: string; created: string };
 }
 

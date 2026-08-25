@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { coalesceControls, compileSkill, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, stableFirst, substitute, urlMatches, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
@@ -88,8 +88,10 @@ describe('url patterns', () => {
   it('reduces a query-shaped hash route, keys kept and order-independent', () => {
     // Odoo's shape: the fragment is the route AND volatile per-session state.
     expect(urlPattern('http://h:1/web#action=123&cids=1&menu_id=81')).toBe('http://h:1/web#action=:id&cids=:id&menu_id=:id');
-    // Same page, different session ids and a different key order.
-    expect(urlMatches('http://h:1/web#action=123&cids=1&menu_id=81', 'http://h:1/web#menu_id=99&cids=2&action=456')).toBe(true);
+    // Same page, different session ids and a different key order. Matching
+    // consults the stored pattern's own :id markers (written once at compile
+    // time), never a shape heuristic on the live value.
+    expect(urlMatches(urlPattern('http://h:1/web#action=123&cids=1&menu_id=81'), 'http://h:1/web#menu_id=99&cids=2&action=456')).toBe(true);
     // Non-id values still distinguish one template from another.
     expect(urlPattern('http://h:1/web#action=315&model=sale.order&view_type=list')).toBe(
       'http://h:1/web#action=:id&model=sale.order&view_type=list',
@@ -99,7 +101,7 @@ describe('url patterns', () => {
   it('treats query-shaped hash state as a necessary, not exact, condition', () => {
     // State accumulates: recorded at "#cids=1", the page has grown an action
     // and a menu id by the time a later segment starts on it.
-    expect(urlMatches('http://h:1/web#cids=1', 'http://h:1/web#action=133&cids=2&menu_id=91')).toBe(true);
+    expect(urlMatches('http://h:1/web#cids=1', 'http://h:1/web#action=133&cids=1&menu_id=91')).toBe(true);
     // Missing a required pair is still a mismatch...
     expect(urlMatches('http://h:1/web#model=sale.order', 'http://h:1/web#action=133&cids=2')).toBe(false);
     // ...as is a different path, however well the fragment lines up.
@@ -580,5 +582,96 @@ describe('segmentation (one skill per page-template segment)', () => {
     expect(matchTemplate([tail], INSTR, LIST)).toBeNull();
     expect(matchTemplate([head], INSTR, SIGNIN)?.skill.id).toBe(head.id);
     expect(selectCandidates([tail, head], undefined, INSTR).map((c) => c.skill.id)).toEqual([head.id]);
+  });
+});
+
+describe('softUrlMatch (mechanism 2: observed variance)', () => {
+  it('tolerates one disagreeing segment and generalises exactly that segment', () => {
+    // The swg-n2 halt: run 1 baked its generated dashboard uid into the
+    // expectation; the replay minted a different one.
+    const soft = softUrlMatch('http://h:1/d/afw6yy5xxq4u8e/:id', 'http://h:1/d/afw711m2aifb4a/swg-n2-bench-dashboard');
+    expect(soft).not.toBeNull();
+    expect(soft!.generalised).toBe('http://h:1/d/:var/:id');
+    // and the generalised pattern now hard-matches any future uid
+    expect(urlMatches('http://h:1/d/:var/:id', 'http://h:1/d/zzz9x/other')).toBe(true);
+  });
+  it('rejects a different page shape outright', () => {
+    expect(softUrlMatch('http://h:1/d/afw6yy5xxq4u8e/:id', 'http://h:1/dashboards')).toBeNull();
+    expect(softUrlMatch('http://h:1/a/b', 'http://other:2/a/b')).toBeNull();
+  });
+  it('rejects when everything already matched (no diff to generalise)', () => {
+    expect(softUrlMatch('http://h:1/d/:id/:id', 'http://h:1/d/x1/y2')).toBeNull();
+  });
+  it('generalises a query-shaped hash value the way Odoo needs', () => {
+    const soft = softUrlMatch('http://h:1/web#action=133&model=sale.order', 'http://h:1/web#action=915&cids=1&model=sale.order');
+    expect(soft).not.toBeNull();
+    expect(soft!.generalised).toBe('http://h:1/web#action=:var&model=sale.order');
+  });
+  it('gives up past two disagreeing segments', () => {
+    expect(softUrlMatch('http://h:1/a1/b2/c3', 'http://h:1/x1/y2/z3')).toBeNull();
+  });
+  it('an unfilled {{dN}} marker in a pattern matches any segment', () => {
+    expect(urlMatches('http://h:1/d/{{d1}}/:id', 'http://h:1/d/afw711m2aifb4a/slug')).toBe(true);
+    // and a filled one must match exactly
+    expect(urlMatches('http://h:1/d/{{d1}}/:id', 'http://h:1/d/afw711m2aifb4a/slug', { d1: 'afw711m2aifb4a' })).toBe(true);
+    expect(urlMatches('http://h:1/d/{{d1}}/:id', 'http://h:1/d/afw711m2aifb4a/slug', { d1: 'other9' })).toBe(false);
+  });
+});
+
+describe('derived params (mechanism 1: provenance)', () => {
+  const START = `${ORIGIN}/dashboard/new`;
+  const CREATE_INSTR = "Create a dashboard named 'Bench Board' and verify it saved.";
+  function mintingRecording(): RecordedEntry[] {
+    return [
+      { k: 'instruction', text: CREATE_INSTR, url: START, fingerprint: [1, 0, 0] },
+      step('fill', { target: '@e1', value: 'Bench Board' }, [{ kind: 'label', label: 'Title' }]),
+      // Saving navigates to the minted uid's url — the mint step.
+      step('click', { target: '@e2' }, [{ kind: 'role', role: 'button', name: 'Save' }], {
+        diff: { url: `${ORIGIN}/d/afw6yy5xx9/bench-board`, alerts: ['Dashboard saved'], added: [] },
+      }),
+      // A later navigation back to the same record bakes the uid again.
+      step('goto', { url: `${ORIGIN}/d/afw6yy5xx9/bench-board` }, [], {
+        diff: { url: `${ORIGIN}/d/afw6yy5xx9/bench-board`, alerts: [], added: ['- heading "Bench Board"'] },
+      }),
+    ];
+  }
+  it('turns a value minted in a post-nav url into a {{dN}} reference downstream', () => {
+    // The mint navigation crosses a template seam, so this compiles to a
+    // 2-segment chain: the MINTING segment carries the derived metadata, the
+    // later segment consumes the marker.
+    const skills = compileSkills({ entries: mintingRecording(), instruction: CREATE_INSTR, report: { status: 'success', summary: 'ok', evidence: { values: {} } }, session: 's' });
+    expect(skills).toHaveLength(2);
+    const [a, b] = skills;
+    expect(a.derived).toBeDefined();
+    const [name, meta] = Object.entries(a.derived!)[0];
+    expect(meta.example).toBe('afw6yy5xx9');
+    expect(meta.at).toBe('p1');
+    // the minting step's own expectation references the value it produced
+    expect(JSON.stringify(a.steps[meta.step - 1].expect)).toContain(`{{${name}}}`);
+    // the later segment's precondition and goto use the reference, not the literal
+    expect(b.preconditions.urlPattern).toContain(`{{${name}}}`);
+    const goto = b.steps.find((st) => st.tool === 'goto')!;
+    expect(String(goto.args.url)).toContain(`{{${name}}}`);
+    expect(String(goto.args.url)).not.toContain('afw6yy5xx9');
+  });
+  it('leaves stable digitless route words alone', () => {
+    const skills = compileSkills({ entries: recording(), instruction: INSTRUCTION, report, session: 's' });
+    expect(JSON.stringify(skills)).not.toContain('{{d');
+  });
+});
+
+describe('urlParts', () => {
+  it('labels path, hash-route and hash-state parts stably', () => {
+    expect(urlParts('http://h:1/d/uid9/slug#x')).toEqual([
+      { label: 'p0', value: 'd' },
+      { label: 'p1', value: 'uid9' },
+      { label: 'p2', value: 'slug' },
+      { label: 'h0', value: 'x' },
+    ]);
+    expect(urlParts('http://h:1/web#action=915&cids=1')).toEqual([
+      { label: 'p0', value: 'web' },
+      { label: 'q.action', value: '915' },
+      { label: 'q.cids', value: '1' },
+    ]);
   });
 });

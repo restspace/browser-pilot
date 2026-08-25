@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { RecordedEntry, RecordedInstruction, RecordedReport } from '../daemon/recorder.js';
 import { rootDir } from '../shared/paths.js';
-import { escapeRe } from './compile.js';
+import { escapeRe, urlParts } from './compile.js';
 
 /**
  * A flow is the resolved path a session took: the instructions the caller
@@ -109,6 +109,7 @@ export function buildFlow(
 
   const steps: FlowStep[] = [];
   const produced: { stepId: string; output: string; value: string }[] = [];
+  const seenUrl = new Set(urlParts(opts.startUrl).map((p) => p.value));
   const varEntries = Object.entries(opts.vars).filter(([, v]) => v.length >= 2).sort((a, b) => b[1].length - a[1].length);
 
   groups.forEach((g, i) => {
@@ -148,6 +149,20 @@ export function buildFlow(
     for (const [output, value] of Object.entries(g.report?.values ?? {})) {
       if (typeof value === 'string' && value) produced.push({ stepId: id, output, value });
     }
+    // Provenance (PLAN-replay-v2): url parts this step MINTED (absent from
+    // every earlier url) are outputs too — a later step's recorded literal
+    // equal to one becomes {{stepId.url.<part>}}, re-bound each run from
+    // where the replay's own browser lands. Same guards as report outputs:
+    // length >= 4, first appearance wins.
+    if (g.endUrl) {
+      for (const part of urlParts(g.endUrl)) {
+        const fresh = !seenUrl.has(part.value);
+        seenUrl.add(part.value);
+        if (!fresh || part.value.length < 4 || !/\d/.test(part.value)) continue;
+        if (produced.some((p) => p.value === part.value) || varEntries.some(([, v]) => v === part.value)) continue;
+        produced.push({ stepId: id, output: `url.${part.label}`, value: part.value });
+      }
+    }
   });
 
   return {
@@ -163,6 +178,8 @@ export function buildFlow(
 interface Group {
   instruction: RecordedInstruction;
   report?: RecordedReport;
+  /** Where the browser ended up after this instruction's last navigation. */
+  endUrl?: string;
 }
 
 function groupByInstruction(entries: RecordedEntry[]): Group[] {
@@ -170,6 +187,7 @@ function groupByInstruction(entries: RecordedEntry[]): Group[] {
   for (const e of entries) {
     if (e.k === 'instruction') groups.push({ instruction: e });
     else if (e.k === 'report' && groups.length) groups[groups.length - 1].report = e;
+    else if (e.k === 'step' && groups.length && e.diff?.url) groups[groups.length - 1].endUrl = e.diff.url;
   }
   // Only steps that ended in a success are worth replaying; a blocked/failed
   // instruction the caller worked around is not part of the resolved path.
@@ -194,7 +212,8 @@ export function resolveInstruction(step: FlowStep, vars: Record<string, string>,
   const missing: string[] = [];
   const text = step.instruction.replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
     if (ref.includes('.')) {
-      const [sid, out] = ref.split('.');
+      const dot = ref.indexOf('.');
+      const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
       const v = outputs[sid]?.[out];
       if (v === undefined) {
         missing.push(ref);
@@ -219,7 +238,8 @@ export function softResolveInstruction(step: FlowStep, vars: Record<string, stri
   return step.instruction
     .replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
       if (ref.includes('.')) {
-        const [sid, out] = ref.split('.');
+        const dot = ref.indexOf('.');
+        const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
         return outputs[sid]?.[out] ?? '';
       }
       return ref in vars ? vars[ref] : '';
@@ -240,7 +260,8 @@ export function resolveStepParams(
   for (const [k, tmpl] of Object.entries(step.params)) {
     params[k] = tmpl.replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
       if (ref.includes('.')) {
-        const [sid, out] = ref.split('.');
+        const dot = ref.indexOf('.');
+        const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
         const v = outputs[sid]?.[out];
         if (v === undefined) { missing.push(ref); return m; }
         return v;

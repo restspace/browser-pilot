@@ -444,6 +444,32 @@ async function executeSkill(
     signal,
     exec: async (tool, stepArgs, resolved, via) => runStep(session, tool, stepArgs, screenshotDir, signal, { resolved, via }),
   });
+  // Mechanism 2 (PLAN-replay-v2): a url segment that soft-matched and was
+  // then walked PAST has demonstrated volatility — generalise exactly that
+  // segment in the stored pattern, permanently. Segments that never vary stay
+  // exact. A soft match the replay did NOT get past stays unconfirmed.
+  const confirmed = replay.generalisations.filter((g) =>
+    g.kind === 'precondition' ? replay.stepsRun >= 1 : replay.ok || (g.step !== undefined && replay.stepsRun > g.step),
+  );
+  if (confirmed.length) {
+    const fresh = store.get(skill.id);
+    if (fresh) {
+      let changed = false;
+      for (const g of confirmed) {
+        if (g.kind === 'precondition') {
+          fresh.preconditions.urlPattern = g.pattern;
+          changed = true;
+        } else if (g.step !== undefined) {
+          const st = fresh.steps[g.step - 1];
+          if (st && st.tool !== 'loop' && st.expect?.urlPattern) {
+            st.expect.urlPattern = g.pattern;
+            changed = true;
+          }
+        }
+      }
+      if (changed) store.put(fresh);
+    }
+  }
   const stateNote = before && replay.stepsRun ? await stateDiff(page, before, BATCH_LINE_BUDGET) : '';
   const body = renderReplay(skill, replay) + stateNote + dialogNote(session);
   return { result: truncate(body, TOOL_RESULT_BUDGET + 8200), isError: Boolean(replay.refused), replay };
