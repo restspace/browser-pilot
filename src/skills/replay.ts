@@ -78,6 +78,11 @@ export interface ReplayResult {
 
 const MAX_LINE = 160;
 
+/** Tools whose miss can be substituted by navigating to the step's recorded
+ * destination: plain navigation clicks. modifier_click (new tabs) and loop
+ * bodies are excluded. */
+const NAV_FALLBACK_TOOLS = new Set(['click', 'dblclick']);
+
 /**
  * Replay a stored skill deterministically: precondition → each step with its
  * locator chain → expectation check → next. Stops at the first failure and
@@ -191,6 +196,34 @@ export async function replaySkill(
         res.warnings.push(`step ${tag}: skipped read — ${resolveError}`);
         res.lines.push(`${head} → skipped (${resolveError})`);
         return 'skipped';
+      }
+      // Navigation by recorded destination (PLAN-replay-v2 "order of
+      // application", rung 3). A navigation step's recorded EVIDENCE includes
+      // where it landed; the clicked affordance (a recents list, a shortcut —
+      // anything session-local) may be gone on a fresh browser, but the
+      // destination is what the step was for. So when the chain cannot
+      // resolve, a step whose recorded effect was to MOVE the browser (the
+      // destination differs from here) to a fully concrete url (params and
+      // derived values filled, nothing left volatile — no :id/:var/{{…}})
+      // navigates there directly instead of failing. Logged as a fallthrough
+      // so drift telemetry and post-session repair still see the miss.
+      const dest = step.expect?.urlPattern ? fillParams(step.expect.urlPattern, params) : '';
+      const concrete = dest && !dest.includes('{{') && !/[/=#](:id|:var)(?=[/&#]|$)/.test(dest);
+      const navigational = NAV_FALLBACK_TOOLS.has(step.tool) && !tag.includes('.') && concrete && !urlMatches(step.expect!.urlPattern!, page.url(), params);
+      if (navigational) {
+        try {
+          await opts.exec('goto', { url: dest }, {}, { skill: skill.id, step: failIndex });
+          if (urlMatches(step.expect!.urlPattern!, page.url(), params)) {
+            const miss = res.misses[res.misses.length - 1];
+            if (miss && miss.step === tag) miss.used = `goto ${dest}`;
+            res.fallthroughs++;
+            res.warnings.push(`step ${tag}: ${resolveError}; navigated to the step's recorded destination instead (${dest})`);
+            res.lines.push(`${head} → target gone; navigated to recorded destination ${dest}`);
+            return 'ran';
+          }
+        } catch {
+          // destination unreachable — report the original miss below
+        }
       }
       res.failedAt = failIndex;
       res.reason = resolveError;

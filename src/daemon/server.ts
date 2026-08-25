@@ -363,7 +363,10 @@ export class Daemon {
         try {
           return await this.runFlow(String(a.name ?? ''), (a.vars as Record<string, string>) ?? {}, {
             maxTurns: typeof a.maxTurns === 'number' ? a.maxTurns : 30,
-            timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 300) * 1000,
+            // Flow recovery goes straight to the strong model on a step that
+            // is by definition no longer straightforward — give it double the
+            // interactive default (swg2-n3 step 05 died mid-recovery at 300s).
+            timeoutMs: (typeof a.timeoutS === 'number' ? a.timeoutS : 600) * 1000,
             ...(typeof a.turnTimeoutS === 'number' ? { turnTimeoutMs: a.turnTimeoutS * 1000 } : {}),
             provider: this.provider(),
             fallback: a.escalate === false ? null : this.fallbackProvider({}, this.provider()),
