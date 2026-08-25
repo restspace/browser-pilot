@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e9f8968"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c2rd2-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2rd2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 665822,
+  "orchestrator": {
+    "input": 5368,
+    "cacheWrite": 0,
+    "cacheRead": 25984,
+    "output": 2333
+  },
+  "inner": {
+    "promptTokens": 1421060,
+    "cachedTokens": 1193728,
+    "completionTokens": 11707,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1421060,
+        "completionTokens": 11707,
+        "cachedTokens": 1193728,
+        "instructions": 7
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 628832,
+  "commandBytes": 7235,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0245,
+  "maxUsd": 2,
+  "spendUsd": 0.0513,
+  "finalText": "All objectives are complete and verified.\n\n**Final report**\n\n1. **DONE** — Ticket `c2rd2 RD Bench Ticket` created (ID **RD-1015**, internal id t15), initially in status **Draft**.\n2. **DONE** — Part `c2rd2 RD Part A` added with cost **$100.00** and markup **25%**; app-computed price: **$125.00**.\n3. **DONE** — Part `c2rd2 RD Part B` added with cost **$200.00** and markup **25%**; app-computed price: **$250.00** (ticket total then $375.00).\n4. **DONE** — Part A's cost changed from 100 to **150** (markup still 25%); app-computed price afterwards: **$187.50** (ticket total then $437.50).\n5. **DONE** — Ticket ended in status **Ready**. Precondition discovered: the app refused the first \"Mark Ready\" attempt with the alert *\"Ticket is not ready. Part \"c2rd2 RD Part A\" has no supplier. Part \"c2rd2 RD Part B\" has no supplier.\"* — i.e. **every part on the ticket must have a supplier assigned**. I satisfied it by setting Part A's supplier to \"Acme Corp\" and Part B's supplier to \"Beta Supplies\"; after that, \"Mark Ready\" succeeded and the status changed from Draft to **Ready**.\n6. **DONE** — Both parts were deleted (each via Delete + \"Delete part\" confirmation dialog); the parts table then showed **\"No parts on this ticket yet.\"** The ticket was then archived — the Archive action succeeded with no error, the button changed to \"Unarchive ticket\", and the page shows badges **Ready · Archived**. Final read-only verification confirmed RD-1015 does **not** appear in the default (active) ticket list; it only appears when \"Show archived\" is checked, with an \"Archived\" badge, and its parts list is empty. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2rd2-browser-pilot-transcript.jsonl"
+}
