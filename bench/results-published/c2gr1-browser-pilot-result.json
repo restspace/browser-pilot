@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e9f8968"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2gr1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 1512359,
+  "orchestrator": {
+    "input": 3891,
+    "cacheWrite": 0,
+    "cacheRead": 18176,
+    "output": 2081
+  },
+  "inner": {
+    "promptTokens": 2383868,
+    "cachedTokens": 2053760,
+    "completionTokens": 17405,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2097453,
+        "completionTokens": 14802,
+        "cachedTokens": 1787904,
+        "instructions": 6
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 286415,
+        "completionTokens": 2603,
+        "cachedTokens": 265856,
+        "instructions": 1
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 1479525,
+  "commandBytes": 3874,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0193,
+  "maxUsd": 2,
+  "spendUsd": 0.1667,
+  "finalText": "All objectives verified on a fresh page load. Final report:\n\n**Objective 1 — DONE**: The provisioned dashboard `Service health` (under the \"Bench\" folder) contains 3 panels, titled exactly:\n- `Request rate`\n- `Error count`\n- `Latency by endpoint`\n\n**Objective 2 — DONE**: New dashboard `c2gr1 Bench Dashboard` created and saved, containing a **Stat** panel titled `c2gr1 Availability`. Verified in the panel's query editor that its query uses the **TestData** data source.\n\n**Objective 3 — DONE**: The dashboard also contains a **Text** panel titled `c2gr1 Notes`, whose content is `Bench notes for run c2gr1` (includes the runid `c2gr1`). Saved.\n\n**Objective 4 — DONE**: Dashboard Settings > General lists the tag `bench`, and the top-bar time range shows `Last 6 hours`. Both persisted across a full page reload.\n\n**Objective 5 — DONE**: The auto-refresh interval is set to `1m` (persisted by checking \"Update default refresh value\" in the save dialog). Confirmed still `1m` after a fresh reload.\n\n**Objective 6 — DONE**: Dashboard URL: `http://127.0.0.1:3000/d/afwa2uv1pdpmod/c2gr1-bench-dashboard` — UID: `afwa2uv1pdpmod`.\n\nEvery save was explicitly confirmed via the \"Dashboard saved\" alert, and a final read-only verification in a fresh tab confirmed the dashboard title, both panel titles, the time range, the refresh interval, the text content, the tag, and the TestData data source.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2gr1-browser-pilot-transcript.jsonl"
+}
