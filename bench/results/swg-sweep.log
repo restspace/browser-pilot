@@ -1,0 +1,70 @@
+
+[sweep] run 1/3: swg-n1 (store: /home/user/browser-pilot/bench/results/swg-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[harness] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+arm=browser-pilot model=z-ai/glm-5.3 runid=swg-n1 stop=completed
+turns=9 wall=1492.9s
+commands=8 cmdTime=1420.7s cmdBytes=5235 timeouts=0
+orchestrator in=4603 cw=0 cr=25856 out=2604
+inner prompt=3787510 cached=3139956 completion=28658
+spend=$0.3957 maxUsd=2
+learn: A_n=0 replayed=0/8 full=0 repaired=0 compiled=6 variants=0
+-> /home/user/browser-pilot/bench/results/swg-n1-browser-pilot-result.json
+
+[sweep] run 2/3: swg-n2 (replay flow swg, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] swg-n2: 1 drift ticket(s) → swg-n2-drift.json
+
+[sweep] run 3/3: swg-n3 (replay flow swg, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] swg-n3: 2 drift ticket(s) → swg-n3-drift.json
+
+Learning sweep swg (K=3)
+┌─────────┬───┬──────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid    │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼──────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'swg-n1' │ ''       │ 'completed' │ 9     │ 8    │ 0.3957    │ 0   │ '0/8'        │ 1493   │
+│ 1       │ 2 │ 'swg-n2' │ ''       │ 'halted'    │ 37    │ 7    │ 0         │ 1   │ '3/7 (flow)' │ 534    │
+│ 2       │ 3 │ 'swg-n3' │ ''       │ 'halted'    │ 24    │ 7    │ 0         │ 1   │ '3/7 (flow)' │ 419    │
+└─────────┴───┴──────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_ae0060  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in to Grafana with username 'admin' and password 'admin'. If prompted to change your pass…
+  s_b359f3  validated    3 steps  3/3 (100%)
+           Open {{v1}} and sign in to Grafana with username 'admin' and password 'admin'. If prompted to change your pass…
+  s_9ca76a  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in to Grafana with username 'admin' and password 'admin'. If prompted to change your pass…
+  s_fa79be  validated    6 steps  3/3 (100%)
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_0cbb5d  demoted     11 steps  1/3 (33%)
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_28e275  validated    5 steps  2/2 (100%)
+           You are on the Grafana dashboard 'Service health'. Report the exact titles of every panel on this dashboard, e…
+  s_255a9b  provisional  1 steps  1/1 (100%)
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_b828ec  provisional  5 steps  1/1 (100%)
+           In Grafana, on the dashboard {{v1}}, the panel editor for panel 2 ('swg-n1 Notes') may be open with the text '…
+  s_3b92ae  provisional 13 steps  1/1 (100%)
+           In Grafana, open the dashboard {{v1}}. Open the dashboard settings (gear icon) and add the tag 'bench' to the …
+  s_b505e3  provisional 21 steps  1/1 (100%)
+           In Grafana, open the dashboard {{v1}}. Set the dashboard's auto-refresh interval to '1m': click the refresh-ra…
+  s_8c407c  provisional 17 steps  1/1 (100%)
+           In Grafana, open the dashboard {{v1}} fresh (reload). Verify and report each of these facts: (1) the dashboard…
+  s_c9d12c  provisional  1 steps  1/1 (100%)  variant of s_0cbb5d
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_1038e6  provisional 10 steps  1/1 (100%)  variant of s_0cbb5d
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_093a27  provisional  6 steps  1/1 (100%)  variant of s_0cbb5d
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_0ddecf  provisional  1 steps  1/1 (100%)  variant of s_0cbb5d
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_314b53  provisional 10 steps  1/1 (100%)  variant of s_0cbb5d
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+  s_49717c  provisional  4 steps  1/1 (100%)  variant of s_0cbb5d
+           In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Set the dashboard title to exactly '{{v1}}'. Add …
+store: /home/user/browser-pilot/bench/results/swg-skills
+
+summary: /home/user/browser-pilot/bench/results/swg-sweep.json
