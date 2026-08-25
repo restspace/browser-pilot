@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "fc515be"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "swo-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1140499,
+  "orchestrator": {
+    "input": 4274,
+    "cacheWrite": 0,
+    "cacheRead": 23680,
+    "output": 2493
+  },
+  "inner": {
+    "promptTokens": 2725896,
+    "cachedTokens": 2062848,
+    "completionTokens": 17073,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2402718,
+        "completionTokens": 13662,
+        "cachedTokens": 1757696,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 323178,
+        "completionTokens": 3411,
+        "cachedTokens": 305152,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 62,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1079841,
+  "commandBytes": 4060,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/swo-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 62,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0231,
+  "maxUsd": 2,
+  "spendUsd": 0.1986,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE:** Customer `swo-n1 Bench Customer` created (contact id 44) with City set to `Benchville`. Verified on the saved contact page: name \"swo-n1 Bench Customer\", City \"Benchville\".\n\n**Objective 2 — DONE:** Draft quotation S00021 created for that customer with one order line:\n- Product chosen: **Conference Chair** [E-COM13] (selected from the product autocomplete dropdown)\n- Unit price auto-filled by the app: **£ 39.40**\n- Untaxed amount computed: **£ 118.20** (3 × 39.40; TAX 20% £ 23.64, Total £ 141.84)\n\n**Objective 3 — DONE:** Second order line added:\n- Product: **Customizable Desk** [FURN_0096] (selected from the dropdown), quantity 2, unit price auto-filled £ 750.00\n- New untaxed amount: **£ 1,618.20** (Conference Chair £ 118.20 + Customizable Desk £ 1,500.00)\n\n**Objective 4 — DONE:** First line's quantity changed from 3 to 5 (now shows 5.00):\n- Untaxed amount afterwards: **£ 1,697.00** (Conference Chair 5 × £ 39.40 = £ 197.00 + Customizable Desk 2 × £ 750.00 = £ 1,500.00)\n\n**Objective 5 — DONE:** Quotation confirmed and became a sales order:\n- Order reference: **S00021**\n- Status shown: **\"Sales Order\"** (active/checked in the status bar; \"Quotation Sent\" and \"Quotation\" disabled)\n\n**Objective 6 — DONE:** Sales order cancelled:\n- Status shown after cancelling: **\"Cancelled\"** (active in the status bar; \"Sales Order\", \"Quotation Sent\", \"Quotation\" all disabled)\n- Order reference still S00021; untaxed amount still £ 1,697.00\n\nA final read-only verification pass confirmed both records: the customer with City \"Benchville\", and order S00021 in \"Cancelled\" status — so nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/swo-n1-browser-pilot-transcript.jsonl"
+}
