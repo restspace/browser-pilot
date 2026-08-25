@@ -1,0 +1,55 @@
+{
+ "version": 1,
+ "recipes": [
+  {
+   "id": "r_f2510e",
+   "family": "monaco",
+   "intent": "set-value",
+   "steps": [
+    {
+     "action": "click"
+    },
+    {
+     "action": "press",
+     "key": "ControlOrMeta+a"
+    },
+    {
+     "action": "insertText",
+     "text": "{{value}}"
+    },
+    {
+     "action": "settle",
+     "ms": 400
+    },
+    {
+     "action": "press",
+     "key": "Escape"
+    },
+    {
+     "action": "blur",
+     "target": "textarea"
+    },
+    {
+     "action": "settle",
+     "ms": 200
+    }
+   ],
+   "verifyRead": ".view-lines",
+   "status": "provisional",
+   "stats": {
+    "uses": 1,
+    "successes": 1,
+    "origins": {
+     "http://127.0.0.1:3000": 1
+    },
+    "failStreak": 0,
+    "created": "2026-08-25T00:00:00Z",
+    "lastUsed": "2026-08-25T20:46:44.944Z"
+   },
+   "seeded": true,
+   "provenance": {
+    "created": "2026-08-25T00:00:00Z"
+   }
+  }
+ ]
+}
