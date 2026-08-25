@@ -1,0 +1,103 @@
+{
+  "arm": "browser-pilot",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": null
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "swa-n1",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "spend-cap",
+  "turns": 20,
+  "wallMs": 4899004,
+  "orchestrator": {
+    "input": 12848,
+    "cacheWrite": 0,
+    "cacheRead": 143168,
+    "output": 16541
+  },
+  "inner": {
+    "promptTokens": 11500996,
+    "cachedTokens": 9220544,
+    "completionTokens": 95102,
+    "instructions": 27,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 6583508,
+        "completionTokens": 51956,
+        "cachedTokens": 4595712,
+        "instructions": 18
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 4917488,
+        "completionTokens": 43146,
+        "cachedTokens": 4624832,
+        "instructions": 9
+      }
+    },
+    "skills": {
+      "instructions": 18,
+      "offered": 16,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 309,
+      "compiled": 16,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 20,
+  "subcommands": {
+    "do": 18,
+    "peek": 2
+  },
+  "invocationCount": 20,
+  "commandMs": 4578228,
+  "commandBytes": 29483,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "C:\\dev\\browser-pilot\\bench\\results\\swa-skills",
+    "instructions": 18,
+    "offered": 16,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 309,
+    "compiled": 16,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.128,
+  "maxUsd": 2,
+  "spendUsd": 2.0944,
+  "finalText": "",
+  "transcriptPath": "C:\\dev\\browser-pilot\\bench\\results\\swa-n1-browser-pilot-transcript.jsonl"
+}
