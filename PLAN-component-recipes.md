@@ -137,15 +137,15 @@ an authority.
 
 ## Task checklist
 
-- [ ] 1. Component store + types (`src/skills/components.ts`): families,
+- [x] 1. Component store + types (`src/skills/components.ts`): families,
       recipes, stats, load/save, seeded library.
-- [ ] 2. Recognition probe (one evaluate: element → family + root selector),
+- [x] 2. Recognition probe (one evaluate: element → family + root selector),
       used from tools.ts dispatch.
-- [ ] 3. Tool-layer swap for fill/type/select with verification read and
+- [x] 3. Tool-layer swap for fill/type/select with verification read and
       naive fallback; result strings and drift telemetry updated.
-- [ ] 4. `[components]` block for the inner agent's context.
-- [ ] 5. Recipe compilation from recoveries (learn.ts hook) + lifecycle
+- [x] 4. `[components]` block for the inner agent's context.
+- [x] 5. Recipe compilation from recoveries (learn.ts hook) + lifecycle
       with cross-origin weighting.
-- [ ] 6. Fixture + tests (unit, browser-gated monaco).
+- [x] 6. Fixture + tests (unit, browser-gated monaco).
 - [ ] 7. Validation sweeps (grafana swg4; odoo swo2) recorded in
       bench/MATRIX-v0.1.md follow-up.

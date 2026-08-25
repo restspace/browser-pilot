@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>component fixture</title></head>
+<body>
+  <h1>Component fixture</h1>
+
+  <!-- monaco-shaped editor: focus redirects to a hidden textarea; the model
+       text renders into .view-lines with NBSPs, like the real thing. -->
+  <div class="monaco-editor" id="mon" style="border:1px solid #888;width:400px;height:80px;position:relative">
+    <textarea class="inputarea" style="position:absolute;opacity:0.01;width:1px;height:1px"></textarea>
+    <div class="view-lines" style="font-family:monospace;padding:4px">initial&nbsp;model&nbsp;text</div>
+  </div>
+
+  <!-- plain contenteditable -->
+  <div id="ce" contenteditable="true" style="border:1px solid #888;width:400px;min-height:40px;padding:4px">starting content</div>
+
+  <!-- ARIA combobox with a portal-rendered listbox -->
+  <input id="combo" role="combobox" aria-expanded="false" placeholder="pick a fruit" />
+  <div id="portal"></div>
+
+  <p id="picked"></p>
+
+  <script>
+    // monaco-alike: clicking the root focuses the textarea; the textarea's
+    // value mirrors into .view-lines with spaces rendered as NBSP.
+    const mon = document.getElementById('mon');
+    const ta = mon.querySelector('textarea');
+    const lines = mon.querySelector('.view-lines');
+    ta.value = 'initial model text';
+    mon.addEventListener('mousedown', (e) => { if (e.target !== ta) { e.preventDefault(); ta.focus(); } });
+    ta.addEventListener('input', () => { lines.textContent = ta.value.replace(/ /g, ' '); });
+
+    // combobox: typing opens a portal listbox filtered by the value.
+    const combo = document.getElementById('combo');
+    const portal = document.getElementById('portal');
+    const FRUIT = ['apple', 'apricot x1', 'banana x2', 'cherry x3'];
+    combo.addEventListener('input', () => {
+      const q = combo.value.toLowerCase();
+      portal.innerHTML = '';
+      const ul = document.createElement('ul');
+      ul.setAttribute('role', 'listbox');
+      for (const f of FRUIT.filter((f) => f.includes(q))) {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option');
+        li.textContent = f;
+        li.addEventListener('click', () => {
+          combo.value = f;
+          document.getElementById('picked').textContent = 'picked:' + f;
+          portal.innerHTML = '';
+        });
+        ul.appendChild(li);
+      }
+      portal.appendChild(ul);
+    });
+  </script>
+</body>
+</html>

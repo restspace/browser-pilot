@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { ElementHandle, Locator, Page } from 'playwright-core';
 import { ensureSessionDir } from '../shared/paths.js';
 import { isRefTarget, resolveTarget } from './refs.js';
+import { tagComponent } from '../skills/components.js';
 
 /**
  * One way of finding an element, in a form that can be rebuilt into a Locator
@@ -121,6 +122,8 @@ export interface RecordedStep {
   fingerprintAfter?: number[];
   /** Set when the step was executed by replaying a stored skill, not chosen by the agent. */
   via?: { skill: string; step: number };
+  /** The recognized component the target sits inside, for recipe compilation. */
+  component?: { family: string; rel: string };
 }
 
 export interface RecordedInstruction {
@@ -147,6 +150,9 @@ export type RecordedEntry = RecordedStep | RecordedInstruction | RecordedReport;
 
 /** Click tools: their target may be a table row whose durable locator is the record link inside it. */
 const CLICK_TOOLS = new Set(['click', 'dblclick', 'modifier_click', 'right_click']);
+
+/** Tools whose target is worth tagging with its component family (recipe compilation). */
+const COMPONENT_TOOLS = new Set(['click', 'dblclick', 'fill', 'type', 'press']);
 
 /** Tools that map onto Playwright script lines; everything else is agent-only scaffolding. */
 const RECORDABLE = new Set([
@@ -316,7 +322,17 @@ export class ScriptRecorder {
       if (typeof raw !== 'string' || !raw.trim()) continue;
       locators[key] = await describeTarget(page, raw, retarget).catch(() => ({ expr: '', verified: false, raw }));
     }
-    return { k: 'step', tool, args, locators };
+    // Component tagging (PLAN-component-recipes): note which recognized
+    // widget family the target sits inside, so a successful agent-driven
+    // interaction with a hard component can later compile into a recipe.
+    // Best effort like everything else here — a missing tag just means no
+    // recipe is learned from this step.
+    let component: RecordedStep['component'];
+    if (COMPONENT_TOOLS.has(tool) && typeof args.target === 'string' && args.target.trim()) {
+      const target = resolved?.target ?? resolveTarget(page, args.target);
+      component = (await tagComponent(target).catch(() => null)) ?? undefined;
+    }
+    return { k: 'step', tool, args, locators, ...(component ? { component } : {}) };
   }
 
   /** Commit a prepared step once the action succeeded. Failed actions are dropped. */

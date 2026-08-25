@@ -4,6 +4,7 @@ import type { Locator, Page } from 'playwright-core';
 import type { BrowserSession } from '../daemon/browser.js';
 import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
 import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
+import { tryRecipe } from '../skills/components.js';
 import { resolveTarget, snapshot, truncate } from '../daemon/refs.js';
 import { fingerprintPage } from '../daemon/fingerprint.js';
 import { isRecordable, type StepDiff } from '../daemon/recorder.js';
@@ -719,20 +720,33 @@ async function dispatch(
       await t().click({ timeout, button: 'right' });
       return 'right-clicked';
 
-    case 'fill':
+    case 'fill': {
+      // Component recipes (PLAN-component-recipes): a target inside a
+      // recognized widget (monaco, CodeMirror, contenteditable, ...) gets the
+      // family's stored, self-verifying recipe instead of the naive fill —
+      // which is known to lie on these widgets. Falls back to the naive path
+      // when nothing is recognized or the recipe cannot verify its effect.
+      const viaRecipe = await tryRecipe(page, t(), 'set-value', String(args.value ?? ''));
+      if (viaRecipe) return viaRecipe;
       await reactSafeFill(t(), String(args.value ?? ''));
       return 'filled';
-    case 'type':
+    }
+    case 'type': {
+      const viaRecipe = await tryRecipe(page, t(), 'set-value', String(args.text ?? ''));
+      if (viaRecipe) return viaRecipe;
       await t().pressSequentially(String(args.text ?? ''), {
         timeout,
         delay: typeof args.delay_ms === 'number' ? args.delay_ms : 20,
       });
       return 'typed';
+    }
     case 'press':
       if (args.target) await t().press(String(args.key), { timeout });
       else await page.keyboard.press(String(args.key));
       return `pressed ${args.key}`;
     case 'select': {
+      const viaRecipe = await tryRecipe(page, t(), 'select-option', String(args.option ?? ''));
+      if (viaRecipe) return viaRecipe;
       const selected = await reactSafeSelect(t(), String(args.option));
       return `selected ${JSON.stringify(selected)}`;
     }

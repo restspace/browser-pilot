@@ -3,6 +3,7 @@ import type { SessionState } from '../daemon/state.js';
 import type { ChatMessage, Provider, ToolDef } from './llm.js';
 import { fingerprintPage } from '../daemon/fingerprint.js';
 import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/replay.js';
+import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
 import { validateReport, type Report } from './report.js';
@@ -705,9 +706,14 @@ async function offerSkills(
     if (!origin) return none;
     const candidates = candidatesFor(browser.learn.list(origin), url);
     const fingerprint = (await fingerprintPage(page)) ?? undefined;
+    // Recognized hard widgets on this page: one line telling the model that
+    // plain fill/type/select on them is recipe-backed and self-verifying, so
+    // it does not improvise long keyboard workarounds.
+    const components = renderComponents(await componentsOnPage(page));
+    const text = [renderCandidates(candidates), components].filter(Boolean).join('\n');
     return {
       ids: candidates.map((s) => s.id),
-      text: renderCandidates(candidates),
+      text,
       context: { url, ...(fingerprint ? { fingerprint } : {}) },
     };
   } catch {

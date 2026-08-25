@@ -2,6 +2,7 @@ import type { InstructionResult, SkillRecord } from '../agent/loop.js';
 import type { Report } from '../agent/report.js';
 import type { RecordedEntry, RecordedInstruction } from '../daemon/recorder.js';
 import { compileSkills, escapeRe, fillParams, sameProcedure, urlMatches } from './compile.js';
+import { ComponentStore, learnRecipes } from './components.js';
 import { successRate, type Skill, type SkillStore } from './store.js';
 
 export interface LearnedRecord {
@@ -16,6 +17,8 @@ export interface LearnedRecord {
   variantOf?: string;
   /** A validated variant replaced the skill it repaired. */
   superseded?: string;
+  /** Component recipes compiled from this instruction's recording. */
+  recipes?: string[];
 }
 
 /**
@@ -56,6 +59,16 @@ export function learnFromInstruction(
   }
 
   if (!succeeded) return Object.keys(out).length ? out : null;
+
+  // Component recipes (PLAN-component-recipes): a successful agent-driven
+  // interaction with a recognized widget teaches a cross-app recipe,
+  // regardless of what happens to the skill-level compile below.
+  try {
+    const recipes = learnRecipes(new ComponentStore(), input.entries, input.instruction, input.session, input.now);
+    if (recipes.length) out.recipes = recipes;
+  } catch {
+    // recipe learning must never break instruction learning
+  }
 
   // A clean full replay has nothing new to teach; a repair does.
   const fullReplay = sk?.invoked && !sk.refused && sk.stepsReplayed === sk.stepsTotal;
