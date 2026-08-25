@@ -147,5 +147,6 @@ an authority.
 - [x] 5. Recipe compilation from recoveries (learn.ts hook) + lifecycle
       with cross-origin weighting.
 - [x] 6. Fixture + tests (unit, browser-gated monaco).
-- [ ] 7. Validation sweeps (grafana swg4; odoo swo2) recorded in
+- [x] 7. Validation sweeps: grafana swg4 done (n2/n3 replay 13/13, 6/6
+      verified incl. obj 3; seeded monaco recipe validated 3/3). odoo swo2 in
       bench/MATRIX-v0.1.md follow-up.
