@@ -201,28 +201,52 @@ export async function replaySkill(
       // application", rung 3). A navigation step's recorded EVIDENCE includes
       // where it landed; the clicked affordance (a recents list, a shortcut —
       // anything session-local) may be gone on a fresh browser, but the
-      // destination is what the step was for. So when the chain cannot
-      // resolve, a step whose recorded effect was to MOVE the browser (the
-      // destination differs from here) to a fully concrete url (params and
-      // derived values filled, nothing left volatile — no :id/:var/{{…}})
-      // navigates there directly instead of failing. Logged as a fallthrough
-      // so drift telemetry and post-session repair still see the miss.
-      const dest = step.expect?.urlPattern ? fillParams(step.expect.urlPattern, params) : '';
-      const concrete = dest && !dest.includes('{{') && !/[/=#](:id|:var)(?=[/&#]|$)/.test(dest);
-      const navigational = NAV_FALLBACK_TOOLS.has(step.tool) && !tag.includes('.') && concrete && !urlMatches(step.expect!.urlPattern!, page.url(), params);
-      if (navigational) {
-        try {
-          await opts.exec('goto', { url: dest }, {}, { skill: skill.id, step: failIndex });
-          if (urlMatches(step.expect!.urlPattern!, page.url(), params)) {
-            const miss = res.misses[res.misses.length - 1];
-            if (miss && miss.step === tag) miss.used = `goto ${dest}`;
-            res.fallthroughs++;
-            res.warnings.push(`step ${tag}: ${resolveError}; navigated to the step's recorded destination instead (${dest})`);
-            res.lines.push(`${head} → target gone; navigated to recorded destination ${dest}`);
-            return 'ran';
+      // destination is what the step was for. Two sub-rungs, because this is
+      // testing how the app works for a HUMAN: (a) another link on the page
+      // to the same destination — click that, exercising the app's own
+      // navigation; (b) only then, and only when the destination is fully
+      // concrete (params/derived filled, nothing volatile left), navigate
+      // there directly. Both are logged as fallthroughs so drift telemetry
+      // and post-session repair still see the miss.
+      const destPattern = step.expect?.urlPattern;
+      const isMove =
+        Boolean(destPattern) && NAV_FALLBACK_TOOLS.has(step.tool) && !tag.includes('.') && !urlMatches(destPattern!, page.url(), params);
+      if (isMove) {
+        const arrived = (used: string, note: string): 'ran' => {
+          const miss = res.misses[res.misses.length - 1];
+          if (miss && miss.step === tag) miss.used = used;
+          res.fallthroughs++;
+          res.warnings.push(`step ${tag}: ${resolveError}; ${note}`);
+          res.lines.push(`${head} → target gone; ${note}`);
+          return 'ran';
+        };
+        // (a) The page may offer the same destination through a different
+        // link. Requires the matching anchors to agree on ONE destination —
+        // ambiguity (a wildcard pattern matching many records) skips the rung.
+        const link = await linkToDestination(page, destPattern!, params);
+        if (link) {
+          try {
+            await opts.exec('click', { target: link.selector }, { target: page.locator(link.selector).first() }, { skill: skill.id, step: failIndex });
+            await settleDom(page);
+            if (urlMatches(destPattern!, page.url(), params)) {
+              return arrived(`click ${link.selector}`, `clicked another link to the recorded destination (${link.selector})`);
+            }
+          } catch {
+            // that link did not work either — try the direct navigation
           }
-        } catch {
-          // destination unreachable — report the original miss below
+        }
+        // (b) Direct navigation, last resort before model recovery.
+        const dest = fillParams(destPattern!, params);
+        const concrete = dest && !dest.includes('{{') && !/[/=#](:id|:var)(?=[/&#]|$)/.test(dest);
+        if (concrete && !urlMatches(destPattern!, page.url(), params)) {
+          try {
+            await opts.exec('goto', { url: dest }, {}, { skill: skill.id, step: failIndex });
+            if (urlMatches(destPattern!, page.url(), params)) {
+              return arrived(`goto ${dest}`, `navigated to the step's recorded destination instead (${dest})`);
+            }
+          } catch {
+            // destination unreachable — report the original miss below
+          }
         }
       }
       res.failedAt = failIndex;
@@ -399,6 +423,35 @@ export async function resolveChain(
     }
   }
   return null;
+}
+
+/**
+ * A visible anchor on the page whose destination matches the recorded
+ * pattern. Used by the navigation fallback's first rung: when the recorded
+ * link is gone, another route to the same place may exist (a sidebar entry, a
+ * search result, a breadcrumb). Returns null unless every matching anchor
+ * agrees on ONE destination — a wildcard-heavy pattern matching several
+ * records is ambiguity, not evidence.
+ */
+async function linkToDestination(
+  page: Page,
+  pattern: string,
+  params: Record<string, string>,
+): Promise<{ selector: string; href: string } | null> {
+  let anchors: { attr: string; abs: string }[];
+  try {
+    const raw = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('a[href]'))
+        .filter((a) => (a as HTMLElement).offsetParent !== null)
+        .map((a) => ({ attr: a.getAttribute('href') ?? '', abs: (a as HTMLAnchorElement).href })),
+    );
+    anchors = Array.isArray(raw) ? raw : [];
+  } catch {
+    return null;
+  }
+  const hits = anchors.filter((a) => a.abs && urlMatches(pattern, a.abs, params));
+  if (!hits.length || new Set(hits.map((h) => h.abs)).size !== 1) return null;
+  return { selector: `a[href="${hits[0].attr.replace(/(["\\])/g, '\\$1')}"]`, href: hits[0].abs };
 }
 
 const SETTLE_QUIET_MS = 250;
