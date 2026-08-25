@@ -1,0 +1,65 @@
+{
+  "flow": "swg",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana at http://127.0.0.1:3000/ with admin/admin, skipped the password change prompt, opened the \"Service health\" dashboard (from the Bench folder), and captured the panel titles.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Request rate\nError count\nLatency by endpoint",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Created and saved a new dashboard titled 'swg-n2 Bench Dashboard' (UID afw711m2aifb4a) containing a Stat panel titled 'swg-n2 Availability' using the TestData data source (uid benchtestdata, random walk scenario). Save succeeded — Grafana showed the \"Dashboard saved\" alert, and persistence was verified by reloading the dashboard URL, which still shows the title and panel rendering A-series data.",
+      "values": {},
+      "tier": "A",
+      "replayed": "10/11",
+      "repaired": false,
+      "turns": 22
+    },
+    {
+      "id": "04-open",
+      "status": "blocked",
+      "summary": "Instruction timed out after 300s (9 turns, 7 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 9
+    }
+  ],
+  "passed": 3,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "swg",
+      "step": "03-create",
+      "skill": "s_0cbb5d",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 11 expected url http://127.0.0.1:3000/d/afw6yy5xxq4u8e/:id but browser is at http://127.0.0.1:3000/d/afw711m2aifb4a/:id",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afw711m2aifb4a/:id"
+    }
+  ],
+  "wallMs": 533558,
+  "model": "deepseek/deepseek-v4-flash"
+}
