@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e9f8968"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2od2",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 848963,
+  "orchestrator": {
+    "input": 4413,
+    "cacheWrite": 0,
+    "cacheRead": 26112,
+    "output": 2268
+  },
+  "inner": {
+    "promptTokens": 2401526,
+    "cachedTokens": 2030144,
+    "completionTokens": 18873,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2238776,
+        "completionTokens": 17546,
+        "cachedTokens": 1886720,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 162750,
+        "completionTokens": 1327,
+        "cachedTokens": 143424,
+        "instructions": 1
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 810727,
+  "commandBytes": 4083,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0229,
+  "maxUsd": 2,
+  "spendUsd": 0.1349,
+  "finalText": "All objectives completed and verified. Final report:\n\n**1. DONE** — Customer `c2od2 Bench Customer` created (record id 45) with City = `Benchville`. Verified by reopening the contact record: Name \"c2od2 Bench Customer\", City \"Benchville\".\n\n**2. DONE** — Quotation `S00022` created for that customer with one order line:\n- Product chosen: **Cabinet with Doors**\n- Unit price auto-filled by the app: **140.00** (per unit)\n- Untaxed Amount computed: **£ 420.00** (3 × 140; Tax 20% £84.00, Total £504.00)\n\n**3. DONE** — Second order line added:\n- Product: **[FURN_6666] Acoustic Bloc Screens** (unit price 295.00, qty 2)\n- New Untaxed Amount: **£ 1,010.00** (420 + 590)\n\n**4. DONE** — First line's quantity changed from 3 to 5 (line 2 unchanged at qty 2):\n- Untaxed Amount afterwards: **£ 1,290.00** (5 × 140 = 700, plus 2 × 295 = 590)\n\n**5. DONE** — Quotation confirmed:\n- Order reference: **S00022**\n- Status shown: **Sales Order** (active status in the status bar; \"Quotation\"/\"Quotation Sent\" disabled)\n\n**6. DONE** — Sales order cancelled:\n- Status shown after cancelling: **Cancelled** (active status in the status bar; \"Sales Order\", \"Quotation Sent\", \"Quotation\" all disabled). The order remains visible/openable but is no longer active.\n\nFinal read-only verification confirmed the end state: S00022, customer \"c2od2 Bench Customer\", status Cancelled, Untaxed Amount £1,290.00 (Cabinet with Doors qty 5 @ 140.00 = £700.00; Acoustic Bloc Screens qty 2 @ 295.00 = £590.00; Tax £258.00; Total £1,548.00), and the contact with City \"Benchville\". Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2od2-browser-pilot-transcript.jsonl"
+}
