@@ -1,0 +1,65 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e9f8968"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2od3",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 609637,
+  "orchestrator": {
+    "input": 4310,
+    "cacheWrite": 0,
+    "cacheRead": 22976,
+    "output": 3045
+  },
+  "inner": {
+    "promptTokens": 2072503,
+    "cachedTokens": 1769728,
+    "completionTokens": 17047,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2072503,
+        "completionTokens": 17047,
+        "cachedTokens": 1769728,
+        "instructions": 7
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 565156,
+  "commandBytes": 3403,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0254,
+  "maxUsd": 2,
+  "spendUsd": 0.0631,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE**: Customer `c2od3 Bench Customer` created with City = `Benchville`. Verified on the saved contact record (name and city both confirmed).\n\n**Objective 2 — DONE**: Draft quotation created for that customer with one order line. Product chosen: `[FURN_1118] Corner Desk Left Sit`, quantity 3. Unit price auto-filled by the app: **£85.00**. Untaxed amount computed: **£255.00**.\n\n**Objective 3 — DONE**: Second order line added with a different product: `Conference Chair`, quantity 2 (unit price £33.00). New untaxed amount: **£321.00** (£255.00 + £66.00).\n\n**Objective 4 — DONE**: First line's quantity changed from 3 to 5 (second line unchanged at 2). Untaxed amount afterwards: **£491.00** (5 × £85.00 + 2 × £33.00 = £425.00 + £66.00).\n\n**Objective 5 — DONE**: Quotation confirmed and became a sales order. Order reference: **S00023**. Status shown: **\"Sales Order\"** (active/checked in the status bar).\n\n**Objective 6 — DONE**: Sales order cancelled. Status shown after cancelling: **\"Cancelled\"** (active in the status bar; Quotation / Quotation Sent / Sales Order stages all disabled).\n\nFinal read-only verification confirmed the end state: contact `c2od3 Bench Customer` / `Benchville`, and order S00023 for that customer in **Cancelled** status with untaxed amount £491.00 — nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2od3-browser-pilot-transcript.jsonl"
+}
