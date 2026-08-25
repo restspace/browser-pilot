@@ -1,0 +1,78 @@
+{
+  "flow": "swg",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana at http://127.0.0.1:3000/ with admin/admin, skipped the password change prompt, opened the \"Service health\" dashboard (from the Bench folder), and captured the panel titles.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Read the panel titles from the live 'Service health' dashboard DOM: three panels — Request rate, Error count, Latency by endpoint.",
+      "values": {},
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 3,
+      "repinned": "s_28e275"
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Created new dashboard 'swg-n3 Bench Dashboard' (UID ffw71te7oewhsa) with a Stat panel titled 'swg-n3 Availability' using the TestData DB data source (random walk scenario). Saved via the Save button — Grafana confirmed with a \"Dashboard saved\" alert — and verified persistence by reloading the page, which shows the panel rendering the TestData A-series stat.",
+      "values": {},
+      "tier": "A",
+      "replayed": "10/11",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "04-open",
+      "status": "blocked",
+      "summary": "Instruction timed out after 300s (10 turns, 8 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 10
+    }
+  ],
+  "passed": 3,
+  "total": 7,
+  "repinned": 1,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "swg",
+      "step": "02-report",
+      "skill": "s_28e275",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('.panel-title')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+    },
+    {
+      "flow": "swg",
+      "step": "03-create",
+      "skill": "s_0cbb5d",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 11 expected url http://127.0.0.1:3000/d/afw6yy5xxq4u8e/:id but browser is at http://127.0.0.1:3000/d/ffw71te7oewhsa/:id",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffw71te7oewhsa/:id"
+    }
+  ],
+  "wallMs": 419086,
+  "model": "deepseek/deepseek-v4-flash"
+}
