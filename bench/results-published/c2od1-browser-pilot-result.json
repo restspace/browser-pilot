@@ -1,0 +1,71 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "e9f8968"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2od1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 1311936,
+  "orchestrator": {
+    "input": 4772,
+    "cacheWrite": 0,
+    "cacheRead": 32320,
+    "output": 2527
+  },
+  "inner": {
+    "promptTokens": 4089317,
+    "cachedTokens": 3644608,
+    "completionTokens": 24610,
+    "instructions": 11,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3716865,
+        "completionTokens": 21755,
+        "cachedTokens": 3295232,
+        "instructions": 9
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 372452,
+        "completionTokens": 2855,
+        "cachedTokens": 349376,
+        "instructions": 2
+      }
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "do": 9
+  },
+  "invocationCount": 9,
+  "commandMs": 1267924,
+  "commandBytes": 5390,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0262,
+  "maxUsd": 2,
+  "spendUsd": 0.2233,
+  "finalText": "All six objectives are complete and verified.\n\n**Final report:**\n\n1. **DONE** — Customer `c2od1 Bench Customer` created with City = `Benchville` (verified on the saved record: Name \"c2od1 Bench Customer\", City \"Benchville\").\n2. **DONE** — Quotation `S00021` created for that customer with one order line: product **[E-COM06] Corner Desk Right Sit**, quantity 3, unit price auto-filled at **£147.00**, Untaxed Amount **£441.00** (TAX 20% £88.20, Total £529.20).\n3. **DONE** — Second order line added: product **[FURN_7777] Office Chair**, quantity 2, unit price **£70.00** (line subtotal £140.00). New Untaxed Amount: **£581.00** (TAX £116.20, Total £697.20).\n4. **DONE** — First line's quantity changed from 3 to 5; line subtotal became £735.00 (5 × £147.00). New Untaxed Amount: **£875.00** (TAX £175.00, Total £1,050.00).\n5. **DONE** — Quotation confirmed; order reference **S00021**, status shown: **Sales Order**.\n6. **DONE** — Sales order cancelled; status shown: **Cancelled** (statusbar radio checked and disabled; Quotation/Quotation Sent/Sales Order all unchecked). Final verified state: reference S00021, status Cancelled, Untaxed Amount £875.00.\n\nNote: the cancellation initially stalled because the \"Cancel Sales Order\" confirmation dialog didn't dismiss on the first click; a follow-up call completed it successfully and the Cancelled status was re-verified afterwards.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2od1-browser-pilot-transcript.jsonl"
+}
