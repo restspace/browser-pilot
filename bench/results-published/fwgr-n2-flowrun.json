@@ -1,0 +1,56 @@
+{
+  "flow": "fwgr",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (dismissed the change-password alert), searched for \"Service Health\", opened the dashboard named \"Service health\". The dashboard contains 3 panels with titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "read1": "Request rate",
+        "read2": "Error count",
+        "read3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_f0b3d4; observed dashboard_title=fwgr-n2 Bench Dashboard, panel_title=fwgr-n2 Availability.",
+      "values": {
+        "dashboard_title": "fwgr-n2 Bench Dashboard",
+        "panel_title": "fwgr-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "23/23",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "blocked",
+      "summary": "Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 30
+    }
+  ],
+  "passed": 2,
+  "total": 6,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 200089,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 257561,
+    "completionTokens": 3891,
+    "cachedTokens": 240128
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
