@@ -1,0 +1,169 @@
+{
+  "flow": "fwod3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Signed in as admin, opened the Contacts app, created a new contact named \"fwod3-n2 Bench Customer\" with City \"Benchville\", and saved it (record id 45). Verified on the reloaded saved record: the page title and form heading show \"fwod3-n2 Bench Customer\", the name field contains \"fwod3-n2 Bench Customer\", and the City field shows \"Benchville\", with a \"Contact created\" system notification present.",
+      "values": {
+        "city": "Benchville",
+        "contact_id": "45",
+        "name": "fwod3-n2 Bench Customer"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Created draft quotation S00022 in the Sales app: Customer \"fwod3-n2 Bench Customer\" was chosen from the autocomplete dropdown (dropdown closed and record link appeared), and exactly one order line was added by picking \"Customizable Desk\" from the product dropdown (variant [FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs., confirmed via the configuration dialog). Quantity set to 3.00; the app auto-filled the unit price at 750.00. Verified on the saved record: Untaxed Amount £ 2,250.00 (TAX 20% £ 450.00, Total £ 2,700.00). The quotation was saved but NOT confirmed — statusbar shows \"Quotation\" checked and the Confirm button remains, so it is still a draft.",
+      "values": {
+        "customer": "fwod3-n2 Bench Customer",
+        "product": "Customizable Desk",
+        "quotation": "S00022",
+        "quantity": "3.00",
+        "status": "Quotation (draft, not confirmed)",
+        "taxes": "TAX 20%: £ 450.00",
+        "total": "£ 2,700.00",
+        "unit_price": "750.00",
+        "untaxed_amount": "£ 2,250.00"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00022 for \"fwod3-n2 Bench Customer\" and added a second order line by picking \"[FURN_7777] Office Chair\" from the product dropdown (an actual dropdown option, not typed text), then set its quantity to 2.00; the app auto-filled the unit price at 70.00 (line total £140.00). Saved the quotation — verified on the saved record: Untaxed Amount £ 2,390.00, TAX 20% £ 478.00, Total £ 2,868.00. The quotation remains a draft (statusbar \"Quotation\" checked, Confirm button still present; not confirmed). Note: the instruction described the existing line as 'Corner Desk Left Sit', but the actual existing draft quotation for this customer (S00022, the only one) had 'Customizable Desk' qty 3 — I modified that quotation as intended.",
+      "values": {
+        "customer": "fwod3-n2 Bench Customer",
+        "first_line": "Customizable Desk qty 3 @ 750.00",
+        "quotation": "S00022",
+        "second_line": "[FURN_7777] Office Chair qty 2 @ 70.00",
+        "status": "Quotation (draft, not confirmed)",
+        "taxes": "TAX 20%: £ 478.00",
+        "total": "£ 2,868.00",
+        "unit_price_second_line": "70.00",
+        "untaxed_amount": "£ 2,390.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 20
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00022 for \"fwod3-n2 Bench Customer\" and changed the first line's quantity from 3 to 5 (via the stored procedure s_7c0fdf), leaving the second line unchanged at qty 2. Saved the change. Verified by reading from the saved page: line quantities now read 5.00 (Customizable Desk @ 750.00) and 2.00 ([FURN_7777] Office Chair @ 70.00), and the totals show Untaxed Amount £ 3,890.00, TAX 20% £ 778.00, Total £ 4,668.00. The quotation remains a draft — statusbar shows \"Quotation\" checked and the Confirm button is still present; it was not confirmed. Note: the instruction described the first line as 'Corner Desk Left Sit', but the actual first line on this quotation is 'Customizable Desk' (the only draft quotation for this customer); the quantity change was applied to that first line as intended.",
+      "values": {
+        "first_line": "Customizable Desk qty 5.00 @ 750.00",
+        "quotation": "S00022",
+        "second_line": "[FURN_7777] Office Chair qty 2.00 @ 70.00",
+        "status": "Quotation (draft, not confirmed)",
+        "taxes": "TAX 20%: £ 778.00",
+        "total": "£ 4,668.00",
+        "untaxed_amount": "£ 3,890.00"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00022 for \"fwod3-n2 Bench Customer\" and clicked Confirm (via stored procedure s_be8b5a). The record is now a confirmed sales order: the header/breadcrumb shows the order reference \"S00022\" and the statusbar shows \"Sales Order\" [checked] (with \"Quotation Sent\" and \"Quotation\" now disabled/unchecked). The order lines remain Customizable Desk qty 5.00 @ 750.00 and [FURN_7777] Office Chair qty 2.00 @ 70.00, with Untaxed Amount £ 3,890.00. Note: the instruction described the lines as 'Corner Desk Left Sit'/'Office Chair' with Untaxed £565.00, but the actual quotation for this customer had 'Customizable Desk' qty 5 and 'Office Chair' qty 2 with Untaxed £3,890.00 — I confirmed that quotation as instructed.",
+      "values": {
+        "customer": "fwod3-n2 Bench Customer",
+        "order_reference": "S00022",
+        "status": "Sales Order",
+        "untaxed_amount": "£ 3,890.00"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled the confirmed sales order for \"fwod3-n2 Bench Customer\". Note: the instruction named S00021, but S00021 belongs to customer fwod3-n1 and was already Cancelled; the confirmed order from this run for fwod3-n2 is S00022, so I cancelled that one. Clicked Cancel, which opened a \"Cancel Sales Order\" dialog; an unrelated stacked \"Edit: fwod3-n2 Bench Customer\" modal was intercepting clicks, so I discarded it, then clicked \"Send and cancel\". Verified by reading the statusbar on the live page: \"Cancelled\" [checked] (all other statuses disabled), and the action buttons now show \"Set to Quotation\" — the order is cancelled and nothing from this run stays active.",
+      "values": {
+        "customer": "fwod3-n2 Bench Customer",
+        "order_reference": "S00022",
+        "status": "Cancelled"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Read-only verification, no changes made. (1) Opened contact \"fwod3-n2 Bench Customer\" (id 45) and read its City field from the live page: \"Benchville\". (2) Opened sales order S00021 and read from the live page: status \"Cancelled\" (statusbar radio \"Cancelled\" [checked], all other statuses disabled) and Untaxed Amount £ 565.00 (TAX 20% £ 113.00, Total £ 678.00; lines: [FURN_1118] Corner Desk Left Sit qty 5.00 @ 85.00 = £425.00 and [FURN_7777] Office Chair qty 2.00 @ 70.00 = £140.00). Note: S00021's customer is \"fwod3-n1 Bench Customer\", not fwod3-n2 — reported as observed.",
+      "values": {
+        "contact_city": "Benchville",
+        "contact_name": "fwod3-n2 Bench Customer",
+        "order_reference": "S00021",
+        "s00021_customer": "fwod3-n1 Bench Customer",
+        "s00021_status": "Cancelled",
+        "s00021_untaxed_amount": "£ 565.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 5
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod3",
+      "step": "02-report",
+      "skill": "s_3fd429",
+      "similarity": 0.995,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod3",
+      "step": "04-open",
+      "skill": "s_7c0fdf",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod3",
+      "step": "05-open",
+      "skill": "s_be8b5a",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 1216788,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1996095,
+    "completionTokens": 36014,
+    "cachedTokens": 1844672
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

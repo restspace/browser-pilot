@@ -1,0 +1,163 @@
+{
+  "flow": "fwod3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c8a3fa; observed city=Benchville, name=fwod3-n3 Bench Customer.",
+      "values": {
+        "city": "Benchville",
+        "name": "fwod3-n3 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_155c2e"
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Created a new draft quotation in the Sales app for customer 'fwod3-n3 Bench Customer' (picked from the autocomplete dropdown). Added exactly one order line: product '[FURN_1118] Corner Desk Left Sit' chosen from the product dropdown, quantity set to 3.00, unit price auto-filled at £ 85.00. Totals read from the page: Untaxed Amount £ 255.00, TAX 20% £ 51.00, Total £ 306.00. Quotation left as a draft (statusbar shows 'Quotation', Confirm not clicked).",
+      "values": {},
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 23
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the existing draft quotation for 'fwod3-n3 Bench Customer' (S00023) and added a second order line: product '[FURN_7777] Office Chair' picked from the product dropdown, quantity set to 2.00, unit price auto-filled at £ 70.00. New totals read from the saved record: Untaxed Amount £ 395.00, TAX 20% £ 79.00, Total £ 474.00. Quotation remains a draft (statusbar shows 'Quotation' checked, Confirm button still available).",
+      "values": {},
+      "tier": "B",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 7
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00023 for 'fwod3-n3 Bench Customer' and changed the first line's quantity from 3 to 5 (Corner Desk Left Sit now qty 5.00, £ 425.00), leaving the second line unchanged (Office Chair qty 2.00, £ 140.00). Saved the record. New totals read from the saved page: Untaxed Amount £ 565.00, TAX 20% £ 113.00, Total £ 678.00. Quotation remains a draft (statusbar shows 'Quotation' checked, Confirm button still available).",
+      "values": {},
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00023 for 'fwod3-n3 Bench Customer' (Corner Desk Left Sit qty 5, Office Chair qty 2, Untaxed Amount £ 565.00) and clicked Confirm. The record is now a confirmed sales order: the header/breadcrumb shows reference S00023, and the statusbar shows 'Sales Order' checked (with 'Quotation Sent' and 'Quotation' disabled). Buttons now include Create Invoice, Send by Email, Preview, and Cancel — consistent with a confirmed order. Untaxed Amount remains £ 565.00.",
+      "values": {},
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled the confirmed sales order for 'fwod3-n3 Bench Customer'. Note: the instruction referenced S00021, but that order belongs to the previous run's customer (fwod3-n1); the confirmed sales order for fwod3-n3 Bench Customer from this run is S00023, which the browser was placed on. After clicking Cancel (and confirming the cancellation), the statusbar now shows 'Cancelled' checked with all other states (Sales Order, Quotation Sent, Quotation) disabled. Order lines and totals (£ 565.00 untaxed) remain visible on the cancelled record.",
+      "values": {},
+      "tier": "B",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_0b3931; observed contact_name=fwod3-n3 Bench Customer, contact_city=Benchville, s00021_customer=fwod3-n1 Bench Customer, s00021_untaxed_amount=£ 565.00.",
+      "values": {
+        "contact_name": "fwod3-n3 Bench Customer",
+        "contact_city": "Benchville",
+        "s00021_customer": "fwod3-n1 Bench Customer",
+        "s00021_untaxed_amount": "£ 565.00"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_47a0c7"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 2,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwod3",
+      "step": "02-report",
+      "skill": "s_3fd429",
+      "similarity": 0.995,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod3",
+      "step": "03-open",
+      "skill": "s_22d383",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod3",
+      "step": "04-open",
+      "skill": "s_7c0fdf",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod3",
+      "step": "05-open",
+      "skill": "s_be8b5a",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod3",
+      "step": "06-open",
+      "skill": "s_0752d5",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod3",
+      "step": "07-open",
+      "skill": "s_0b3931",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.locator('div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > button:nth-of-type(2)')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 546727,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 546696,
+    "completionTokens": 11683,
+    "cachedTokens": 494848
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

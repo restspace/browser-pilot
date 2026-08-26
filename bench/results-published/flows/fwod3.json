@@ -1,0 +1,71 @@
+{
+  "name": "fwod3",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.\"\nActions the previous attempt ran (most recent last):\n  ok goto {\"url\":\"http://127.0.0.1:8069/\"}\n  ok snapshot {}\n  ok batch [3 steps: fill, fill, click]\n  ok screenshot {}\n  ok snapshot {}\n  ok click {\"target\":\"@e5\"}\n  FAILED snapshot {\"selector\":\"[role=\\\"menuitem\\\"], .o_menu_sections a, a[data-menu*=\\\"contacts\\\"]\"}\n  ok snapshot {\"full\":true}\n  ok click {\"target\":\"@e79\"}\n  ok snapshot {\"full\":true}\n  ok click {\"target\":\"@e5\"}\n  ok snapshot {\"full\":true}\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#action=&model=res.partner&view_type=list&menu_id=\"}\n  ok click {\"target\":\"@e5\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e5\"}\n  FAILED click {\"target\":\"@e79\"}\n  FAILED click {\"target\":\"@e99\"}\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#action=135&cids=1&menu_id=53\"}\n  ok click {\"target\":\"@e4\"}\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#action=135&model=res.partner&view_type=list&cids=1&menu_id=53\"}\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#action=123&cids=1&menu_id=81\"}\n  ok snapshot {\"full\":true}\n  ok click {\"target\":\"@e5\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e1096\"}\n  ok snapshot {\"full\":true}\n  ok click {\"target\":\"@e1124\"}\n  ok type {\"text\":\"Contacts\",\"target\":\"@e1124\"}\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#action=135&model=res.partner&view_type=list&cids=1&menu_id=53\"}\n  ok click {\"target\":\"@e1124\"}\nThe browser was left at: http://127.0.0.1:8069/web#action=135&model=res.partner&view_type=list&cids=1&menu_id=53\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nOpen http://127.0.0.1:8069/ and sign in with username admin and password admin. Then go to the Contacts app and create a new contact named '{{runid}} Bench Customer' with the City field set to 'Benchville'. Save the record and verify the saved contact shows that exact name and City 'Benchville'. Report the name and city you observed on the saved record.",
+      "skill": "s_155c2e",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.\"\nActions the previous attempt ran (most recent last):\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#menu_id=172&action=\"}\n  ok goto {\"url\":\"http://127.0.0.1:8069/web\"}\n  FAILED click {\"target\":\"@e5\"}\n  ok snapshot {\"full\":true}\n  ok click {\"target\":\"@e7\"}\n  ok click {\"target\":\"@e5\"}\n  ok click {\"target\":\"\\\"Sales\\\"\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e97\"}\n  FAILED click {\"target\":\"@e97\"}\n  ok snapshot {}\n  ok type {\"target\":\"@e492\",\"text\":\"{{runid}} Bench Customer\",\"delay_ms\":50}\n  ok click {\"target\":\"\\\"{{runid}} Bench Customer\\\"\"}\n  ok click {\"target\":\"@e573\"}\n  ok snapshot {}\n  ok type {\"delay_ms\":50,\"target\":\"@e658\",\"text\":\"Desk\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e686\"}\n  ok fill {\"target\":\"@e665\",\"value\":\"3\"}\n  FAILED snapshot {\"selector\":\"\\\"Row Lines\\\"\"}\n  ok read {\"target\":\"@e668\",\"what\":\"value\"}\n  ok read {\"target\":\"@e678\",\"what\":\"text\"}\n  ok read {\"target\":\"@e683\",\"what\":\"text\"}\n  ok click {\"target\":\"@e680\"}\n  ok snapshot {}\n  ok snapshot {\"selector\":\"\\\"Configure your product\\\"\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e714\"}\n  FAILED read {\"target\":\"@e668\",\"what\":\"value\"}\n  FAILED read {\"target\":\"@e678\",\"what\":\"text\"}\n  ok snapshot {}\n  FAILED fill {\"target\":\"@e779\",\"value\":\"3\"}\n  ok click {\"target\":\"@e779\"}\nThe browser was left at: http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type={{01-report.url.q.view_type}}\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nIn Odoo, go to the Sales app and create a new quotation. Set the Customer field to '{{runid}} Bench Customer' (it is an autocomplete dropdown — you must pick the option from the dropdown, not just type it). Add exactly ONE order line: in the Order Lines table, pick any product from the product catalogue via the product dropdown (choose an actual option from the dropdown), and set the quantity to 3. Let the app fill in the unit price automatically. Then report: (a) the product name you chose, (b) the unit price the app filled in for that line, and (c) the Untaxed Amount shown in the totals. Do not confirm the quotation yet — leave it as a draft quotation. Verify these values by reading them from the page.",
+      "skill": "s_3fd429",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo, open the existing draft quotation for customer '{{runid}} Bench Customer' (the one with a single order line for product 'Corner Desk Left Sit', quantity 3). Add a SECOND order line: pick a DIFFERENT product from the product catalogue via the product dropdown (choose an actual option from the dropdown, not typed text), and set its quantity to 2. Let the app fill in the unit price automatically. Then report: (a) the name of the second product you chose, (b) its unit price, and (c) the new Untaxed Amount shown in the totals. Keep the quotation as a draft — do not confirm it. Verify these values by reading them from the page.",
+      "skill": "s_22d383",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo, open the existing draft quotation for customer '{{runid}} Bench Customer' (it has two order lines: 'Corner Desk Left Sit' qty 3 and 'Office Chair' qty 2). Change the quantity of the FIRST line (Corner Desk Left Sit) from 3 to 5, leaving the second line unchanged at qty 2. Save/apply the change. Then report the new Untaxed Amount shown in the totals, and also confirm the two line quantities now read 5 and 2. Keep the quotation as a draft — do not confirm it. Verify by reading the values from the page.",
+      "skill": "s_7c0fdf",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo, open the existing draft quotation for customer '{{runid}} Bench Customer' (two lines: Corner Desk Left Sit qty 5, Office Chair qty 2, Untaxed Amount £565.00) and confirm it so it becomes a sales order. Use the Confirm button (or Confirm Sale as appropriate). After confirming, report: (a) the order reference / name of the record (e.g. something like S00042) shown in the breadcrumb or header, and (b) the status the app now shows for the order (e.g. 'Sales Order' / 'In Progress' or similar). Verify both by reading them from the page.",
+      "skill": "s_be8b5a",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo, open the confirmed sales order S00021 for customer '{{runid}} Bench Customer' and cancel it so nothing from this run stays active. Use the Cancel button (if it asks for a cancellation reason, pick/confirm any offered option). After cancelling, report the status the app now shows for the order (e.g. 'Cancelled'). Verify by reading the status from the page.",
+      "skill": "s_0752d5",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-open",
+      "instruction": "Verification only, no changes: In Odoo, (1) open the contact '{{runid}} Bench Customer' and report its City field value; (2) open sales order S00021 and report its current status and its Untaxed Amount. Do not edit, save, confirm, or cancel anything — just read and report these values.",
+      "skill": "s_47a0c7",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod3-n1",
+    "created": "2026-08-26T15:31:38.683Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
