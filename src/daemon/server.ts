@@ -262,6 +262,7 @@ export class Daemon {
                 entries: this.browser.script?.entriesSince(mark) ?? [],
                 session: this.opts.session,
                 model: provider.model,
+                vars: this.state.vars,
               })
             : null;
           if (learned) progress(`[learn] ${describeLearned(learned)}`);
@@ -588,6 +589,10 @@ ${direct.prelude}` : recoveryText,
           entries: this.browser.script?.entriesSince(mark) ?? [],
           session: this.opts.session,
           model: opts.provider.model,
+          // Slot-by-policy inputs: this run's declared vars plus every url
+          // provenance value minted so far, so a skill compiled from a repair
+          // is generic across runs instead of baking in this run's ids.
+          vars: { ...varsIn, ...provenanceValues(outputs), ...referencedValues(step, outputs) },
         });
         // Lifecycle-gated adoption: the pin only ever moves to a skill that is
         // VALIDATED and has just replayed this step cleanly. A skill compiled
@@ -888,6 +893,38 @@ function listFlowsSummary() {
 type UsageLedger = Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number; instructions: number }>;
 
 /** Per-model token delta between two snapshots of the session's usage ledger, models with no activity omitted. */
+/**
+ * The url-provenance values earlier flow steps published this run
+ * ({{sid.url.*}} parts — minted ids like a dashboard uid). Fed to compile as
+ * slot-by-policy values so a repair's skill parameterises them instead of
+ * baking this run's id into its template and steps.
+ */
+function provenanceValues(outputs: Record<string, Record<string, string>>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [sid, vals] of Object.entries(outputs)) {
+    for (const [name, value] of Object.entries(vals)) {
+      if (name.startsWith('url.') && value) out[`${sid}.${name}`] = value;
+    }
+  }
+  return out;
+}
+
+/**
+ * The values behind the {{step.output}} references this flow step's
+ * instruction/params carry (a ticket ref, a minted uid) — run-scoped by
+ * definition, so compile slots them by policy too.
+ */
+function referencedValues(step: { instruction: string; params?: Record<string, string> }, outputs: Record<string, Record<string, string>>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const text of [step.instruction, ...Object.values(step.params ?? {})]) {
+    for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.-]+)\}\}/g)) {
+      const v = outputs[m[1]]?.[m[2]];
+      if (v) out[`${m[1]}.${m[2]}`] = v;
+    }
+  }
+  return out;
+}
+
 function diffUsageByModel(before: UsageLedger, after: UsageLedger): Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number }> {
   const out: Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number }> = {};
   for (const [model, u] of Object.entries(after)) {

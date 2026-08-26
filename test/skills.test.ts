@@ -7,7 +7,7 @@ import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { coalesceControls, compileSkill, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
-import { learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
+import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
 import { candidatesFor, renderCandidates } from '../src/skills/replay.js';
 import { SkillStore, originOf, originSlug, type Skill } from '../src/skills/store.js';
 
@@ -166,6 +166,63 @@ describe('parameterisation', () => {
       step('fill', { target: '@e3', value: 'Apollo' }, [{ kind: 'label', label: 'Project' }]),
     ];
     expect([...discoverSlots(instr, steps).values()]).toEqual(['Apollo']);
+  });
+});
+
+describe('slot-by-policy known values', () => {
+  // The fwrd3 delete-both-parts shape: the run identifier repeats throughout
+  // (act on part A, verify part A gone), so the heuristic single-occurrence
+  // guard de-slots EVERYTHING and the skill bakes in the runid.
+  const DELETE_INSTR =
+    "On the ticket 'x7 RD Bench Ticket' (ref RD-1015), delete BOTH parts ('x7 RD Part A' and 'x7 RD Part B'), then verify 'x7 RD Part A' and 'x7 RD Part B' are gone and 'x7 RD Bench Ticket' is archived.";
+  const deleteSteps = (): RecordedStep[] => [
+    step('click', { target: '@e1' }, [{ kind: 'role', role: 'link', name: 'x7 RD Bench Ticket' }]),
+    step('click', { target: '@e2' }, [{ kind: 'role', role: 'button', name: 'Delete x7 RD Part A' }]),
+    step('click', { target: '@e3' }, [{ kind: 'role', role: 'button', name: 'Delete x7 RD Part B' }]),
+  ];
+
+  it('without known values the repeated identifiers stay literal (heuristic guard intact)', () => {
+    expect([...discoverSlots(DELETE_INSTR, deleteSteps()).values()]).not.toContain('x7');
+  });
+
+  it('a declared run value is slotted at every occurrence despite repetition', () => {
+    const slots = discoverSlots(DELETE_INSTR, deleteSteps(), { runid: 'x7' });
+    const name = [...slots.entries()].find(([, v]) => v === 'x7')?.[0];
+    expect(name).toBeTruthy();
+    const template = substitute(DELETE_INSTR, slots);
+    expect(template).not.toContain('x7');
+    expect((template.match(new RegExp(`\\{\\{${name}\\}\\}`, 'g')) ?? []).length).toBe(6);
+  });
+
+  it('the admin/admin guard still holds for values that are NOT declared', () => {
+    const instr = 'sign in with email admin and password admin';
+    const steps = [
+      step('fill', { target: '@e1', value: 'admin' }, [{ kind: 'label', label: 'Email' }]),
+      step('fill', { target: '@e2', value: 'admin' }, [{ kind: 'label', label: 'Password' }]),
+    ];
+    expect([...discoverSlots(instr, steps, { runid: 'x7' }).values()]).toEqual([]);
+  });
+
+  it('compiles a run-generic skill: no runid literal anywhere, binds a later run', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: DELETE_INSTR, url: `${ORIGIN}/#/tickets`, fingerprint: [1, 0, 0] },
+      ...deleteSteps(),
+    ];
+    const rep = { status: 'success' as const, summary: 'Deleted both parts; ticket archived.' };
+    const [skill] = compileSkills({ entries, instruction: DELETE_INSTR, report: rep, session: 's', knownValues: { runid: 'x7', '01-open.reference': 'RD-1015' } });
+    expect(skill).toBeTruthy();
+    expect(skill.template).not.toContain('x7');
+    expect(skill.template).not.toContain('RD-1015');
+    expect(JSON.stringify(skill.steps)).not.toContain('x7');
+    const bound = bindSkill(skill, DELETE_INSTR.replaceAll('x7', 'fw-n2').replaceAll('RD-1015', 'RD-1044'));
+    expect(bound).toBeTruthy();
+    expect(Object.values(bound!)).toContain('fw-n2');
+    expect(Object.values(bound!)).toContain('RD-1044');
+  });
+
+  it('a known value nested inside a discovered arg slot composes cleanly', () => {
+    const slots = discoverSlots(INSTRUCTION, recording().filter((e): e is RecordedStep => e.k === 'step'), { runid: 'x7' });
+    expect(substitute(INSTRUCTION, slots)).not.toContain('x7');
   });
 });
 

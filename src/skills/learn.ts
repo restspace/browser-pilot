@@ -36,6 +36,8 @@ export function learnFromInstruction(
     session: string;
     model?: string;
     now?: string;
+    /** Run-scoped values (flow vars, url provenance) to slot by policy at compile. */
+    vars?: Record<string, string>;
   },
 ): LearnedRecord | null {
   const out: LearnedRecord = {};
@@ -83,6 +85,7 @@ export function learnFromInstruction(
     model: input.model,
     now: input.now,
     variantOf,
+    knownValues: input.vars,
   });
   if (!skills.length) return Object.keys(out).length ? out : null;
 

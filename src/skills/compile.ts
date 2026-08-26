@@ -18,6 +18,12 @@ export interface CompileInput {
   now?: string;
   /** When the instruction repaired a partly-failed replay, the skill it was replaying. */
   variantOf?: string;
+  /**
+   * Run-scoped values the caller declared or minted (flow vars, url
+   * provenance), slotted by policy wherever they occur — see discoverSlots.
+   * Keys are informational; only the values matter.
+   */
+  knownValues?: Record<string, string>;
 }
 
 /**
@@ -63,7 +69,7 @@ export function compileSkills(input: CompileInput): Skill[] {
   const origin = startUrl ? originOf(startUrl) : null;
   if (!origin || !startUrl) return [];
 
-  const slots = discoverSlots(input.instruction, steps);
+  const slots = discoverSlots(input.instruction, steps, input.knownValues);
   const sub = (s: string) => substitute(s, slots);
 
   const reportValues = input.report.evidence?.values ?? {};
@@ -172,9 +178,13 @@ export function compileSkills(input: CompileInput): Skill[] {
 
   // Drop slots no segment uses: instruction-only words (e.g. an id the
   // orchestrator mentioned for context) would only make matching harder.
+  // EXCEPT known run values: a runid or threaded ref that appears only in the
+  // wording still changes every run, so leaving it literal would make the
+  // template single-run — bindSkill could never match run n+1's instruction.
+  const knownVals = new Set(Object.values(input.knownValues ?? {}).map((v) => String(v ?? '').trim()));
   const usedNames = new Set<string>();
   for (const b of built) for (const [name, p] of Object.entries(b.segParams)) if (p.usedIn.length) usedNames.add(name);
-  const keptSlots = new Map([...slots].filter(([n]) => usedNames.has(n)));
+  const keptSlots = new Map([...slots].filter(([n, v]) => usedNames.has(n) || knownVals.has(v)));
   const finalTemplate = keptSlots.size === slots.size ? sub(input.instruction) : substitute(input.instruction, keptSlots);
 
   const now = input.now ?? new Date().toISOString();
@@ -263,8 +273,23 @@ function discoverMinted(kept: RecordedStep[], startUrl: string, slots: Map<strin
  * Literal values the agent used that also appear as whole tokens in the
  * instruction. Ordered by first occurrence in the instruction, longest match
  * first when values nest ("x7 RD Part A" before "x7").
+ *
+ * `known` are run-scoped values the CALLER vouches for — declared flow vars
+ * (the runid) and minted url-provenance parts. They are slotted by policy,
+ * not heuristics: every occurrence in the instruction, args, and locators is
+ * the same value playing the same role by construction, so the
+ * single-occurrence guard below does not apply to them (unlike admin/admin,
+ * where one string served two different roles). This is what keeps a run
+ * identifier out of a compiled skill: fwrd3 baked "fwrd3-n1"/"RD-1015" into
+ * templates and steps, so every skill was single-run poison — tier-A replay
+ * died at the first stale literal on every later run, and repairs minted a
+ * fresh single-run corpse each time instead of converging.
  */
-export function discoverSlots(instruction: string, steps: RecordedStep[]): Map<string, string> {
+export function discoverSlots(
+  instruction: string,
+  steps: RecordedStep[],
+  known: Record<string, string> = {},
+): Map<string, string> {
   const values = new Set<string>();
   const locatorCandidates = new Set<string>();
   for (const step of steps) {
@@ -297,7 +322,16 @@ export function discoverSlots(instruction: string, steps: RecordedStep[]): Map<s
     // carries an identifier (a digit / id-like token). Excludes stable UI text.
     if (values.has(v) || /\d/.test(v) || v.split(/\s+/).some(isIdLike)) values.add(v);
   }
+  const knownVals: string[] = [];
+  for (const raw of Object.values(known)) {
+    const v = String(raw ?? '').trim();
+    if (v.length < 2 || v.length > 200) continue;
+    if (!occursAsToken(instruction, v) || knownVals.includes(v)) continue;
+    knownVals.push(v);
+  }
+  knownVals.sort((a, b) => instruction.indexOf(a) - instruction.indexOf(b) || b.length - a.length);
   const ordered = [...values]
+    .filter((v) => !knownVals.includes(v))
     // A value appearing twice in the instruction cannot be given a slot: one
     // slot name would stand for two roles. "sign in with email admin and
     // password admin" compiled to "email {{v1}} and password {{v1}}", and
@@ -313,9 +347,11 @@ export function discoverSlots(instruction: string, steps: RecordedStep[]): Map<s
     .filter((v) => countTokenOccurrences(instruction, v) === 1)
     .map((v) => ({ v, at: instruction.indexOf(v) }))
     .sort((a, b) => a.at - b.at || b.v.length - a.v.length)
-    .slice(0, MAX_SLOT_VALUES);
+    .slice(0, Math.max(0, MAX_SLOT_VALUES - knownVals.length));
   const slots = new Map<string, string>();
-  ordered.forEach(({ v }, i) => slots.set(`v${i + 1}`, v));
+  // Known values first so a cap can never cut them: they are the slots that
+  // decide whether the skill survives past the run that recorded it.
+  [...knownVals, ...ordered.map(({ v }) => v)].forEach((v, i) => slots.set(`v${i + 1}`, v));
   return slots;
 }
 
