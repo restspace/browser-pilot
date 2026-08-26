@@ -1,0 +1,65 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2aod1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 84,
+  "wallMs": 1298667,
+  "orchestrator": {
+    "input": 73580,
+    "cacheWrite": 0,
+    "cacheRead": 4243648,
+    "output": 9447
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 171,
+  "subcommands": {
+    "skills": 1,
+    "open": 3,
+    "snapshot": 36,
+    "fill": 6,
+    "click": 33,
+    "get": 11,
+    "wait": 35,
+    "eval": 35,
+    "type": 5,
+    "press": 3,
+    "find": 1,
+    "dblclick": 1,
+    "screenshot": 1
+  },
+  "invocationCount": 171,
+  "commandMs": 93918,
+  "commandBytes": 218706,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 1.2479,
+  "maxUsd": 2,
+  "spendUsd": 1.2479,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE**: Customer `c2aod1 Bench Customer` created and saved. Verified on the saved record: the customer name field reads `c2aod1 Bench Customer` and the City field reads `Benchville`. The customer link on the sales order also renders as `c2aod1 Bench Customer Benchville`.\n\n**Objective 2 — DONE**: Quotation `S00021` created for that customer with one order line.\n- Product: **Chair floor protection** (chosen from the autocomplete dropdown — confirmed by the \"Internal link\" button appearing next to it, indicating a real record was bound)\n- Unit price the app filled in: **12.00**\n- Quantity: 3.00\n- Untaxed amount computed: **£36.00**\n\n**Objective 3 — DONE**: Second order line added.\n- Product: **[FURN_6666] Acoustic Bloc Screens** (also chosen from the dropdown; unit price auto-filled 295.00)\n- Quantity: 2.00, line Tax excl. £590.00\n- New Untaxed Amount: **£626.00** (36.00 + 590.00)\n\n**Objective 4 — DONE**: First line quantity changed 3 → 5.\n- Line 1 became 5.00 × 12.00 = £60.00\n- Untaxed Amount afterwards: **£650.00** (60.00 + 590.00); Total £780.00\n\n**Objective 5 — DONE**: Quotation confirmed.\n- Order reference: **S00021**\n- Status shown: **Sales Order** (the statusbar's current arrow button reads `Sales Order`; the \"Confirm\" button was replaced by \"Create Invoice\")\n\n**Objective 6 — DONE**: Sales order cancelled.\n- Status shown after cancelling: **Cancelled** (statusbar current arrow button reads `Cancelled`)\n\nNotes on the process: the first product I tried, \"Customizable Desk\", opened a variant-configuration dialog, so I discarded it and switched to \"Chair floor protection\" to keep a single clean line. Cancelling opened a \"Cancel Sales Order\" email wizard stacked under an auto-opened customer-edit dialog; I discarded the edit dialog and clicked the wizard's \"Cancel\" button (not \"Send and cancel\"), so no cancellation email was sent. Nothing from this run remains active — S00021 is Cancelled.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2aod1-agent-browser-transcript.jsonl"
+}
