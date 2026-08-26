@@ -146,22 +146,37 @@ export function buildFlow(
       outputs,
       recorded: g.report?.values ?? {},
     });
-    for (const [output, value] of Object.entries(g.report?.values ?? {})) {
-      if (typeof value === 'string' && value) produced.push({ stepId: id, output, value });
-    }
     // Provenance (PLAN-replay-v2): url parts this step MINTED (absent from
     // every earlier url) are outputs too — a later step's recorded literal
     // equal to one becomes {{stepId.url.<part>}}, re-bound each run from
     // where the replay's own browser lands. Same guards as report outputs:
     // length >= 4, first appearance wins.
+    //
+    // Url parts go into `produced` BEFORE report values, and a report value
+    // that duplicates a minted part is not referencized under its report
+    // name: a zero-model (tier-A) replay synthesizes its report from live
+    // read-backs only and honestly DROPS recorded values it could not
+    // re-observe, so a {{step.reportName}} ref dies exactly when the replay
+    // is at its best — while {{step.url.<part>}} is published by every
+    // replay unconditionally. fwgr-n2/n3 halted on precisely this: the
+    // recorded instructions referenced {{02-create.dashboard_uid}}, the
+    // tier-A replay's report legitimately omitted it, and recovery ran with
+    // the uid blanked until it turn-capped.
+    const minted: { stepId: string; output: string; value: string }[] = [];
     if (g.endUrl) {
       for (const part of urlParts(g.endUrl)) {
         const fresh = !seenUrl.has(part.value);
         seenUrl.add(part.value);
         if (!fresh || part.value.length < 4 || !/\d/.test(part.value)) continue;
         if (produced.some((p) => p.value === part.value) || varEntries.some(([, v]) => v === part.value)) continue;
-        produced.push({ stepId: id, output: `url.${part.label}`, value: part.value });
+        minted.push({ stepId: id, output: `url.${part.label}`, value: part.value });
       }
+    }
+    produced.push(...minted);
+    for (const [output, value] of Object.entries(g.report?.values ?? {})) {
+      if (typeof value !== 'string' || !value) continue;
+      if (minted.some((m) => m.value === value)) continue;
+      produced.push({ stepId: id, output, value });
     }
   });
 

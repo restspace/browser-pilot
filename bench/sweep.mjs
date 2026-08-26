@@ -86,6 +86,15 @@ for (let n = 1; n <= own.k; n++) {
       }
     } catch { /* no parseable flow result */ }
     spawnSync(armBin, ['stop', '--session', runid], { stdio: 'ignore', env, shell: process.platform === 'win32' });
+    // Replay runs bypass the harness, which is what normally pulls the app's
+    // mutation log into the results dir. Without it a replay's verification
+    // is unauditable once the box is gone (the fwrd gap). Best effort: only
+    // the repairdesk-style targets expose /__log.
+    try {
+      const logUrl = new URL('/__log', process.env.APP_URL || 'http://127.0.0.1:4180/');
+      const res = await fetch(logUrl);
+      if (res.ok) fs.writeFileSync(path.join(outDir, `${runid}-mutationlog.json`), await res.text());
+    } catch { /* target has no mutation log — fine */ }
   } else {
     const args = [path.join(here, 'harness.mjs'), ...pass, '--runid', runid, '--reset'];
     if (learnDir) args.push('--learn', learnDir);

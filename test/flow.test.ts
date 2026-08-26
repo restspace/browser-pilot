@@ -201,3 +201,27 @@ describe('flow url outputs (mechanism 1 at the flow level)', () => {
     expect(bound.params).toEqual({ v1: 'zzz91' });
   });
 });
+
+describe('url-provenance refs beat report-value refs (fwgr-n2 regression)', () => {
+  it('a report value that duplicates a minted url part is referencized as the url part', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: "Create a dashboard titled 'fr1 Bench Dashboard'; report its uid.", url: `${ORIGIN}/dashboards` },
+      {
+        k: 'step', tool: 'click', args: { target: '@e1' },
+        locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [] } },
+        diff: { url: `${ORIGIN}/d/dfw8c6t9/fr1-bench-dashboard`, alerts: [], added: [] },
+      },
+      // The report ALSO carries the uid — the ref must still point at the url
+      // part, because a tier-A replay's synthesized report drops values it
+      // cannot re-observe while url parts are always published.
+      { k: 'report', status: 'success', summary: 'Created.', values: { dashboard_uid: 'dfw8c6t9' }, skill: 's_create' },
+      { k: 'instruction', text: 'Open the dashboard with uid dfw8c6t9 and set refresh to 1m.', url: `${ORIGIN}/d/dfw8c6t9/fr1-bench-dashboard` },
+      { k: 'report', status: 'success', summary: 'Done.', values: {}, skill: 's_open' },
+    ];
+    const flow = buildFlow(entries, { name: 'g', origin: ORIGIN, startUrl: `${ORIGIN}/dashboards`, vars: { runid: 'fr1' }, session: 's' })!;
+    const [s1, s2] = flow.steps;
+    expect(s2.instruction).toContain(`{{${s1.id}.url.p1}}`);
+    expect(s2.instruction).not.toContain('dashboard_uid');
+    expect(s2.instruction).not.toContain('dfw8c6t9');
+  });
+});
