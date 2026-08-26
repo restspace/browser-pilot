@@ -35,6 +35,7 @@ Usage:
   browser-pilot screenshot [path]
   browser-pilot session list
   browser-pilot stop [--all] [--save-flow <name>]
+  browser-pilot doctor                      # diagnose an install: node, browser, provider, key (no daemon needed)
   browser-pilot config                      # show resolved provider/model/paths
   browser-pilot config set <key> <value>    # persist a default (provider, model, fallbackModel, baseUrl, apiKey)
 
@@ -348,6 +349,10 @@ async function main(): Promise<void> {
     console.log(`${globalConfigPath()}: ${JSON.stringify(shown)}`);
     console.log('applies to the next instruction — running daemons re-read this file per call');
     return;
+  }
+  if (command === 'doctor') {
+    const { runDoctor } = await import('./doctor.js');
+    process.exit(await runDoctor(json));
   }
   if (command === 'skills' && positional[0] === 'repair') {
     await repairCommand(positional, flags, json);

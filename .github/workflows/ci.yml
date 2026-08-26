@@ -1,0 +1,73 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  # The browser-gated suite, forced onto the playwright-downloaded chromium so
+  # the fallback channel (the one a bare Linux box ends up on) is what gets
+  # exercised — the runners' preinstalled Chrome would otherwise win the chain.
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+        env:
+          BP_BROWSER_TESTS: '1'
+          BROWSER_PILOT_CHANNEL: chromium
+
+  # Install-from-cold: pack the tarball, install it globally the way a
+  # stranger would, and drive a real session (daemon spawn, browser launch,
+  # navigation, screenshot) with NO API key — proving everything up to the
+  # first `do` works on a machine that has never seen this repo.
+  cold-install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm pack
+      - name: install tarball globally
+        run: npm install -g ./browser-pilot-*.tgz
+      - name: doctor
+        run: browser-pilot doctor
+      - name: drive a session without an API key
+        run: |
+          url=$(node -e "console.log(require('url').pathToFileURL('test/fixture/page.html').href)")
+          browser-pilot --session ci open "$url"
+          browser-pilot --session ci screenshot ci-smoke.png
+          test -s ci-smoke.png
+          browser-pilot --session ci stop
