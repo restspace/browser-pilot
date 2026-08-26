@@ -225,3 +225,22 @@ describe('url-provenance refs beat report-value refs (fwgr-n2 regression)', () =
     expect(s2.instruction).not.toContain('dfw8c6t9');
   });
 });
+
+describe('digitless minted ids (fwgr2 regression)', () => {
+  it('a digitless uid is still referencized at the flow level', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create a dashboard and save it.', url: `${ORIGIN}/dashboards` },
+      {
+        k: 'step', tool: 'click', args: { target: '@e1' },
+        locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [] } },
+        diff: { url: `${ORIGIN}/d/cfwcsdxqdjabkf/fr1-bench`, alerts: [], added: [] },
+      },
+      { k: 'report', status: 'success', summary: 'Saved.', values: {}, skill: 's_create' },
+      { k: 'instruction', text: 'Open http://127.0.0.1:4180/d/cfwcsdxqdjabkf/fr1-bench fresh and verify.', url: `${ORIGIN}/d/cfwcsdxqdjabkf/fr1-bench` },
+      { k: 'report', status: 'success', summary: 'Done.', values: {}, skill: 's_open' },
+    ];
+    const flow = buildFlow(entries, { name: 'h', origin: ORIGIN, startUrl: `${ORIGIN}/dashboards`, vars: { runid: 'fr1' }, session: 's' })!;
+    expect(flow.steps[1].instruction).toContain(`{{${flow.steps[0].id}.url.p1}}`);
+    expect(flow.steps[1].instruction).not.toContain('cfwcsdxqdjabkf');
+  });
+});

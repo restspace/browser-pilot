@@ -167,7 +167,11 @@ export function buildFlow(
       for (const part of urlParts(g.endUrl)) {
         const fresh = !seenUrl.has(part.value);
         seenUrl.add(part.value);
-        if (!fresh || part.value.length < 4 || !/\d/.test(part.value)) continue;
+        // No digit requirement here, unlike compile-level derived params:
+        // grafana mints digitless uids ("cfwcsdxqdjabkf" sank fwgr2), and at
+        // the FLOW level a false positive is only a self-identity ref that
+        // re-binds to the same value — it cannot wildcard a precondition.
+        if (!fresh || part.value.length < 4) continue;
         if (produced.some((p) => p.value === part.value) || varEntries.some(([, v]) => v === part.value)) continue;
         minted.push({ stepId: id, output: `url.${part.label}`, value: part.value });
       }

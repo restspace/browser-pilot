@@ -284,7 +284,7 @@ export class OpenAICompatProvider implements Provider {
 
     const url = this.config.baseUrl.replace(/\/$/, '') + '/chat/completions';
     let lastErr: Error | null = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < MAX_LLM_ATTEMPTS; attempt++) {
       if (opts.signal?.aborted) throw new Error('LLM request aborted');
       try {
         const res = await fetch(url, {
@@ -298,7 +298,11 @@ export class OpenAICompatProvider implements Provider {
         });
         if (res.status === 429 || res.status >= 500) {
           lastErr = new Error(`LLM HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
-          await sleep(1000 * (attempt + 1), opts.signal);
+          // A 429 against a per-minute cap needs minute-scale patience, not
+          // seconds: flow-replay recovery fires requests far faster than the
+          // interactive loop and killed whole flowruns on OpenRouter's
+          // 20 rpm tier (fwgr2-n2/n3). Honor the server's own hint first.
+          await sleep(retryDelayMs(res, attempt), opts.signal);
           continue;
         }
         if (!res.ok) {
@@ -408,7 +412,7 @@ export class AnthropicProvider implements Provider {
     };
 
     let lastErr: Error | null = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < MAX_LLM_ATTEMPTS; attempt++) {
       if (opts.signal?.aborted) throw new Error('LLM request aborted');
       try {
         const res = await fetch(`${this.baseUrl}/v1/messages`, {
@@ -423,7 +427,7 @@ export class AnthropicProvider implements Provider {
         });
         if (res.status === 429 || res.status >= 500) {
           lastErr = new Error(`LLM HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
-          await sleep(1000 * (attempt + 1), opts.signal);
+          await sleep(retryDelayMs(res, attempt), opts.signal);
           continue;
         }
         if (!res.ok) {
@@ -532,6 +536,25 @@ function parseAnthropicCompletion(json: Record<string, any>): Completion {
 }
 
 /** Backoff sleep that gives up early if the request is aborted mid-wait. */
+const MAX_LLM_ATTEMPTS = 5;
+
+/**
+ * How long to wait before retrying a 429/5xx. The server's own hint wins
+ * (Retry-After seconds, or an X-RateLimit-Reset epoch-ms as OpenRouter
+ * sends); otherwise escalate on a scale that can outlast a per-MINUTE rate
+ * cap rather than a transient blip. Capped so a bad header cannot wedge a
+ * turn for longer than the caller's own deadlines.
+ */
+function retryDelayMs(res: { status: number; headers: { get(name: string): string | null } }, attempt: number): number {
+  const cap = 65_000;
+  const retryAfter = Number(res.headers.get('retry-after'));
+  if (Number.isFinite(retryAfter) && retryAfter > 0) return Math.min(retryAfter * 1000, cap);
+  const reset = Number(res.headers.get('x-ratelimit-reset'));
+  if (Number.isFinite(reset) && reset > Date.now()) return Math.min(reset - Date.now() + 500, cap);
+  if (res.status === 429) return Math.min(5_000 * 2 ** attempt, cap);
+  return 1_000 * (attempt + 1);
+}
+
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
     const timer = setTimeout(done, ms);

@@ -529,23 +529,34 @@ export class Daemon {
         // pre-attempt. The partial replay (if any) is handed to it directly.
         recovered = true;
         opts.progress(`[flow ${flow.name}] ${step.id}: ${unresolved ? 'reference could not be threaded — ' : ''}recovering on ${opts.recovery.model}`);
-        result = await runEscalatingInstruction(
-          opts.recovery,
-          null,
-          this.browser,
-          this.state,
-          direct.prelude ? `${recoveryText}
+        try {
+          result = await runEscalatingInstruction(
+            opts.recovery,
+            null,
+            this.browser,
+            this.state,
+            direct.prelude ? `${recoveryText}
 
 ${direct.prelude}` : recoveryText,
-          {
-            maxTurns: opts.maxTurns,
-            timeoutMs: opts.timeoutMs,
-            ...(opts.turnTimeoutMs ? { turnTimeoutMs: opts.turnTimeoutMs } : {}),
-            screenshotDir,
-            signal: opts.signal,
-            onProgress: opts.progress,
-          },
-        );
+            {
+              maxTurns: opts.maxTurns,
+              timeoutMs: opts.timeoutMs,
+              ...(opts.turnTimeoutMs ? { turnTimeoutMs: opts.turnTimeoutMs } : {}),
+              screenshotDir,
+              signal: opts.signal,
+              onProgress: opts.progress,
+            },
+          );
+        } catch (err) {
+          // A hard infrastructure failure (LLM retries exhausted, browser
+          // gone) must not throw away the whole flowrun: the runs that DID
+          // complete, the priced usage, and the halt point are the result.
+          // fwgr2-n2/n3 died this way on an OpenRouter 429 and left nothing.
+          const message = err instanceof Error ? err.message : String(err);
+          stepResults.push({ id: step.id, status: 'blocked', summary: `recovery failed before completing: ${message.slice(0, 300)}`, values: {}, tier: null, replayed: null, repaired: false, turns: 0 });
+          halted = true;
+          break;
+        }
         if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
       }
       // Learn from a repair so the flow's steps get cheaper over successive runs.
