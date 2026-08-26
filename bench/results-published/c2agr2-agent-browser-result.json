@@ -1,0 +1,67 @@
+{
+  "arm": "agent-browser",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2agr2",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 74,
+  "wallMs": 930247,
+  "orchestrator": {
+    "input": 66120,
+    "cacheWrite": 0,
+    "cacheRead": 3683712,
+    "output": 8435
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 152,
+  "subcommands": {
+    "skills": 1,
+    "open": 4,
+    "snapshot": 21,
+    "fill": 7,
+    "click": 22,
+    "get": 13,
+    "wait": 37,
+    "eval": 36,
+    "find": 1,
+    "press": 2,
+    "keyboard": 2,
+    "check": 2,
+    "is": 2,
+    "screenshot": 1,
+    "close": 1
+  },
+  "invocationCount": 152,
+  "commandMs": 89671,
+  "commandBytes": 202350,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 1.0874,
+  "maxUsd": 2,
+  "spendUsd": 1.0874,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE.** Panel titles on the provisioned dashboard `Service health` (uid `bench-service-health`, at `/d/bench-service-health/service-health`), read from the rendered page DOM:\n- `Request rate` (timeseries)\n- `Error count` (stat)\n- `Latency by endpoint` (table)\n\n**Objective 2 — DONE.** New dashboard `c2agr2 Bench Dashboard` exists and is saved. It contains a Stat panel titled `c2agr2 Availability` (`type: \"stat\"`) whose query target uses `datasource: {type: \"grafana-testdata-datasource\", uid: \"benchtestdata\"}` — the `TestData` data source (confirmed as the only data source on the instance, named `TestData`).\n\n**Objective 3 — DONE.** The same dashboard contains a Text panel titled `c2agr2 Notes` (`type: \"text\"`, markdown mode) with content `Run c2agr2 bench notes. Availability panel uses the TestData data source.` — includes the runid. Saved; verified by re-fetching the dashboard JSON and reading the rendered `.markdown-html` body on a fresh page load.\n\n**Objective 4 — DONE.** Dashboard tags: `[\"bench\"]`. Time range persisted as `time: {from: \"now-6h\", to: \"now\"}`; the top bar shows `Time range selected: Last 6 hours`. Both saved (required ticking \"Update default time range\" in the save modal — the first save had left the range URL-only).\n\n**Objective 5 — DONE.** Auto-refresh persisted as `refresh: \"1m\"`; the top bar shows `Choose refresh time interval with current interval 1 minute selected` / `1m`. Saved (required ticking \"Update default refresh value\").\n\n**Objective 6 — DONE.** URL: `http://127.0.0.1:3000/d/cfwc3yk6mt2iod/c2agr2-bench-dashboard` — UID `cfwc3yk6mt2iod`. Also confirmed via `/api/search?query=c2agr2`, which returns it with tags `[\"bench\"]`.\n\nNotes on the process: the initial save of the dashboard did not persist the tag or the time range/refresh defaults — the tag needed to be added in Settings → General → Tags, and the time range and refresh needed the two \"update default\" checkboxes in the save modal. Both were re-verified against the saved dashboard JSON after a fresh page load.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2agr2-agent-browser-transcript.jsonl"
+}
