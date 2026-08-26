@@ -83,6 +83,12 @@ const MAX_LINE = 160;
  * bodies are excluded. */
 const NAV_FALLBACK_TOOLS = new Set(['click', 'dblclick']);
 
+/** A soft-matched precondition needs the page's structural fingerprint to
+ * agree before replay proceeds on it. Same-template-different-record pages
+ * measured 0.94–1.0 in the swg sweeps; the different-template fixture pair
+ * measures 0.57. */
+const SOFT_MATCH_MIN_SIMILARITY = 0.8;
+
 /**
  * Replay a stored skill deterministically: precondition → each step with its
  * locator chain → expectation check → next. Stops at the first failure and
@@ -129,26 +135,33 @@ export async function replaySkill(
   // apps that redirect at load (the recorded start url is a race between the
   // capture and the redirect) — the flow6 head step failed exactly this way.
   const navigatesItself = skill.steps[0]?.tool === 'goto';
+  if (skill.preconditions.fingerprint) {
+    res.similarity = cosine(skill.preconditions.fingerprint, (await fingerprintPage(page)) ?? undefined);
+  }
   if (!navigatesItself && !urlMatches(skill.preconditions.urlPattern, startUrl, params)) {
     // Same page shape with 1-2 disagreeing segments is likely an
     // environment-minted id (an Odoo action id, a Grafana uid): proceed
     // optimistically instead of refusing — a hard fail here is what turned a
     // one-segment difference into a dead flow, and it also makes the
-    // volatility evidence uncollectible.
+    // volatility evidence uncollectible. But "likely" is not evidence, so
+    // when the segment carries a structural fingerprint, that second gate
+    // decides: a different RECORD of the same template fingerprints close
+    // (0.94–1.0 in the swg sweeps); a different TEMPLATE does not (the
+    // fixture pair measures 0.57). Only a close page proceeds.
     const soft = softUrlMatch(skill.preconditions.urlPattern, startUrl, params);
-    if (!soft) {
+    const structurallySame = res.similarity === null || res.similarity >= SOFT_MATCH_MIN_SIMILARITY;
+    if (!soft || !structurallySame) {
       res.refused = true;
-      res.reason = `not on the page this procedure starts from (expects ${fillParams(skill.preconditions.urlPattern, params)}, browser is at ${urlPattern(startUrl)}) — nothing was run`;
+      res.reason =
+        `not on the page this procedure starts from (expects ${fillParams(skill.preconditions.urlPattern, params)}, browser is at ${urlPattern(startUrl)}` +
+        (soft && !structurallySame ? `; the url shape is close but the page structure is not — similarity ${res.similarity}` : '') +
+        `) — nothing was run`;
       return res;
     }
     res.warnings.push(
       `start url differs from the recorded pattern in ${soft.diffs.length} segment(s) (${soft.diffs.map((d) => `${d.expected}→${d.actual}`).join(', ')}) — proceeding optimistically`,
     );
     res.generalisations.push({ kind: 'precondition', pattern: soft.generalised });
-  }
-
-  if (skill.preconditions.fingerprint) {
-    res.similarity = cosine(skill.preconditions.fingerprint, (await fingerprintPage(page)) ?? undefined);
   }
 
   // One step against the live page. Mutates `res` (lines/warnings/values/
