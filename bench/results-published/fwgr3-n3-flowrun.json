@@ -1,0 +1,128 @@
+{
+  "flow": "fwgr3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Signed in as admin/admin (skipped the password-change prompt), searched for and opened the 'Service Health' dashboard (url: /d/bench-service-health/service-health). The live DOM shows exactly three panels, verified via both the accessibility snapshot and read_all of all h2 headings in main: \"Request rate\", \"Error count\", and \"Latency by endpoint\". Page scroll height equals viewport height, confirming no additional panels below the fold.",
+      "values": {},
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_9a79ba"
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Created a new dashboard titled 'fwgr3-n3 Bench Dashboard' with a Stat panel titled 'fwgr3-n3 Availability' querying the TestData DB data source with the default Random Walk scenario. Applied the panel edit, saved the dashboard, and confirmed success: the URL changed to /d/bfwcz8dtbw4xsf/fwgr3-n3-bench-dashboard with an \"Dashboard saved\" alert, and the live page shows the dashboard title in breadcrumbs and the panel rendering A-series data (value 93.9).",
+      "values": {},
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel titled 'fwgr3-n3 Notes' with content 'Bench run notes for fwgr3-n3' to the existing dashboard, applied the edit, and saved. Save confirmed via the \"Dashboard saved\" alert; the live page shows the text panel (heading 'fwgr3-n3 Notes', paragraph 'Bench run notes for fwgr3-n3') alongside the existing 'fwgr3-n3 Availability' Stat panel at /d/bfwcz8dtbw4xsf/fwgr3-n3-bench-dashboard.",
+      "values": {},
+      "tier": "A",
+      "replayed": "5/10",
+      "repaired": false,
+      "turns": 13
+    },
+    {
+      "id": "04-report",
+      "status": "success",
+      "summary": "Added the 'bench' tag via Settings > General (typed 'bench' in the Tags field, pressed Enter, saved settings — \"Dashboard saved\" alert confirmed, tag visible in settings). Set the time range to 'Last 6 hours' (already active in the top bar), then saved the dashboard with \"Update default time range\" checked so it persists — second \"Dashboard saved\" alert confirmed. Final state: tags = ['bench'], time range = 'Last 6 hours' in the top bar, both panels intact.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the dashboard auto-refresh interval to 1m: opened the refresh dropdown in the top bar (showed \"Auto refresh turned off\"), selected \"1 minute\", then clicked Save dashboard with \"Update default refresh value\" checked, and confirmed. A \"Dashboard saved\" alert confirmed. The top bar now shows button \"Choose refresh time interval with current interval 1 minute selected\" with label \"1m\" visible on it, and the URL contains refresh=1m.",
+      "values": {},
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Fresh page load of the dashboard verified (read-only, nothing changed): (a) title \"fwgr3-n3 Bench Dashboard\" in top bar breadcrumbs; (b) panels: \"fwgr3-n3 Notes\" (text) and \"fwgr3-n3 Availability\" (stat); (c) time range \"Last 6 hours\"; (d) refresh interval \"1m\"; (e) Settings > General shows tags: [\"bench\"] (with a \"Remove 'bench' tag\" button). All values read from the live rendered page after a full reload.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Opened the 'fwgr3-n3 Availability' Stat panel's editor via the panel title menu > Edit. In the query section (tab \"Queries 1\"), the data source picker shows the TestData logo and the query row title reads \"A (TestData)\", confirming the data source is \"TestData\". The query uses the default Random Walk scenario. Exited the editor via \"Back to dashboard\" with no changes saved.",
+      "values": {},
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr3",
+      "step": "02-report",
+      "skill": "s_1a7506",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr3",
+      "step": "03-open",
+      "skill": "s_dfb3ec",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Panel editor option pane field input Title')",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfwcz8dtbw4xsf/:id"
+    },
+    {
+      "flow": "fwgr3",
+      "step": "05-open",
+      "skill": "s_5a710b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.892,
+      "missedLocator": "page.locator('\"Back to dashboard\"')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button > span')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfwcz8dtbw4xsf/:id"
+    }
+  ],
+  "wallMs": 642675,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1007664,
+    "completionTokens": 11234,
+    "cachedTokens": 956544
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

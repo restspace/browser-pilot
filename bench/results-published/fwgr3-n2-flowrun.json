@@ -1,0 +1,51 @@
+{
+  "flow": "fwgr3",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Signed in as admin/admin (skipped the password-change prompt), searched for and opened the 'Service Health' dashboard (url: /d/bench-service-health/service-health). The live DOM shows exactly three panels, verified via both the accessibility snapshot and read_all of all h2 headings in main: \"Request rate\", \"Error count\", and \"Latency by endpoint\". Page scroll height equals viewport height, confirming no additional panels below the fold.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "02-report",
+      "status": "failure",
+      "summary": "Instruction incomplete. Progress: opened a new dashboard, added a visualization panel, set the panel title to exactly \"fwgr3-n2 Availability\", and confirmed the query uses the TestData data source with the default Random Walk scenario (verified in the live DOM). However, I could NOT change the visualization to Stat — the visualization picker's search returned \"Matched 0/48 options\" and no selectable option elements were exposed in the DOM (the picker list appears virtualized/inaccessible to selectors), so the panel remains a Time series. The dashboard title was not yet set to \"fwgr3-n2 Bench Dashboard\" and the dashboard was NOT saved, so there is no dashboard URL/UID to report. The browser is left in the panel editor at /dashboard/new?...&editPanel=1.",
+      "values": {},
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 1,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr3",
+      "step": "02-report",
+      "skill": "s_1a7506",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    }
+  ],
+  "wallMs": 241840,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 474099,
+    "completionTokens": 6021,
+    "cachedTokens": 448256
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,76 @@
+{
+  "name": "fwgr3",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Instruction timed out after 300s (10 turns, 10 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.\"\nActions the previous attempt ran (most recent last):\n  ok goto {\"url\":\"http://127.0.0.1:3000/\"}\n  ok snapshot {}\n  ok batch [3 steps: fill, fill, click]\n  ok click {\"target\":\"\\\"Skip\\\"\"}\n  ok snapshot {}\n  ok click {\"target\":\"\\\"Search or jump to...\\\"\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e163\"}\n  ok snapshot {\"full\":true}\n  ok read_all {\"target\":\"[role=\\\"region\\\"] > h2, section[aria-label] > h2, [role=\\\"region\\\"] h2\",\"what\":\"text\"}\nThe browser was left at: http://127.0.0.1:3000/d/bench-service-health/service-health?from=now-6h&to=now&timezone=browser\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nOpen http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (if asked to change the password, skip it). Then find and open the provisioned dashboard named 'Service health' (use the search/dashboards feature). Report the titles of all panels on that dashboard, exactly as shown on the page, as a list.",
+      "skill": "s_9a79ba",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.\"\nActions the previous attempt ran (most recent last):\n  ok goto {\"url\":\"http://127.0.0.1:3000/\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e24\"}\n  ok click {\"target\":\"\\\"New dashboard\\\"\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e173\"}\n  ok snapshot {}\n  ok fill {\"target\":\"@e293\",\"value\":\"{{runid}} Bench Dashboard\"}\n  ok click {\"target\":\"@e252\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e506\"}\n  ok snapshot {}\n  ok fill {\"target\":\"@e822\",\"value\":\"{{runid}} Availability\"}\n  ok click {\"target\":\"@e795\"}\n  FAILED snapshot {\"selector\":\"[role=\\\"dialog\\\"], [aria-label=\\\"Visualization\\\"], div[tabindex]\"}\n  FAILED snapshot {\"selector\":\"[role=\\\"dialog\\\"]\"}\n  ok eval {\"expression\":\"document.querySelector('[aria-label=\\\"Search options\\\"]')?.focus() || 'not found'; document.querySelector…\n  ok eval {\"expression\":\"const input = document.querySelector('input[placeholder=\\\"Search options\\\"], [aria-label=\\\"Search options…\n  ok fill {\"target\":\"@e804\",\"value\":\"Stat\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e1649\"}\n  ok snapshot {}\n  ok fill {\"target\":\"@e804\",\"value\":\"Stat\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e2440\"}\n  ok fill {\"target\":\"@e804\",\"value\":\"stat\"}\n  FAILED click {\"target\":\"@e2440\"}\n  ok eval {\"expression\":\"document.querySelector('[aria-label=\\\"Search options\\\"]') ? document.querySelector('[aria-label=\\\"Search …\n  ok eval {\"expression\":\"Array.from(document.querySelectorAll('[role=\\\"button\\\"],[role=\\\"option\\\"],[tabindex]')).filter(el => el.t…\n  ok eval {\"expression\":\"Array.from(document.querySelectorAll('[role=\\\"button\\\"],[role=\\\"option\\\"],[tabindex]')).slice(0,10).map(e…\nThe browser was left at: http://127.0.0.1:3000/dashboard/new?from=now-6h&to=now&timezone=browser&editPanel=1\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nIn Grafana at http://127.0.0.1:3000/, create a NEW dashboard. Set the dashboard title to exactly '{{runid}} Bench Dashboard'. Add a Stat visualization panel titled exactly '{{runid}} Availability' whose query uses the 'TestData' data source (TestData DB). For the query, use the default scenario (e.g. 'random walk' / default) — no need to change scenario settings. Apply the panel edit, then SAVE the dashboard (click Save, confirm). Report the dashboard URL/UID shown after saving and confirm the save succeeded.",
+      "skill": "s_1a7506",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Grafana, open the existing dashboard at http://127.0.0.1:3000/d/{{02-report.url.p1}}/{{runid}}-bench-dashboard. Add a NEW Text visualization panel. Set the panel title to exactly '{{runid}} Notes' and set the text content to include the runid '{{runid}}' (e.g. 'Bench run notes for {{runid}}'). Apply the panel edit, then SAVE the dashboard and confirm the save succeeded. Report the text panel title and content as shown after saving.",
+      "skill": "s_dfb3ec",
+      "params": {
+        "v1": "Text",
+        "v2": "{{runid}} Notes",
+        "v3": "Bench run notes for {{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.\"\nActions the previous attempt ran (most recent last):\n  ok snapshot {}\n  ok click {\"target\":\"@e5118\"}\n  ok snapshot {}\n  ok batch [2 steps: type, press]\n  FAILED snapshot {\"selector\":\"button\"}\n  ok eval {\"expression\":\"(() => { const btns = Array.from(document.querySelectorAll('button')).filter(b => b.offsetParent !== null…\n  ok click {\"target\":\"\\\"Save dashboard\\\"\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e5522\"}\n  ok click {\"target\":\"@e18\"}\n  ok press {\"key\":\"Escape\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e5264\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e5544\"}\n  ok click {\"target\":\"\\\"Save\\\"\"}\n  ok snapshot {}\n  ok check {\"target\":\"@e5645\"}\n  FAILED snapshot {\"selector\":\"[role=\\\"dialog\\\"]\"}\n  FAILED eval {\"expression\":\"document.querySelector('button:has-text(\\\"Save\\\"):not([disabled])')?.textContent.trim() || 'no enabled sa…\n  ok click {\"target\":\"@e5657\"}\n  FAILED click {\"target\":\"@e5118\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e5535\"}\n  ok read_all {\"target\":\"[role=\\\"group\\\"] button, [class*=\\\"tags\\\"] button, button[aria-label*=\\\"Remove\\\"]\",\"what\":\"text\"}\n  ok eval {\"expression\":\"(() => { const tags = document.querySelectorAll('[class*=\\\"tag\\\"], [class*=\\\"Tag\\\"]'); return JSON.string…\n  FAILED snapshot {\"selector\":\"section, fieldset, [role=\\\"group\\\"], form\"}\n  ok snapshot {}\n  ok eval {\"expression\":\"(() => { const els = Array.from(document.querySelectorAll('button')).filter(b => b.offsetParent !== null …\n  ok click {\"target\":\"@e5671\"}\nThe browser was left at: http://127.0.0.1:3000/d/{{02-report.url.p1}}/{{runid}}-bench-dashboard?from=now-6h&to=now&timezone=browser\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nIn Grafana, open the dashboard at http://127.0.0.1:3000/d/{{02-report.url.p1}}/{{runid}}-bench-dashboard. Do two things: (1) Open dashboard Settings (gear icon) > General, and add the tag 'bench' to the dashboard's tags (type 'bench' in the Tags field and press Enter), then Save the dashboard settings. (2) Set the dashboard's time range to 'Last 6 hours' using the time range picker in the top bar. Then SAVE the dashboard (click the Save button in the top bar and confirm) so these changes persist. Report the tags shown in dashboard settings and the time range shown in the top bar after saving.",
+      "skill": "s_566dd9",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Grafana, open the dashboard at http://127.0.0.1:3000/d/{{02-report.url.p1}}/{{runid}}-bench-dashboard. Set the dashboard's auto-refresh interval to '1m' (1 minute): open the refresh interval dropdown in the top bar (next to the time range picker), select '1m', then SAVE the dashboard (click Save in the top bar, keep 'Update default time range' checked if shown, and confirm) so the refresh interval persists. Report the refresh interval value shown in the top bar after saving.",
+      "skill": "s_5a710b",
+      "params": {
+        "v1": "1 minute"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Grafana, open a fresh page load of http://127.0.0.1:3000/d/{{02-report.url.p1}}/{{runid}}-bench-dashboard (full reload, not from editor state). Verify and report all of the following from the rendered page: (a) the dashboard title shown in the top bar, (b) the titles of all panels on the dashboard, (c) the time range shown in the top bar time picker, (d) the refresh interval shown in the top bar refresh picker, (e) open dashboard Settings > General and report the tags listed. Do not change anything — read only.",
+      "skill": "s_ece8b4",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-open",
+      "instruction": "In Grafana, open http://127.0.0.1:3000/d/{{02-report.url.p1}}/{{runid}}-bench-dashboard. Open the panel editor for the panel titled '{{runid}} Availability' (click its title menu > Edit). In the query editor, report the name of the data source selected for the query (the value in the data source picker dropdown at the top of the query section). Then exit the editor WITHOUT changing anything (click Back to dashboard / Cancel, do not save). Read only.",
+      "skill": "s_93af0b",
+      "params": {
+        "v1": "{{runid}} Availability"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwgr3-n1",
+    "created": "2026-08-26T15:41:11.613Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

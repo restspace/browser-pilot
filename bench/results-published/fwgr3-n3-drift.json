@@ -1,0 +1,38 @@
+[
+  {
+    "flow": "fwgr3",
+    "step": "02-report",
+    "skill": "s_1a7506",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/"
+  },
+  {
+    "flow": "fwgr3",
+    "step": "03-open",
+    "skill": "s_dfb3ec",
+    "atStep": "6",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByTestId('data-testid Panel editor option pane field input Title')",
+    "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+    "fallbackIndex": 2,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bfwcz8dtbw4xsf/:id"
+  },
+  {
+    "flow": "fwgr3",
+    "step": "05-open",
+    "skill": "s_5a710b",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.892,
+    "missedLocator": "page.locator('\"Back to dashboard\"')",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button > span')",
+    "fallbackIndex": 2,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bfwcz8dtbw4xsf/:id"
+  }
+]
