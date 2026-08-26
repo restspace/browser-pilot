@@ -1,0 +1,113 @@
+{
+  "flow": "fwgr4",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with username admin and password admin, skipped the password change prompt, searched for and opened the \"Service health\" dashboard. The dashboard contains 3 panels with titles: \"Request rate\", \"Request rate\", and \"Request rate\".",
+      "values": {
+        "h2": "Error count",
+        "h2_2": "Latency by endpoint",
+        "h2_3": "Request rate"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a66a35; observed visualization=Stat, button= | Details | Changes9 |  | Dashboards | Cancel | Save, panel_title=fwgr4-n3 Availability, dashboard_title=fwgr4-n3 Bench Dashboard.",
+      "values": {
+        "visualization": "Stat",
+        "button": " | Details | Changes9 |  | Dashboards | Cancel | Save",
+        "panel_title": "fwgr4-n3 Availability",
+        "dashboard_title": "fwgr4-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "20/20",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_eeed59; observed panel_titles=fwgr4-n1 Availability, fwgr4-n3 Notes, text_content=Notes for run fwgr4-n3.",
+      "values": {
+        "panel_titles": "fwgr4-n1 Availability, fwgr4-n3 Notes",
+        "text_content": "Notes for run fwgr4-n3"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Added the 'bench' tag via dashboard settings (entered in the \"New tag\" field, confirmed by the \"Remove 'bench' tag\" button appearing), set the time range to \"Last 6 hours\" via the time picker, saved the dashboard with \"Update default time range\" checked — save confirmed with a \"Dashboard saved\" alert. After reloading, settings show the tag 'bench' and the top-right time picker shows \"Last 6 hours\".",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set auto-refresh to '1m' via the time picker dropdown, saved the dashboard with \"Update default refresh value\" checked — confirmed by \"Dashboard saved\" alert. After reloading, the time picker shows \"1m\" as the refresh interval and \"Last 6 hours\" as the time range, both persisted.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 14
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Inspected the dashboard without modifying anything. (1) Dashboard title in breadcrumb: \"fwgr4-n3 Bench Dashboard\". (2) Panel titles visible: \"fwgr4-n3 Notes\" (Text panel showing \"Notes for run fwgr4-n3\") and \"fwgr4-n3 Availability\" (Stat panel showing value \"3.19\" with label \"A-series\"). (3) Time range: \"Last 6 hours\". (4) Auto-refresh interval: \"1m\". (5) Tags: \"bench\" (confirmed in Dashboard Settings > General). (6) Full URL: http://127.0.0.1:3000/d/dfwder81ydb7kc/fwgr4-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Opened the panel editor for \"fwgr4-n3 Availability\" via its title menu > Edit. The panel's visualization type is \"Stat\" and the data source selected in the query editor is \"TestData\" (shown as \"A (TestData)\" in the query row header, with the TestData logo). Then clicked \"Back to dashboard\" without saving any changes.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 502740,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 669719,
+    "completionTokens": 6620,
+    "cachedTokens": 501184
+  },
+  "usageByModel": {
+    "z-ai/glm-5.3": {
+      "promptTokens": 181854,
+      "completionTokens": 2073,
+      "cachedTokens": 170688
+    },
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 487865,
+      "completionTokens": 4547,
+      "cachedTokens": 330496
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,92 @@
+{
+  "flow": "fwgr4",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with username admin and password admin, skipped the password change prompt, searched for and opened the \"Service health\" dashboard. The dashboard contains 3 panels with titles: \"Request rate\", \"Request rate\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Error count",
+        "h2_2": "Request rate",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a66a35; observed visualization=Stat, button= | Details | Changes9 |  | Dashboards | Cancel | Save, panel_title=fwgr4-n2 Availability, dashboard_title=fwgr4-n2 Bench Dashboard.",
+      "values": {
+        "visualization": "Stat",
+        "button": " | Details | Changes9 |  | Dashboards | Cancel | Save",
+        "panel_title": "fwgr4-n2 Availability",
+        "dashboard_title": "fwgr4-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "20/20",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_eeed59; observed panel_titles=fwgr4-n1 Availability, fwgr4-n2 Notes, text_content=Notes for run fwgr4-n2.",
+      "values": {
+        "panel_titles": "fwgr4-n1 Availability, fwgr4-n2 Notes",
+        "text_content": "Notes for run fwgr4-n2"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "blocked",
+      "summary": "Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 30
+    }
+  ],
+  "passed": 3,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr4",
+      "step": "02-create",
+      "skill": "s_a66a35",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.871,
+      "missedLocator": "page.locator('[id=\"_r5m_\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfwdeafwtyio0a/:id"
+    }
+  ],
+  "wallMs": 309905,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 273498,
+    "completionTokens": 3408,
+    "cachedTokens": 254848
+  },
+  "usageByModel": {
+    "z-ai/glm-5.3": {
+      "promptTokens": 273498,
+      "completionTokens": 3408,
+      "cachedTokens": 254848
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
