@@ -1,0 +1,60 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c2ard2-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2ard2",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 34,
+  "wallMs": 477092,
+  "orchestrator": {
+    "input": 20896,
+    "cacheWrite": 0,
+    "cacheRead": 414208,
+    "output": 2368
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 83,
+  "subcommands": {
+    "open": 2,
+    "snapshot": 26,
+    "fill": 13,
+    "click": 22,
+    "wait": 17,
+    "get": 1,
+    "check": 1,
+    "uncheck": 1
+  },
+  "invocationCount": 83,
+  "commandMs": 23639,
+  "commandBytes": 34021,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.1474,
+  "maxUsd": 2,
+  "spendUsd": 0.1474,
+  "finalText": "Final report:\n\n1. **DONE** — Ticket `c2ard2 RD Bench Ticket` created (ref **RD-1015**, customer \"Bench Customer\", created 2026-08-26), visible in the tickets list.\n\n2. **DONE** — Part `c2ard2 RD Part A` added with cost $100.00 and markup 25%. App-computed **PRICE = $125.00** (ticket total then $125.00).\n\n3. **DONE** — Part `c2ard2 RD Part B` added with cost $200.00 and markup 25%. App-computed **PRICE = $250.00** (ticket total then $375.00).\n\n4. **DONE** — Part A cost edited 100 → 150 (cost cell showed $150.00, markup still 25%). App-computed **PRICE = $187.50** (ticket total then $437.50).\n\n5. **DONE** — Status set to **Ready**. Precondition discovered: the app rejected the first \"Mark Ready\" attempt with an alert reading `Ticket is not ready` listing:\n   - `Part \"c2ard2 RD Part A\" has no supplier`\n   - `Part \"c2ard2 RD Part B\" has no supplier`\n\n   So the requirement is that **every part on the ticket must have a supplier**. I set supplier \"Bench Supplier\" on both parts (supplier cells changed from \"No supplier\" to \"Bench Supplier\"), after which \"Mark Ready\" succeeded and the status field read **Ready** (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n6. **DONE** — Both parts deleted via their Delete buttons, each confirmed in a \"Confirm\" dialog (`Delete the part \"c2ard2 RD Part A\" from this ticket? This cannot be undone.` and the equivalent for Part B). The parts table then read `No parts on this ticket yet.` The ticket was then archived: the detail page showed status **Ready** plus an **Archived** badge and the button changed to \"Unarchive ticket\". With \"Show archived\" unchecked the ticket no longer appears in the active list; with it checked it appears as `c2ard2 RD Bench Ticket Archived`, Ready, 0 parts — so nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2ard2-agent-browser-transcript.jsonl"
+}
