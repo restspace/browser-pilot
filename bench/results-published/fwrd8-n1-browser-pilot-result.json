@@ -1,0 +1,96 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "b73a709"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd8-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd8-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 549952,
+  "orchestrator": {
+    "input": 4732,
+    "cacheWrite": 0,
+    "cacheRead": 23936,
+    "output": 1846
+  },
+  "inner": {
+    "promptTokens": 1344158,
+    "cachedTokens": 1111808,
+    "completionTokens": 14132,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1344158,
+        "completionTokens": 14132,
+        "cachedTokens": 1111808,
+        "instructions": 7
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 64,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 505035,
+  "commandBytes": 6283,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd8-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 64,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.021,
+  "maxUsd": 2,
+  "spendUsd": 0.0473,
+  "finalText": "All objectives complete.\n\n**Final report — runid `fwrd8-n1`**\n\n1. **DONE** — Ticket `fwrd8-n1 RD Bench Ticket` created (Ref **RD-1015**), initially status **Draft**, parts 0, created 2026-08-26.\n\n2. **DONE** — Part `fwrd8-n1 RD Part A` added with cost **$100.00**, markup **25%**, qty 1. App-computed price: **$125.00** (100 × 1.25).\n\n3. **DONE** — Part `fwrd8-n1 RD Part B` added with cost **$200.00**, markup **25%**, qty 1. App-computed price: **$250.00** (200 × 1.25). Ticket total at that point: $375.00.\n\n4. **DONE** — Part A's cost changed from 100 to **$150.00** (markup unchanged at 25%). App-computed price afterwards: **$187.50**. Ticket total updated to $437.50.\n\n5. **DONE** — Ticket ended in status **Ready**. Precondition discovered: the first \"Mark Ready\" attempt was refused with the exact message: *\"Ticket is not ready. Part 'fwrd8-n1 RD Part A' has no supplier. Part 'fwrd8-n1 RD Part B' has no supplier.\"* What was required: **every part on the ticket must have a supplier assigned**. I set Part A's supplier to \"Supplier A\" and Part B's supplier to \"Supplier B\"; \"Mark Ready\" then succeeded and the page showed Status: **Ready** (with \"Mark Draft\" / \"Mark Closed\" buttons available).\n\n6. **DONE** — Both parts deleted (each via a confirm dialog); parts table then showed \"No parts on this ticket yet.\" (parts count 0). \"Archive ticket\" was accepted with no further validation — the button changed to \"Unarchive ticket\" and status showed **Archived**. Verified in the list: with \"Show archived\" unchecked, RD-1015 is absent from the 10 active tickets (RD-1004–RD-1014); with it checked, RD-1015 appears tagged \"Archived\", status Ready, parts 0. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd8-n1-browser-pilot-transcript.jsonl"
+}

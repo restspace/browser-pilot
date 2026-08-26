@@ -1,0 +1,91 @@
+[
+  {
+    "flow": "fwrd8",
+    "step": "04-edit",
+    "skill": "s_bd7d48",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd8",
+    "step": "04-edit",
+    "skill": "s_bd7d48",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd8",
+    "step": "04-edit",
+    "skill": "s_bd7d48",
+    "atStep": "4",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd8",
+    "step": "05-set",
+    "skill": "s_853cde",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd8",
+    "step": "06-remove",
+    "skill": "s_8fb37e",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByText('Edit Delete', { exact: true })",
+    "fallbackUsed": "page.locator('section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7)')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  },
+  {
+    "flow": "fwrd8",
+    "step": "06-remove",
+    "skill": "s_8fb37e",
+    "atStep": "5",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+    "fallbackUsed": "page.getByTestId('part-delete-p19')",
+    "fallbackIndex": 2,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  },
+  {
+    "flow": "fwrd8",
+    "step": "07-verify",
+    "skill": "s_cdc628",
+    "similarity": 0.999,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 2 the page did not show \"- row \\\"RD-1015 fwrd8-n3 RD Bench Ticket Archived Not recorded Ready 0 2026-08-26\\\"\" / \"- cell \\\"fwrd8-n3 RD Bench Ticket Archived\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  }
+]
