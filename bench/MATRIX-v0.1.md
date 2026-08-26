@@ -226,3 +226,33 @@ verifiable objectives pass.
 4. Weather effect quantified: playwright-mcp moved <15% between v0.1 and
    v0.2; agent-browser's odoo/grafana costs moved ~10–30%. The v0.1
    comparisons were directionally right; the grid above supersedes them.
+
+## Flows: record once, replay many (browser-pilot only) — EXPERIMENTAL
+
+Everything above is COLD performance: every run independent, no state
+carried. browser-pilot additionally has a warm mode no other arm has an
+equivalent of, so it is reported as its own experiment, never as a grid
+column: one orchestrated run records a flow; later runs replay it with NO
+orchestrator, dropping to the inner model only for steps whose page
+drifted. Protocol: fresh store, run 1 records (--learn + --save-flow),
+runs 2..K replay (`browser-pilot run`), app reset and externally verified
+per run.
+
+Grafana 11, sweep swg4 (2026-08-25, commit db9fcdb):
+
+| run | mode | steps | verified | orchestrator cost | wall |
+|---|---|---|---|---|---|
+| swg4-n1 | record | 17 cmds | 6/6 | $0.21 | 11 min |
+| swg4-n2 | replay | 13/13 | 6/6 | $0 | 12 min |
+| swg4-n3 | replay | 13/13 | 6/6 | $0 | 12 min |
+| swg4-n4 | replay (validation, 2026-08-26 on v0.2.0/8e16746) | 13/13 | 6/6 | $0 | 15 min |
+
+n4 is the currency check: the exact flow re-replayed on the released beta
+build — including the soft-precondition fingerprint gate added after the
+sweep — with no refusals. Honest bounds: "$0" is orchestrator cost; replay
+steps that drop to model recovery still spend inner-model tokens (a few
+cents), and roughly 10 of 13 steps — mostly read-and-report steps — still
+take recovery turns, so replays are cheap, not yet free. Repairdesk flow
+sweeps (2026-08-23, earlier build) replayed 6/6 across every run; odoo and
+atelyr flow sweeps predate replay v2 and are not quoted. Flows are labeled
+experimental in the product for the same reason this section is separate.
