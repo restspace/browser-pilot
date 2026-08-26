@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -545,6 +545,23 @@ export class Daemon {
         // the session model rescuing replay-failed steps too, at a fraction
         // of the strong tier's rate; the cause label still names why.
         recovered = true;
+        // Wrong record, not wrong procedure: every skill refused because the
+        // open page belongs to a different record of the same template. A
+        // model handed that page repairs the step where it stands — fwrd8-n2
+        // added both parts, edited and archived a SEED ticket and reported
+        // success. Put the browser back on the flow's start page so recovery
+        // has to navigate to the record the instruction names.
+        let resetNote = '';
+        if (direct.wrongRecord) {
+          opts.progress(`[flow ${flow.name}] ${step.id}: ${direct.wrongRecord}`);
+          try {
+            const page = await this.browser.getPage();
+            await page.goto(flow.startUrl);
+            resetNote = `\n\n[replay] The browser was showing a different record than this step needs (${direct.wrongRecord}). It has been returned to ${flow.startUrl} — navigate to the record this instruction names before doing anything else.`;
+          } catch {
+            resetNote = `\n\n[replay] The browser is showing a different record than this step needs (${direct.wrongRecord}). Navigate to the record this instruction names before doing anything else.`;
+          }
+        }
         const route = recoveryRoute(step, unresolved);
         const primary = route.easy ? opts.provider : opts.recovery;
         const escalation = route.easy && opts.recovery.model !== opts.provider.model ? opts.recovery : null;
@@ -555,9 +572,9 @@ export class Daemon {
             escalation,
             this.browser,
             this.state,
-            direct.prelude ? `${recoveryText}
+            (direct.prelude ? `${recoveryText}
 
-${direct.prelude}` : recoveryText,
+${direct.prelude}` : recoveryText) + resetNote,
             {
               maxTurns: opts.maxTurns,
               timeoutMs: opts.timeoutMs,
@@ -733,7 +750,7 @@ ${direct.prelude}` : recoveryText,
     progress: (m: string) => void,
     /** Flow replay pins the skill (and may supply its params); without it, fall back to a validated template match. */
     chosen?: { id: string; params?: Record<string, string> },
-  ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord> }> {
+  ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord>; wrongRecord?: string }> {
     const store = this.browser.learn;
     if (!store || !this.browser.isOpen) return {};
     let url: string;
@@ -760,13 +777,19 @@ ${direct.prelude}` : recoveryText,
     let match: { skill: import('../skills/store.js').Skill; params: Record<string, string> } | null = null;
     let replay: NonNullable<Awaited<ReturnType<typeof executeTool>>['replay']> | null = null;
     let attempts = 0;
+    let wrongRecord: string | undefined;
     for (const cand of candidates) {
       if (attempts >= MAX_CANDIDATE_ATTEMPTS) break;
       progress(`[skill] trying ${cand.skill.id} (${cand.skill.status}, ${cand.skill.stats.successes}/${cand.skill.stats.uses}) without the model`);
       const execution = await executeTool(this.browser, 'run_skill', { id: cand.skill.id, params: cand.params }, screenshotDir, signal);
       const r = execution.replay;
       if (!r) return {};
-      if (r.refused) continue; // wrong page / bad params: nothing ran, free to try the next
+      if (r.refused) {
+        // Right template, wrong record: no other skill can fix that, so keep
+        // the reason and let the caller re-establish the page (see below).
+        if (r.wrongRecord) wrongRecord = r.wrongRecord;
+        continue; // wrong page / bad params: nothing ran, free to try the next
+      }
       attempts++;
       match = cand;
       replay = r;
@@ -782,7 +805,7 @@ ${direct.prelude}` : recoveryText,
       }
       break; // partial: the page has changed — hand what ran to recovery, never restart another candidate
     }
-    if (!match || !replay) return {};
+    if (!match || !replay) return wrongRecord ? { wrongRecord } : {};
 
     // Walk the segment chain: a multi-segment skill replays segment by
     // segment, each gated by its own precondition. A cleanly-replayed
@@ -920,8 +943,8 @@ function provenanceValues(outputs: Record<string, Record<string, string>>): Reco
 function referencedValues(step: { instruction: string; params?: Record<string, string> }, outputs: Record<string, Record<string, string>>): Record<string, string> {
   const out: Record<string, string> = {};
   for (const text of [step.instruction, ...Object.values(step.params ?? {})]) {
-    for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.-]+)\}\}/g)) {
-      const v = outputs[m[1]]?.[m[2]];
+    for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.#-]+)\}\}/g)) {
+      const v = lookupOutput(outputs, m[1], m[2]);
       if (v) out[`${m[1]}.${m[2]}`] = v;
     }
   }

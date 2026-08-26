@@ -1,6 +1,7 @@
 import type { BrowserSession } from '../daemon/browser.js';
 import type { SessionState } from '../daemon/state.js';
 import type { ChatMessage, Provider, ToolDef } from './llm.js';
+import { captureSignature } from '../daemon/diff.js';
 import { fingerprintPage } from '../daemon/fingerprint.js';
 import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/replay.js';
 import { componentsOnPage, renderComponents } from '../skills/components.js';
@@ -718,9 +719,12 @@ const LOCATE_TOOL: ToolDef = {
 };
 
 /** What the stored-skill listing contributes to an instruction's first message. */
+/** Cap on the recorded instruction-start page text (identity evidence, not a snapshot). */
+const START_TEXT_BUDGET = 8000;
+
 async function offerSkills(
   browser: BrowserSession,
-): Promise<{ ids: string[]; text: string; context: { url?: string; fingerprint?: number[] } }> {
+): Promise<{ ids: string[]; text: string; context: { url?: string; fingerprint?: number[]; startText?: string } }> {
   const none = { ids: [], text: '', context: {} };
   if (!browser.learn || !browser.isOpen) return none;
   try {
@@ -735,10 +739,15 @@ async function offerSkills(
     // it does not improvise long keyboard workarounds.
     const components = renderComponents(await componentsOnPage(page));
     const text = [renderCandidates(candidates), components].filter(Boolean).join('\n');
+    // Which RECORD this page showed when the instruction started, capped: the
+    // evidence compile needs to give a skill an identity precondition (see
+    // RecordedInstruction.startText).
+    const sig = await captureSignature(page);
+    const startText = sig ? sig.lines.join('\n').slice(0, START_TEXT_BUDGET) : undefined;
     return {
       ids: candidates.map((s) => s.id),
       text,
-      context: { url, ...(fingerprint ? { fingerprint } : {}) },
+      context: { url, ...(fingerprint ? { fingerprint } : {}), ...(startText ? { startText } : {}) },
     };
   } catch {
     return none;

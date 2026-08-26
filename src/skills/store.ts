@@ -16,7 +16,20 @@ export interface Skill {
   /** The instruction with its literal values replaced by {{vN}} slots. */
   template: string;
   params: Record<string, SkillParam>;
-  preconditions: { urlPattern: string; fingerprint?: number[] };
+  preconditions: {
+    urlPattern: string;
+    fingerprint?: number[];
+    /**
+     * Identity: parameterised text ("{{v2}}") the page showed when this
+     * segment started recording, and must show again before it replays. The
+     * url pattern says the page is the right TEMPLATE and the fingerprint
+     * says it is the right SHAPE; neither can tell one record from another,
+     * so a replay would happily run a ticket's procedure on a different
+     * ticket (fwrd8-n2/n3 added parts to a seed ticket and passed every
+     * other gate). Only caller-vouched values qualify — see SkillParam.known.
+     */
+    requireText?: string[];
+  };
   steps: SkillStep[];
   /** The report the original run produced, with slots, for the zero-LLM path. */
   reportTemplate?: { summary: string; values: Record<string, string> };
@@ -48,6 +61,14 @@ export interface SkillParam {
   example: string;
   /** 1-based indices of the steps that use this slot. */
   usedIn: number[];
+  /**
+   * The caller vouched for this value (a declared flow var, url provenance, a
+   * threaded {{step.output}} ref) rather than the compiler guessing it from
+   * repeated text. Known values IDENTIFY the record the procedure runs on, so
+   * replay treats them as identity: a fallback locator that drops the value
+   * is not an acceptable substitute for the primary that carried it.
+   */
+  known?: true;
 }
 
 export interface SkillStep {

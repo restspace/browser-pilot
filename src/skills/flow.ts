@@ -167,11 +167,12 @@ export function buildFlow(
       for (const part of urlParts(g.endUrl)) {
         const fresh = !seenUrl.has(part.value);
         seenUrl.add(part.value);
-        // No digit requirement here, unlike compile-level derived params:
-        // grafana mints digitless uids ("cfwcsdxqdjabkf" sank fwgr2), and at
-        // the FLOW level a false positive is only a self-identity ref that
-        // re-binds to the same value — it cannot wildcard a precondition.
-        if (!fresh || part.value.length < 4) continue;
+        // Looser than compile-level derived params, which demand a digit:
+        // grafana mints digitless uids ("cfwcsdxqdjabkf" sank fwgr2), so
+        // identifierLike() accepts a long word too. It still refuses short
+        // route words — "tickets" out of a url was being substituted into
+        // fwrd8's verify prose ("on the {{01-open.url.h0}} list").
+        if (!fresh || part.value.length < 4 || !identifierLike(part.value)) continue;
         if (produced.some((p) => p.value === part.value) || varEntries.some(([, v]) => v === part.value)) continue;
         minted.push({ stepId: id, output: `url.${part.label}`, value: part.value });
       }
@@ -181,6 +182,18 @@ export function buildFlow(
       if (typeof value !== 'string' || !value) continue;
       if (minted.some((m) => m.value === value)) continue;
       produced.push({ stepId: id, output, value });
+      // An id can be minted where no url ever carries it: an app that saves
+      // over its own API answers with JSON, and the run reads that answer
+      // back rather than navigating. fwgr5 created its dashboard exactly so —
+      // the uid existed only inside the response body — and every later step
+      // kept n1's literal uid, which is what made those steps re-derive it on
+      // the cheap model on every replay. Publish the JSON's scalar leaves
+      // under `{{step.output#path}}`: a tier-A replay re-observes the read,
+      // so the path re-reads THIS run's value.
+      for (const leaf of jsonLeaves(value)) {
+        if (produced.some((p) => p.value === leaf.value) || varEntries.some(([, v]) => v === leaf.value)) continue;
+        produced.push({ stepId: id, output: `${output}#${leaf.path}`, value: leaf.value });
+      }
     }
   });
 
@@ -271,14 +284,16 @@ export function lintFlowRefs(flow: Flow, publishes: (skillId: string) => string[
   for (const step of flow.steps) {
     const texts = [step.instruction, ...Object.values(step.params ?? {})];
     for (const text of texts) {
-      for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.-]+)\}\}/g)) {
+      for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.#-]+)\}\}/g)) {
         const [, sid, out] = m;
         if (out.startsWith('url.')) continue;
         const producer = byId.get(sid);
         if (!producer || seen.has(`${sid}.${out}`)) continue;
         seen.add(`${sid}.${out}`);
         const pubs = producer.skill ? publishes(producer.skill) : [];
-        if (pubs === null || pubs.includes(out)) continue;
+        // A JSON-path ref (`body#dashboard.uid`) lives or dies with the read
+        // that publishes `body`; the path itself is applied after the fact.
+        if (pubs === null || pubs.includes(out.split('#')[0])) continue;
         warnings.push(
           `{{${sid}.${out}}} (used by ${step.id}) can only be re-observed by model recovery — ` +
             `consider re-recording so the value is read from the page.`,
@@ -289,14 +304,38 @@ export function lintFlowRefs(flow: Flow, publishes: (skillId: string) => string[
   return warnings;
 }
 
+/**
+ * One step output, with support for a JSON path suffix: `body#dashboard.uid`
+ * reads the `body` output, parses it as JSON, and walks the path. That is how
+ * an id an app only ever returned in a response body gets threaded — see the
+ * jsonLeaves() publication in buildFlow.
+ */
+export function lookupOutput(outputs: Record<string, Record<string, string>>, sid: string, out: string): string | undefined {
+  const hash = out.indexOf('#');
+  if (hash < 0) return outputs[sid]?.[out];
+  const base = outputs[sid]?.[out.slice(0, hash)];
+  if (base === undefined) return undefined;
+  let node: unknown;
+  try {
+    node = JSON.parse(base);
+  } catch {
+    return undefined;
+  }
+  for (const key of out.slice(hash + 1).split('.')) {
+    if (node === null || typeof node !== 'object') return undefined;
+    node = (node as Record<string, unknown>)[key];
+  }
+  return typeof node === 'string' || typeof node === 'number' ? String(node) : undefined;
+}
+
 /** Fill {{var}} and {{step.output}} references from run vars and prior outputs. */
 export function resolveInstruction(step: FlowStep, vars: Record<string, string>, outputs: Record<string, Record<string, string>>): { text: string; missing: string[] } {
   const missing: string[] = [];
-  const text = step.instruction.replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
+  const text = step.instruction.replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
     if (ref.includes('.')) {
       const dot = ref.indexOf('.');
       const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-      const v = outputs[sid]?.[out];
+      const v = lookupOutput(outputs, sid, out);
       if (v === undefined) {
         missing.push(ref);
         return m;
@@ -318,11 +357,11 @@ export function resolveInstruction(step: FlowStep, vars: Record<string, string>,
  */
 export function softResolveInstruction(step: FlowStep, vars: Record<string, string>, outputs: Record<string, Record<string, string>>): string {
   return step.instruction
-    .replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
+    .replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
       if (ref.includes('.')) {
         const dot = ref.indexOf('.');
         const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-        return outputs[sid]?.[out] ?? '';
+        return lookupOutput(outputs, sid, out) ?? '';
       }
       return ref in vars ? vars[ref] : '';
     })
@@ -340,11 +379,11 @@ export function resolveStepParams(
   const params: Record<string, string> = {};
   const missing: string[] = [];
   for (const [k, tmpl] of Object.entries(step.params)) {
-    params[k] = tmpl.replace(/\{\{([\w.-]+)\}\}/g, (m, ref: string) => {
+    params[k] = tmpl.replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
       if (ref.includes('.')) {
         const dot = ref.indexOf('.');
         const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-        const v = outputs[sid]?.[out];
+        const v = lookupOutput(outputs, sid, out);
         if (v === undefined) { missing.push(ref); return m; }
         return v;
       }
@@ -354,4 +393,48 @@ export function resolveStepParams(
     });
   }
   return { params, missing };
+}
+
+/** Cap on JSON leaves published per read value, and how deep to walk. */
+const MAX_JSON_LEAVES = 12;
+const MAX_JSON_DEPTH = 4;
+
+/**
+ * Identifier-like: a value specific enough to be a REFERENCE rather than a
+ * word the app happens to use. A route word ("tickets", "dashboards") is a
+ * common lowercase noun; a minted id carries a digit, a separator, or the
+ * length of a generated uid. Without this guard, flow export referencized the
+ * word "tickets" out of a url and substituted it into the prose of fwrd8's
+ * verify step ("on the {{01-open.url.h0}} list") — harmless there, but the
+ * same substitution in a locator name would be a wildcarded procedure.
+ */
+function identifierLike(value: string): boolean {
+  return /\d/.test(value) || /[-_]/.test(value) || value.length >= 12;
+}
+
+/** Scalar leaves of a JSON read value, as `path` (dot/index joined) + value. */
+export function jsonLeaves(text: string): { path: string; value: string }[] {
+  const trimmed = text.trim();
+  if (!(trimmed.startsWith('{') || trimmed.startsWith('['))) return [];
+  let root: unknown;
+  try {
+    root = JSON.parse(trimmed);
+  } catch {
+    return [];
+  }
+  const out: { path: string; value: string }[] = [];
+  const walk = (node: unknown, path: string, depth: number): void => {
+    if (out.length >= MAX_JSON_LEAVES || depth > MAX_JSON_DEPTH) return;
+    if (node !== null && typeof node === 'object') {
+      for (const [k, v] of Object.entries(node as Record<string, unknown>)) walk(v, path ? `${path}.${k}` : k, depth + 1);
+      return;
+    }
+    if (typeof node !== 'string' && typeof node !== 'number') return;
+    const value = String(node);
+    if (value.length < 4 || value.length > 120 || !identifierLike(value)) return;
+    if (!path) return;
+    out.push({ path, value });
+  };
+  walk(root, '', 0);
+  return out;
 }

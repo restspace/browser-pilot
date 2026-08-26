@@ -74,6 +74,15 @@ export interface ReplayResult {
   url: string;
   /** The replay never started (wrong page / bad params) — nothing was touched. */
   refused?: boolean;
+  /**
+   * The refusal was an IDENTITY mismatch: right template, wrong record. The
+   * caller cannot fix this by trying another skill — every skill for this
+   * procedure will refuse the same page — so the flow runner returns the
+   * browser to the flow's start url before recovery, instead of letting a
+   * model "repair" the step on whatever record happens to be open (which is
+   * how fwrd8-n2/n3 did the whole flow's work on a seed ticket).
+   */
+  wrongRecord?: string;
 }
 
 const MAX_LINE = 160;
@@ -164,6 +173,23 @@ export async function replaySkill(
     res.generalisations.push({ kind: 'precondition', pattern: soft.generalised });
   }
 
+  // Identity: the url pattern and the fingerprint both match every record of
+  // this template, so neither can tell ticket t15 from ticket t14. A segment
+  // that started on a page showing caller-vouched values must find them
+  // again, or it is about to do this run's work on someone else's record.
+  // Skipped for a self-navigating procedure: step 1 decides the page.
+  if (!navigatesItself && skill.preconditions.requireText?.length) {
+    for (const marker of skill.preconditions.requireText) {
+      const want = fillParams(marker, params);
+      if (!want || /\{\{/.test(want)) continue; // unbound marker proves nothing
+      if (await presentOnPage(page, [want])) continue;
+      res.refused = true;
+      res.wrongRecord = `the page at ${urlPattern(page.url())} does not show ${JSON.stringify(clip(want, 60))} — it matches this procedure's page template but is a different record — nothing was run`;
+      res.reason = res.wrongRecord;
+      return res;
+    }
+  }
+
   // One step against the live page. Mutates `res` (lines/warnings/values/
   // stepsRun) and returns how it went; a 'stop' has already set failedAt/reason.
   // `tag` labels the step for humans (e.g. "5" or, inside a loop, "9.2.1");
@@ -199,7 +225,15 @@ export async function replaySkill(
     for (const key of ['target', 'source']) {
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
-      const hit = await resolveChain(page, chain, typeof args[key] === 'string' ? String(args[key]) : '', step.tool === 'read_all', ambiguousNth);
+      const identity = identityOfPrimary(step.locators[key]?.[0], skill, params);
+      const hit = await resolveChain(
+        page,
+        chain,
+        typeof args[key] === 'string' ? String(args[key]) : '',
+        step.tool === 'read_all',
+        ambiguousNth,
+        identity,
+      );
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
         res.misses.push({ step: tag, key, primary: chain[0] ? candidateExpr(chain[0]) : '(none recorded)', used: null });
@@ -439,10 +473,23 @@ export async function replaySkill(
       // Settle first: a delete's row removal landing late would otherwise
       // advance the cursor and make the next iteration skip a record.
       await settleDom(page);
-      const after = await (async () => {
-        const c = await resolveChain(page, fillParamsDeep(guard, params) as LocatorCandidate[], '', true);
-        return c ? await c.locator.count().catch(() => 0) : 0;
-      })();
+      // Recount with the SAME candidate that produced `remaining`. Re-walking
+      // the chain can answer from a different rung — the recorded guard
+      // `[data-testid="del-1"]` matches 1 before its row goes and 0 after, but
+      // the chain then falls through to a generic `button "Remove"` matching
+      // the OTHER rows, so a shrink read as growth, advanced the cursor, and
+      // left the last row undeleted while the loop reported success.
+      const count = async (): Promise<number> => makeLocator(page, hit!.candidate).count().catch(() => 0);
+      // Poll for the shrink rather than reading the count once: a row that
+      // leaves the DOM a beat after the click would otherwise look like an
+      // edit-in-place, advance the cursor, and make a delete loop skip a
+      // record — and then stop early on `cursor >= remaining`, leaving the
+      // list part-cleared while reporting success.
+      let after = await count();
+      for (let waited = 0; after >= remaining && waited < LOOP_SHRINK_WAIT_MS; waited += LOOP_SHRINK_POLL_MS) {
+        await page.waitForTimeout(LOOP_SHRINK_POLL_MS);
+        after = await count();
+      }
       if (after >= remaining) cursor++;
       prevRemaining = remaining;
       iter++;
@@ -500,17 +547,48 @@ export async function resolveChain(
    * to one recorded row, which is how fwrd4l edited part A seven times.
    */
   ambiguousNth?: number,
+  /**
+   * Identity the PRIMARY candidate carried: values the caller vouched for
+   * that named the record this step acts on ("fwrd8-n2 RD Bench Ticket").
+   * A fallback candidate is a different way of finding the SAME element, so
+   * it must still land on something bearing that text — the positional and
+   * record-id fallbacks recorded beside it are pinned to the recorded run's
+   * row and id, and following one silently moves the whole procedure onto
+   * another record (fwrd8-n2/n3 worked a seed ticket to completion this
+   * way). When no fallback qualifies, the step fails to recovery, which is
+   * cheap; acting on the wrong record is not.
+   */
+  requireIdentity: string[] = [],
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
+  /** Does this fallback still identify the record the primary named? */
+  const keepsIdentity = async (index: number, candidate: LocatorCandidate, locator: Locator): Promise<boolean> => {
+    if (index === 0 || !requireIdentity.length) return true;
+    const expr = JSON.stringify(candidate);
+    const wanted = requireIdentity.filter((v) => !expr.includes(v));
+    if (!wanted.length) return true;
+    let text: string;
+    try {
+      text = ((await locator.first().textContent({ timeout: 1_000 })) ?? '').replace(/\s+/g, ' ');
+    } catch {
+      return false;
+    }
+    return wanted.every((v) => text.toLowerCase().includes(v.toLowerCase()));
+  };
   for (const [index, candidate] of candidates.entries()) {
     try {
       const locator = makeLocator(page, candidate);
       const count = await locator.count();
-      if (count === 1) return { locator, index, candidate };
+      if (count === 1) {
+        if (!(await keepsIdentity(index, candidate, locator))) continue;
+        return { locator, index, candidate };
+      }
       if (count > 1) {
         if (allowMultiple) return { locator, index, candidate };
         if (ambiguousNth !== undefined && candidate.nth === undefined && ambiguousNth < count) {
-          return { locator: locator.nth(ambiguousNth), index, candidate: { ...candidate, nth: ambiguousNth } };
+          const picked = locator.nth(ambiguousNth);
+          if (!(await keepsIdentity(index, candidate, picked))) continue;
+          return { locator: picked, index, candidate: { ...candidate, nth: ambiguousNth } };
         }
         if (candidate.nth === undefined && index === 0) continue; // was unique; ambiguity is drift, keep looking
       }
@@ -519,6 +597,29 @@ export async function resolveChain(
     }
   }
   return null;
+}
+
+/**
+ * The identity values the primary locator carried: known ({{known}}) slots
+ * whose value the recorded run used to NAME the target by its visible text.
+ * Only text-bearing locator kinds count — a slot inside a css selector or a
+ * testid is an address, not a name, and holding a fallback to it would break
+ * ordinary form fills whose fallbacks are structural by design.
+ */
+export function identityOfPrimary(primary: LocatorCandidate | undefined, skill: Skill, params: Record<string, string>): string[] {
+  if (!primary) return [];
+  const c = primary as { name?: string; text?: string; label?: string };
+  const named = [c.name, c.text, c.label].filter((v): v is string => typeof v === 'string');
+  if (!named.length) return [];
+  const out = new Set<string>();
+  for (const field of named) {
+    for (const m of field.matchAll(/\{\{(v\d+)\}\}/g)) {
+      if (!skill.params[m[1]]?.known) continue;
+      const value = params[m[1]];
+      if (value && value.length >= 3) out.add(value);
+    }
+  }
+  return [...out];
 }
 
 /**
@@ -549,6 +650,10 @@ async function linkToDestination(
   if (!hits.length || new Set(hits.map((h) => h.abs)).size !== 1) return null;
   return { selector: `a[href="${hits[0].attr.replace(/(["\\])/g, '\\$1')}"]`, href: hits[0].abs };
 }
+
+/** How long a loop iteration waits for its record to leave the guard's match set. */
+const LOOP_SHRINK_WAIT_MS = 1_000;
+const LOOP_SHRINK_POLL_MS = 100;
 
 const SETTLE_QUIET_MS = 250;
 const SETTLE_MAX_MS = 2_000;

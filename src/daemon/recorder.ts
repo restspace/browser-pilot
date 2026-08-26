@@ -134,6 +134,15 @@ export interface RecordedInstruction {
   /** Structural fingerprint of that page (learning mode; see fingerprint.ts). */
   fingerprint?: number[];
   /**
+   * The page's visible signature text when the instruction started, capped.
+   * Textual counterpart to `fingerprint`: the fingerprint says which TEMPLATE
+   * the page was, this says which RECORD it showed. Compile turns the
+   * caller-vouched values visible here into the skill's identity
+   * precondition, so a replay cannot run a ticket's procedure on a different
+   * ticket that happens to share the template (fwrd8 did exactly that).
+   */
+  startText?: string;
+  /**
    * This entry continues the immediately preceding instruction after an
    * escalation — `text` is the ORIGINAL caller wording, not the resume
    * scaffold the model was shown, and `url`/`fingerprint` describe wherever
@@ -225,7 +234,7 @@ export class ScriptRecorder {
   }
 
   /** Mark the start of one `do` instruction; becomes a test.step in the script. */
-  beginInstruction(text: string, context: { url?: string; fingerprint?: number[]; resume?: true } = {}): void {
+  beginInstruction(text: string, context: { url?: string; fingerprint?: number[]; startText?: string; resume?: true } = {}): void {
     this.append({ k: 'instruction', text, ...context });
   }
 

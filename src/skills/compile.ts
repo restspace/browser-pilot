@@ -47,6 +47,12 @@ interface Segment {
   steps: RecordedStep[];
   startUrl: string;
   fingerprint?: number[];
+  /**
+   * What the page showed where this segment starts: the instruction-start
+   * snapshot for segment 0, the seam step's added lines for the rest. The
+   * evidence behind `preconditions.requireText` — see identityText().
+   */
+  startText?: string;
 }
 
 /**
@@ -98,7 +104,12 @@ export function compileSkills(input: CompileInput): Skill[] {
   // with a DIFFERENT pattern ends its segment; the recorder's fingerprintAfter
   // (when captured) becomes the next segment's precondition.
   const segments: Segment[] = [];
-  let seg: Segment = { steps: [], startUrl, ...(head?.fingerprint ? { fingerprint: head.fingerprint } : {}) };
+  let seg: Segment = {
+    steps: [],
+    startUrl,
+    ...(head?.fingerprint ? { fingerprint: head.fingerprint } : {}),
+    ...(head?.startText ? { startText: head.startText } : {}),
+  };
   let currentUrl = startUrl;
   for (const step of kept) {
     seg.steps.push(step);
@@ -107,7 +118,12 @@ export function compileSkills(input: CompileInput): Skill[] {
       currentUrl = step.diff.url;
       if (crossed) {
         segments.push(seg);
-        seg = { steps: [], startUrl: currentUrl, ...(step.fingerprintAfter ? { fingerprint: step.fingerprintAfter } : {}) };
+        seg = {
+          steps: [],
+          startUrl: currentUrl,
+          ...(step.fingerprintAfter ? { fingerprint: step.fingerprintAfter } : {}),
+          ...(step.diff?.added?.length ? { startText: step.diff.added.join('\n') } : {}),
+        };
       }
     }
   }
@@ -215,7 +231,10 @@ export function compileSkills(input: CompileInput): Skill[] {
 
   return built.map((b, k) => {
     const params: Record<string, SkillParam> = {};
-    for (const name of keptSlots.keys()) params[name] = b.segParams[name];
+    for (const name of keptSlots.keys()) {
+      const value = keptSlots.get(name) ?? '';
+      params[name] = { ...b.segParams[name], ...(derivesFromKnown(value, knownVals) ? { known: true as const } : {}) };
+    }
     return {
       id: newSkillId(origin, of > 1 ? `${finalTemplate}#${k}` : finalTemplate, now),
       origin,
@@ -224,6 +243,9 @@ export function compileSkills(input: CompileInput): Skill[] {
       preconditions: {
         urlPattern: urlPattern(b.sg.startUrl, new Map([...slots, ...b.mintedForStart])),
         ...(b.sg.fingerprint ? { fingerprint: b.sg.fingerprint } : {}),
+        ...(identityOf(b.sg.startText, keptSlots, knownVals).length
+          ? { requireText: identityOf(b.sg.startText, keptSlots, knownVals) }
+          : {}),
       },
       steps: b.folded,
       ...(segDerived[k] ? { derived: segDerived[k] } : {}),
@@ -236,6 +258,49 @@ export function compileSkills(input: CompileInput): Skill[] {
       provenance: { session: input.session, instruction: input.instruction, ...(input.model ? { model: input.model } : {}), created: now },
     };
   });
+}
+
+const MIN_IDENTITY_LEN = 4;
+const MAX_IDENTITY = 2;
+
+/**
+ * Which caller-vouched values the page ALREADY showed where this segment
+ * starts — the segment's identity precondition, as slot markers so replay
+ * checks the live run's own values.
+ *
+ * Only known values qualify (the runid, a threaded ref, url provenance): they
+ * are the ones that name the record the caller means, and a value the
+ * compiler merely inferred from repeated text could easily be page furniture.
+ * A value the segment is about to TYPE is not on the page yet, so it never
+ * qualifies either — which is what keeps this from refusing a create step.
+ */
+/**
+ * Caller-vouched, or built out of something the caller vouched for: the
+ * ticket TITLE ("r9-n2 RD Bench Ticket") is as run-scoped as the runid inside
+ * it, and it is usually the title — not the bare runid — that survives as a
+ * slot, because the longer value swallows the shorter one. Treating only the
+ * exact known value as identity would therefore lose identity on exactly the
+ * skills that need it.
+ */
+function derivesFromKnown(value: string, known: Set<string>): boolean {
+  if (known.has(value)) return true;
+  for (const k of known) {
+    if (k.length < 3 || k.length === value.length) continue;
+    if (new RegExp(`(?<![A-Za-z0-9])${escapeRe(k)}(?![A-Za-z0-9])`).test(value)) return true;
+  }
+  return false;
+}
+
+function identityOf(startText: string | undefined, slots: Map<string, string>, known: Set<string>): string[] {
+  if (!startText) return [];
+  const out: string[] = [];
+  for (const [name, value] of slots) {
+    if (out.length >= MAX_IDENTITY) break;
+    if (!derivesFromKnown(value, known) || value.length < MIN_IDENTITY_LEN || /^https?:/i.test(value)) continue;
+    if (!startText.includes(value)) continue;
+    out.push(`{{${name}}}`);
+  }
+  return out;
 }
 
 const MIN_MINTED_LEN = 4;
