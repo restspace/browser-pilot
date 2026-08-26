@@ -1,0 +1,61 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2aod2",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 58,
+  "wallMs": 645424,
+  "orchestrator": {
+    "input": 49196,
+    "cacheWrite": 0,
+    "cacheRead": 1334080,
+    "output": 5501
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 127,
+  "subcommands": {
+    "open": 4,
+    "get": 6,
+    "snapshot": 37,
+    "fill": 7,
+    "click": 29,
+    "wait": 30,
+    "dblclick": 2,
+    "press": 3,
+    "eval": 9
+  },
+  "invocationCount": 127,
+  "commandMs": 63663,
+  "commandBytes": 117964,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.4399,
+  "maxUsd": 2,
+  "spendUsd": 0.4399,
+  "finalText": "All objectives verified. The customer record shows name \"c2aod2 Bench Customer\" with City \"Benchville\", linked to 1 sale (S00022).\n\nFinal report:\n\n1. **DONE** — Customer `c2aod2 Bench Customer` created (res.partner id 45), City = `Benchville`. Verified on the saved partner form: heading \"c2aod2 Bench Customer\", City textbox value \"Benchville\", \"1 Sales\" linked.\n\n2. **DONE** — Quotation `S00022` created for that customer with one order line: product **Customizable Desk** ([FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.), quantity 3, unit price auto-filled **750.00**, untaxed amount **£2,250.00** (totals block read: Untaxed Amount £2,250.00 / TAX 20% £450.00 / Total £2,700.00).\n\n3. **DONE** — Second line added: product **[FURN_6666] Acoustic Bloc Screens**, quantity 2, unit price 295.00, line amount £590.00. New untaxed amount **£2,840.00** (TAX 20% £568.00 / Total £3,408.00).\n\n4. **DONE** — First line quantity changed 3 → 5 (line amount £3,750.00). New untaxed amount **£4,340.00** (TAX 20% £868.00 / Total £5,208.00).\n\n5. **DONE** — Quotation confirmed. Order reference **S00022**, status shown **\"Sales Order\"** (status bar: `...Cancelled | Sales Order | Quotation Sent | Quotation` with Sales Order active; \"Create Invoice\" button appeared).\n\n6. **DONE** — Sales order cancelled via the Cancel wizard (chose \"Cancel\" rather than \"Send and cancel\"). Status shown afterwards: **\"Cancelled\"** (status bar: `...Cancelled | Sales Order | Quotation Sent | Quotation` with Cancelled active; only \"Set to Quotation\" / \"Preview\" remain). Nothing from this run stays active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2aod2-agent-browser-transcript.jsonl"
+}
