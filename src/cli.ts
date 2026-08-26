@@ -29,9 +29,9 @@ Usage:
   browser-pilot skills rm <id>
   browser-pilot skills clear --origin <origin> | --all
   browser-pilot skills repair --drift <run-drift.json> [--dry-run] [--model M]   # post-session repair: drain a run's drift tickets
-  browser-pilot var <name>=<value>          # declare a run variable (learning session; becomes {{name}} in a flow)
-  browser-pilot flow list | show <name>     # saved flows (recorded sessions you can replay with run)
-  browser-pilot run <flow> [--var k=v ...]  # replay a saved flow deterministically, repairing drifted steps
+  browser-pilot var <name>=<value>          # EXPERIMENTAL: declare a run variable (becomes {{name}} in a flow)
+  browser-pilot flow list | show <name>     # EXPERIMENTAL: saved flows (recorded sessions you can replay with run)
+  browser-pilot run <flow> [--var k=v ...]  # EXPERIMENTAL: replay a saved flow, repairing drifted steps
   browser-pilot screenshot [path]
   browser-pilot session list
   browser-pilot stop [--all] [--save-flow <name>]

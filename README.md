@@ -55,6 +55,23 @@ cp skills/browser-pilot/SKILL.md ~/.claude/skills/browser-pilot/SKILL.md
 
 Edit the repo copy, never the installed one — otherwise changes are lost on the next refresh.
 
+## Quickstart (5 minutes)
+
+```sh
+browser-pilot doctor                                # install sanity: node, browser, provider, key
+export NOVITA_API_KEY=...                           # or any provider preset (see Providers)
+browser-pilot config set provider novita
+
+browser-pilot open https://demo.playwright.dev/todomvc
+browser-pilot do "Add two todos: 'write the report' and 'send it'.   Tick the first one off, then report how many items the footer counter shows as left."
+```
+
+The `do` returns one JSON-shaped report: `{status, summary, evidence}` — the counter value it
+reports was read back from the live page, not assumed. Add `--verbose` to watch the internal
+agent work, `--headed` to watch the browser itself. Run the same `do` again with `--learn` on the
+session and the second execution replays the stored procedure instead of re-reasoning
+(`browser-pilot skills list` shows what it kept).
+
 ## The outer-agent usage contract
 
 ```sh
@@ -264,7 +281,12 @@ facts established in step 3 are still available in step 4. Use `note` for anythi
 outlive an instruction verbatim, and `reset` to clear the conversation while keeping the browser,
 cookies, briefing, and notes.
 
-## Flows: record a whole session, replay it deterministically
+## Flows: record a whole session, replay it deterministically — EXPERIMENTAL
+
+> **Beta status**: `do` + learning/skills are the supported surface — they are what the benchmark
+> grid measures. Flows (record-once/replay-many whole sessions) work end-to-end on real apps but
+> are newer: replays still fall back to model recovery on observation-heavy steps, and the
+> interface may change. Use them, expect rough edges, report what breaks.
 
 A skill makes one instruction cheap on repeat. A **flow** makes a *whole session* cheap: the orchestrator
 drives browser-pilot normally the first time — deciding each step as it goes, reacting to what it sees —
@@ -351,6 +373,12 @@ The LLM layer is a generic OpenAI-compatible adapter with named presets:
 | `openrouter` | `https://openrouter.ai/api/v1` | `z-ai/glm-5.2` | — | `OPENROUTER_API_KEY` |
 | `openai` | `https://api.openai.com/v1` | `gpt-5-mini` | — | `OPENAI_API_KEY` |
 
+What a run costs, from the externally-verified benchmark (bench/MATRIX-v0.1.md, v0.2 addendum;
+orchestrator glm-5.3, inner deepseek-v4-flash with glm-5.3 escalation): a 6-objective task on a
+small in-repo app ran **$0.05–$0.16**; on Odoo 17 **$0.06–$0.22**; on Grafana 11 **$0.17–$0.50**
+— roughly 10–20 minutes wall per run, every run verified against the app's own API. Your costs
+scale with page weight and instruction count, not with app complexity per se.
+
 Every field resolves with the precedence **flag > env > config file > preset**:
 
 - flags: `--provider`, `--model`, `--base-url`, `--fallback-model` (per `do` call)
@@ -411,6 +439,38 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
 | `--turn-timeout` | 90 | wall-clock seconds for a single LLM call; a turn that produces no tool call by then is aborted and retried with a nudge, and three such turns in a row end the instruction. Stops a model from spending the whole `--timeout` reasoning inside one request. |
+
+## Writing a briefing
+
+Everything app-specific belongs in the briefing (`brief <file.md>`), nothing in the tool — that is
+the design boundary above, seen from the caller's side. A good briefing is a page or less:
+
+- **Where things are**: the app's base URL, how to reach the main areas ("projects live under
+  /project-manager; open one by clicking its row").
+- **House conventions the DOM won't tell an agent**: "saving requires the explicit Save button,
+  Apply only previews"; "the grid is virtualised — never count rows"; "dialogs are portalled,
+  look for [role=dialog] at body level".
+- **Credentials as secret markers**, never plaintext: `sign in as bench@example.com /
+  {{env:APP_PASSWORD}}` (see Secrets).
+- **What NOT to touch**: "never use the admin menu"; "do not delete records you did not create".
+
+Leave out anything the agent can see for itself (visible labels, obvious buttons) — briefing text
+competes for the same context budget as page snapshots. When an instruction keeps failing the same
+way, the fix is usually one briefing line, not a bigger instruction.
+
+## What it won't do
+
+Stated limits, so you don't spend an afternoon discovering them:
+
+- **Canvas-rendered content**: charts, drawn data grids, and images have no DOM to read or verify
+  against. The agent reports blocked and says so; that is the designed behaviour, not a bug.
+- **Anti-bot evasion, CAPTCHA solving, crawling**: out of scope by design. browser-pilot is for
+  testing and driving apps you operate or are authorised to test — extraction from such apps is
+  fine; defeating another site's defences is not what this tool is for.
+- **Vision**: the internal agent is text-only. It reads the accessibility tree and DOM, not
+  pixels. Screenshots are captured for *you*, not consumed by the model.
+- **Guessing credentials**: a rejected or missing credential is an immediate blocked report,
+  never a retry loop (rule 9z); markers ({{env:NAME}}) are the supported way to supply them.
 
 ## Development
 
