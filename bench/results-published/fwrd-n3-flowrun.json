@@ -1,0 +1,260 @@
+{
+  "flow": "fwrd",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8f1d84; observed ticket_id=RD-1015, ticket_title=fwrd-n3 RD Bench Ticket, customer=Bench Customer, created=2026-08-26, ticket_status=Draft.",
+      "values": {
+        "ticket_id": "RD-1015",
+        "ticket_title": "fwrd-n3 RD Bench Ticket",
+        "customer": "Bench Customer",
+        "created": "2026-08-26",
+        "ticket_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_016bb4; observed part_name=fwrd-n3 RD Part A, cost=$100.00, markup=25%, supplier=No supplier.",
+      "values": {
+        "part_name": "fwrd-n3 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "supplier": "No supplier"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8fa959; observed markup=25%, part_name=fwrd-n3 RD Part B, cost=$200.00, price=$250.00, total_line=$375.00.",
+      "values": {
+        "markup": "25%",
+        "part_name": "fwrd-n3 RD Part B",
+        "cost": "$200.00",
+        "price": "$250.00",
+        "total_line": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_31cd74; observed part_name=fwrd-n3 RD Part A, cost=$150.00, price=$187.50, total_line=$437.50, markup=25%, supplier=No supplier.",
+      "values": {
+        "part_name": "fwrd-n3 RD Part A",
+        "cost": "$150.00",
+        "price": "$187.50",
+        "total_line": "$437.50",
+        "markup": "25%",
+        "supplier": "No supplier"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "(a) The app refused with alert: \"Ticket is not ready Part \"fwrd-n1 RD Part A\" has no supplier Part \"fwrd-n1 RD Part B\" has no supplier\". (b) Edited both parts to assign suppliers — Part A → ACME Supplies, Part B → Beta Parts Co. (c) Retried \"Mark Draft\" and the ticket's status is now **Draft**, confirmed by the button changing to \"Mark Draft\" and \"Mark Closed\".",
+      "values": {
+        "status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Deleted both parts ('fwrd-n3 RD Part A' and 'fwrd-n3 RD Part B') from ticket RD-1015 — no preconditions were required since the ticket was already in Draft status. The parts list now shows \"No parts on this ticket yet.\" (empty). The ticket was then archived: the detail page displays an \"Archived\" badge alongside Status: Draft, and the action button changed to \"Unarchive ticket\".",
+      "values": {
+        "parts_message": "No parts on this ticket yet.",
+        "status": "Draft",
+        "archived_badge": "Archived",
+        "archive_button_now": "Unarchive ticket",
+        "ticket": "RD-1015",
+        "title": "fwrd-n3 RD Bench Ticket"
+      },
+      "tier": "B",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Verified final state of RD-1015: (1) Detail page shows Status Draft with an \"Archived\" badge and 0 parts (empty parts list, no part names). (2) In the main ticket list, 'fwrd-n3 RD Bench Ticket' does NOT appear in the default/active list (newest active shown is RD-1014); with the \"Show archived\" checkbox checked it appears at the top of the list with an \"Archived\" badge, customer Bench Customer, status Draft, 0 parts, created 2026-08-26.",
+      "values": {
+        "ticket": "RD-1015",
+        "title": "fwrd-n3 RD Bench Ticket",
+        "detail_status": "Draft",
+        "archived_badge": "Archived",
+        "parts_count": "0",
+        "in_default_list": "false",
+        "in_archived_view": "true",
+        "archived_view_row": "RD-1015 fwrd-n3 RD Bench Ticket | Bench Customer | Draft | 0 parts | 2026-08-26 | Archived badge"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 10
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 10,
+  "driftTickets": [
+    {
+      "flow": "fwrd",
+      "step": "04-open",
+      "skill": "s_31cd74",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.1.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.2.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.3.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.4.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.5.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.6.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "05-open",
+      "skill": "s_cef197",
+      "atStep": "2.7.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "06-open",
+      "skill": "s_92aaee",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.988,
+      "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd",
+      "step": "07-verify",
+      "skill": "s_f46d79",
+      "similarity": 0.993,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    }
+  ],
+  "wallMs": 223093,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 168109,
+    "completionTokens": 7797,
+    "cachedTokens": 141888
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

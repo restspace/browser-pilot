@@ -1,0 +1,185 @@
+{
+  "name": "fwrd",
+  "origin": "http://127.0.0.1:4180",
+  "startUrl": "http://127.0.0.1:4180/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then create a new ticket titled exactly '{{runid}} RD Bench Ticket' (fill any other required fields with sensible values). Wait for the ticket to actually appear in the app (the list refreshes a short beat after creation, so wait for the concrete page state, not the first render). Report the ticket's title, id/number if any, and its status as shown on the page.",
+      "skill": "s_7fef1f",
+      "params": {
+        "v1": "http://127.0.0.1:4180/",
+        "v2": "bench@example.com",
+        "v3": "bench-pass-1234",
+        "v4": "{{runid}} RD Bench Ticket"
+      },
+      "outputs": [
+        "ticket_id",
+        "ticket_title",
+        "ticket_status",
+        "customer",
+        "parts",
+        "created"
+      ],
+      "recorded": {
+        "ticket_id": "RD-1015",
+        "ticket_title": "fwrd-n1 RD Bench Ticket",
+        "ticket_status": "Draft",
+        "customer": "Bench Customer",
+        "parts": "0",
+        "created": "2026-08-26"
+      }
+    },
+    {
+      "id": "02-open",
+      "instruction": "Open ticket {{01-open.ticket_id}} (titled '{{runid}} RD Bench Ticket') in the repair-desk app at http://127.0.0.1:4180/. Add a part to it named exactly '{{runid}} RD Part A' with cost 100 and markup 25. Fill any other required fields sensibly. Wait for the part to actually appear in the ticket's parts list (the view refreshes a short beat after the mutation, so wait for the concrete page state). Report the part's name, cost, markup, and the price the app computes for it, exactly as shown on the page.",
+      "skill": "s_a51e00",
+      "params": {
+        "v1": "{{01-open.ticket_id}}",
+        "v2": "{{runid}} RD Part A",
+        "v3": "100",
+        "v4": "25"
+      },
+      "outputs": [
+        "part_name",
+        "cost",
+        "markup",
+        "qty",
+        "supplier",
+        "price",
+        "total"
+      ],
+      "recorded": {
+        "part_name": "fwrd-n1 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "qty": "1",
+        "supplier": "No supplier",
+        "price": "$125.00",
+        "total": "$125.00"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open ticket {{01-open.ticket_id}} (titled '{{runid}} RD Bench Ticket') in the repair-desk app at http://127.0.0.1:4180/. Add a second part to it named exactly '{{runid}} RD Part B' with cost 200 and markup 25. Fill any other required fields sensibly. Wait for the part to actually appear in the ticket's parts list alongside '{{runid}} RD Part A' (the view refreshes a short beat after the mutation, so wait for the concrete page state). Report the new part's name, cost, markup, and the price the app computes for it, exactly as shown on the page.",
+      "skill": "s_8fa959",
+      "params": {
+        "v1": "{{runid}} RD Part B",
+        "v2": "200",
+        "v3": "25"
+      },
+      "outputs": [
+        "part_name",
+        "cost",
+        "markup",
+        "qty",
+        "supplier",
+        "price",
+        "total_line"
+      ],
+      "recorded": {
+        "part_name": "fwrd-n1 RD Part B",
+        "cost": "$200.00",
+        "markup": "25%",
+        "qty": "1",
+        "supplier": "No supplier",
+        "price": "$250.00",
+        "total_line": "$375.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open ticket {{01-open.ticket_id}} in the repair-desk app at http://127.0.0.1:4180/. Edit the part named '{{runid}} RD Part A' and change its cost from 100 to 150, keeping markup at 25. Save the change. Wait for the change to be reflected in the ticket's parts list (the view refreshes a short beat after the mutation, so wait for the concrete page state). Report the part's name, its new cost, its markup, and the price the app computes for it afterwards, exactly as shown on the page.",
+      "skill": "s_31cd74",
+      "params": {
+        "v1": "150"
+      },
+      "outputs": [
+        "part_name",
+        "cost",
+        "markup",
+        "qty",
+        "supplier",
+        "price",
+        "total_line"
+      ],
+      "recorded": {
+        "part_name": "fwrd-n1 RD Part A",
+        "cost": "$150.00",
+        "markup": "25%",
+        "qty": "1",
+        "supplier": "No supplier",
+        "price": "$187.50",
+        "total_line": "$437.50"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Open ticket {{01-open.ticket_id}} in the repair-desk app at http://127.0.0.1:4180/. The goal is to get this ticket into status 'Ready'. The app enforces preconditions before it will accept that status — attempt to set the status to Ready, and if the app refuses, read the exact error/validation message it shows, then discover and satisfy whatever preconditions it demands (e.g. required fields, notes, assignments, other statuses that must be set first, etc.), and retry until the ticket's status is actually displayed as 'Ready'. Report: (a) the exact error/validation text the app showed when it refused, (b) exactly what you had to do to satisfy the preconditions, and (c) the ticket's status as finally displayed on the page.",
+      "skill": "s_cef197",
+      "params": {},
+      "outputs": [
+        "status",
+        "part_A",
+        "part_B"
+      ],
+      "recorded": {
+        "status": "Ready",
+        "part_A": "{\"name\":\"fwrd-n1 RD Part A\",\"cost\":\"$150.00\",\"markup\":\"25%\",\"supplier\":\"ACME Supplies\",\"price\":\"$187.50\"}",
+        "part_B": "{\"name\":\"fwrd-n1 RD Part B\",\"cost\":\"$200.00\",\"markup\":\"25%\",\"supplier\":\"Beta Parts Co.\",\"price\":\"$250.00\"}"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "Open ticket {{01-open.ticket_id}} in the repair-desk app at http://127.0.0.1:4180/. Remove/delete both of its parts: '{{runid}} RD Part A' and '{{runid}} RD Part B'. If the app refuses to delete parts while the ticket is in its current status, discover what it requires (e.g. moving the ticket back to {{01-open.ticket_status}} first) and satisfy that, then delete both parts. Then archive the ticket so nothing from it is left active. Wait after each mutation for the concrete page state (the view refreshes a short beat after mutations, so don't assume the first render is final). Report: (a) whether any preconditions had to be satisfied to delete the parts and what they were, (b) confirmation that the parts list is empty (e.g. parts count 0 or an empty-parts message), and (c) the exact confirmation text or page state showing the ticket is archived (e.g. its status or where it now appears).",
+      "skill": "s_92aaee",
+      "params": {},
+      "outputs": [
+        "parts_count",
+        "parts_message",
+        "status",
+        "archived_badge",
+        "archive_button_now"
+      ],
+      "recorded": {
+        "parts_count": "0",
+        "parts_message": "No parts on this ticket yet.",
+        "status": "Ready",
+        "archived_badge": "present",
+        "archive_button_now": "Unarchive ticket"
+      }
+    },
+    {
+      "id": "07-verify",
+      "instruction": "In the repair-desk app at http://127.0.0.1:4180/, verify the final state of ticket {{01-open.ticket_id}} ('{{runid}} RD Bench Ticket'): (1) open the ticket detail page and report its status, whether it shows an Archived badge, and how many parts it has (list any part names if {{06-open.archived_badge}}); (2) go to the main ticket list view and report whether '{{runid}} RD Bench Ticket' appears in the default/active list, and if there is a separate archived/hidden view, whether it appears there. Report only what you actually observe on the page.",
+      "skill": "s_f46d79",
+      "params": {},
+      "outputs": [
+        "ticket_detail_status",
+        "archived_badge_present",
+        "parts_count",
+        "parts_message",
+        "default_list_visible",
+        "archived_checked_list_visible",
+        "archived_list_row"
+      ],
+      "recorded": {
+        "ticket_detail_status": "Ready",
+        "archived_badge_present": "true",
+        "parts_count": "0",
+        "parts_message": "No parts on this ticket yet.",
+        "default_list_visible": "false",
+        "archived_checked_list_visible": "true",
+        "archived_list_row": "{\"ref\":\"RD-1015\",\"title\":\"fwrd-n1 RD Bench Ticket\",\"customer\":\"Bench Customer\",\"status\":\"Ready\",\"parts\":\"0\"}"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwrd-n1",
+    "created": "2026-08-26T12:25:24.118Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
