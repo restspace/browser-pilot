@@ -244,7 +244,20 @@ function stepId(text: string, i: number): string {
 /** Replace a value on token boundaries, leaving substrings of longer words alone. */
 function replaceToken(text: string, value: string, marker: string): string {
   if (!value) return text;
-  return text.replace(new RegExp(`(?<![A-Za-z0-9])${escapeRe(value)}(?![A-Za-z0-9])`, 'g'), marker);
+  // Underscores bind: `o_form_view_group` is ONE identifier, so a var whose
+  // value is "form" must not rewrite its middle (fwod5 shipped exactly that
+  // corruption). Hyphens do not bind — a runid prefix in "x7-bench-dashboard"
+  // is a reference worth threading.
+  const re = new RegExp(`(?<![A-Za-z0-9_])${escapeRe(value)}(?![A-Za-z0-9_])`, 'g');
+  // Never substitute INSIDE a reference already placed by an earlier pass: a
+  // provenance value that happens to be a common word ("form") rewrote the
+  // middle of an output NAME, and fwod5 shipped steps referencing
+  // `{{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}}` — a ref
+  // that can never resolve. Split on markers, rewrite only the gaps.
+  return text
+    .split(/(\{\{[^{}]*\}\})/g)
+    .map((piece) => (piece.startsWith('{{') && piece.endsWith('}}') ? piece : piece.replace(re, marker)))
+    .join('');
 }
 
 /**

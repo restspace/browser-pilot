@@ -164,3 +164,26 @@ describe('JSON-path provenance', () => {
     expect(flow!.steps[1].instruction).not.toContain('url.h');
   });
 });
+
+describe('reference integrity', () => {
+  it('never rewrites the inside of a reference an earlier pass placed', () => {
+    // fwod5 (odoo): the url part "form" was provenance, and substituting it
+    // everywhere corrupted an output NAME into
+    // {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}}.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Open the quotation form and report the totals table.', url: `${ORIGIN}/odoo/sales/new` },
+      step('read', { target: '@e1', what: 'text' }, [], { result: '"x"' }),
+      { k: 'report', status: 'success', summary: 'read', values: { o_form_view_group: '9,900' } } as RecordedEntry,
+      { k: 'instruction', text: 'On the same quotation, confirm the total is still 9,900 and the view is a form.', url: `${ORIGIN}/odoo/sales/new` },
+      step('read', { target: '@e2', what: 'text' }, [], { result: '"x"' }),
+      { k: 'report', status: 'success', summary: 'ok', values: {} } as RecordedEntry,
+    ];
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/odoo/sales/new`, vars: { view: 'form' }, session: 's', now: '2026-08-27T00:00:00.000Z' });
+    const instruction = flow!.steps[1].instruction;
+    // The value is threaded under its (uncorrupted) output name, and the var
+    // pass rewrote the standalone word only — never the middle of the name.
+    expect(instruction).toContain('.o_form_view_group}}');
+    expect(instruction).toContain('a {{view}}.');
+    expect(instruction).not.toContain('o_{{view}}_view');
+  });
+});
