@@ -1,0 +1,249 @@
+{
+  "flow": "fwod4",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Odoo 17 as admin (session already active from replayed segments). The contact 'fwod4-n2 Bench Customer' had already been created by the earlier replayed segments; the stored segment's failure was only its verification step, which had opened the wrong record (id=44 = 'fwod4-n1 Bench Customer'). I returned to the Customers kanban (4 records), confirmed the n2 card showed \"Benchville\", opened it (record id=45), and verified on the reopened form: Name = \"fwod4-n2 Bench Customer\", City = \"Benchville\", and the company_type radio is \"Individual\" (checked) with \"Company\" unchecked — an individual contact, not a company. Screenshot saved to fwod4-n2_customer_verified.png.",
+      "values": {
+        "city": "Benchville",
+        "company_type": "Individual (radio checked; Company unchecked)",
+        "kanban_records": "4",
+        "name": "fwod4-n2 Bench Customer",
+        "record_id": "45",
+        "o_kanban_record_o_kanban": "fwod4-n1 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Continued from the interrupted replay on the new quotation form: the customer 'fwod4-n2 Bench Customer' had already been selected via the autocomplete dropdown (input value confirmed) and one order line existed with qty 1.00. I clicked the Quantity cell, set it to 3, and saved. Verified on the saved record (id=22): product \"Customizable Desk\" (qty 3.00, unit price £750.00, line total £2,250.00), Untaxed Amount £2,250.00, TAX 20% £450.00, Total £2,700.00, reference S00022, status \"Quotation\" (draft, not confirmed). Screenshot: fwod4-n2_quotation_S00022_draft.png.",
+      "values": {
+        "customer": "fwod4-n2 Bench Customer",
+        "product": "Customizable Desk",
+        "quotation_reference": "S00022",
+        "quantity": "3.00",
+        "status": "Quotation (draft, not confirmed)",
+        "tax": "TAX 20% £450.00",
+        "total": "£2,700.00",
+        "unit_price": "£750.00",
+        "untaxed_amount": "£2,250.00"
+      },
+      "tier": "A",
+      "replayed": "6/8",
+      "repaired": false,
+      "turns": 17
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Ran the matching stored procedure s_dc794a (4/4 steps ok) on the draft quotation S00022 (id=22, customer fwod4-n2 Bench Customer): it added a second order line via the product autocomplete dropdown and set qty 2.00. Verified after saving: line 1 unchanged (Customizable Desk (Steel, White) qty 3.00 @ £750.00 = £2,250.00), line 2 = \"Office Chair Black\" [FURN_0269] qty 2.00 @ £120.50 = £241.00, new Untaxed Amount £2,491.00 (TAX 20% £498.20, Total £2,989.20). Status remains \"Quotation\" (draft, not confirmed). Screenshot: fwod4-n2_quotation_S00022_second_line.png.",
+      "values": {
+        "first_line": "Customizable Desk (Steel, White) qty 3.00 @ £750.00 = £2,250.00 (unchanged)",
+        "quotation_reference": "S00022",
+        "second_line_product": "Office Chair Black [FURN_0269]",
+        "second_line_qty": "2.00",
+        "second_line_unit_price": "£120.50",
+        "status": "Quotation (draft, not confirmed)",
+        "tax": "TAX 20% £498.20",
+        "total": "£2,989.20",
+        "untaxed_amount": "£2,491.00"
+      },
+      "tier": "B",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Ran the matching stored procedure s_5a87a3 (6/6 steps ok) on the draft quotation S00022 (id=22, customer fwod4-n2 Bench Customer): it changed only line 1's quantity from 3 to 5.00. Verified after saving: line 1 'Customizable Desk (Steel, White)' qty 5.00 @ £750.00 = £3,750.00, line 2 'Office Chair Black' qty 2.00 @ £120.50 = £241.00 unchanged, new Untaxed Amount £3,991.00 (TAX 20% £798.20, Total £4,789.20). Status remains \"Quotation\" (draft, Confirm button still available, not confirmed). Screenshot: fwod4-n2_quotation_S00022_qty5.png.",
+      "values": {
+        "line1_product": "Customizable Desk (Steel, White)",
+        "line1_qty": "5.00",
+        "line1_total": "£3,750.00",
+        "line2": "Office Chair Black qty 2.00 @ £120.50 = £241.00 (unchanged)",
+        "quotation_reference": "S00022",
+        "status": "Quotation (draft, not confirmed)",
+        "tax": "TAX 20% £798.20",
+        "total": "£4,789.20",
+        "untaxed_amount": "£3,991.00",
+        "o_td_label_tr_o_group_na": "Untaxed Amount",
+        "o_td_label_tr_o_group_na_2": "TAX 20%",
+        "o_td_label_tr_o_group_na_3": "Total"
+      },
+      "tier": "B",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Ran the matching stored procedure s_4eef29 (2/2 steps ok) on the draft quotation S00022 (id=22, customer fwod4-n2 Bench Customer): armed dialog acceptance and clicked Confirm. The Confirm button disappeared and \"Create Invoice\" appeared, and the status bar now shows \"Sales Order\" as the active state (Quotation Sent / Quotation inactive). Order reference read from the form title and document title: S00022. Screenshot: fwod4-n2_order_S00022_confirmed.png.",
+      "values": {
+        "customer": "fwod4-n2 Bench Customer",
+        "order_reference": "S00022",
+        "status": "Sales Order (active in status bar; Quotation Sent / Quotation inactive)"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Ran the matching stored procedure s_323cad (13/13 steps ok) on the confirmed sales order S00022 (id=22, customer fwod4-n2 Bench Customer): opened the Action (cog) menu, chose Cancel Order, and accepted the confirmation dialog. Verified from the live status bar: \"Cancelled\" is now the active state (Sales Order, Quotation Sent, and Quotation all inactive), and the order reference is still S00022 (form title and document title). Screenshot: fwod4-n2_order_S00022_cancelled.png.",
+      "values": {
+        "order_reference": "S00022",
+        "status_after_cancel": "Cancelled (active in status bar; Sales Order / Quotation Sent / Quotation now inactive)"
+      },
+      "tier": "B",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Verification completed (no changes made): (1) Opened the contact 'fwod4-n2 Bench Customer' — read from live form fields: Name = \"fwod4-n2 Bench Customer\", City = \"Benchville\", and company type = Individual (radio selected, Company unselected). (2) Opened the sales order S00022 — read from the live form: Reference = \"S00022\", Customer = \"fwod4-n2 Bench Customer\", Status bar shows \"Cancelled\" as the active state (with Sales Order, Quotation Sent, and Quotation all inactive). Screenshot: fwod4-n2_contact_verified.png.",
+      "values": {
+        "contact_city": "Benchville",
+        "contact_name": "fwod4-n2 Bench Customer",
+        "contact_type": "Individual",
+        "order_customer": "fwod4-n2 Bench Customer",
+        "order_reference": "S00022",
+        "order_status": "Cancelled (active in status bar)"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 15
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 8,
+  "driftTickets": [
+    {
+      "flow": "fwod4",
+      "step": "01-signin",
+      "skill": "s_4055f0",
+      "similarity": 0.989,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "wait_for failed: wait_for text_contains timed out after 10000ms (last: text=\"New\\nCustomers\\nfwod4-n1 Bench Customer\\n1\\nSales\\n£ 0.00\\nInvoiced\\n1 / 1\\nIndividual\\nCompany\\nContact\\nInvoice Address\\nDelivery Address\\nOther Address\\nTax ID?\\nJob Position\\nPhone\\nMobile\\nEmail\\nWebsite\\nTitle\\nTags\") — value never ch…",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "02-create",
+      "skill": "s_f2c08b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('option', { name: 'fwod4-n2 Bench Customer' })",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "02-create",
+      "skill": "s_f2c08b",
+      "atStep": "7",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('table > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > div > input')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "03-open",
+      "skill": "s_dc794a",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "04-open",
+      "skill": "s_5a87a3",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "05-open",
+      "skill": "s_4eef29",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "06-open",
+      "skill": "s_323cad",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByRole('button', { name: 'Close' })",
+      "fallbackUsed": "page.locator('#dialog_1 > div > div > div > header > button')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod4",
+      "step": "06-open",
+      "skill": "s_323cad",
+      "atStep": "13",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByRole('heading', { name: 'S00021' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 616852,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1179734,
+    "completionTokens": 24152,
+    "cachedTokens": 1011200
+  },
+  "usageByModel": {
+    "z-ai/glm-5.3": {
+      "promptTokens": 753573,
+      "completionTokens": 21051,
+      "cachedTokens": 696576
+    },
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 426161,
+      "completionTokens": 3101,
+      "cachedTokens": 314624
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,97 @@
+{
+  "name": "fwod4",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin'. Then create a new customer (contact) named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (leave other fields default; make sure it is saved as an individual/company contact, not a company). Verify by reopening the saved record and report the Name and City values shown on the page. Note: do not wait for networkidle, the app long-polls; wait for concrete page state instead.",
+      "skill": "s_05db64",
+      "params": {
+        "v1": "http://127.0.0.1:8069/",
+        "v2": "{{runid}} Bench Customer",
+        "v3": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo (already signed in as admin), go to Sales app and create a new quotation. Set the Customer to '{{runid}} Bench Customer' — it is an autocomplete dropdown, so you must select the option from the dropdown that appears, not just type the name. Add exactly ONE order line: pick any product from the product catalogue (again via the autocomplete dropdown, selecting a real option), with quantity 3. Do not confirm the quotation yet — leave it as a draft quotation. Then report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the Untaxed Amount shown in the totals, and (d) the quotation's reference name (e.g. S00042). Do not wait for networkidle; wait on concrete page state.",
+      "skill": "s_381d00",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo Sales, open the existing draft quotation S00021 (customer '{{runid}} Bench Customer', currently one line: 'Customizable Desk (Steel, White)' qty 3, Untaxed Amount £2,250.00). Add a SECOND order line with a DIFFERENT product (choose any other product from the catalogue via the autocomplete dropdown, selecting a real option) with quantity 2. Keep the first line unchanged (qty 3). Keep the quotation in draft — do not confirm. Then report: (a) the exact product name of the second line, (b) its unit price, and (c) the new Untaxed Amount shown in the totals. Do not wait for networkidle; wait on concrete page state.",
+      "skill": "s_dc794a",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo Sales, open the existing draft quotation S00021 (customer '{{runid}} Bench Customer'). It has two lines: line 1 'Customizable Desk (Steel, White)' qty 3 @ £750.00, line 2 'Office Chair Black' qty 2 @ £120.50, Untaxed Amount £2,491.00. Change ONLY the first line's quantity from 3 to 5 (leave line 2 at qty 2). Keep the quotation in draft — do not confirm. Then report the new Untaxed Amount shown in the totals (and the line 1 total). Do not wait for networkidle; wait on concrete page state.",
+      "skill": "s_5a87a3",
+      "params": {},
+      "outputs": [
+        "o_td_label_tr_o_group_na",
+        "o_td_label_tr_o_group_na_2",
+        "o_td_label_tr_o_group_na_3"
+      ],
+      "recorded": {
+        "o_td_label_tr_o_group_na": "Untaxed Amount",
+        "o_td_label_tr_o_group_na_2": "TAX 20%",
+        "o_td_label_tr_o_group_na_3": "Total"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo Sales, open the existing draft quotation S00021 (customer '{{runid}} Bench Customer', two lines: Customizable Desk qty 5, Office Chair Black qty 2, {{04-open.o_td_label_tr_o_group_na}} £3,991.00). Confirm it so it becomes a sales order (use the Confirm button / Confirm Order; if a confirmation dialog appears, accept it). Then report: (a) the order reference name shown (e.g. S00021), and (b) the exact status the app now shows on the order (read it from the status bar / breadcrumb area of the page). Do not wait for networkidle; wait on concrete page state.",
+      "skill": "s_4eef29",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo Sales, open the confirmed sales order S00021 (customer '{{runid}} Bench Customer', status 'Sales Order'). Cancel it so nothing stays active: use the Action menu (cog/gear icon) → Cancel Order, and if a confirmation dialog appears, accept/confirm it. Then report the exact status the app shows on the order after cancelling (read from the status bar / page), and confirm the order reference is still S00021. Do not wait for networkidle; wait on concrete page state.",
+      "skill": "s_323cad",
+      "params": {},
+      "outputs": [
+        "e2130"
+      ],
+      "recorded": {
+        "e2130": "S00021"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "Verification only, no changes: In Odoo (signed in as admin), (1) open the contact '{{runid}} Bench Customer' and report its Name and City exactly as shown; (2) open the sales order {{06-open.e2130}} and report its reference name, customer, and the current status shown in the status bar. Do not modify anything. Do not wait for networkidle; wait on concrete page state.",
+      "skill": "s_02777e",
+      "params": {
+        "v1": "{{06-open.e2130}}"
+      },
+      "outputs": [
+        "e4249",
+        "e4270"
+      ],
+      "recorded": {
+        "e4249": "fwod4-n1 Bench Customer",
+        "e4270": "Benchville"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod4-n1",
+    "created": "2026-08-26T18:35:59.871Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

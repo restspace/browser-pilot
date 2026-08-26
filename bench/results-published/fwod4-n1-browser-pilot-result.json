@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "6f73ba8"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod4-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1061646,
+  "orchestrator": {
+    "input": 4184,
+    "cacheWrite": 0,
+    "cacheRead": 23872,
+    "output": 2194
+  },
+  "inner": {
+    "promptTokens": 3147022,
+    "cachedTokens": 2665536,
+    "completionTokens": 22051,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2775463,
+        "completionTokens": 18254,
+        "cachedTokens": 2326784,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 371559,
+        "completionTokens": 3797,
+        "cachedTokens": 338752,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 66,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1005673,
+  "commandBytes": 4276,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod4-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 66,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0217,
+  "maxUsd": 2,
+  "spendUsd": 0.2243,
+  "finalText": "All objectives are complete and verified.\n\n**Final report**\n\n1. **DONE** — Customer `fwod4-n1 Bench Customer` created (record id 44, Individual). Verified on the reopened record: Name = \"fwod4-n1 Bench Customer\", City = \"Benchville\".\n2. **DONE** — Draft quotation **S00021** created for that customer with one order line: product **Customizable Desk (Steel, White)** (code FURN_0096), qty 3, unit price auto-filled **£750.00**, Untaxed Amount **£2,250.00** (TAX 20% £450.00, Total £2,700.00).\n3. **DONE** — Second line added: **Office Chair Black** (code FURN_0269), qty 2 @ £120.50 (line total £241.00). New Untaxed Amount **£2,491.00**.\n4. **DONE** — First line quantity changed 3 → 5 (£3,750.00 line total). New Untaxed Amount **£3,991.00** (TAX 20% £798.20, Total £4,789.20).\n5. **DONE** — Quotation confirmed; order reference **S00021**, status bar shows **\"Sales Order\"** active (Quotation / Quotation Sent disabled).\n6. **DONE** — Order cancelled via Action → Cancel Order; status bar now shows **\"Cancelled\"** active (Sales Order / Quotation Sent / Quotation all disabled). Reference still S00021.\n\nFinal re-verification confirmed the contact (Name \"fwod4-n1 Bench Customer\", City \"Benchville\") and the cancelled order S00021 — nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod4-n1-browser-pilot-transcript.jsonl"
+}
