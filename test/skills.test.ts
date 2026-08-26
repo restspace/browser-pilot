@@ -224,6 +224,23 @@ describe('slot-by-policy known values', () => {
     const slots = discoverSlots(INSTRUCTION, recording().filter((e): e is RecordedStep => e.k === 'step'), { runid: 'x7' });
     expect(substitute(INSTRUCTION, slots)).not.toContain('x7');
   });
+
+  it('a known value wholly swallowed by a longer slot leaves no unbindable param', () => {
+    // fwrd5l: the bare runid's every occurrence sat inside the ticket-title
+    // slot, so {{v1}} appeared nowhere — yet v1 stayed a param, and bindSkill
+    // refused the skill's own source instruction (step 01 never went tier A).
+    const instr = "Open http://x.test/ and create a ticket titled exactly 'x7 RD Bench Ticket'. Confirm it exists.";
+    const steps = [
+      step('goto', { url: 'http://x.test/' }),
+      step('fill', { target: '@e1', value: 'x7 RD Bench Ticket' }, [{ kind: 'label', label: 'Title' }]),
+    ];
+    const entries: RecordedEntry[] = [{ k: 'instruction', text: instr, url: 'http://x.test/', fingerprint: [1, 0, 0] }, ...steps];
+    const [skill] = compileSkills({ entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's', knownValues: { runid: 'x7' } });
+    expect(skill).toBeTruthy();
+    expect(skill.template).not.toContain('x7');
+    for (const name of Object.keys(skill.params)) expect(skill.template).toContain(`{{${name}}}`);
+    expect(bindSkill(skill, instr.replaceAll('x7', 'k9'))).toBeTruthy();
+  });
 });
 
 describe('foldLoops', () => {

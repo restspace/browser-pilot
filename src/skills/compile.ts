@@ -184,8 +184,26 @@ export function compileSkills(input: CompileInput): Skill[] {
   const knownVals = new Set(Object.values(input.knownValues ?? {}).map((v) => String(v ?? '').trim()));
   const usedNames = new Set<string>();
   for (const b of built) for (const [name, p] of Object.entries(b.segParams)) if (p.usedIn.length) usedNames.add(name);
-  const keptSlots = new Map([...slots].filter(([n, v]) => usedNames.has(n) || knownVals.has(v)));
+  // A known value can be wholly swallowed by a longer slot (the bare runid
+  // inside the ticket-title slot): its marker then appears nowhere, and a
+  // param that can never bind makes bindSkill refuse the skill's own source
+  // instruction. Keep a known-value slot only when its marker survives.
+  const tentative = sub(input.instruction);
+  const keptSlots = new Map(
+    [...slots].filter(([n, v]) => usedNames.has(n) || (knownVals.has(v) && tentative.includes(`{{${n}}}`))),
+  );
   const finalTemplate = keptSlots.size === slots.size ? sub(input.instruction) : substitute(input.instruction, keptSlots);
+  // The mirror hazard: a slot whose marker survives only in STEPS (its every
+  // instruction occurrence was swallowed by a longer slot) can never bind —
+  // bindSkill derives values from the template alone, then requires every
+  // param to have one. Re-inline the recorded value for such slots: a literal
+  // arg is worth more than a skill that refuses its own source instruction.
+  const inTemplate = new Set(Array.from(finalTemplate.matchAll(/\{\{(v\d+)\}\}/g), (m) => m[1]));
+  for (const [name, value] of [...keptSlots]) {
+    if (inTemplate.has(name)) continue;
+    keptSlots.delete(name);
+    for (const b of built) b.folded = fillParamsDeep(b.folded, { [name]: value }) as SkillStep[];
+  }
 
   const now = input.now ?? new Date().toISOString();
   const reportTemplate = {

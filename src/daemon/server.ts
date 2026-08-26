@@ -584,7 +584,11 @@ ${direct.prelude}` : recoveryText,
       if (this.browser.learn) {
         const learned = learnFromInstruction(this.browser.learn, {
           result,
-          instruction: text,
+          // Never hand compile an instruction with unresolved {{ref}} markers:
+          // they leak verbatim into the skill template (s_166633 carried a
+          // literal "{{01-open.ticket_ref}}"), which no live instruction can
+          // ever match. The soft-resolved text is what actually drove the run.
+          instruction: unresolved ? recoveryText : text,
           entries: this.browser.script?.entriesSince(mark) ?? [],
           session: this.opts.session,
           model: opts.provider.model,
