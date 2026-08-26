@@ -158,7 +158,71 @@ What changed vs v0.1, in the cells' own terms:
    cloud cells above for comparability and kept only in local
    bench/results.
 
-Scope note: the other arms' rows above are still v0.1's cloud cells. The
-arms themselves are unchanged (pinned versions), but v0.1 partly ran during
-an OpenRouter credit-crunch window; a controlled cross-arm claim wants an
-incumbent rerun under today's provider conditions.
+## v0.2 controlled grid — all arms rerun same-day (2026-08-26)
+
+The incumbent caveat above is now closed: every arm was rerun on 2026-08-26
+under identical conditions — same cloud environment, same pinned versions
+(agent-browser 0.34.0, @playwright/mcp 0.0.79, browser-use 0.13.8), same
+orchestrator (z-ai/glm-5.3 via OpenRouter, backend Z.AI on every run), same
+harness commit (8f8da6d), clean provider weather, K=3 sequential per cell,
+externally verified per run, raw files on results/<runid> branches
+(c2ard*/c2aod*/c2agr*/c2pm*/c2bu*; atelyr cells local, m2at*/m2aat*).
+
+### repairdesk (depth slice)
+
+| arm | verified (K=3) | cost per run | median wall |
+|---|---|---|---|
+| browser-pilot | 6/6, 6/6, 6/6 | $0.058, $0.051, $0.161 | 843s |
+| agent-browser | 6/6, 6/6, 6/6 | $0.129, $0.147, $0.123 | 274s |
+| playwright-mcp | 6/6, 6/6, 6/6 | $0.563, $0.440, $0.453 | 823s |
+| browser-use | 2/6, 0/6, 0/6 | $0.058, $0.013, $0.013 | 150s |
+
+### Odoo 17
+
+| arm | verified | cost | stop |
+|---|---|---|---|
+| browser-pilot | 6/6, 6/6, 6/6 | $0.223, $0.135, $0.063 | completed x3 |
+| agent-browser | 6/6, 6/6, 6/6 | $1.248, $0.440, $1.062 | completed x3 |
+
+### Grafana 11
+
+| arm | verified | cost | stop |
+|---|---|---|---|
+| browser-pilot | 6/6, 6/6, 6/6 | $0.167, $0.225, $0.500 | completed x3 |
+| agent-browser | 6/6, 6/6, **2/6** | $1.402, $1.087, $2.003 | completed x2, **spend-cap** |
+
+### atelyr (private; both arms local, same machine)
+
+| arm | verified‡ | cost | stop |
+|---|---|---|---|
+| browser-pilot (m2at) | max‡, max‡, incomplete | $0.89, $0.85, $2.19 | completed x2, spend-cap |
+| agent-browser (m2aat) | max‡ (no claims), max‡ (no claims), incomplete | $2.01, $1.89, $2.02 | spend-cap, completed, spend-cap |
+
+‡ as defined above: objectives 1+6 externally confirmed is the verifier's
+ceiling. Both completed agent-browser runs reached it but reported no
+parseable price claims (bp's claims all checked out); m2aat3 capped with the
+project still open. m2aat1 capped AFTER finishing the work — both its
+verifiable objectives pass.
+
+### What the controlled grid says
+
+1. **Reliability**: browser-pilot is the only arm at 6/6 on every cloud run
+   (9/9). agent-browser's grafana spend-cap RECURRED under clean conditions
+   (c2agr3, $2.00, 2/6) — v0.1's capped cell was the arm's real behaviour on
+   heavy SPAs, not a credit-crunch artifact. playwright-mcp remains the
+   consistency runner-up (6/6 x3, $0.44–0.56, within $0.12). browser-use's
+   v0.1 zero largely reproduces (2/6, 0/6, 0/6): every run self-reported
+   "completed" — only external verification tells them apart, which is the
+   benchmark's reason for existing.
+2. **Cost, same-day comparison**: browser-pilot is cheapest on every target
+   — repairdesk $0.05–0.16 vs agent-browser's $0.12–0.15 (v0.1's ranking
+   reversal confirmed gone), Odoo 3–7x cheaper ($0.06–0.22 vs $0.44–1.25),
+   Grafana 4–6x cheaper ($0.17–0.50 vs $1.09–2.00), atelyr ~2.2x cheaper
+   with cleaner completions.
+3. **Wall clock**: agent-browser keeps its speed crown where it completes
+   (274s median on repairdesk vs bp's 843s) — the layering trade-off is
+   real and stated: bp spends wall time on sub-agent episodes and buys back
+   verified completions and cost.
+4. Weather effect quantified: playwright-mcp moved <15% between v0.1 and
+   v0.2; agent-browser's odoo/grafana costs moved ~10–30%. The v0.1
+   comparisons were directionally right; the grid above supersedes them.
