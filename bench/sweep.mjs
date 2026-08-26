@@ -112,8 +112,8 @@ for (let n = 1; n <= own.k; n++) {
     const cmd = own.verifyCmd.includes('{runid}') ? own.verifyCmd.replaceAll('{runid}', runid) : `${own.verifyCmd} ${runid}`;
     const v = spawnSync(cmd, { encoding: 'utf8', env: { ...process.env, BENCH_OUT: outDir }, shell: true });
     process.stderr.write((v.stdout ?? '') + (v.stderr ?? ''));
-    const passes = ((v.stdout ?? '').match(/PASS/g) ?? []).length;
-    const total = ((v.stdout ?? '').match(/(PASS|FAIL)/g) ?? []).length;
+    const passes = ((v.stdout ?? '').match(/\bPASS\b/g) ?? []).length;
+    const total = ((v.stdout ?? '').match(/\b(PASS|FAIL)\b/g) ?? []).length;
     verified = total ? `${passes}/${total}` : 'n/a';
   } else if (own.verify) {
     const v = spawnSync(process.execPath, [path.join(here, 'verify-repairdesk.mjs'), runid], {
