@@ -1,0 +1,152 @@
+{
+  "flow": "fwod5",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in and created the contact 'fwod5-n2 Bench Customer' with City 'Benchville' via Sales > Orders > Customers > New, then saved it (record id=45, \"Contact created\" notification shown). The saved record's read-only form shows heading \"fwod5-n2 Bench Customer\" and City textbox value \"Benchville\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/5",
+      "repaired": false,
+      "turns": 49
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new Quotation for customer 'fwod5-n2 Bench Customer' (selected from autocomplete dropdown). Added one order line: product '[FURN_7777] Office Chair' (chosen from product autocomplete dropdown), quantity 3. Odoo autofilled the unit price at £70.00 (20% tax). The order line subtotal is £210.00, and the Untaxed Amount in the totals is £210.00. Also confirmed the customer's city (Benchville) appears on the quotation. The quotation was not saved/confirmed. Screenshot saved as quotation_bench.png.",
+      "values": {
+        "o_form_view_o_group_tabl": "Untaxed Amount",
+        "e3728": "70.00"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a second order line to the unsaved quotation. Selected product '[FURN_7888] Desk Stand with Screen' from the autocomplete dropdown (different from the first product). Odoo autofilled unit price at £2,100.00. Set quantity to 2. The new Untaxed Amount in the totals is £4,410.00 (composed of line 1: £210.00 + line 2: £4,200.00). Quotation remains unsaved. Screenshot saved.",
+      "values": {
+        "e3814": "2,100.00"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-change",
+      "status": "success",
+      "summary": "Changed first line quantity from 3 to 5. Odoo autofilled the subtotal to £350.00 (5 × £70.00). The second line remained at £4,200.00. The new Untaxed Amount in the totals is £4,550.00. Quotation remains unsaved. Screenshot saved.",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-report",
+      "status": "success",
+      "summary": "Confirmed the quotation for customer 'fwod5-n2 Bench Customer'. The order reference is **S00021** (shown in the heading and URL). The statusbar now shows **\"Sales Order\"** (checked/active), meaning the quotation has been successfully confirmed into a sales order. No confirmation dialog appeared — Odoo confirmed it directly.",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Successfully cancelled sales order S00021. After clicking \"Cancel\", confirmed the cancellation via the \"Send and cancel\" button in the Cancel Sales Order dialog. The statusbar now shows **\"Cancelled\"** as the checked/active radio, confirming the order is fully cancelled. Screenshot saved.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Verified all observed values from the live page without changes.",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-report",
+      "status": "blocked",
+      "summary": "Turn cap (45) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 75
+    }
+  ],
+  "passed": 7,
+  "total": 8,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod5",
+      "step": "01-open",
+      "skill": "s_fe255d",
+      "similarity": 0.993,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 5 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Customers\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod5",
+      "step": "02-create",
+      "skill": "s_9f2696",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('option', { name: 'fwod5-n2 Bench Customer' })",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod5",
+      "step": "08-report",
+      "skill": "s_8453f4",
+      "similarity": 0.972,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+  ],
+  "wallMs": 1372844,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1981175,
+    "completionTokens": 28416,
+    "cachedTokens": 1814912
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 883613,
+      "completionTokens": 10453,
+      "cachedTokens": 759808
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1097562,
+      "completionTokens": 17963,
+      "cachedTokens": 1055104
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,105 @@
+{
+  "name": "fwod5",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in Odoo, create a new Contact (customer) named exactly '{{runid}} Bench Customer' with City set to 'Benchville' (fill the city under the address fields; expand the form if needed). Save it. Then report back the contact's name and city as shown on the saved record. Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+      "skill": "s_df0f00",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo (already signed in as admin), go to Sales -> Orders -> Quotations and create a new quotation for the customer '{{runid}} Bench Customer' (use the customer autocomplete dropdown - pick the option from the dropdown, do not just type). Add exactly ONE order line: pick any product from the product catalogue using the product autocomplete dropdown (choose an actual option from the dropdown), set quantity 3. Let Odoo autofill the unit price. Then report: (a) the exact product name you chose, (b) the unit price the app filled in, and (c) the Untaxed Amount shown in the totals. Do not save/confirm the quotation yet unless needed to see totals - the totals should appear in the {{01-open.url.q.view_type}}. Do not wait for network idle; wait on concrete page state.",
+      "skill": "s_1657f2",
+      "params": {
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "o_form_view_o_group_tabl",
+        "e3728"
+      ],
+      "recorded": {
+        "o_form_view_o_group_tabl": "Untaxed Amount",
+        "e3728": "70.00"
+      }
+    },
+    {
+      "id": "03-add",
+      "instruction": "In Odoo, the browser is currently on an unsaved new Quotation {{01-open.url.q.view_type}} for customer '{{runid}} Bench Customer' with one order line: '[FURN_7777] Office Chair', qty 3, unit price {{02-create.e3728}}, {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}} 210.00. Add a SECOND order line: pick a DIFFERENT product from the catalogue using the product autocomplete dropdown (choose an actual option from the dropdown, not just typing), quantity 2, let Odoo autofill the price. Then report: (a) the exact product name of the second line, (b) its unit price, and (c) the new {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}} shown in the totals. Do not confirm the quotation. Do not wait for network idle; wait on concrete page state.",
+      "skill": "s_3d3384",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "e3814"
+      ],
+      "recorded": {
+        "e3814": "2,100.00"
+      }
+    },
+    {
+      "id": "04-change",
+      "instruction": "In Odoo, the browser is on the unsaved Quotation {{01-open.url.q.view_type}} for customer '{{runid}} Bench Customer' with two order lines: line 1 = '[FURN_7777] Office Chair' qty 3 unit price {{02-create.e3728}}, line 2 = '[FURN_7888] Desk Stand with Screen' qty 2 unit price {{03-add.e3814}}, {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}} 4,410.00. Change the FIRST line's quantity from 3 to 5. Then report the new {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}} shown in the totals (and the first line's subtotal). Do not confirm the quotation. Do not wait for network idle; wait on concrete page state.",
+      "skill": "s_90476d",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-report",
+      "instruction": "In Odoo, the browser is on the unsaved Quotation {{01-open.url.q.view_type}} for customer '{{runid}} Bench Customer' with two order lines: line 1 = '[FURN_7777] Office Chair' qty 5 unit price {{02-create.e3728}}, line 2 = '[FURN_7888] Desk Stand with Screen' qty 2 unit price {{03-add.e3814}}, {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}} 4,550.00. Confirm the quotation so it becomes a sales order (click Confirm / Confirm Sale, handling any confirmation dialog). After it is confirmed, report: (a) the order reference / name shown for the record (e.g. S00042) and (b) the status the app now shows (e.g. 'Sales Order' / 'In Progress' in the status bar). Do not wait for network idle; wait on concrete page state.",
+      "skill": "s_5727cd",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-report",
+      "instruction": "In Odoo, the browser is on the confirmed sales order S00021 for customer '{{runid}} Bench Customer' (status 'Sales Order'). Cancel this sales order (use the Cancel action from the Action/gear menu or the Cancel button, and confirm any dialog that appears). After cancelling, report the status the app now shows on the record (e.g. 'Cancelled'). Do not wait for network idle; wait on concrete page state.",
+      "skill": "s_20d232",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-open",
+      "instruction": "Verification only, no changes: In Odoo, reload the sales order S00021 (e.g. open Sales -> Orders -> Orders and find S00021, or reload the current {{01-open.url.q.view_type}}) and report the status shown on it now, plus its untaxed amount and the two order line products/quantities. Then open the contact '{{runid}} Bench Customer' and report its City. Report only these observed values.",
+      "skill": "s_8453f4",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "08-report",
+      "instruction": "Read-only task. The browser is currently showing sales order S00021 in Odoo. Report as plain text the exact values currently visible on the page: (1) the status shown in the statusbar, (2) the {{02-create.o_{{01-open.url.q.view_type}}_view_o_group_tabl}}, (3) for each order line: product name, quantity, unit price. Do not click anything that changes data. If the page is not showing S00021, navigate to Sales -> Orders -> Orders and open S00021 first.",
+      "skill": "s_f0ac9e",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod5-n1",
+    "created": "2026-08-26T22:33:41.536Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

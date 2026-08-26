@@ -1,0 +1,36 @@
+[
+  {
+    "flow": "fwod5",
+    "step": "01-open",
+    "skill": "s_fe255d",
+    "similarity": 0.993,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 5 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Customers\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+  },
+  {
+    "flow": "fwod5",
+    "step": "02-create",
+    "skill": "s_9f2696",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('option', { name: 'fwod5-n2 Bench Customer' })",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod5",
+    "step": "08-report",
+    "skill": "s_8453f4",
+    "similarity": 0.972,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+  }
+]
