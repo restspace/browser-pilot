@@ -1,0 +1,67 @@
+{
+  "arm": "agent-browser",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2agr1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 90,
+  "wallMs": 1424277,
+  "orchestrator": {
+    "input": 74785,
+    "cacheWrite": 0,
+    "cacheRead": 4805760,
+    "output": 10816
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 211,
+  "subcommands": {
+    "skills": 1,
+    "open": 16,
+    "snapshot": 31,
+    "fill": 8,
+    "click": 27,
+    "get": 23,
+    "wait": 62,
+    "eval": 25,
+    "network": 5,
+    "press": 4,
+    "keyboard": 2,
+    "focus": 1,
+    "check": 2,
+    "is": 3,
+    "screenshot": 1
+  },
+  "invocationCount": 211,
+  "commandMs": 152934,
+  "commandBytes": 225108,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 1.4018,
+  "maxUsd": 2,
+  "spendUsd": 1.4018,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE.** Panel titles on the provisioned dashboard `Service Health` (uid `bench-service-health`, folder `Bench`), exactly as shown on the page:\n- `Request rate` (timeseries)\n- `Error count` (stat)\n- `Latency by endpoint` (table)\n\nRead from the rendered page headings and cross-checked against the dashboard JSON (`/api/dashboards/uid/bench-service-health`), which returned the same three titles.\n\n**Objective 2 — DONE.** New dashboard `c2agr1 Bench Dashboard` exists and is saved (version 3). It contains a Stat panel titled `c2agr1 Availability` whose query uses the TestData data source. Verified in the saved JSON: `\"type\":\"stat\"`, `\"title\":\"c2agr1 Availability\"`, `\"datasource\":{\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}` on both the panel and its target. The panel renders a live value (90.3) from TestData.\n\n**Objective 3 — DONE.** The same dashboard contains a Text panel titled `c2agr1 Notes` with content `\"Run c2agr1 bench notes. Availability stat panel uses the TestData data source.\"` — includes the runid `c2agr1`. Verified in saved JSON (`\"type\":\"text\"`, `\"mode\":\"markdown\"`) and in the rendered panel text.\n\n**Objective 4 — DONE.** Saved JSON contains `\"tags\":[\"bench\"]` and `\"time\":{\"from\":\"now-6h\",\"to\":\"now\"}`. The page header shows `Time range selected: Last 6 hours`. Note: persisting the time range required ticking \"Update default time range\" in the save dialog — the first save silently dropped it.\n\n**Objective 5 — DONE.** Saved JSON contains `\"refresh\":\"1m\"`. The page header shows `Choose refresh time interval with current interval 1 minute selected`. As above, this required ticking \"Update default refresh value\" in the save dialog.\n\n**Objective 6 — DONE.** URL: `http://127.0.0.1:3000/d/efwc2cfy4jif4e/c2agr1-bench-dashboard` — UID `efwc2cfy4jif4e`, slug `c2agr1-bench-dashboard`, dashboard id 3, folder `General`. Confirmed findable via search (`/api/search?query=c2agr1`).\n\nTwo notes on the environment worth flagging: Grafana 11.3 has no \"Apply\" button in the panel editor — changes commit on \"Back to dashboard\" — and the save dialog's \"Update default time range\" / \"Update default refresh value\" checkboxes are what actually persist those two settings; leaving them unchecked saves the dashboard without them.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2agr1-agent-browser-transcript.jsonl"
+}
