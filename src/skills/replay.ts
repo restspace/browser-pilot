@@ -174,6 +174,8 @@ export async function replaySkill(
     failIndex: number,
     /** When set (loop bodies), collects what each target actually resolved to, for the loop's progress check. */
     sink?: string[],
+    /** Loop-body cursor: which match an ambiguous per-record locator should act on (see resolveChain). */
+    ambiguousNth?: number,
   ): Promise<'ran' | 'skipped' | 'stop'> => {
     const args = fillParamsDeep(step.args, params) as Record<string, unknown>;
     const head = `${tag}. ${step.tool} ${describeArgs(step.tool, args)}`;
@@ -197,7 +199,7 @@ export async function replaySkill(
     for (const key of ['target', 'source']) {
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
-      const hit = await resolveChain(page, chain, typeof args[key] === 'string' ? String(args[key]) : '', step.tool === 'read_all');
+      const hit = await resolveChain(page, chain, typeof args[key] === 'string' ? String(args[key]) : '', step.tool === 'read_all', ambiguousNth);
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
         res.misses.push({ step: tag, key, primary: chain[0] ? candidateExpr(chain[0]) : '(none recorded)', used: null });
@@ -401,16 +403,21 @@ export async function replaySkill(
     // counted it as progress. Same targets + no shrink = fail to recovery.
     let prevSig: string | null = null;
     let prevRemaining = Number.POSITIVE_INFINITY;
+    // Cursor over unprocessed records: a delete loop shrinks the guard count,
+    // so match 0 is always the next record; an edit-in-place loop leaves the
+    // count alone, so the next record is the next match index. The cursor
+    // advances exactly when the previous iteration did not consume its record.
+    let cursor = 0;
     while (iter < max) {
       if (opts.signal?.aborted) break;
       await settleDom(page);
       const chain = fillParamsDeep(guard, params) as LocatorCandidate[];
       const hit = await resolveChain(page, chain, '', true);
       const remaining = hit ? await hit.locator.count().catch(() => 0) : 0;
-      if (!remaining) break;
+      if (!remaining || cursor >= remaining) break;
       const sig: string[] = [];
       for (const [k, bstep] of body.entries()) {
-        const st = await runOneStep(bstep, `${n}.${iter + 1}.${k + 1}`, n, sig);
+        const st = await runOneStep(bstep, `${n}.${iter + 1}.${k + 1}`, n, sig, cursor);
         if (st === 'stop') {
           res.stepsRun = before;
           return 'stop';
@@ -427,6 +434,16 @@ export async function replaySkill(
         return 'stop';
       }
       prevSig = joined;
+      // Did this iteration consume its record (guard shrank) or leave it in
+      // place (edit-in-place)? Advance the cursor only in the second case.
+      // Settle first: a delete's row removal landing late would otherwise
+      // advance the cursor and make the next iteration skip a record.
+      await settleDom(page);
+      const after = await (async () => {
+        const c = await resolveChain(page, fillParamsDeep(guard, params) as LocatorCandidate[], '', true);
+        return c ? await c.locator.count().catch(() => 0) : 0;
+      })();
+      if (after >= remaining) cursor++;
       prevRemaining = remaining;
       iter++;
     }
@@ -474,6 +491,15 @@ export async function resolveChain(
   rawTarget: string,
   /** read_all reads across every match, so its target need not be unique. */
   allowMultiple = false,
+  /**
+   * Loop-body cursor: when a candidate matches several records, act on THIS
+   * match index (the first unprocessed record) instead of skipping to a
+   * fallback. A folded loop's per-record locator is often generic across rows
+   * ("Edit" on every row), so ambiguity there is the loop's normal shape, not
+   * drift — and the positional fallback it used to fall through to is pinned
+   * to one recorded row, which is how fwrd4l edited part A seven times.
+   */
+  ambiguousNth?: number,
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
   for (const [index, candidate] of candidates.entries()) {
@@ -483,6 +509,9 @@ export async function resolveChain(
       if (count === 1) return { locator, index, candidate };
       if (count > 1) {
         if (allowMultiple) return { locator, index, candidate };
+        if (ambiguousNth !== undefined && candidate.nth === undefined && ambiguousNth < count) {
+          return { locator: locator.nth(ambiguousNth), index, candidate: { ...candidate, nth: ambiguousNth } };
+        }
         if (candidate.nth === undefined && index === 0) continue; // was unique; ambiguity is drift, keep looking
       }
     } catch {
