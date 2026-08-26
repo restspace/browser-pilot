@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "496a2ef"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod2-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1302728,
+  "orchestrator": {
+    "input": 4762,
+    "cacheWrite": 0,
+    "cacheRead": 24960,
+    "output": 2142
+  },
+  "inner": {
+    "promptTokens": 1938992,
+    "cachedTokens": 1520128,
+    "completionTokens": 25246,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1695825,
+        "completionTokens": 13771,
+        "cachedTokens": 1323520,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 243167,
+        "completionTokens": 11475,
+        "cachedTokens": 196608,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 62,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1230890,
+  "commandBytes": 5413,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod2-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 62,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0226,
+  "maxUsd": 2,
+  "spendUsd": 0.2257,
+  "finalText": "All objectives completed and verified. Final report:\n\n**1. DONE** — Customer `fwod2-n1 Bench Customer` created with City = `Benchville`. Verified by reopening the saved contact: Name \"fwod2-n1 Bench Customer\", City \"Benchville\".\n\n**2. DONE** — Quotation `S00021` created for that customer (customer chosen from the autocomplete dropdown, confirmed by the Benchville address badge) with one order line:\n- Product: `[FURN_1118] Corner Desk Left Sit`\n- Quantity: 3.00\n- Unit price (app-filled): £85.00\n- Untaxed Amount: £255.00 (TAX 20% £51.00, Total £306.00)\n\n**3. DONE** — Second order line added (product selected from the product autocomplete dropdown):\n- Product: `[E-COM12] Conference Chair (Steel)`\n- Quantity: 2.00, unit price £33.00 (line total £66.00)\n- New Untaxed Amount: £321.00 (TAX £64.20, Total £385.20)\n\n**4. DONE** — First line's quantity changed from 3 to 5 (unit price £85.00, line total £425.00; second line unchanged):\n- New Untaxed Amount: £491.00 (TAX £98.20, Total £589.20)\n\n**5. DONE** — Quotation confirmed via the Confirm button:\n- Order reference: `S00021`\n- Status shown: `Sales Order` (status bar radio \"Sales Order\" checked; \"Quotation\" no longer active)\n\n**6. DONE** — Sales order cancelled (Cancel action → confirmation dialog → \"Send and cancel\" in the cancellation wizard):\n- Status shown after cancelling: `Cancelled` (checked/disabled in the status bar; Quotation, Quotation Sent and Sales Order all unchecked)\n\nFinal read-back verification confirmed the contact still reads Name \"fwod2-n1 Bench Customer\" / City \"Benchville\", and order `S00021` shows status `Cancelled` — nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod2-n1-browser-pilot-transcript.jsonl"
+}

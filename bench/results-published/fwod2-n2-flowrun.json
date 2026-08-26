@@ -1,0 +1,84 @@
+{
+  "flow": "fwod2",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Created a new Contact named 'fwod2-n2 Bench Customer' with City 'Benchville' in Odoo 17. Verified by reading back from the saved form: the Name field shows \"fwod2-n2 Bench Customer\" and the City field shows \"Benchville\".",
+      "values": {
+        "name": "fwod2-n2 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Created draft Quotation S00022 (id=22) in Odoo 17 Sales for customer 'fwod2-n2 Bench Customer' (selected from the autocomplete dropdown; the saved form shows that partner's address \"Benchville\" beneath the field). Added exactly one order line: product \"Customizable Desk\" (chosen from the product autocomplete dropdown, default configuration confirmed in the product configurator dialog), quantity 3.00, unit price 750.00 filled by the app, 20% tax. Verified on the SAVED record: product name \"Customizable Desk\" and unit price \"750.00\" read from the order-lines table, and Untaxed Amount \"£ 2,250.00\" read from the totals row (Total £ 2,700.00). Quotation left as draft — status bar shows \"Quotation\" checked, Confirm was never clicked.",
+      "values": {
+        "customer": "fwod2-n2 Bench Customer",
+        "order_number": "S00022",
+        "product": "Customizable Desk",
+        "quantity": "3.00",
+        "status": "draft (Quotation)",
+        "tax": "20% (£ 450.00)",
+        "total": "£ 2,700.00",
+        "unit_price": "750.00",
+        "untaxed_amount": "£ 2,250.00"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "03-report",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": "B",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 6
+    }
+  ],
+  "passed": 2,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod2",
+      "step": "02-report",
+      "skill": "s_eb0d48",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod2",
+      "step": "03-report",
+      "skill": "s_23171a",
+      "similarity": 0.996,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 803345,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 301473,
+    "completionTokens": 7004,
+    "cachedTokens": 276416
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

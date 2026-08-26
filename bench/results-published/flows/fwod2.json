@@ -1,0 +1,157 @@
+{
+  "name": "fwod2",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Go to http://127.0.0.1:8069/ and sign in with login 'admin' and password 'admin' if not already signed in. Then in Odoo 17, create a new Contact (customer) named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville'. Save it. Verify the record is saved by reopening it and report the customer's name and city as shown on the page. Do not wait for network idle (the app long-polls); wait on concrete page state instead.",
+      "skill": "s_5790ec",
+      "params": {
+        "v1": "http://127.0.0.1:8069/",
+        "v2": "{{runid}} Bench Customer",
+        "v3": "Benchville"
+      },
+      "outputs": [
+        "name",
+        "city"
+      ],
+      "recorded": {
+        "name": "fwod2-n1 Bench Customer",
+        "city": "Benchville"
+      }
+    },
+    {
+      "id": "02-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Instruction timed out after 300s (19 turns, 21 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.\"\nActions the previous attempt ran (most recent last):\n  ok goto {\"url\":\"http://127.0.0.1:8069/web#action=sale.action_quotations\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e249\"}\n  ok snapshot {}\n  ok type {\"target\":\"@e598\",\"text\":\"{{runid}} Bench Customer\"}\n  FAILED click {\"target\":\"@e82\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e757\"}\n  ok click {\"target\":\"@e679\"}\n  ok snapshot {}\n  ok type {\"target\":\"@e773\",\"text\":\"Laptop\"}\n  ok type {\"target\":\"@e773\",\"text\":\"Desk\"}\n  ok press {\"target\":\"@e773\",\"key\":\"Control+a\"}\n  ok press {\"target\":\"@e773\",\"key\":\"Backspace\"}\n  ok type {\"target\":\"@e773\",\"text\":\"Desk\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e801\"}\n  ok batch [3 steps: dblclick, fill, click]\n  ok read {\"target\":\"@e773\",\"what\":\"value\"}\n  ok read {\"target\":\"@e783\",\"what\":\"value\"}\n  ok read {\"target\":\"@e793\",\"what\":\"text\"}\nThe browser was left at: http://127.0.0.1:8069/web#action=316&model=sale.order&view_type=form\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nIn Odoo 17 (already signed in as admin), go to the Sales app and create a new Quotation. Set the Customer to '{{runid}} Bench Customer' — this is an autocomplete dropdown, so you must actually select the matching option from the dropdown that appears, not just type the name. Then add exactly ONE order line: pick any product from the product catalogue (again, select a real option from the product autocomplete dropdown) with quantity 3. Do NOT confirm the quotation yet — leave it as a draft quotation. Save. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, and (c) the Untaxed Amount the app computes. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_eb0d48",
+      "outputs": [
+        "customer",
+        "product",
+        "quantity",
+        "status",
+        "total",
+        "unit_price",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "customer": "fwod2-n1 Bench Customer",
+        "product": "[FURN_1118] Corner Desk Left Sit",
+        "quantity": "3.00",
+        "status": "Quotation (draft)",
+        "total": "£ 306.00",
+        "unit_price": "£ 85.00",
+        "untaxed_amount": "£ 255.00"
+      }
+    },
+    {
+      "id": "03-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Instruction timed out after 300s (7 turns, 7 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.\"\nActions the previous attempt ran (most recent last):\n  ok snapshot {}\n  ok click {\"target\":\"@e679\"}\n  ok snapshot {}\n  ok type {\"target\":\"@e975\",\"text\":\"Chair\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e1004\"}\n  ok snapshot {}\nThe browser was left at: http://127.0.0.1:8069/web#action=316&model=sale.order&view_type=form&id=21\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nIn Odoo 17 (already signed in as admin), open the existing draft Quotation S00021 for customer '{{runid}} Bench Customer' (it currently has one order line: '{{02-report.product}}', quantity 3, unit price £85.00, Untaxed Amount £255.00). Add a SECOND order line with a DIFFERENT product (pick any other product from the catalogue — select a real option from the product autocomplete dropdown, not just typed text) with quantity 2. Keep the first line unchanged. Save the quotation, still as a draft (do NOT confirm). Report: (a) the exact product name of the new second line, (b) its unit price, and (c) the new Untaxed Amount the app computes for the whole quotation. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_23171a",
+      "outputs": [
+        "first_line",
+        "quotation",
+        "second_line_product",
+        "second_line_quantity",
+        "second_line_unit_price",
+        "status",
+        "tax",
+        "total",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "first_line": "[FURN_1118] Corner Desk Left Sit, qty 3.00, unit price 85.00, £ 255.00",
+        "quotation": "S00021",
+        "second_line_product": "[E-COM12] Conference Chair (Steel)",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "£ 33.00",
+        "status": "Quotation (draft)",
+        "tax": "£ 64.20",
+        "total": "£ 385.20",
+        "untaxed_amount": "£ 321.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the existing draft Quotation {{03-report.quotation}} for customer '{{runid}} Bench Customer'. It has two order lines: line 1 is '{{02-report.product}}' quantity {{02-report.quantity}} at £85.00, line 2 is '{{03-report.second_line_product}}' quantity {{03-report.second_line_quantity}} at £33.00; current Untaxed Amount is £321.00. Change ONLY the first line's quantity from 3 to 5 (leave the second line and everything else unchanged). Save, still as a draft (do NOT confirm). Report the new Untaxed Amount the app computes for the whole quotation, and confirm the first line now shows quantity 5. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_b39440",
+      "params": {
+        "v1": "{{02-report.quantity}}"
+      },
+      "outputs": [
+        "first_line_quantity",
+        "first_line_unit_price",
+        "first_line_total",
+        "second_line",
+        "untaxed_amount",
+        "tax",
+        "total",
+        "status"
+      ],
+      "recorded": {
+        "first_line_quantity": "5.00",
+        "first_line_unit_price": "85.00",
+        "first_line_total": "£ 425.00",
+        "second_line": "Conference Chair (Steel), qty 2.00, £33.00, £66.00",
+        "untaxed_amount": "£ 491.00",
+        "tax": "£ 98.20",
+        "total": "£ 589.20",
+        "status": "Quotation (draft)"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the existing draft Quotation {{03-report.quotation}} for customer '{{runid}} Bench Customer' (two lines: 'Corner Desk Left Sit' qty 5 at £{{04-open.first_line_unit_price}}, 'Conference Chair (Steel)' qty 2 at £33.00, Untaxed Amount £491.00). Confirm the quotation so it becomes a Sales Order (use the Confirm button / Confirm Sale action). Report: (a) the order reference / name shown for the record (e.g. {{03-report.quotation}}), and (b) the status the app now shows (e.g. 'Sales Order' / 'Sale' in the status bar). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_8e5414",
+      "params": {},
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the {{05-open.status}} {{03-report.quotation}} for customer '{{runid}} Bench Customer' (currently confirmed, status '{{05-open.status}}'). Cancel this sales order so nothing stays active — use the Cancel action (it may be under a dropdown menu / 'Action' or a 'Cancel' button; confirm any confirmation dialog that appears). Report the status the app shows after cancelling (e.g. 'Cancelled'). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_b51cd9",
+      "params": {},
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Cancelled"
+      }
+    },
+    {
+      "id": "07-verify",
+      "instruction": "In Odoo 17 (already signed in as admin), verify two things and report them: (1) Open the contact '{{runid}} Bench Customer' and report its Name and City exactly as shown. (2) Open the sales order {{03-report.quotation}} and report its reference/name, its current status, and whether it is cancelled (not active). Do not modify anything — read only. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_5fc4f8",
+      "params": {},
+      "outputs": [
+        "contact_name",
+        "contact_city",
+        "order_reference",
+        "order_status"
+      ],
+      "recorded": {
+        "contact_name": "fwod2-n1 Bench Customer",
+        "contact_city": "Benchville",
+        "order_reference": "S00021",
+        "order_status": "Cancelled"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod2-n1",
+    "created": "2026-08-26T14:36:38.660Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
