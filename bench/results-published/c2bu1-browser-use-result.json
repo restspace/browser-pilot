@@ -1,0 +1,53 @@
+{
+  "arm": "browser-use",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-use@0.13.8",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/c2bu1-browser-use-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2bu1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 29,
+  "wallMs": 595633,
+  "orchestrator": {
+    "input": 0,
+    "cacheWrite": 0,
+    "cacheRead": 0,
+    "output": 0
+  },
+  "inner": {
+    "promptTokens": 77874,
+    "cachedTokens": 67520,
+    "completionTokens": 5914,
+    "model": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 1,
+  "subcommands": {
+    "browser-use": 1
+  },
+  "invocationCount": 1,
+  "commandMs": 595622,
+  "commandBytes": 1428,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [],
+  "orReportedCostUsd": 0,
+  "maxUsd": 2,
+  "spendUsd": 0.0581,
+  "finalText": "Run c2bu1 — repair ticket flow — TERMINATED EARLY (agent repeatedly failed to output valid action format and was stopped). Per-objective report:\n\n1. DONE — Ticket 'c2bu1 RD Bench Ticket' exists as RD-1015 (observed on ticket detail page /#/tickets/t15, status Draft, raised 2026-08-26).\n2. DONE — Part 'c2bu1 RD Part A' exists with cost $100.00 and markup 25%; the app computes a price of $125.00 (parts table row: Cost $100.00, Markup 25%, Price $125.00; Total price × quantity = $125.00).\n3. FAILED — Part 'c2bu1 RD Part B' (cost 200, markup 25) was never added; the run was terminated before this step, so no price for Part B was observed.\n4. FAILED — Part A's cost was never changed from 100 to 150; no post-edit price was observed.\n5. FAILED — The ticket was never moved to status Ready; the Ready-status preconditions were not discovered or satisfied (ticket remained Draft; 'Mark Ready' button was present but never successfully exercised).\n6. FAILED — Parts were not removed and the ticket was not archived; ticket RD-1015 with part 'c2bu1 RD Part A' remains active in the app.\n\nOnly objectives 1 and 2 were completed and verified against the page. Objectives 3–6 are incomplete because the agent run was terminated early.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2bu1-browser-use-transcript.jsonl"
+}
