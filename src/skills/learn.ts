@@ -247,6 +247,29 @@ export function synthesizeReport(skill: Skill, params: Record<string, string>, l
   };
 }
 
+/**
+ * Which report-value names a tier-A (zero-model) replay of this skill
+ * re-publishes deterministically: labelled reads (re-read live from the page)
+ * and report-template values derived from the caller's own {{vN}} params
+ * (synthesizeReport keeps exactly those; recorded literals are dropped as
+ * stale). Used by the flow export lint to flag {{step.output}} references
+ * that only model recovery could re-observe.
+ */
+export function publishedOutputs(skill: Skill): string[] {
+  const out = new Set<string>();
+  const walk = (steps: Skill['steps']): void => {
+    for (const s of steps) {
+      if ((s.tool === 'read' || s.tool === 'read_all') && s.label) out.add(s.label);
+      if (s.body) walk(s.body);
+    }
+  };
+  walk(skill.steps);
+  for (const [k, v] of Object.entries(skill.reportTemplate?.values ?? {})) {
+    if (/\{\{v\d+\}\}/.test(v)) out.add(k);
+  }
+  return [...out];
+}
+
 export function instructionEntry(entries: RecordedEntry[]): RecordedInstruction | undefined {
   return entries.find((e): e is RecordedInstruction => e.k === 'instruction');
 }

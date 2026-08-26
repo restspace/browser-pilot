@@ -1,6 +1,6 @@
 # PLAN: eliminate the remaining "step has no usable skill" causes
 
-Status: DESIGN — route-by-cause recovery (the mitigation) and prose-cited
+Status: IMPLEMENTED 2026-08-26 (case 3 resume-merge + case 4a export lint) — route-by-cause recovery (the mitigation) and prose-cited
 evidence backfill (fix for the observation-step cause) are already landed
 (624c8c1, 04d8046). This plan covers the two structural causes left: resume
 scaffolding (case 3) and skills that exist but cannot be entered (case 4).

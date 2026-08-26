@@ -6,8 +6,8 @@ import { runEscalatingInstruction, type InstructionResult, type SkillRecord } fr
 import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
-import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, listFlows, loadFlow, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
+import { bindSkill, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -421,7 +421,7 @@ export class Daemon {
    * with declared run variables turned into references. Requires learning mode
    * (the recording is the source) and a session that ran at least one step.
    */
-  private exportFlow(name: string): { path: string; name: string; steps: number; vars: string[] } {
+  private exportFlow(name: string): { path: string; name: string; steps: number; vars: string[]; warnings?: string[] } {
     if (!this.browser.learn || !this.browser.script) {
       throw new Error('not a learning session — start it with --learn to record a flow');
     }
@@ -448,7 +448,17 @@ export class Daemon {
     });
     if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
     const file = saveFlow(flow);
-    return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars };
+    // Reference lint (case 4a): warn now, while re-recording is still cheap,
+    // about any {{step.output}} only model recovery could re-observe. A step's
+    // pin may be one segment of a chain whose LATER segment does the read, so
+    // publishes() unions the whole chain.
+    const warnings = lintFlowRefs(flow, (id) => {
+      const sk = store.get(id);
+      if (!sk) return null;
+      const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
+      return chain.flatMap(publishedOutputs);
+    });
+    return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars, ...(warnings.length ? { warnings } : {}) };
   }
 
   /**

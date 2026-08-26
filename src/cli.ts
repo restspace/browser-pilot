@@ -386,11 +386,14 @@ async function main(): Promise<void> {
         // unwind before closing the browser. Reachable-but-unresponsive is a
         // real failure worth reporting, not a silent "not running".
         const res = await request(conn, 'stop', { saveFlow: flags.get('save-flow') || undefined }, undefined, 20_000);
-        const data = res.data as { preempted?: boolean; videos?: string[]; flow?: { path?: string; name?: string; steps?: number; vars?: string[]; error?: string } } | undefined;
+        const data = res.data as { preempted?: boolean; videos?: string[]; flow?: { path?: string; name?: string; steps?: number; vars?: string[]; warnings?: string[]; error?: string } } | undefined;
         console.log(`stopped: ${name}${data?.preempted ? ' (interrupted a running instruction)' : ''}`);
         for (const video of data?.videos ?? []) console.log(`  video: ${video}`);
         if (data?.flow?.error) console.error(`  flow not saved: ${data.flow.error}`);
-        else if (data?.flow?.path) console.log(`  flow "${data.flow.name}" saved: ${data.flow.steps} step(s)${data.flow.vars?.length ? `, vars ${data.flow.vars.join(', ')}` : ''} → ${data.flow.path}`);
+        else if (data?.flow?.path) {
+          console.log(`  flow "${data.flow.name}" saved: ${data.flow.steps} step(s)${data.flow.vars?.length ? `, vars ${data.flow.vars.join(', ')}` : ''} → ${data.flow.path}`);
+          for (const w of data.flow.warnings ?? []) console.error(`  warning: ${w}`);
+        }
       } catch (err) {
         console.error(`browser-pilot: could not stop ${name}: ${(err as Error).message}`);
       } finally {

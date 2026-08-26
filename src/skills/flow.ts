@@ -204,8 +204,16 @@ interface Group {
 function groupByInstruction(entries: RecordedEntry[]): Group[] {
   const groups: Group[] = [];
   for (const e of entries) {
-    if (e.k === 'instruction') groups.push({ instruction: e });
-    else if (e.k === 'report' && groups.length) groups[groups.length - 1].report = e;
+    if (e.k === 'instruction') {
+      // An escalation continuation (recorded under the original wording,
+      // marked `resume`) is the same instruction still in flight: keep the
+      // predecessor's group open so its clean start context survives and the
+      // continuation's report/endUrl land on it. A resume with no same-text
+      // predecessor (truncated recording) stands alone.
+      const prev = groups[groups.length - 1];
+      if (e.resume && prev?.instruction.text === e.text) continue;
+      groups.push({ instruction: e });
+    } else if (e.k === 'report' && groups.length) groups[groups.length - 1].report = e;
     else if (e.k === 'step' && groups.length && e.diff?.url) groups[groups.length - 1].endUrl = e.diff.url;
   }
   // Only steps that ended in a success are worth replaying; a blocked/failed
@@ -243,6 +251,42 @@ export function recoveryRoute(
   if (!step.skill) return { easy: true, cause: 'no-skill' };
   if (unresolved) return { easy: true, cause: 'unthreaded-ref' };
   return { easy: false, cause: 'replay-failed' };
+}
+
+/**
+ * Export-time reference lint (PLAN-no-skill-steps case 4a): find every
+ * `{{stepId.output}}` reference whose producing step cannot re-publish the
+ * value deterministically on replay, and say so while the author can still do
+ * something about it. `url.*` parts are exempt — every replay re-binds them
+ * from where its own browser lands. `publishes` answers, for a skill id, which
+ * output names a tier-A replay re-observes (labelled reads + param-derived
+ * report values); null when the skill is not in the store. Advisory only:
+ * replay behaviour is unchanged — an unthreaded ref already routes to cheap
+ * recovery — this surfaces the debt at build time instead of replay time.
+ */
+export function lintFlowRefs(flow: Flow, publishes: (skillId: string) => string[] | null): string[] {
+  const byId = new Map(flow.steps.map((s) => [s.id, s]));
+  const warnings: string[] = [];
+  const seen = new Set<string>();
+  for (const step of flow.steps) {
+    const texts = [step.instruction, ...Object.values(step.params ?? {})];
+    for (const text of texts) {
+      for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.-]+)\}\}/g)) {
+        const [, sid, out] = m;
+        if (out.startsWith('url.')) continue;
+        const producer = byId.get(sid);
+        if (!producer || seen.has(`${sid}.${out}`)) continue;
+        seen.add(`${sid}.${out}`);
+        const pubs = producer.skill ? publishes(producer.skill) : [];
+        if (pubs === null || pubs.includes(out)) continue;
+        warnings.push(
+          `{{${sid}.${out}}} (used by ${step.id}) can only be re-observed by model recovery — ` +
+            `consider re-recording so the value is read from the page.`,
+        );
+      }
+    }
+  }
+  return warnings;
 }
 
 /** Fill {{var}} and {{step.output}} references from run vars and prior outputs. */

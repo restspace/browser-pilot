@@ -133,6 +133,14 @@ export interface RecordedInstruction {
   url?: string;
   /** Structural fingerprint of that page (learning mode; see fingerprint.ts). */
   fingerprint?: number[];
+  /**
+   * This entry continues the immediately preceding instruction after an
+   * escalation — `text` is the ORIGINAL caller wording, not the resume
+   * scaffold the model was shown, and `url`/`fingerprint` describe wherever
+   * the failed attempt happened to leave the browser (mid-crisis, not a
+   * usable precondition). Flow building merges it into its predecessor.
+   */
+  resume?: true;
 }
 
 /** How one instruction ended — closes the group opened by the matching `instruction` entry. */
@@ -217,7 +225,7 @@ export class ScriptRecorder {
   }
 
   /** Mark the start of one `do` instruction; becomes a test.step in the script. */
-  beginInstruction(text: string, context: { url?: string; fingerprint?: number[] } = {}): void {
+  beginInstruction(text: string, context: { url?: string; fingerprint?: number[]; resume?: true } = {}): void {
     this.append({ k: 'instruction', text, ...context });
   }
 

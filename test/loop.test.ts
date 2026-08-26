@@ -479,6 +479,34 @@ describe('escalate-on-blocked', () => {
     expect(text).toMatch(/before you repeat any state-changing action/i);
   });
 
+  it('records the continuation under the ORIGINAL wording, marked resume — never the scaffold', async () => {
+    const state = new SessionState('t-esc-record');
+    const begins: Array<{ text: string; context: Record<string, unknown> }> = [];
+    const recording = {
+      dialogs: { drain: () => [] },
+      script: {
+        beginInstruction: (text: string, context: Record<string, unknown> = {}) => begins.push({ text, context }),
+        endInstruction: () => {},
+        readsThisInstruction: () => [],
+        readResultsThisInstruction: () => new Set<string>(),
+      },
+    } as unknown as BrowserSession;
+    await runEscalatingInstruction(
+      named('cheap', blocks()),
+      named('smart', succeeds()),
+      recording,
+      state,
+      'create the order',
+      loopOpts,
+    );
+    expect(begins).toHaveLength(2);
+    expect(begins[0].text).toBe('create the order');
+    expect(begins[0].context.resume).toBeUndefined();
+    // the model saw the RESUMING scaffold, but the recording must not
+    expect(begins[1].text).toBe('create the order');
+    expect(begins[1].context.resume).toBe(true);
+  });
+
   it('does NOT retry a verified failure — that is an answer, not a dead end', async () => {
     const state = new SessionState('t-esc-failure');
     let fallbackCalled = false;

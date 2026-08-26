@@ -3,8 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, type FlowStep } from '../src/skills/flow.js';
-import { bindSkill, synthesizeReport } from '../src/skills/learn.js';
+import { buildFlow, lintFlowRefs, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, type Flow, type FlowStep } from '../src/skills/flow.js';
+import { bindSkill, publishedOutputs, synthesizeReport } from '../src/skills/learn.js';
+import type { Skill } from '../src/skills/store.js';
 import { compileSkill } from '../src/skills/compile.js';
 
 let tmp: string;
@@ -256,5 +257,111 @@ describe('recoveryRoute', () => {
 
   it('routes a genuine replay failure straight to the strong model', () => {
     expect(recoveryRoute({ skill: 's_abc' }, false)).toEqual({ easy: false, cause: 'replay-failed' });
+  });
+});
+
+describe('resume-merge (escalation continuations)', () => {
+  /** A blocked first attempt, its resume-marked continuation, then a second instruction. */
+  const resumed = (): RecordedEntry[] => [
+    { k: 'instruction', text: "Sign in and create a ticket titled 'fr1 RD Bench Ticket'; report its ref id.", url: `${ORIGIN}/` },
+    { k: 'step', tool: 'fill', args: { target: '@e1', value: 'fr1 RD Bench Ticket' }, locators: {} },
+    { k: 'report', status: 'blocked', summary: 'stuck on the title field', values: {} },
+    { k: 'instruction', text: "Sign in and create a ticket titled 'fr1 RD Bench Ticket'; report its ref id.", url: `${ORIGIN}/#/half-done`, resume: true },
+    { k: 'step', tool: 'fill', args: { target: '@e2', value: 'fr1 RD Bench Ticket' }, locators: {} },
+    { k: 'report', status: 'success', summary: 'Created ticket, ref RD-1015.', values: { ref: 'RD-1015' }, skill: 's_create' },
+    { k: 'instruction', text: 'On ticket RD-1015, report the price.', url: `${ORIGIN}/#/tickets/t15` },
+    { k: 'step', tool: 'read', args: { target: '@e3', what: 'text' }, locators: {}, result: '"125.00"' },
+    { k: 'report', status: 'success', summary: 'price 125.00', values: { price: '125.00' }, skill: 's_price' },
+  ];
+
+  it('merges a resume continuation into its failed predecessor: original text, resume report', () => {
+    const flow = buildFlow(resumed(), { name: 'r', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: { runid: 'fr1' }, session: 's' })!;
+    expect(flow.steps).toHaveLength(2);
+    // the flow step carries the caller's wording (referencized), not the RESUMING scaffold
+    expect(flow.steps[0].instruction).toBe("Sign in and create a ticket titled '{{runid}} RD Bench Ticket'; report its ref id.");
+    // ...and the continuation's outcome: its skill pin and its outputs
+    expect(flow.steps[0].skill).toBe('s_create');
+    expect(flow.steps[0].outputs).toEqual(['ref']);
+    // the merged step's output threads into the next instruction as usual
+    expect(flow.steps[1].instruction).toMatch(/On ticket \{\{01-\w+\.ref\}\}/);
+  });
+
+  it('a resume whose predecessor is missing stands alone', () => {
+    const entries = resumed().slice(3); // recording truncated before the original attempt
+    const flow = buildFlow(entries, { name: 'r', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    expect(flow.steps).toHaveLength(2);
+    expect(flow.steps[0].instruction).toBe("Sign in and create a ticket titled 'fr1 RD Bench Ticket'; report its ref id.");
+    expect(flow.steps[0].skill).toBe('s_create');
+  });
+
+  it('a resume after a DIFFERENT instruction is not merged into it', () => {
+    const entries = resumed();
+    (entries[0] as { text: string }).text = 'Open the dashboard list.';
+    const flow = buildFlow(entries, { name: 'r', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    // the unrelated blocked group is dropped; the resume group stands alone and succeeds
+    expect(flow.steps).toHaveLength(2);
+    expect(flow.steps[0].skill).toBe('s_create');
+  });
+});
+
+describe('lintFlowRefs', () => {
+  const flowWithRef = (skill?: string): Flow => ({
+    name: 'f',
+    origin: ORIGIN,
+    startUrl: `${ORIGIN}/`,
+    vars: ['runid'],
+    steps: [
+      { id: '01-create', instruction: 'Create a dashboard; report its uid.', ...(skill ? { skill } : {}), outputs: ['dashboard_uid'], recorded: { dashboard_uid: 'afw6yy5xx9' } },
+      { id: '02-open', instruction: 'Open the dashboard with uid {{01-create.dashboard_uid}}.', outputs: [], recorded: {} },
+    ],
+    provenance: { session: 's', created: '2026-08-26T00:00:00Z' },
+  });
+
+  it('warns when the producing skill does not re-publish the referenced output', () => {
+    const warnings = lintFlowRefs(flowWithRef('s_create'), () => []);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('{{01-create.dashboard_uid}}');
+    expect(warnings[0]).toContain('re-recording');
+  });
+
+  it('stays quiet when the skill re-publishes it (labelled read / param-derived)', () => {
+    expect(lintFlowRefs(flowWithRef('s_create'), () => ['dashboard_uid'])).toEqual([]);
+  });
+
+  it('warns when the producing step has no skill at all', () => {
+    const warnings = lintFlowRefs(flowWithRef(undefined), () => {
+      throw new Error('must not be called — the step has no skill');
+    });
+    expect(warnings).toHaveLength(1);
+  });
+
+  it('exempts url.* provenance refs and skips skills missing from the store', () => {
+    const flow = flowWithRef('s_create');
+    flow.steps[1].instruction = 'Open {{01-create.url.p1}} and check {{01-create.dashboard_uid}}.';
+    expect(lintFlowRefs(flow, () => null)).toEqual([]); // skill not in store: no verdict
+    const warnings = lintFlowRefs(flow, () => []);
+    expect(warnings).toHaveLength(1); // url.p1 exempt, dashboard_uid flagged once
+  });
+});
+
+describe('publishedOutputs', () => {
+  it('collects labelled reads (loop bodies included) and param-derived report values, not recorded literals', () => {
+    const skill = {
+      id: 's_x',
+      origin: ORIGIN,
+      template: "create '{{v1}}'",
+      params: { v1: { example: 'fr1', usedIn: [1] } },
+      preconditions: { urlPattern: `${ORIGIN}/` },
+      steps: [
+        { tool: 'fill', args: { target: 'x', value: '{{v1}}' }, locators: {} },
+        { tool: 'read', args: { target: 'y' }, locators: {}, label: 'ref' },
+        { tool: 'loop', args: {}, locators: {}, body: [{ tool: 'read', args: { target: 'z' }, locators: {}, label: 'row_total' }] },
+      ],
+      reportTemplate: { summary: 'done', values: { title: "{{v1}} Ticket", uid: 'afw6yy5xx9' } },
+      stats: { uses: 1, successes: 1 },
+      status: 'validated',
+      provenance: { session: 's', instruction: 'i', created: '2026-08-26T00:00:00Z' },
+    } as unknown as Skill;
+    expect(publishedOutputs(skill).sort()).toEqual(['ref', 'row_total', 'title']);
   });
 });

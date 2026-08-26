@@ -42,6 +42,15 @@ export interface LoopOptions {
   /** Preempts the instruction (daemon `stop`); yields a blocked report, not a throw. */
   signal?: AbortSignal;
   onProgress?: (message: string) => void;
+  /**
+   * Record this run under a different instruction text. The escalation path
+   * sets it so the recording carries the caller's ORIGINAL wording (marked
+   * `resume`), never the "You are RESUMING…" scaffold — a skill compiled from
+   * scaffold text has an unmatchable template and a mid-crisis precondition,
+   * so it refuses on every replay. The scaffold still goes to the model;
+   * only what the recorder files changes.
+   */
+  recordAs?: { text: string; resume: true };
 }
 
 /** One tool call the instruction made, for the resume-safety actions log. */
@@ -196,7 +205,10 @@ export async function runInstruction(
   });
   // Script recording (opt-in) groups this instruction's actions under one
   // test.step, so a generated spec reads as the plan that produced it.
-  browser.script?.beginInstruction(instruction, offered.context);
+  browser.script?.beginInstruction(
+    opts.recordAs?.text ?? instruction,
+    opts.recordAs ? { ...offered.context, resume: true } : offered.context,
+  );
 
   const system: ChatMessage = { role: 'system', content: buildSystemPrompt(state) };
   const toolDefs = toolDefsFor(browser);
@@ -569,6 +581,10 @@ export async function runEscalatingInstruction(
   const headroom = (n: number) => Math.ceil(n * ESCALATION_BUDGET_MULTIPLIER);
   const escalatedOpts: LoopOptions = {
     ...opts,
+    // The recording must carry the caller's wording, not the resume scaffold —
+    // see LoopOptions.recordAs. Flow building then merges the continuation
+    // into the failed first attempt's group.
+    recordAs: { text: instruction, resume: true },
     ...(first.bailReason === 'turn-cap' ? { maxTurns: headroom(opts.maxTurns) } : {}),
     ...(first.bailReason === 'timeout' ? { timeoutMs: headroom(opts.timeoutMs) } : {}),
   };
