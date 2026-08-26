@@ -1,5 +1,13 @@
 # Cloud run runbook
 
+> **RULE — published runs are cloud-only.** Any run whose numbers will appear in
+> bench/MATRIX-*.md (any arm, any target, cold runs and flow sweeps alike) runs on the
+> cloud environment via a one-shot routine, never on a developer machine. Identical
+> hardware with nothing competing is what makes cells comparable. The single exception
+> is **atelyr** (private app behind a local mongod — cannot run in the cloud); its cells
+> are labelled "(local)". Local runs are for debugging and smoke only, and their numbers
+> are never published.
+
 One benchmark run, on a fresh Linux cloud instance. Point a cloud session at this
 file and give it a runid and an arm; everything else is here.
 
