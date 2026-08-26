@@ -1,0 +1,166 @@
+{
+  "name": "fwrd3",
+  "origin": "http://127.0.0.1:4180",
+  "startUrl": "http://127.0.0.1:4180/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then create a new ticket titled exactly '{{runid}} RD Bench Ticket' (fill any other required fields with sensible values, e.g. customer name 'Bench Customer'). Wait for the list/detail view to refresh after the create (it refreshes a short beat after the mutation, not instantly) and confirm the ticket appears. Report the exact ticket title shown and any ticket ID or reference number the app assigns.",
+      "skill": "s_a7f0b8",
+      "params": {
+        "v1": "http://127.0.0.1:4180/",
+        "v2": "bench@example.com",
+        "v3": "bench-pass-1234",
+        "v4": "{{runid}} RD Bench Ticket",
+        "v5": "Bench Customer"
+      },
+      "outputs": [
+        "title",
+        "reference",
+        "customer",
+        "status",
+        "created_date"
+      ],
+      "recorded": {
+        "title": "fwrd3-n1 RD Bench Ticket",
+        "reference": "RD-1015",
+        "customer": "Bench Customer",
+        "status": "Draft",
+        "created_date": "2026-08-26"
+      }
+    },
+    {
+      "id": "02-add",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' (ref {{01-open.reference}}), add a part named exactly '{{runid}} RD Part A' with cost 100 and markup 25. Fill any other required fields sensibly. Wait for the view to refresh after the create (it refreshes a short beat after the mutation, not instantly) and confirm the part appears on the ticket. Report the part name, cost, markup, and the PRICE the app computes for this part (the exact number shown on the page).",
+      "skill": "s_47c5b8",
+      "params": {
+        "v1": "{{01-open.reference}}",
+        "v2": "{{runid}} RD Part A",
+        "v3": "100",
+        "v4": "25"
+      },
+      "outputs": [
+        "part_name",
+        "cost",
+        "markup",
+        "computed_price",
+        "quantity",
+        "supplier"
+      ],
+      "recorded": {
+        "part_name": "fwrd3-n1 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "computed_price": "$125.00",
+        "quantity": "1",
+        "supplier": "No supplier"
+      }
+    },
+    {
+      "id": "03-add",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' (ref {{01-open.reference}}), add a SECOND part named exactly '{{runid}} RD Part B' with cost 200 and markup 25 (do not modify the existing part '{{runid}} RD Part A'). Fill any other required fields sensibly. Wait for the view to refresh after the create (it refreshes a short beat after the mutation, not instantly) and confirm both parts appear on the ticket. Report for BOTH parts: name, cost, markup, and the PRICE the app computes for each (exact numbers shown on the page).",
+      "skill": "s_23ba9f",
+      "params": {
+        "v1": "{{runid}} RD Part B",
+        "v2": "200",
+        "v3": "25"
+      },
+      "outputs": [
+        "part_a_name",
+        "part_a_cost",
+        "part_a_markup",
+        "part_a_price",
+        "part_b_name",
+        "part_b_cost",
+        "part_b_markup",
+        "part_b_price",
+        "total_price"
+      ],
+      "recorded": {
+        "part_a_name": "fwrd3-n1 RD Part A",
+        "part_a_cost": "$100.00",
+        "part_a_markup": "25%",
+        "part_a_price": "$125.00",
+        "part_b_name": "fwrd3-n1 RD Part B",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_price": "$250.00",
+        "total_price": "$375.00"
+      }
+    },
+    {
+      "id": "04-edit",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' (ref {{01-open.reference}}), edit the part named '{{runid}} RD Part A' and change ONLY its cost from 100 to 150 (leave markup at 25, leave part '{{runid}} RD Part B' untouched). Save the change and wait for the view to refresh after the mutation (it refreshes a short beat later, not instantly). Report the part's new cost, markup, and the PRICE the app now computes for Part A (exact number shown on the page), plus the ticket's parts total.",
+      "skill": "s_41eb25",
+      "params": {
+        "v1": "150"
+      },
+      "outputs": [
+        "part_a_new_cost",
+        "part_a_markup",
+        "part_a_price",
+        "part_b_cost",
+        "part_b_price",
+        "total_price"
+      ],
+      "recorded": {
+        "part_a_new_cost": "$150.00",
+        "part_a_markup": "25%",
+        "part_a_price": "$187.50",
+        "part_b_cost": "$200.00",
+        "part_b_price": "$250.00",
+        "total_price": "$437.50"
+      }
+    },
+    {
+      "id": "05-set",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' (ref {{01-open.reference}}), set the ticket status to 'Ready'. The app enforces preconditions before it will accept that status — first try to set it, read any validation/error message the app shows, work out what the preconditions are, satisfy them (e.g. filling any missing required fields, notes, assignments, checks, or other gating conditions the app demands), and then set the status to Ready successfully. Wait for the view to refresh after each mutation. Report: (a) the exact error/validation text the app showed initially, (b) exactly what you had to do to satisfy the preconditions, and (c) the ticket's final status as shown on the page.",
+      "skill": "s_18100c",
+      "params": {},
+      "outputs": [
+        "initial_error",
+        "precondition_satisfied",
+        "final_status"
+      ],
+      "recorded": {
+        "initial_error": "Ticket is not ready Part \"fwrd3-n1 RD Part A\" has no supplier Part \"fwrd3-n1 RD Part B\" has no supplier",
+        "precondition_satisfied": "Set supplier to 'Bench Supplier' on both Part A and Part B",
+        "final_status": "Ready"
+      }
+    },
+    {
+      "id": "06-delete",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' (ref {{01-open.reference}}), delete BOTH parts ('{{runid}} RD Part A' and '{{runid}} RD Part B'), confirming any delete confirmation dialog. Note the list/detail view refreshes a short beat after each delete, not instantly — wait until the parts table genuinely shows zero parts before concluding success. Then archive the ticket (use the app's archive action; if archiving is blocked by a precondition, read the error and satisfy it). Wait for the refresh and confirm the ticket no longer appears in the active ticket list. Report: the parts count shown after both deletions, the exact confirmation text the app showed for the archive, and whether the ticket is gone from the active list (and where it ended up, e.g. an archived view).",
+      "skill": "s_abf29e",
+      "params": {},
+      "outputs": [
+        "parts_count_after_deletion",
+        "delete_confirmation_text",
+        "archive_action",
+        "ticket_in_active_list",
+        "ticket_in_archived_list",
+        "archived_title_shown",
+        "archived_status",
+        "archived_parts"
+      ],
+      "recorded": {
+        "parts_count_after_deletion": "0 (No parts on this ticket yet.)",
+        "delete_confirmation_text": "Delete the part 'fwrd3-n1 RD Part A' from this ticket? This cannot be undone.",
+        "archive_action": "Archive ticket (immediate, no precondition/dialog)",
+        "ticket_in_active_list": "false",
+        "ticket_in_archived_list": "true",
+        "archived_title_shown": "fwrd3-n1 RD Bench Ticket Archived",
+        "archived_status": "Ready",
+        "archived_parts": "0"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwrd3-n1",
+    "created": "2026-08-26T18:22:48.164Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

@@ -1,0 +1,299 @@
+{
+  "flow": "fwrd3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as Bench User (earlier replayed segments) and created the ticket; the stored segment's step-5 wait_for timed out only because the list refresh had not completed within 3s, but the list has since refreshed and the ticket is confirmed at the top of the tickets table. Exact title shown: \"fwrd3-n2 RD Bench Ticket\", assigned reference RD-1015, customer Bench Customer, status Draft, 0 parts, created 2026-08-26. Screenshot: ticket-created-list.png.",
+      "values": {
+        "assigned_reference": "RD-1015",
+        "customer": "Bench Customer",
+        "exact_title_shown": "fwrd3-n2 RD Bench Ticket",
+        "status": "Draft",
+        "ticket_row": "RD-1015 | fwrd3-n2 RD Bench Ticket | Bench Customer | Draft | 0 parts | 2026-08-26"
+      },
+      "tier": "A",
+      "replayed": "4/10",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "02-add",
+      "status": "success",
+      "summary": "On ticket RD-1015 (\"fwrd3-n2 RD Bench Ticket\"), a part was added: \"fwrd3-n2 RD Part A\" with Cost $100.00, Markup 25%, and the app-computed Price of $125.00 (visible in the parts table row). The table also shows a total row of $125.00 (price × quantity = 1). The part appeared after the dialog closed and the list refreshed. Screenshot: part-added.png.",
+      "values": {
+        "cost": "$100.00",
+        "markup": "25%",
+        "part_name": "fwrd3-n2 RD Part A",
+        "price": "$125.00",
+        "ticket_ref": "RD-1015",
+        "ticket_title": "fwrd3-n2 RD Bench Ticket",
+        "total_price": "$125.00"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 13
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "On ticket RD-1015 (\"fwrd3-n2 RD Bench Ticket\"), a second part \"fwrd3-n2 RD Part B\" was added with Cost $200.00 and Markup 25%, while existing part \"fwrd3-n2 RD Part A\" (Cost $100.00, Markup 25%) remained untouched. The app computes: Part A Price = $125.00, Part B Price = $250.00, and the ticket Total = $375.00 (price × quantity). Both parts confirmed in the parts table on the detail view. Screenshot: both-parts.png.",
+      "values": {
+        "part_a_cost": "$100.00",
+        "part_a_markup": "25%",
+        "part_a_name": "fwrd3-n2 RD Part A",
+        "part_a_price": "$125.00",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_name": "fwrd3-n2 RD Part B",
+        "part_b_price": "$250.00",
+        "ticket_ref": "RD-1015",
+        "ticket_title": "fwrd3-n2 RD Bench Ticket",
+        "total_price": "$375.00"
+      },
+      "tier": "B",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "On ticket RD-1015 (\"fwrd3-n2 RD Bench Ticket\"), edited Part A's cost from $100.00 to $150.00 (markup unchanged at 25%). The app now computes: Part A Price = $187.50 (cost $150.00 × 1.25). Part B remains untouched: Cost $200.00, Price $250.00. The ticket's parts total updated to $437.50. Screenshot: part-a-edited.png.",
+      "values": {
+        "part_a_cost": "$150.00",
+        "part_a_markup": "25%",
+        "part_a_price": "$187.50",
+        "part_b_cost": "$200.00",
+        "part_b_price": "$250.00",
+        "ticket_ref": "RD-1015",
+        "ticket_title": "fwrd3-n2 RD Bench Ticket",
+        "total_price": "$437.50"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "(a) Initial error text — alert: 'Ticket is not ready Part \"fwrd3-n2 RD Part B\" has no supplier'. (b) To satisfy the preconditions: the stored procedure's loop had assigned supplier \"Bench Supplier\" to Part A repeatedly but Part B still had no supplier — I opened Part B's Edit dialog, filled the supplier field with \"Bench Supplier\", saved it, then clicked \"Mark Ready\" (no further errors). (c) Final status: Ready — confirmed as the status badge on the page (the Mark Ready button is now replaced by Mark Draft and Mark Closed buttons). Screenshot: ticket-ready.png.",
+      "values": {
+        "final_status": "Ready",
+        "initial_alert_text": "Ticket is not ready Part \"fwrd3-n2 RD Part B\" has no supplier",
+        "preconditions_satisfied": "Opened Part B (fwrd3-n2 RD Part B) edit dialog, set supplier to Bench Supplier, saved, then clicked Mark Ready"
+      },
+      "tier": "B",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "06-delete",
+      "status": "success",
+      "summary": "Both parts deleted — the parts table now shows \"No parts on this ticket yet.\" (0 parts). The ticket was archived via the archive action (the \"Archive ticket\" button click triggered it, no precondition error was encountered since the ticket was already \"Ready\"). The app confirms the archive with an \"Archived\" badge alongside the \"Ready\" status badge, and provides an \"Unarchive ticket\" button. On the active ticket list, RD-1015 is only visible when \"Show archived\" is enabled (shown with \"Archived\" flag); it no longer appears in the un-checked active-only list. Screenshots: ticket-archived-detail.png, archived-list-confirm.png.",
+      "values": {
+        "archive_buttons_shown": "Mark Draft, Mark Closed, Unarchive ticket",
+        "archived_badge": "Archived",
+        "parts_count_after_deletions": "0 parts",
+        "ticket_ref": "RD-1015",
+        "ticket_title": "fwrd3-n2 RD Bench Ticket"
+      },
+      "tier": "B",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 13,
+  "driftTickets": [
+    {
+      "flow": "fwrd3",
+      "step": "01-open",
+      "skill": "s_dcda85",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "wait_for failed: locator.waitFor: Timeout 3000ms exceeded.",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "02-add",
+      "skill": "s_47c5b8",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "03-add",
+      "skill": "s_23ba9f",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "04-edit",
+      "skill": "s_41eb25",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.1.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.2.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.3.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.4.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.5.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.6.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "05-set",
+      "skill": "s_18100c",
+      "atStep": "2.7.1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "06-delete",
+      "skill": "s_abf29e",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    },
+    {
+      "flow": "fwrd3",
+      "step": "06-delete",
+      "skill": "s_abf29e",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('button:has-text(\"Delete\"):visible')",
+      "fallbackUsed": "page.getByTestId('part-delete-p19')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    }
+  ],
+  "wallMs": 622539,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1077176,
+    "completionTokens": 17417,
+    "cachedTokens": 803392
+  },
+  "usageByModel": {
+    "z-ai/glm-5.3": {
+      "promptTokens": 29047,
+      "completionTokens": 2062,
+      "cachedTokens": 20800
+    },
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1048129,
+      "completionTokens": 15355,
+      "cachedTokens": 782592
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

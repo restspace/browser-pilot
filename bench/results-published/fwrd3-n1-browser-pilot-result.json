@@ -1,0 +1,96 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "6f73ba8"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd3-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd3-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 503572,
+  "orchestrator": {
+    "input": 6185,
+    "cacheWrite": 0,
+    "cacheRead": 21376,
+    "output": 2006
+  },
+  "inner": {
+    "promptTokens": 1090668,
+    "cachedTokens": 846080,
+    "completionTokens": 10545,
+    "instructions": 6,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1090668,
+        "completionTokens": 10545,
+        "cachedTokens": 846080,
+        "instructions": 6
+      }
+    },
+    "skills": {
+      "instructions": 6,
+      "offered": 3,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 56,
+      "compiled": 6,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 446669,
+  "commandBytes": 8538,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd3-skills",
+    "instructions": 6,
+    "offered": 3,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 56,
+    "compiled": 6,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.023,
+  "maxUsd": 2,
+  "spendUsd": 0.0468,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE.** Ticket created and confirmed in the list: title `fwrd3-n1 RD Bench Ticket`, ref **RD-1015**, customer \"Bench Customer\", status Draft, created 2026-08-26.\n\n**Objective 2 — DONE.** Part `fwrd3-n1 RD Part A` added with cost $100.00 and markup 25%. App-computed price: **$125.00** (100 × 1.25).\n\n**Objective 3 — DONE.** Part `fwrd3-n1 RD Part B` added with cost $200.00 and markup 25%. App-computed price: **$250.00** (200 × 1.25). Ticket parts total at that point: $375.00.\n\n**Objective 4 — DONE.** Part A's cost edited from 100 → 150 (markup unchanged at 25%, Part B untouched). App-computed price afterwards: **$187.50** (150 × 1.25). Ticket parts total updated to $437.50.\n\n**Objective 5 — DONE.** Status set to **Ready**. Preconditions discovered:\n- Initial error text when attempting \"Mark Ready\": `Ticket is not ready — Part \"fwrd3-n1 RD Part A\" has no supplier — Part \"fwrd3-n1 RD Part B\" has no supplier`\n- What was required: **every part on the ticket must have a supplier assigned.** I edited each part and set its supplier to \"Bench Supplier\", then saved.\n- After that, \"Mark Ready\" succeeded; the page showed status **Ready** and the action buttons changed to \"Mark Draft\" / \"Mark Closed\".\n\n**Objective 6 — DONE.** Both parts deleted (each confirmed via dialog: `Delete the part 'fwrd3-n1 RD Part A' from this ticket? This cannot be undone.` — analogous for Part B). Parts table then showed \"No parts on this ticket yet.\" with Parts = 0. The ticket was then archived — the \"Archive ticket\" action applied immediately with no dialog or precondition (it was already in Ready status), and the button flipped to \"Unarchive ticket\". With \"Show archived\" unchecked, RD-1015 is absent from the active ticket list; with it checked it appears with an \"Archived\" badge, status Ready, Parts = 0. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd3-n1-browser-pilot-transcript.jsonl"
+}
