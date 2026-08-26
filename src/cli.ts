@@ -97,6 +97,9 @@ Environment:
   BROWSER_PILOT_FALLBACK_MODEL  escalation model for blocked instructions ("none" disables)
   BROWSER_PILOT_BASE_URL        any OpenAI-compatible base URL
   BROWSER_PILOT_API_KEY         API key (works with any provider)
+  Secrets: write {{env:NAME}} in an instruction/briefing instead of a plaintext credential.
+  It resolves from the DAEMON's environment at the moment a tool runs — the model, transcript,
+  skills, and flows only ever carry the marker. Export NAME before the session's first call.
   BROWSER_PILOT_CHANNEL         browser channel (default chrome, falls back to msedge)
   BROWSER_PILOT_HEADED=1        headed browser
   BROWSER_PILOT_RECORD=1        record session video to <session dir>/video

@@ -5,6 +5,7 @@ import type { BrowserSession } from '../daemon/browser.js';
 import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
 import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
 import { tryRecipe } from '../skills/components.js';
+import { resolveSecretsDeep, scrubSecrets, scrubSecretsDeep } from '../shared/secrets.js';
 import { resolveTarget, snapshot, truncate } from '../daemon/refs.js';
 import { fingerprintPage } from '../daemon/fingerprint.js';
 import { isRecordable, type StepDiff } from '../daemon/recorder.js';
@@ -100,7 +101,7 @@ export const TOOL_DEFS: ToolDef[] = [
   {
     name: 'fill',
     description:
-      'Set the full value of an input/textarea. React-safe: works on controlled components and number inputs (clears first). Use for text fields; use select for <select>.',
+      'Set the full value of an input/textarea. React-safe: works on controlled components and number inputs (clears first). Use for text fields; use select for <select>. A {{env:NAME}} secret marker in value is resolved at execution time — pass it through verbatim.',
     parameters: {
       type: 'object',
       required: ['target', 'value'],
@@ -109,7 +110,7 @@ export const TOOL_DEFS: ToolDef[] = [
   },
   {
     name: 'type',
-    description: 'Type text key-by-key into an element (triggers per-keystroke handlers, e.g. autocomplete).',
+    description: 'Type text key-by-key into an element (triggers per-keystroke handlers, e.g. autocomplete). A {{env:NAME}} secret marker in text is resolved at execution time — pass it through verbatim.',
     parameters: {
       type: 'object',
       required: ['target', 'text'],
@@ -407,7 +408,7 @@ export async function executeTool(
     const diffing = STATE_CHANGING.has(name) ? await session.getPage().catch(() => null) : null;
     const before: PageSignature | null = diffing ? await captureSignature(diffing) : null;
     const { result } = await runStep(session, name, args, screenshotDir, signal, { before });
-    const stateNote = diffing && before ? await stateDiff(diffing, before) : '';
+    const stateNote = diffing && before ? scrubSecrets(await stateDiff(diffing, before)) : '';
     return {
       result: truncate(result + stateNote + dialogNote(session), TOOL_RESULT_BUDGET + 8200),
       isError: false,
@@ -471,8 +472,8 @@ async function executeSkill(
       if (changed) store.put(fresh);
     }
   }
-  const stateNote = before && replay.stepsRun ? await stateDiff(page, before, BATCH_LINE_BUDGET) : '';
-  const body = renderReplay(skill, replay) + stateNote + dialogNote(session);
+  const stateNote = before && replay.stepsRun ? scrubSecrets(await stateDiff(page, before, BATCH_LINE_BUDGET)) : '';
+  const body = scrubSecrets(renderReplay(skill, replay)) + stateNote + dialogNote(session);
   return { result: truncate(body, TOOL_RESULT_BUDGET + 8200), isError: Boolean(replay.refused), replay };
 }
 
@@ -510,17 +511,21 @@ async function runStep(
       : null;
   const wantDiff = Boolean(session.learn) && page && STATE_CHANGING.has(name);
   const before = wantDiff ? (opts.before ?? (await captureSignature(page!))) : null;
-  const result = await dispatch(session, name, args, screenshotDir, signal, opts.resolved);
+  // Secrets ({{env:NAME}}) resolve HERE and only here — after the recorder
+  // captured the marker-bearing args above, immediately before the browser
+  // needs the real value. Everything persisted or shown to the model keeps
+  // the marker; scrubbing below catches values the page echoes back.
+  const result = scrubSecrets(await dispatch(session, name, resolveSecretsDeep(args), screenshotDir, signal, opts.resolved));
   let diff: StepDiff | undefined;
   let fingerprintAfter: number[] | undefined;
   if (wantDiff && before) {
     const after = await settledSignature(page!);
     if (after) {
-      diff = {
+      diff = scrubSecretsDeep({
         url: after.url,
         alerts: after.alerts.filter((a) => !before.alerts.includes(a)),
         added: after.lines.filter((l) => !before.lines.includes(l)).slice(0, 20),
-      };
+      });
       // The step crossed a page-template seam (its url pattern changed):
       // fingerprint the new page so compile can split a skill here and gate
       // the next segment on the page it actually runs on.
@@ -648,7 +653,7 @@ async function executeBatch(
     }
   }
 
-  const stateNote = page && before && (ran || failedAt >= 0) ? await stateDiff(page, before, BATCH_LINE_BUDGET) : '';
+  const stateNote = page && before && (ran || failedAt >= 0) ? scrubSecrets(await stateDiff(page, before, BATCH_LINE_BUDGET)) : '';
   const body = [...lines, ...notes].join('\n') + stateNote;
   // Nothing ran at all — either the first step failed or the budget expired
   // before it started; that IS an error result.
