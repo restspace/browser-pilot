@@ -491,6 +491,10 @@ export class Daemon {
     const stepResults: Array<Record<string, unknown>> = [];
     const driftTickets: DriftTicket[] = [];
     const started = Date.now();
+    // Inner-model spend across the whole flow run. A pure tier-A replay is
+    // genuinely zero; recovery steps are not, and reporting them as free
+    // overstated the record-once/replay-many economics.
+    const usage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 };
     let halted = false;
 
     for (const step of flow.steps) {
@@ -568,6 +572,9 @@ ${direct.prelude}` : recoveryText,
           repinned = outcome.skill;
         }
       }
+      usage.promptTokens += result.usage.promptTokens;
+      usage.completionTokens += result.usage.completionTokens;
+      usage.cachedTokens += result.usage.cachedTokens;
       const values: Record<string, string> = {};
       for (const [k, v] of Object.entries(result.report.evidence?.values ?? {})) values[k] = String(v);
       // A recovery's model names its read-backs freely (ticketRef vs
@@ -662,6 +669,13 @@ ${direct.prelude}` : recoveryText,
       ...(driftTickets.length ? { driftTickets } : {}),
       wallMs: Date.now() - started,
       model: opts.provider.model,
+      // What the replay actually cost: recovery tokens, attributed to the
+      // recovery model (tier-B repairs inside an instruction are priced at
+      // the same rate — an over-, never under-estimate, since recovery is
+      // the dearest tier in play).
+      usage,
+      recoveryModel: opts.recovery.model,
+      provider: this.provider().constructor.name === 'AnthropicProvider' ? 'anthropic' : (process.env.BROWSER_PILOT_PROVIDER || 'zhipu'),
     };
   }
 

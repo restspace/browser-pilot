@@ -121,7 +121,14 @@ for (let n = 1; n <= own.k; n++) {
   if (replayOnly) {
     try {
       const fr = JSON.parse(fs.readFileSync(path.join(outDir, `${runid}-flowrun.json`), 'utf8'));
-      row = { ...row, stop: fr.status, cmds: fr.total, turns: fr.steps.reduce((a, s) => a + (s.turns ?? 0), 0), total_usd: 0, wall_s: +(fr.wallMs / 1000).toFixed(0), A_n: 1, replayed: `${fr.passed}/${fr.total} (flow)` };
+      // Price the replay's recovery tokens at the recovery model's rate — a
+      // pure tier-A replay is genuinely $0; recovery steps are not.
+      let usd = 0;
+      if (fr.usage && fr.recoveryModel) {
+        const r = rates[fr.provider]?.[fr.recoveryModel];
+        if (r) usd = ((fr.usage.promptTokens - fr.usage.cachedTokens) * r.input + fr.usage.cachedTokens * (r.cacheRead ?? r.input) + fr.usage.completionTokens * r.output) / 1e6;
+      }
+      row = { ...row, stop: fr.status, cmds: fr.total, turns: fr.steps.reduce((a, s) => a + (s.turns ?? 0), 0), total_usd: +usd.toFixed(4), wall_s: +(fr.wallMs / 1000).toFixed(0), A_n: 1, replayed: `${fr.passed}/${fr.total} (flow)` };
     } catch (err) {
       console.error(`[sweep] no flowrun for ${runid}: ${err.message}`);
     }
