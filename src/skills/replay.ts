@@ -168,7 +168,13 @@ export async function replaySkill(
   // stepsRun) and returns how it went; a 'stop' has already set failedAt/reason.
   // `tag` labels the step for humans (e.g. "5" or, inside a loop, "9.2.1");
   // `failIndex` is the top-level step number recorded in failedAt on a stop.
-  const runOneStep = async (step: SkillStep, tag: string, failIndex: number): Promise<'ran' | 'skipped' | 'stop'> => {
+  const runOneStep = async (
+    step: SkillStep,
+    tag: string,
+    failIndex: number,
+    /** When set (loop bodies), collects what each target actually resolved to, for the loop's progress check. */
+    sink?: string[],
+  ): Promise<'ran' | 'skipped' | 'stop'> => {
     const args = fillParamsDeep(step.args, params) as Record<string, unknown>;
     const head = `${tag}. ${step.tool} ${describeArgs(step.tool, args)}`;
 
@@ -198,6 +204,7 @@ export async function replaySkill(
         break;
       }
       resolved[key] = hit.locator;
+      sink?.push(`${key}=${candidateExpr(hit.candidate)}`);
       if (hit.index > 0) {
         res.fallthroughs++;
         res.misses.push({ step: tag, key, primary: candidateExpr(chain[0]), used: candidateExpr(hit.candidate), usedIndex: hit.index });
@@ -319,6 +326,19 @@ export async function replaySkill(
     // appearing as a heading), so their absence means the step acted on the
     // wrong thing even though it "worked". Everything else stays soft until
     // data says it is reliable.
+    // An alert the recording never saw is the app talking back — usually a
+    // rejection ("Ticket is not ready…") that leaves the page superficially
+    // intact. fwrd4l-n3 clicked into exactly that: the step counted as run,
+    // the synthesized report declared the recorded outcome, and only external
+    // verification caught that the ticket never reached Ready. So a
+    // state-changing step that provokes an UNRECORDED alert fails hard, while
+    // a recorded-but-missing alert stays soft below (toasts are volatile).
+    if (outcome.diff?.alerts.length && !isRead && !step.expect?.alertContains) {
+      res.failedAt = failIndex;
+      res.reason = `step ${tag} raised an alert the recording never saw: ${clip(outcome.diff.alerts.join(' | '), 200)}`;
+      res.lines.push(`${head} → ran, but ${res.reason}`);
+      return 'stop';
+    }
     if (outcome.diff && step.expect) {
       if (step.expect.alertContains) {
         const want = fillParams(step.expect.alertContains, params);
@@ -336,7 +356,18 @@ export async function replaySkill(
           return 'stop';
         }
         if (plain.length && !plain.some((w) => seen.includes(w))) {
-          res.warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared`);
+          // None of the recorded effects in the step diff — check the live
+          // page before judging (a change can land outside the diff window).
+          // Absent there too, the action did not have its recorded effect:
+          // failing here is what turns a rejected state change into a clean
+          // recovery instead of a false success (the fwrd4l-n3 Ready click).
+          if (!(await presentOnPage(page, plain))) {
+            res.failedAt = failIndex;
+            res.reason = `after step ${tag} none of the ${plain.length} recorded page change(s) appeared (e.g. ${JSON.stringify(plain[0])}) — the step ran but did not have its recorded effect`;
+            res.lines.push(`${head} → ran, but ${res.reason}`);
+            return 'stop';
+          }
+          res.warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared in the step diff (found on the page instead)`);
         }
       }
     }
@@ -360,6 +391,16 @@ export async function replaySkill(
     const max = step.max ?? 20;
     const before = res.stepsRun;
     let iter = 0;
+    // Progress guard: a folded loop exists because the recording acted on one
+    // RECORD after another, so every iteration must either shrink the guard's
+    // match count (a delete loop) or resolve different elements (a per-record
+    // edit). When neither happens the per-record locators have stopped
+    // distinguishing records — fwrd4l-n3's "edit each part's supplier" loop
+    // missed its ambiguous role locator, fell through to a positional path
+    // pinned to ROW 1, and edited the same part seven times while the replay
+    // counted it as progress. Same targets + no shrink = fail to recovery.
+    let prevSig: string | null = null;
+    let prevRemaining = Number.POSITIVE_INFINITY;
     while (iter < max) {
       if (opts.signal?.aborted) break;
       await settleDom(page);
@@ -367,13 +408,26 @@ export async function replaySkill(
       const hit = await resolveChain(page, chain, '', true);
       const remaining = hit ? await hit.locator.count().catch(() => 0) : 0;
       if (!remaining) break;
+      const sig: string[] = [];
       for (const [k, bstep] of body.entries()) {
-        const st = await runOneStep(bstep, `${n}.${iter + 1}.${k + 1}`, n);
+        const st = await runOneStep(bstep, `${n}.${iter + 1}.${k + 1}`, n, sig);
         if (st === 'stop') {
           res.stepsRun = before;
           return 'stop';
         }
       }
+      const joined = sig.join('; ');
+      if (joined && joined === prevSig && remaining >= prevRemaining) {
+        res.stepsRun = before;
+        res.failedAt = n;
+        res.reason =
+          `loop iteration ${iter + 1} resolved the same element(s) as the previous one with the guard count unchanged (${remaining}) — ` +
+          `the recorded per-record locators no longer distinguish records, so the loop was re-acting on one record`;
+        res.lines.push(`${n}. loop → FAILED after ×${iter + 1}: ${res.reason}`);
+        return 'stop';
+      }
+      prevSig = joined;
+      prevRemaining = remaining;
       iter++;
     }
     res.stepsRun = before + 1;

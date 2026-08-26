@@ -540,11 +540,10 @@ export class Daemon {
       if (direct.done) {
         result = direct.done;
       } else {
-        // Route by cause (not "recovery is hard by definition"): a no-skill or
-        // unthreaded-ref step is an unrecorded easy case and runs on the cheap
-        // model first, escalating to the strong model only if it blocks; a
-        // pinned skill that genuinely failed to replay is drift, and goes
-        // straight to the strong model with the partial replay handed over.
+        // All recovery causes run cheap-first with the strong model as
+        // escalation-on-blocked (see recoveryRoute): the fwrd4l sweep showed
+        // the session model rescuing replay-failed steps too, at a fraction
+        // of the strong tier's rate; the cause label still names why.
         recovered = true;
         const route = recoveryRoute(step, unresolved);
         const primary = route.easy ? opts.provider : opts.recovery;

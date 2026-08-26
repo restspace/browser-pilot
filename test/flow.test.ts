@@ -255,8 +255,8 @@ describe('recoveryRoute', () => {
     expect(recoveryRoute({ skill: 's_abc' }, true)).toEqual({ easy: true, cause: 'unthreaded-ref' });
   });
 
-  it('routes a genuine replay failure straight to the strong model', () => {
-    expect(recoveryRoute({ skill: 's_abc' }, false)).toEqual({ easy: false, cause: 'replay-failed' });
+  it('routes a replay failure cheap-first too — the strong model is the escalation, not the default', () => {
+    expect(recoveryRoute({ skill: 's_abc' }, false)).toEqual({ easy: true, cause: 'replay-failed' });
   });
 });
 

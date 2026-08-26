@@ -235,14 +235,14 @@ function replaceToken(text: string, value: string, marker: string): string {
 }
 
 /**
- * Route a flow step's recovery by its cause. A step with no pinned skill, or
- * whose reference could not be threaded, is not a hard case — it is an
- * unrecorded easy case (usually an observation/report step that never
- * compiled), so it runs on the cheap session model first with the strong
- * model as escalation. Only a step whose pinned, fully-resolved skill
- * actually failed to replay is evidence of genuine drift, and goes straight
- * to the strong model — paying premium rates there is what the sweeps showed
- * inverted the warm/cold cost profile when applied indiscriminately.
+ * Name the cause of a flow step's recovery, for the progress line and drift
+ * telemetry. ALL causes now run cheap-first with the strong model as
+ * escalation-on-blocked: the fwrd4l sweep showed the session model rescuing
+ * every recovery — replay-failed ones included — at a fraction of the strong
+ * model's rate ($0.041 warm vs $0.104 when the same steps routed straight to
+ * the strong tier), and a replay refusal is usually a binding problem (a
+ * stale template), not the genuine drift the straight-to-strong route was
+ * priced for. The strong model is still one blocked report away.
  */
 export function recoveryRoute(
   step: Pick<FlowStep, 'skill'>,
@@ -250,7 +250,7 @@ export function recoveryRoute(
 ): { easy: boolean; cause: 'no-skill' | 'unthreaded-ref' | 'replay-failed' } {
   if (!step.skill) return { easy: true, cause: 'no-skill' };
   if (unresolved) return { easy: true, cause: 'unthreaded-ref' };
-  return { easy: false, cause: 'replay-failed' };
+  return { easy: true, cause: 'replay-failed' };
 }
 
 /**
