@@ -179,3 +179,60 @@ function coerce(input: unknown): { value: Record<string, unknown>; notes: string
 
   return { value: out, notes };
 }
+
+/** One read/read_all the instruction performed, with its parsed result values. */
+export interface ObservedRead {
+  target: string;
+  values: string[];
+}
+
+/** Most read values promoted into evidence per report — enough for any real page summary, a cap against read_all floods. */
+const MAX_PROMOTED = 8;
+const MIN_PROMOTED_LEN = 3;
+
+/**
+ * Deterministically promote read results the report MENTIONED but did not
+ * structure. Compile keeps a recorded `read` only when its value appears in
+ * `evidence.values` (that is the proof the read mattered) — but models often
+ * put the value in the summary prose instead, so the read is dropped, no
+ * replayable step survives, and the instruction compiles to no skill. This
+ * closes that gap without gating: for each value a real read observed, if the
+ * prose cites it verbatim (token boundaries) and `evidence.values` does not
+ * already carry it, add it under a name derived from the read's target.
+ * Mutates the report; returns the names added.
+ */
+export function backfillReadValues(report: Report, reads: ObservedRead[]): string[] {
+  const prose = `${report.summary} ${report.details ?? ''}`;
+  const values: Record<string, string | number | boolean | null> = { ...(report.evidence?.values ?? {}) };
+  const present = new Set(Object.values(values).map((v) => String(v).trim()));
+  const added: string[] = [];
+  for (const read of reads) {
+    for (const raw of read.values) {
+      if (added.length >= MAX_PROMOTED) break;
+      const v = raw.trim();
+      if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v)) continue;
+      const cited = new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(v)}(?![A-Za-z0-9])`).test(prose);
+      if (!cited) continue;
+      const name = uniqueName(slug(read.target), values);
+      values[name] = v;
+      present.add(v);
+      added.push(name);
+    }
+  }
+  if (added.length) (report.evidence ??= {}).values = values;
+  return added;
+}
+
+function slug(target: string): string {
+  const s = target.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24);
+  return s || 'read';
+}
+
+function uniqueName(base: string, taken: Record<string, unknown>): string {
+  if (!(base in taken)) return base;
+  for (let i = 2; ; i++) if (!(`${base}_${i}` in taken)) return `${base}_${i}`;
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

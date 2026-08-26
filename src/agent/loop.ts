@@ -6,7 +6,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { validateReport, type Report } from './report.js';
+import { backfillReadValues, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt } from '../daemon/recorder.js';
 
@@ -215,6 +215,14 @@ export async function runInstruction(
     blockedTail = false,
     bailReason?: BailReason,
   ): Promise<InstructionResult> => {
+    // Deterministic evidence backfill: a read value the model cited in prose
+    // but left out of evidence.values would drop the read at compile time and
+    // leave the step with no skill. Runs before the facts line and before
+    // read-back synthesis so both see the promoted values.
+    if (report.status === 'success' && browser.script) {
+      const promoted = backfillReadValues(report, browser.script.readsThisInstruction());
+      if (promoted.length) opts.onProgress?.(`[report] promoted ${promoted.length} prose-cited read value(s) into evidence: ${promoted.join(', ')}`);
+    }
     // This line is what survives once the instruction's tool results are
     // elided at the next boundary, so the facts the caller asked for ride
     // along with the prose — otherwise a value read in step 3 would be gone

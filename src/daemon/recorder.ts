@@ -275,6 +275,30 @@ export class ScriptRecorder {
     return out;
   }
 
+  /**
+   * The current instruction's real reads with their parsed values — target
+   * label included, read_all arrays expanded — for report-time promotion of
+   * prose-cited values into evidence.values. Synthetic read-backs excluded.
+   */
+  readsThisInstruction(): { target: string; values: string[] }[] {
+    const out: { target: string; values: string[] }[] = [];
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      const e = this.entries[i];
+      if (e.k === 'instruction') break;
+      if (e.k !== 'step' || (e.tool !== 'read' && e.tool !== 'read_all') || typeof e.result !== 'string') continue;
+      if (e.args.target === '(read-back)') continue;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(e.result);
+      } catch {
+        parsed = e.result;
+      }
+      const values = (Array.isArray(parsed) ? parsed : [parsed]).filter((v): v is string => typeof v === 'string');
+      if (values.length) out.unshift({ target: String(e.args.target ?? ''), values });
+    }
+    return out;
+  }
+
   /** Index just past the last entry — pass to entriesSince() to read back one instruction. */
   mark(): number {
     return this.entries.length;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateReport } from '../src/agent/report.js';
+import { backfillReadValues, validateReport, type Report } from '../src/agent/report.js';
 
 describe('report validation', () => {
   it('accepts a minimal valid report', () => {
@@ -83,5 +83,72 @@ describe('report validation', () => {
       if (!v.ok) return;
       expect(v.coerced).toBeUndefined();
     });
+  });
+});
+
+describe('backfillReadValues', () => {
+  it('promotes a read value cited in the summary but missing from evidence', () => {
+    const report: Report = { status: 'success', summary: 'The dashboard is titled "Ops Overview" as expected.' };
+    const added = backfillReadValues(report, [{ target: 'dashboard title', values: ['Ops Overview'] }]);
+    expect(added).toEqual(['dashboard_title']);
+    expect(report.evidence?.values).toEqual({ dashboard_title: 'Ops Overview' });
+  });
+
+  it('promotes read_all elements individually, only the cited ones', () => {
+    const report: Report = { status: 'success', summary: 'Panels present.', details: 'Saw CPU Load and Memory among others.' };
+    const added = backfillReadValues(report, [{ target: 'panel titles', values: ['CPU Load', 'Memory', 'Disk IO'] }]);
+    expect(added).toEqual(['panel_titles', 'panel_titles_2']);
+    expect(report.evidence?.values).toEqual({ panel_titles: 'CPU Load', panel_titles_2: 'Memory' });
+  });
+
+  it('skips values already present in evidence.values', () => {
+    const report: Report = {
+      status: 'success',
+      summary: 'Title is Ops Overview.',
+      evidence: { values: { title: 'Ops Overview' } },
+    };
+    const added = backfillReadValues(report, [{ target: 'heading', values: ['Ops Overview'] }]);
+    expect(added).toEqual([]);
+    expect(report.evidence?.values).toEqual({ title: 'Ops Overview' });
+  });
+
+  it('does not promote a read the prose never mentions', () => {
+    const report: Report = { status: 'success', summary: 'Signed in fine.' };
+    const added = backfillReadValues(report, [{ target: 'debug cell', values: ['a1b2c3'] }]);
+    expect(added).toEqual([]);
+    expect(report.evidence?.values).toBeUndefined();
+  });
+
+  it('requires token boundaries — a substring of a longer word is not a citation', () => {
+    const report: Report = { status: 'success', summary: 'The page mentions Overviewing procedures.' };
+    const added = backfillReadValues(report, [{ target: 'title', values: ['Overview'] }]);
+    expect(added).toEqual([]);
+  });
+
+  it('matches values containing regex metacharacters literally', () => {
+    const report: Report = { status: 'success', summary: 'Cost shown as $1.50 (net).' };
+    const added = backfillReadValues(report, [{ target: 'price cell', values: ['$1.50 (net)'] }]);
+    expect(added).toEqual(['price_cell']);
+    expect(report.evidence?.values?.price_cell).toBe('$1.50 (net)');
+  });
+
+  it('ignores trivial values below the length floor', () => {
+    const report: Report = { status: 'success', summary: 'Count is 4.' };
+    const added = backfillReadValues(report, [{ target: 'count', values: ['4'] }]);
+    expect(added).toEqual([]);
+  });
+
+  it('names collide into numbered suffixes rather than overwriting', () => {
+    const report: Report = {
+      status: 'success',
+      summary: 'First row Alpha One, second row Beta Two.',
+      evidence: { values: { row: 'existing' } },
+    };
+    const added = backfillReadValues(report, [
+      { target: 'row', values: ['Alpha One'] },
+      { target: 'row', values: ['Beta Two'] },
+    ]);
+    expect(added).toEqual(['row_2', 'row_3']);
+    expect(report.evidence?.values).toEqual({ row: 'existing', row_2: 'Alpha One', row_3: 'Beta Two' });
   });
 });
