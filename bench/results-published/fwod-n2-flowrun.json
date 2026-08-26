@@ -1,0 +1,172 @@
+{
+  "flow": "fwod",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_aa5f75; observed module=Discuss, logged_in_user_full_name=Mitchell Admin.",
+      "values": {
+        "module": "Discuss",
+        "logged_in_user_full_name": "Mitchell Admin"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Created contact 'fwod-n2 Bench Customer' with City 'Benchville' via the Contacts app (navigated from Discuss through the apps menu). Saved record verified on the form: Name \"fwod-n2 Bench Customer\" (heading and Name field) and City \"Benchville\" under Address; URL shows id=45 and a \"Contact created\" notification by Mitchell Admin appeared.",
+      "values": {},
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "03-report",
+      "status": "success",
+      "summary": "Created quotation S00022 in the Sales app for customer 'fwod-n2 Bench Customer' with exactly one order line: product 'Customizable Desk' (selected from the autocomplete dropdown), quantity 3.00, unit price auto-filled at 750.00. Saved and verified on the saved record: Untaxed Amount £2,250.00 (TAX 20% £450.00, Total £2,700.00), reference name S00022 shown in the breadcrumb and heading.",
+      "values": {},
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 26
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 (customer fwod-n2 Bench Customer) in Odoo Sales and added a second order line: product '[FURN_0269] Office Chair Black' selected from the autocomplete dropdown, quantity 2.00, unit price auto-filled at 120.50 (line total £241.00). Saved; the saved record shows both lines (Customizable Desk qty 3 @ 750.00 = £2,250.00 and Office Chair Black qty 2 @ 120.50 = £241.00) with Untaxed Amount £2,491.00 and Total £2,989.20. Note: the instruction described the existing line as 'Conference Chair' qty 3 untaxed £99.00, but the actual quotation for this customer (S00022, the only one for fwod-n2 Bench Customer in the Quotations list) had 'Customizable Desk' qty 3 untaxed £2,250.00 — I proceeded with the actual record.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 (customer fwod-n2 Bench Customer) in Odoo Sales and changed ONLY the first line's quantity from 3 to 5. Saved and verified on the saved record: line 1 'Customizable Desk' qty 5.00 @ 750.00 = £3,750.00, line 2 'Office Chair Black' qty 2.00 @ 120.50 = £241.00 (unchanged). New Untaxed Amount £3,991.00, Total £4,789.20. Note: the instruction described the lines as 'Conference Chair'/'Corner Desk Left Sit', but the actual quotation for this customer has 'Customizable Desk'/'Office Chair Black' — I applied the quantity change to the actual first line.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00022 (customer fwod-n2 Bench Customer) in Odoo Sales via the Confirm button. After confirmation the status bar shows the active status 'Sales Order' (past stages 'Quotation Sent'/'Quotation' inactive), the Confirm button is gone and a 'Create Invoice' button appeared with Delivered/Invoiced columns on the order lines. Order reference remains S00022; Untaxed Amount £3,991.00, Total £4,789.20.",
+      "values": {},
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Cancelled sales order S00022 (customer fwod-n2 Bench Customer) in Odoo Sales. The stored cancel procedure ran its clicks (including accepting the confirmation dialog); its final wait step failed only because the \"Send and cancel\" button never appeared — the cancellation had already completed. Verified on the live page: the status bar now shows 'Cancelled' as the checked status (all other stages disabled), and a 'Set to Quotation' button appeared in place of Confirm/Create Invoice. Order reference remains S00022.",
+      "values": {},
+      "tier": "B",
+      "replayed": "7/12",
+      "repaired": true,
+      "turns": 4
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Verification only, no changes made. Sales order S00022 (customer fwod-n2 Bench Customer): status bar shows 'Cancelled' (all other stages disabled, 'Set to Quotation' button present); two order lines — line 1 'Customizable Desk' qty 5.00 @ 750.00 (£3,750.00) and line 2 'Office Chair Black' qty 2.00 @ 120.50 (£241.00); Untaxed Amount £3,991.00, Total £4,789.20. Contact 'fwod-n2 Bench Customer' (id=45, opened via the customer link on the order): Name field 'fwod-n2 Bench Customer', City field 'Benchville'.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 5
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwod",
+      "step": "02-report",
+      "skill": "s_481f87",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    },
+    {
+      "flow": "fwod",
+      "step": "03-report",
+      "skill": "s_5b5c06",
+      "similarity": 0.995,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod",
+      "step": "06-open",
+      "skill": "s_8f03a5",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod",
+      "step": "07-open",
+      "skill": "s_c079f9",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Close' })",
+      "fallbackUsed": "page.locator('#dialog_3 > div > div > div > header > button')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod",
+      "step": "07-open",
+      "skill": "s_c079f9",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Cancel' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(4)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod",
+      "step": "07-open",
+      "skill": "s_c079f9",
+      "atStep": "8",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Send and cancel' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 1040576,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1400859,
+    "completionTokens": 21351,
+    "cachedTokens": 1302720
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

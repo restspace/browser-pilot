@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "dce0d43"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 1812802,
+  "orchestrator": {
+    "input": 4915,
+    "cacheWrite": 0,
+    "cacheRead": 28352,
+    "output": 2351
+  },
+  "inner": {
+    "promptTokens": 3207476,
+    "cachedTokens": 2627392,
+    "completionTokens": 39244,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2844457,
+        "completionTokens": 18897,
+        "cachedTokens": 2311168,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 363019,
+        "completionTokens": 20347,
+        "cachedTokens": 316224,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 73,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 1735665,
+  "commandBytes": 6114,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod-skills",
+    "instructions": 8,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 73,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0246,
+  "maxUsd": 2,
+  "spendUsd": 0.3183,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE:** Customer `fwod-n1 Bench Customer` created (contact id 44) with City set to `Benchville`. Verified on the saved contact record: Name \"fwod-n1 Bench Customer\", City \"Benchville\".\n\n**Objective 2 — DONE:** Quotation `S00021` created for that customer with one order line: product **Conference Chair** (variant [E-COM12] Conference Chair (Steel)), quantity 3.00. Unit price auto-filled by the app: **£33.00**. Untaxed amount computed: **£99.00** (TAX 20% £19.80, Total £118.80).\n\n**Objective 3 — DONE:** Second order line added with a different product: **Corner Desk Left Sit** (variant [FURN_1118] Corner Desk Left Sit), quantity 2.00, unit price £85.00. New untaxed amount: **£269.00** (TAX 20% £53.80, Total £322.80).\n\n**Objective 4 — DONE:** First line's quantity changed from 3 to 5. New untaxed amount: **£335.00** (Conference Chair £165.00 + Corner Desk Left Sit £170.00; TAX 20% £67.00, Total £402.00).\n\n**Objective 5 — DONE:** Quotation confirmed and became a sales order. Order reference: **S00021**. Status shown: **\"Sales Order\"** (active stage in the status bar, with \"Quotation Sent\" and \"Quotation\" as prior greyed-out stages; the Confirm button was replaced by Create Invoice / Send by Email / Cancel actions).\n\n**Objective 6 — DONE:** Sales order cancelled (via Cancel → confirmation dialog → \"Send and cancel\" in the cancellation wizard). Status shown after cancelling: **\"Cancelled\"** (active stage in the status bar, with \"Sales Order\", \"Quotation Sent\", \"Quotation\" as prior greyed-out stages).\n\nFinal verification pass confirmed the end state: S00021 is Cancelled, lines are Conference Chair ×5 @ £33.00 and Corner Desk Left Sit ×2 @ £85.00, untaxed amount £335.00, and the contact still reads Name \"fwod-n1 Bench Customer\" / City \"Benchville\". Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod-n1-browser-pilot-transcript.jsonl"
+}

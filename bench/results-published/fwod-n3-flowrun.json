@@ -1,0 +1,54 @@
+{
+  "flow": "fwod",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_aa5f75; observed module=Discuss, logged_in_user_full_name=Mitchell Admin.",
+      "values": {
+        "module": "Discuss",
+        "logged_in_user_full_name": "Mitchell Admin"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "failure",
+      "summary": "Contact creation incomplete: navigated via home menu to the Contacts app, opened the New contact form, and filled the Name field with \"fwod-n3 Bench Customer\" (verified in the live DOM), but the City field was never filled and the record was never saved before the turn cap. The name field's autocomplete dropdown was still open (\"Searching Autocomplete...\") at the point of interruption.",
+      "values": {},
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 1,
+  "total": 8,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwod",
+      "step": "02-report",
+      "skill": "s_481f87",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    }
+  ],
+  "wallMs": 157313,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 271536,
+    "completionTokens": 4894,
+    "cachedTokens": 256000
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
