@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "496a2ef"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd2-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd2-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1087459,
+  "orchestrator": {
+    "input": 5133,
+    "cacheWrite": 0,
+    "cacheRead": 22464,
+    "output": 2335
+  },
+  "inner": {
+    "promptTokens": 1282918,
+    "cachedTokens": 961600,
+    "completionTokens": 14850,
+    "instructions": 8,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1007225,
+        "completionTokens": 12455,
+        "cachedTokens": 718080,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 275693,
+        "completionTokens": 2395,
+        "cachedTokens": 243520,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 1,
+      "fullReplays": 1,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 10,
+      "deterministicActions": 10,
+      "totalActions": 59,
+      "compiled": 6,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1014201,
+  "commandBytes": 5031,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd2-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 1,
+    "fullReplays": 1,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 10,
+    "deterministicActions": 10,
+    "totalActions": 59,
+    "compiled": 6,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0.169
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0233,
+  "maxUsd": 2,
+  "spendUsd": 0.1672,
+  "finalText": "All objectives complete and verified. Final report:\n\n**1. DONE** — Ticket `fwrd2-n1 RD Bench Ticket` created (ref **RD-1015**), customer \"Bench Test Customer\", raised 2026-08-26, initial status Draft.\n\n**2. DONE** — Part `fwrd2-n1 RD Part A` added with cost **$100.00** and markup **25%**. App-computed price: **$125.00**.\n\n**3. DONE** — Part `fwrd2-n1 RD Part B` added with cost **$200.00** and markup **25%**. App-computed price: **$250.00**. (Ticket parts total at that point: $375.00.)\n\n**4. DONE** — Part A's cost changed from 100 to **150** (markup unchanged at 25%). App-computed price afterwards: **$187.50**. (Ticket parts total: $437.50.)\n\n**5. DONE** — Ticket ended in status **Ready**. The precondition the app enforces: **every part on the ticket must have a supplier assigned**. The exact refusal message shown on the first attempt was:\n> `Ticket is not ready Part \"fwrd2-n1 RD Part A\" has no supplier Part \"fwrd2-n1 RD Part B\" has no supplier`\n\nWhat was required to satisfy it: edit each part and set a supplier — Part A → \"ABC Supplies\", Part B → \"XYZ Parts Co\" — then retry \"Mark Ready\", which succeeded. No other preconditions were encountered.\n\n**6. DONE** — Both parts deleted (each via the row's Delete button → custom Confirm dialog → \"Delete part\"; waited for the list to refresh to \"No parts on this ticket yet.\"). Then \"Archive ticket\" clicked, which succeeded immediately with no error (button changed to \"Unarchive ticket\"). Verified final state: detail view shows status **Ready** with an **Archived** label and **0 parts**; RD-1015 does **not** appear in the active tickets list (and no ticket containing \"fwrd2-n1\" appears there — only RD-1004 through RD-1014); it appears only when \"Show archived\" is checked, with an \"Archived\" badge, status Ready, Parts 0. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd2-n1-browser-pilot-transcript.jsonl"
+}

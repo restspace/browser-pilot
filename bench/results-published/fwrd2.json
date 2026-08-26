@@ -1,0 +1,198 @@
+{
+  "name": "fwrd2",
+  "origin": "http://127.0.0.1:4180",
+  "startUrl": "http://127.0.0.1:4180/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then create a new ticket titled exactly '{{runid}} RD Bench Ticket', filling in any required fields the form demands (use sensible placeholder values for anything else). After submitting, wait for the list/detail view to refresh and confirm the ticket exists. Report the ticket's title, its current status, and any other fields shown on its detail view.",
+      "skill": "s_ad43ac",
+      "params": {
+        "v1": "http://127.0.0.1:4180/",
+        "v2": "bench@example.com",
+        "v3": "bench-pass-1234",
+        "v4": "{{runid}} RD Bench Ticket"
+      },
+      "outputs": [
+        "ticket_id",
+        "title",
+        "status",
+        "customer",
+        "raised_date",
+        "parts_count"
+      ],
+      "recorded": {
+        "ticket_id": "RD-1015",
+        "title": "fwrd2-n1 RD Bench Ticket",
+        "status": "Draft",
+        "customer": "Bench Test Customer",
+        "raised_date": "2026-08-26",
+        "parts_count": "0"
+      }
+    },
+    {
+      "id": "02-add",
+      "instruction": "On the ticket detail view for ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}), add a part named exactly '{{runid}} RD Part A' with cost 100 and markup 25. Fill any other required fields the part form demands with sensible values. After saving, wait for the view to refresh and confirm the part appears in the ticket's parts list. Report the part's name, cost, markup, and the price the app computes/displays for it (the computed price field shown on the page).",
+      "skill": "s_f4f55d",
+      "params": {
+        "v1": "{{runid}} RD Part A",
+        "v2": "100",
+        "v3": "25"
+      },
+      "outputs": [
+        "part_name",
+        "cost",
+        "markup",
+        "quantity",
+        "price",
+        "supplier",
+        "total_price"
+      ],
+      "recorded": {
+        "part_name": "fwrd2-n1 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "quantity": "1",
+        "price": "$125.00",
+        "supplier": "No supplier",
+        "total_price": "$125.00"
+      }
+    },
+    {
+      "id": "03-add",
+      "instruction": "On the ticket detail view for ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}), add a second part named exactly '{{runid}} RD Part B' with cost 200 and markup 25. Fill any other required fields the part form demands with sensible values. After saving, wait for the view to refresh and confirm both parts appear in the ticket's parts list. Report the part's name, cost, markup, and the price the app computes/displays for it, plus the ticket's overall parts total.",
+      "skill": "s_f4f55d",
+      "outputs": [
+        "part_A_name",
+        "part_A_cost",
+        "part_A_markup",
+        "part_A_price",
+        "part_B_name",
+        "part_B_cost",
+        "part_B_markup",
+        "part_B_price",
+        "overall_total",
+        "supplier"
+      ],
+      "recorded": {
+        "part_A_name": "fwrd2-n1 RD Part A",
+        "part_A_cost": "$100.00",
+        "part_A_markup": "25%",
+        "part_A_price": "$125.00",
+        "part_B_name": "fwrd2-n1 RD Part B",
+        "part_B_cost": "$200.00",
+        "part_B_markup": "25%",
+        "part_B_price": "$250.00",
+        "overall_total": "$375.00",
+        "supplier": "No supplier"
+      }
+    },
+    {
+      "id": "04-edit",
+      "instruction": "On the ticket detail view for ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}), edit the part named '{{runid}} RD Part A' so its cost changes from 100 to 150, keeping markup at 25 and everything else the same. After saving, wait for the view to refresh and confirm the change. Report the part's new cost, markup, and the price the app computes/displays for it, plus the ticket's overall parts total.",
+      "skill": "s_8721ef",
+      "params": {
+        "v1": "150"
+      },
+      "outputs": [
+        "part_A_name",
+        "part_A_cost",
+        "part_A_markup",
+        "part_A_price",
+        "part_B_name",
+        "part_B_cost",
+        "part_B_markup",
+        "part_B_price",
+        "overall_total"
+      ],
+      "recorded": {
+        "part_A_name": "fwrd2-n1 RD Part A",
+        "part_A_cost": "$150.00",
+        "part_A_markup": "25%",
+        "part_A_price": "$187.50",
+        "part_B_name": "fwrd2-n1 RD Part B",
+        "part_B_cost": "$200.00",
+        "part_B_markup": "25%",
+        "part_B_price": "$250.00",
+        "overall_total": "$437.50"
+      }
+    },
+    {
+      "id": "05-change",
+      "instruction": "On the ticket detail view for ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}), attempt to change the ticket's status to 'Ready'. The app enforces preconditions before it will accept that status — if it refuses, read the exact error/validation message it shows, work out what the preconditions are, satisfy them (filling in whatever the app requires, using sensible values), and retry until the ticket's status is actually 'Ready'. Report: (a) the exact error/validation text the app showed when it refused, (b) exactly what you had to do to satisfy the preconditions, and (c) the ticket's final confirmed status.",
+      "skill": "s_0dcf5e",
+      "params": {},
+      "outputs": [
+        "error_message",
+        "precondition_satisfied",
+        "final_status",
+        "part_A_cost",
+        "part_A_price",
+        "part_B_cost",
+        "part_B_price",
+        "total"
+      ],
+      "recorded": {
+        "error_message": "Ticket is not ready Part \"fwrd2-n1 RD Part A\" has no supplier Part \"fwrd2-n1 RD Part B\" has no supplier",
+        "precondition_satisfied": "Added supplier 'ABC Supplies' to Part A and 'XYZ Parts Co' to Part B",
+        "final_status": "Ready",
+        "part_A_cost": "$150.00",
+        "part_A_price": "$187.50",
+        "part_B_cost": "$200.00",
+        "part_B_price": "$250.00",
+        "total": "$437.50"
+      }
+    },
+    {
+      "id": "06-report",
+      "instruction": "You are RESUMING an instruction that a previous, weaker model could not complete. It gave up with this report:\n\"Instruction timed out after 300s (5 turns, 6 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.\"\nActions the previous attempt ran (most recent last):\n  ok snapshot {\"full\":true}\n  ok dialog_expect {\"action\":\"accept\"}\n  ok click {\"target\":\"@e730\"}\n  FAILED click {\"target\":\"button:Delete part\"}\n  ok snapshot {}\n  ok click {\"target\":\"@e743\"}\nThe browser was left at: http://127.0.0.1:4180/#/tickets/t15\n\nThe browser session is that same attempt — nothing has been reset — but the previous attempt's raw tool output has been elided from the conversation above to keep it small, so treat the summary and action list here as the record of it and re-observe the page for anything you need. Before you repeat ANY state-changing action (submit, create, delete, move), observe the current page and confirm whether it already took effect; the previous attempt may have partially succeeded. Do not assume its conclusions were correct — it may have been stuck because it misread the page or probed the wrong values, so re-examine the evidence yourself and look for an approach it did not try.\n\nThe original instruction to complete is:\nOn the ticket detail view for ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}), remove/delete both parts ('{{runid}} RD Part A' and '{{runid}} RD Part B') from the ticket, confirming any delete dialogs. Note the list/detail view refreshes a short beat after a delete, so wait for the parts list to actually show empty rather than assuming. Then archive the ticket (look for an Archive action/button; if the app refuses to archive, read the exact error and satisfy whatever it requires, then retry). Finally verify: the ticket's parts list is empty and the ticket is archived (report the status/label shown and whether it appears in an archived list rather than the active list). Report exactly what you did and the final confirmed state.",
+      "skill": "s_a91106",
+      "outputs": [
+        "archived_label",
+        "final_status",
+        "parts_count",
+        "ref",
+        "title"
+      ],
+      "recorded": {
+        "archived_label": "Archived",
+        "final_status": "Ready",
+        "parts_count": "0",
+        "ref": "RD-1015",
+        "title": "fwrd2-n1 RD Bench Ticket"
+      }
+    },
+    {
+      "id": "07-verify",
+      "instruction": "Verify the final state of ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}) in the app at http://127.0.0.1:4180/ (already signed in as bench@example.com). Check: (1) the ticket's detail view — report its status, whether it shows an '{{06-report.archived_label}}' label, and exactly how many parts are listed (list their names if any exist); (2) the main tickets list WITHOUT 'Show archived' checked — confirm whether {{01-open.ticket_id}} appears or not, and confirm no ticket whose title contains '{{runid}}' appears in the active list; (3) with 'Show archived' checked — confirm {{01-open.ticket_id}} appears there. Report only these facts.",
+      "skill": "s_66bb6e",
+      "params": {},
+      "outputs": [
+        "detail_status",
+        "detail_archived_label",
+        "detail_parts_count",
+        "detail_parts_names",
+        "active_list_contains_RD1015",
+        "active_list_contains_fwrd2n1",
+        "archived_list_contains_RD1015"
+      ],
+      "recorded": {
+        "detail_status": "Ready",
+        "detail_archived_label": "yes",
+        "detail_parts_count": "0",
+        "detail_parts_names": "",
+        "active_list_contains_RD1015": "false",
+        "active_list_contains_fwrd2n1": "false",
+        "archived_list_contains_RD1015": "true"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwrd2-n1",
+    "created": "2026-08-26T14:27:59.309Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
