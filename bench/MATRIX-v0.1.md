@@ -170,26 +170,43 @@ externally verified per run, raw files on results/<runid> branches
 
 ### repairdesk (depth slice)
 
-| arm | verified (K=3) | cost per run | median wall |
-|---|---|---|---|
-| browser-pilot | 6/6, 6/6, 6/6 | $0.058, $0.051, $0.161 | 843s |
-| agent-browser | 6/6, 6/6, 6/6 | $0.129, $0.147, $0.123 | 274s |
-| playwright-mcp | 6/6, 6/6, 6/6 | $0.563, $0.440, $0.453 | 823s |
-| browser-use | 2/6, 0/6, 0/6 | $0.058, $0.013, $0.013 | 150s |
+| arm | run type | verified (K=3) | cost per run | median wall |
+|---|---|---|---|---|
+| **browser-pilot — flow replay**§ | warm | 6/6, 6/6 | $0.460, $0.531 | 748s |
+| browser-pilot | cold | 6/6, 6/6, 6/6 | $0.058, $0.051, $0.161 | 843s |
+| agent-browser | cold | 6/6, 6/6, 6/6 | $0.129, $0.147, $0.123 | 274s |
+| playwright-mcp | cold | 6/6, 6/6, 6/6 | $0.563, $0.440, $0.453 | 823s |
+| browser-use | cold | 2/6, 0/6, 0/6 | $0.058, $0.013, $0.013 | 150s |
 
 ### Odoo 17
 
-| arm | verified | cost | stop |
-|---|---|---|---|
-| browser-pilot | 6/6, 6/6, 6/6 | $0.223, $0.135, $0.063 | completed x3 |
-| agent-browser | 6/6, 6/6, 6/6 | $1.248, $0.440, $1.062 | completed x3 |
+| arm | run type | verified | cost | stop |
+|---|---|---|---|---|
+| **browser-pilot — flow replay**§ | warm | 6/6, 6/6 | $0.850, $0.253 | success x2 |
+| browser-pilot | cold | 6/6, 6/6, 6/6 | $0.223, $0.135, $0.063 | completed x3 |
+| agent-browser | cold | 6/6, 6/6, 6/6 | $1.248, $0.440, $1.062 | completed x3 |
 
 ### Grafana 11
 
-| arm | verified | cost | stop |
-|---|---|---|---|
-| browser-pilot | 6/6, 6/6, 6/6 | $0.167, $0.225, $0.500 | completed x3 |
-| agent-browser | 6/6, 6/6, **2/6** | $1.402, $1.087, $2.003 | completed x2, **spend-cap** |
+| arm | run type | verified | cost | stop |
+|---|---|---|---|---|
+| **browser-pilot — flow replay**§ | warm | 6/6, **1/6** | $0.370, $0.179 | success, **halted** |
+| browser-pilot | cold | 6/6, 6/6, 6/6 | $0.167, $0.225, $0.500 | completed x3 |
+| agent-browser | cold | 6/6, 6/6, **2/6** | $1.402, $1.087, $2.003 | completed x2, **spend-cap** |
+
+§ **flow replay = the repeated-testing use case.** browser-pilot's warm
+mode: one orchestrated run records a flow at cold cost (repairdesk $0.167,
+odoo $0.165, grafana $0.352 — sweeps fwrd2/fwod3/fwgr3, cloud, commits
+496a2ef/6269b78), then runs 2..N replay it with NO orchestrator. K=2
+replays per target shown. No incumbent arm has an equivalent mode, so an
+incumbent's repeated-run cost is its cold row every time. Replay costs are
+the inner-model recovery tokens priced at the recovery model's rate (a
+deliberate over-estimate); a pure deterministic replay prices to $0, and
+observation-heavy steps still recover on the model — which is why replay
+cost does NOT beat the cold row on the cheap repairdesk target and why
+these rows are EXPERIMENTAL, matching the product label. The grafana 1/6
+is an honest halt: one replay's recovery could not re-do the Stat panel
+type switch and the flow stopped rather than fabricate.
 
 ### atelyr (private; both arms local, same machine)
 
@@ -227,32 +244,12 @@ verifiable objectives pass.
    v0.2; agent-browser's odoo/grafana costs moved ~10–30%. The v0.1
    comparisons were directionally right; the grid above supersedes them.
 
-## Flows: record once, replay many (browser-pilot only) — EXPERIMENTAL
+## Flows: superseded section
 
-Everything above is COLD performance: every run independent, no state
-carried. browser-pilot additionally has a warm mode no other arm has an
-equivalent of, so it is reported as its own experiment, never as a grid
-column: one orchestrated run records a flow; later runs replay it with NO
-orchestrator, dropping to the inner model only for steps whose page
-drifted. Protocol: fresh store, run 1 records (--learn + --save-flow),
-runs 2..K replay (`browser-pilot run`), app reset and externally verified
-per run.
-
-Grafana 11, sweep swg4 (2026-08-25, commit db9fcdb):
-
-| run | mode | steps | verified | orchestrator cost | wall |
-|---|---|---|---|---|---|
-| swg4-n1 | record | 17 cmds | 6/6 | $0.21 | 11 min |
-| swg4-n2 | replay | 13/13 | 6/6 | $0 | 12 min |
-| swg4-n3 | replay | 13/13 | 6/6 | $0 | 12 min |
-| swg4-n4 | replay (validation, 2026-08-26 on v0.2.0/8e16746) | 13/13 | 6/6 | $0 | 15 min |
-
-n4 is the currency check: the exact flow re-replayed on the released beta
-build — including the soft-precondition fingerprint gate added after the
-sweep — with no refusals. Honest bounds: "$0" is orchestrator cost; replay
-steps that drop to model recovery still spend inner-model tokens (a few
-cents), and roughly 10 of 13 steps — mostly read-and-report steps — still
-take recovery turns, so replays are cheap, not yet free. Repairdesk flow
-sweeps (2026-08-23, earlier build) replayed 6/6 across every run; odoo and
-atelyr flow sweeps predate replay v2 and are not quoted. Flows are labeled
-experimental in the product for the same reason this section is separate.
+The flow-replay measurements previously quoted here (local swg4 sweep) are
+superseded by the cloud flow-replay rows inside the v0.2 controlled grid
+above (sweeps fwrd2/fwod3/fwgr3, one results/<base> branch each). Getting
+those rows honest surfaced and fixed four machinery defects in one day:
+unpriced replay tokens, report-value refs dying on tier-A replays,
+digitless minted ids escaping url-provenance, and 429s killing whole
+flowruns — all in the changelog between 9fa1af1 and 6269b78.
