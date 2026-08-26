@@ -226,6 +226,25 @@ function replaceToken(text: string, value: string, marker: string): string {
   return text.replace(new RegExp(`(?<![A-Za-z0-9])${escapeRe(value)}(?![A-Za-z0-9])`, 'g'), marker);
 }
 
+/**
+ * Route a flow step's recovery by its cause. A step with no pinned skill, or
+ * whose reference could not be threaded, is not a hard case — it is an
+ * unrecorded easy case (usually an observation/report step that never
+ * compiled), so it runs on the cheap session model first with the strong
+ * model as escalation. Only a step whose pinned, fully-resolved skill
+ * actually failed to replay is evidence of genuine drift, and goes straight
+ * to the strong model — paying premium rates there is what the sweeps showed
+ * inverted the warm/cold cost profile when applied indiscriminately.
+ */
+export function recoveryRoute(
+  step: Pick<FlowStep, 'skill'>,
+  unresolved: boolean,
+): { easy: boolean; cause: 'no-skill' | 'unthreaded-ref' | 'replay-failed' } {
+  if (!step.skill) return { easy: true, cause: 'no-skill' };
+  if (unresolved) return { easy: true, cause: 'unthreaded-ref' };
+  return { easy: false, cause: 'replay-failed' };
+}
+
 /** Fill {{var}} and {{step.output}} references from run vars and prior outputs. */
 export function resolveInstruction(step: FlowStep, vars: Record<string, string>, outputs: Record<string, Record<string, string>>): { text: string; missing: string[] } {
   const missing: string[] = [];

@@ -130,10 +130,18 @@ for (let n = 1; n <= own.k; n++) {
   if (replayOnly) {
     try {
       const fr = JSON.parse(fs.readFileSync(path.join(outDir, `${runid}-flowrun.json`), 'utf8'));
-      // Price the replay's recovery tokens at the recovery model's rate — a
-      // pure tier-A replay is genuinely $0; recovery steps are not.
+      // Price the replay's recovery tokens — a pure tier-A replay is
+      // genuinely $0; recovery steps are not. Prefer the per-model split
+      // (route-by-cause runs cheap-first recoveries on the session model);
+      // fall back to pricing everything at the recovery model's rate.
       let usd = 0;
-      if (fr.usage && fr.recoveryModel) {
+      if (fr.usageByModel && Object.keys(fr.usageByModel).length) {
+        for (const [model, u] of Object.entries(fr.usageByModel)) {
+          const r = rates[fr.provider]?.[model];
+          if (r) usd += ((u.promptTokens - u.cachedTokens) * r.input + u.cachedTokens * (r.cacheRead ?? r.input) + u.completionTokens * r.output) / 1e6;
+          else console.error(`[sweep] no rate for ${fr.provider}/${model} — its tokens are unpriced`);
+        }
+      } else if (fr.usage && fr.recoveryModel) {
         const r = rates[fr.provider]?.[fr.recoveryModel];
         if (r) usd = ((fr.usage.promptTokens - fr.usage.cachedTokens) * r.input + fr.usage.cachedTokens * (r.cacheRead ?? r.input) + fr.usage.completionTokens * r.output) / 1e6;
       }

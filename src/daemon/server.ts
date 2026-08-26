@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, listFlows, loadFlow, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
+import { buildFlow, listFlows, loadFlow, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -495,6 +495,10 @@ export class Daemon {
     // genuinely zero; recovery steps are not, and reporting them as free
     // overstated the record-once/replay-many economics.
     const usage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 };
+    // Per-model split of the same spend, via SessionState's ledger: cheap-first
+    // recoveries (route-by-cause) must not be priced at the strong model's
+    // rate, or the routing win is invisible in the bench.
+    const usageBefore = JSON.parse(JSON.stringify(this.state.usageByModel)) as typeof this.state.usageByModel;
     let halted = false;
 
     for (const step of flow.steps) {
@@ -525,14 +529,20 @@ export class Daemon {
       if (direct.done) {
         result = direct.done;
       } else {
-        // Recovery is hard by definition → strong model, one shot, no cheap
-        // pre-attempt. The partial replay (if any) is handed to it directly.
+        // Route by cause (not "recovery is hard by definition"): a no-skill or
+        // unthreaded-ref step is an unrecorded easy case and runs on the cheap
+        // model first, escalating to the strong model only if it blocks; a
+        // pinned skill that genuinely failed to replay is drift, and goes
+        // straight to the strong model with the partial replay handed over.
         recovered = true;
-        opts.progress(`[flow ${flow.name}] ${step.id}: ${unresolved ? 'reference could not be threaded — ' : ''}recovering on ${opts.recovery.model}`);
+        const route = recoveryRoute(step, unresolved);
+        const primary = route.easy ? opts.provider : opts.recovery;
+        const escalation = route.easy && opts.recovery.model !== opts.provider.model ? opts.recovery : null;
+        opts.progress(`[flow ${flow.name}] ${step.id}: ${route.cause} — recovering on ${primary.model}${escalation ? ` (escalates to ${escalation.model})` : ''}`);
         try {
           result = await runEscalatingInstruction(
-            opts.recovery,
-            null,
+            primary,
+            escalation,
             this.browser,
             this.state,
             direct.prelude ? `${recoveryText}
@@ -680,11 +690,13 @@ ${direct.prelude}` : recoveryText,
       ...(driftTickets.length ? { driftTickets } : {}),
       wallMs: Date.now() - started,
       model: opts.provider.model,
-      // What the replay actually cost: recovery tokens, attributed to the
-      // recovery model (tier-B repairs inside an instruction are priced at
-      // the same rate — an over-, never under-estimate, since recovery is
-      // the dearest tier in play).
+      // What the replay actually cost. `usageByModel` is the accurate
+      // per-model split (recordUsage buckets each instruction under the
+      // provider that ran it, escalations under theirs); `usage` +
+      // `recoveryModel` remain as the coarse fallback for older tooling,
+      // priced at the dearest tier in play — an over-, never under-estimate.
       usage,
+      usageByModel: diffUsageByModel(usageBefore, this.state.usageByModel),
       recoveryModel: opts.recovery.model,
       provider: this.provider().constructor.name === 'AnthropicProvider' ? 'anthropic' : (process.env.BROWSER_PILOT_PROVIDER || 'zhipu'),
     };
@@ -861,6 +873,23 @@ ${direct.prelude}` : recoveryText,
 
 function listFlowsSummary() {
   return listFlows().map((f) => ({ name: f.name, origin: f.origin, steps: f.steps.length, vars: f.vars, created: f.provenance.created }));
+}
+
+type UsageLedger = Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number; instructions: number }>;
+
+/** Per-model token delta between two snapshots of the session's usage ledger, models with no activity omitted. */
+function diffUsageByModel(before: UsageLedger, after: UsageLedger): Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number }> {
+  const out: Record<string, { promptTokens: number; completionTokens: number; cachedTokens: number }> = {};
+  for (const [model, u] of Object.entries(after)) {
+    const b = before[model];
+    const d = {
+      promptTokens: u.promptTokens - (b?.promptTokens ?? 0),
+      completionTokens: u.completionTokens - (b?.completionTokens ?? 0),
+      cachedTokens: u.cachedTokens - (b?.cachedTokens ?? 0),
+    };
+    if (d.promptTokens || d.completionTokens || d.cachedTokens) out[model] = d;
+  }
+  return out;
 }
 
 function describeLearned(l: ReturnType<typeof learnFromInstruction>): string {

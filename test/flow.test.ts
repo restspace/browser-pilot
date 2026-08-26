@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, resolveInstruction, resolveStepParams, softResolveInstruction, type FlowStep } from '../src/skills/flow.js';
+import { buildFlow, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, synthesizeReport } from '../src/skills/learn.js';
 import { compileSkill } from '../src/skills/compile.js';
 
@@ -242,5 +242,19 @@ describe('digitless minted ids (fwgr2 regression)', () => {
     const flow = buildFlow(entries, { name: 'h', origin: ORIGIN, startUrl: `${ORIGIN}/dashboards`, vars: { runid: 'fr1' }, session: 's' })!;
     expect(flow.steps[1].instruction).toContain(`{{${flow.steps[0].id}.url.p1}}`);
     expect(flow.steps[1].instruction).not.toContain('cfwcsdxqdjabkf');
+  });
+});
+
+describe('recoveryRoute', () => {
+  it('routes a step with no pinned skill to the cheap model first', () => {
+    expect(recoveryRoute({}, false)).toEqual({ easy: true, cause: 'no-skill' });
+  });
+
+  it('routes an unthreaded reference to the cheap model first even with a skill', () => {
+    expect(recoveryRoute({ skill: 's_abc' }, true)).toEqual({ easy: true, cause: 'unthreaded-ref' });
+  });
+
+  it('routes a genuine replay failure straight to the strong model', () => {
+    expect(recoveryRoute({ skill: 's_abc' }, false)).toEqual({ easy: false, cause: 'replay-failed' });
   });
 });
