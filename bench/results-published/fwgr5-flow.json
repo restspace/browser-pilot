@@ -1,0 +1,111 @@
+{
+  "name": "fwgr5",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ and sign in with username admin and password admin (if asked to change the password, skip it). Then find and open the provisioned dashboard named 'Service health' (use the search/dashboards feature). Report the exact titles of all panels visible on that dashboard, exactly as shown on the page, one per line.",
+      "skill": "s_dfb52c",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "panel_titles",
+        "h2",
+        "h2_2",
+        "h2_3"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      }
+    },
+    {
+      "id": "02-open",
+      "instruction": "On the current Grafana page (a new dashboard at /dashboard/new with one panel titled 'Panel Title'), first press Escape to close any open context menu. Then open the panel editor for that panel (click the panel's menu and choose Edit, or navigate to the URL with &editPanel=1). In the panel editor: (1) make sure the visualization type is 'Stat' (use the 'Change Visualization' button in the top right of the editor pane and pick Stat); (2) set the Panel title field (in Panel options) to exactly: {{runid}} Availability ; (3) confirm the data source for query A is 'TestData' (uid benchtestdata) — if it is not, set it to TestData. Then click Apply (or Back) to exit the editor. Report the panel title shown on the dashboard afterwards and whether the visualization is a Stat.",
+      "skill": "s_3925f4",
+      "params": {
+        "v2": "{{runid}} Availability"
+      },
+      "outputs": [
+        "panel_title",
+        "visualization_type"
+      ],
+      "recorded": {
+        "panel_title": "fwgr5-n1 Availability",
+        "visualization_type": "Stat"
+      }
+    },
+    {
+      "id": "03-step",
+      "instruction": "You are on a Grafana page at http://127.0.0.1:3000 (logged in as admin). Run a single JavaScript eval in the page that performs this fetch and returns the result. Exact code to evaluate:\\n\\n(async () => { const body = {{{02-open.url.p0}}: {id: null, uid: null, title: \"{{runid}} Bench Dashboard\", tags: [\"bench\"], timezone: \"browser\", schemaVersion: 39, version: 0, refresh: \"1m\", time: {from: \"now-6h\", to: \"now\"}, panels: [{id: 1, gridPos: {h: 8, w: 12, x: 0, y: 0}, type: \"stat\", title: \"{{runid}} Availability\", datasource: {type: \"grafana-testdata-datasource\", uid: \"benchtestdata\"}, targets: [{refId: \"A\", datasource: {type: \"grafana-testdata-datasource\", uid: \"benchtestdata\"}, scenarioId: \"random_walk\"}]}, {id: 2, gridPos: {h: 8, w: 12, x: 12, y: 0}, type: \"text\", title: \"{{runid}} Notes\", options: {mode: \"markdown\", content: \"## {{runid}} Notes\\n\\nBench run {{runid}} - the {{02-open.visualization_type}} panel uses the TestData data source.\"}}]}, overwrite: true, message: \"bench {{02-open.url.p0}}\"}; const r = await fetch(\"/api/dashboards/db\", {method: \"POST\", headers: {\"Content-Type\": \"application/json\"}, credentials: \"include\", body: JSON.stringify(body)}); return {status: r.status, text: await r.text()}; })()\\n\\nReport the HTTP status and the full response body text verbatim.",
+      "skill": "s_c89264",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "http_status",
+        "response_body"
+      ],
+      "recorded": {
+        "http_status": "200",
+        "response_body": "{\"folderUid\":\"\",\"id\":3,\"slug\":\"fwgr5-n1-bench-dashboard\",\"status\":\"success\",\"uid\":\"dfwdzd27pk934b\",\"url\":\"/d/dfwdzd27pk934b/fwgr5-n1-bench-dashboard\",\"version\":1}"
+      }
+    },
+    {
+      "id": "04-report",
+      "instruction": "Navigate to http://127.0.0.1:3000/d/dfwdzd27pk934b/{{runid}}-bench-{{02-open.url.p0}} and let it load. Then report: (1) the {{02-open.url.p0}} title shown in the page header/breadcrumb; (2) the exact titles of all panels on the {{02-open.url.p0}}; (3) the text content displayed in the Text panel (does it contain the string {{runid}}?); (4) the time range shown in the top-right time picker (exact label); (5) the auto-refresh interval shown in the refresh picker dropdown button label (exact label). Do not change anything.",
+      "skill": "s_ee38df",
+      "params": {
+        "v2": "http://127.0.0.1:3000/d/dfwdzd27pk934b/{{runid}}-bench-{{02-open.url.p0}}",
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "text_panel_contains_fwgr5_n1",
+        "time_range",
+        "refresh_interval"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr5-n1 Bench Dashboard",
+        "panel_titles": "fwgr5-n1 Availability, fwgr5-n1 Notes",
+        "text_panel_contains_fwgr5_n1": "true",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m"
+      }
+    },
+    {
+      "id": "05-report",
+      "instruction": "On the current Grafana page, run a JavaScript eval that performs: (async () => { const r = await fetch(\"/api/dashboards/uid/dfwdzd27pk934b\", {credentials: \"include\"}); return {status: r.status, text: await r.text()}; })() . Report the HTTP status and the full response body text verbatim (it is JSON containing the saved {{02-open.url.p0}}).",
+      "skill": "s_c89264",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-report",
+      "instruction": "On the current Grafana page, run a JavaScript eval: (async () => { const r = await fetch(\"/api/dashboards/uid/dfwdzd27pk934b\", {credentials: \"include\"}); const j = await r.json(); const d = j.{{02-open.url.p0}}; return JSON.stringify({title: d.title, tags: d.tags, refresh: d.refresh, time: d.time, version: d.version, panels: d.panels.map(p => ({id: p.id, type: p.type, title: p.title, datasource: p.datasource, targets: (p.targets||[]).map(t => ({refId: t.refId, datasource: t.datasource, scenarioId: t.scenarioId})), content: p.options && p.options.content}))}); })() . Report the returned JSON string verbatim.",
+      "skill": "s_c89264",
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-report",
+      "instruction": "On the current Grafana page, run a JavaScript eval: (async () => { const r = await fetch(\"/api/datasources/uid/benchtestdata\", {credentials: \"include\"}); const j = await r.json(); return JSON.stringify({status: r.status, name: j.name, type: j.type, uid: j.uid}); })() . Report the returned JSON string verbatim.",
+      "skill": "s_c89264",
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwgr5-n1",
+    "created": "2026-08-26T22:36:36.846Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

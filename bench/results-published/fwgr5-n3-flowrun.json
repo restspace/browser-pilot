@@ -1,0 +1,146 @@
+{
+  "flow": "fwgr5",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin/admin (skipped password change prompt), navigated to the 'Service health' dashboard under Bench folder. The dashboard has exactly three visible panel titles: Request rate, Error count, and Latency by endpoint.",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8ea89e; observed panel_title=fwgr5-n3 Availability.",
+      "values": {
+        "panel_title": "fwgr5-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_3925f4"
+    },
+    {
+      "id": "03-step",
+      "status": "success",
+      "summary": "Executed the fetch to /api/dashboards/db with the provided dashboard JSON payload. HTTP status 200. Response body: {\"folderUid\":\"\",\"id\":5,\"slug\":\"fwgr5-n3-bench-dashboard\",\"status\":\"success\",\"uid\":\"efwdzncx4kum8e\",\"url\":\"/d/efwdzncx4kum8e/fwgr5-n3-bench-dashboard\",\"version\":2}",
+      "values": {
+        "status": "200",
+        "responseBody": "{\"folderUid\":\"\",\"id\":5,\"slug\":\"fwgr5-n3-bench-dashboard\",\"status\":\"success\",\"uid\":\"efwdzncx4kum8e\",\"url\":\"/d/efwdzncx4kum8e/fwgr5-n3-bench-dashboard\",\"version\":2}",
+        "response_body": "{\"folderUid\":\"\",\"id\":5,\"slug\":\"fwgr5-n3-bench-dashboard\",\"status\":\"success\",\"uid\":\"efwdzncx4kum8e\",\"url\":\"/d/efwdzncx4kum8e/fwgr5-n3-bench-dashboard\",\"version\":2}"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "04-report",
+      "status": "success",
+      "summary": "Navigated to the dashboard. (1) Dashboard title: 'Not found'. (2) Panel titles: 'fwgr5-n3 Availability' (Stat) and 'fwgr5-n3 Notes' (Text). (3) Text panel content includes the heading 'fwgr5-n3 Notes' and paragraph 'Bench run fwgr5-n3 - the Stat panel uses the TestData data source.' — yes, contains 'fwgr5-n3'. (4) Time range picker shows 'Last 6 hours'. (5) Refresh interval button shows ''.",
+      "values": {
+        "panel_titles": "fwgr5-n3 Availability, fwgr5-n3 Notes",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "",
+        "dashboard_title": "Not found"
+      },
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-report",
+      "status": "success",
+      "summary": "Fetch to /api/dashboards/uid/dfwdzd27pk934b returned HTTP 404 with response body: {\"message\":\"Dashboard not found\",\"traceID\":\"\"}",
+      "values": {
+        "status": "404",
+        "responseBody": "{\"message\":\"Dashboard not found\",\"traceID\":\"\"}"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "The fetch to /api/dashboards/uid/dfwdzd27pk934b returned HTTP 404 with body {\"message\":\"Dashboard not found\",\"traceID\":\"\"} — that UID does not exist on this Grafana instance. The dashboard created earlier uses UID efwdzncx4kum8e instead.",
+      "values": {
+        "requestedUid": "dfwdzd27pk934b",
+        "status": "404",
+        "responseBody": "{\"message\":\"Dashboard not found\",\"traceID\":\"\"}"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Fetched datasource by uid benchtestdata and got: {\"status\":200,\"name\":\"TestData\",\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}",
+      "values": {
+        "responseJson": "{\"status\":200,\"name\":\"TestData\",\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 2
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr5",
+      "step": "03-step",
+      "skill": "s_c89264",
+      "similarity": 0.986,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr5",
+      "step": "04-report",
+      "skill": "s_ee38df",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.986,
+      "missedLocator": "page.getByTestId('data-testid fwgr5-n3 Bench Dashboard breadcrumb')",
+      "fallbackUsed": "page.locator('header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfwdzd27pk934b/:id"
+    }
+  ],
+  "wallMs": 52933,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 137266,
+    "completionTokens": 3153,
+    "cachedTokens": 107520
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 137266,
+      "completionTokens": 3153,
+      "cachedTokens": 107520
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
