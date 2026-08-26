@@ -1,0 +1,64 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "8f8da6d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "c2aod3",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 69,
+  "wallMs": 890259,
+  "orchestrator": {
+    "input": 78213,
+    "cacheWrite": 0,
+    "cacheRead": 3541696,
+    "output": 7109
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 160,
+  "subcommands": {
+    "skills": 1,
+    "open": 3,
+    "snapshot": 42,
+    "fill": 7,
+    "click": 35,
+    "get": 11,
+    "wait": 39,
+    "eval": 10,
+    "type": 5,
+    "press": 3,
+    "find": 3,
+    "close": 1
+  },
+  "invocationCount": 160,
+  "commandMs": 108070,
+  "commandBytes": 238310,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 1.0616,
+  "maxUsd": 2,
+  "spendUsd": 1.0616,
+  "finalText": "## Final Report\n\n**Objective 1 — DONE.** Customer `c2aod3 Bench Customer` created (Sales → Orders → Customers → New). Verified on the saved record: name heading `c2aod3 Bench Customer`, City field = `Benchville`. Also confirmed later on the confirmed order's customer link, which rendered as `c2aod3 Bench CustomerBenchville`.\n\n**Objective 2 — DONE.** Quotation `S00023` created for that customer with one order line:\n- Product: **Chair floor protection** (chosen from the autocomplete dropdown, not typed — an \"Internal link\" button appeared on the field confirming a real record was bound)\n- Quantity: 3\n- Unit price the app filled in: **£12.00**\n- Untaxed Amount: **£36.00** (subtotal footer read `Untaxed Amount £36.00 / TAX 20% £7.20 / Total £43.20`)\n\n**Objective 3 — DONE.** Second order line added:\n- Product: **[FURN_8855] Drawer** (also chosen from the dropdown)\n- Quantity: 2, unit price £110.50, line Tax excl. £221.00\n- New Untaxed Amount: **£257.00** (footer: `Untaxed Amount £257.00 / TAX 20% £51.40 / Total £308.40`)\n\n**Objective 4 — DONE.** First line's quantity changed 3 → 5; line Tax excl. became £60.00. New Untaxed Amount: **£281.00** (footer: `Untaxed Amount £281.00 / TAX 20% £56.20 / Total £337.20`).\n\n**Objective 5 — DONE.** Quotation confirmed via the Confirm button. Order reference: **S00023**. Status shown: **Sales Order** (the statusbar button `Sales Order` carried the `o_arrow_button_current` class; the \"Create Invoice\" button replaced \"Confirm\").\n\n**Objective 6 — DONE.** Order cancelled. Status shown: **Cancelled** (statusbar button `Cancelled` carried `o_arrow_button_current`). Final verified state: name `S00023`, status `Cancelled`, Untaxed Amount £281.00, customer `c2aod3 Bench Customer` / Benchville.\n\nNotes on the environment worth recording: the Contacts app is not installed, so the customer was created through Sales → Orders → Customers. Two products I first tried (Customizable Desk, Conference Chair) are configurable and popped a \"Configure your product\" modal instead of filling the price; I cancelled those and used non-configurable products. Odoo's list-editor quantity field only recomputes the subtotal after the field loses focus, so each quantity change needed a Tab/blur before the amount updated.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/c2aod3-agent-browser-transcript.jsonl"
+}
