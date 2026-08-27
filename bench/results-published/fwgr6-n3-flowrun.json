@@ -1,0 +1,209 @@
+{
+  "flow": "fwgr6",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana as admin, navigated to the provisioned \"Service Health\" dashboard, and found 3 panels with the following titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\". All panel titles were confirmed in the live DOM.",
+      "values": {
+        "dashboard": "Service Health",
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "panel_count": "3",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_0ebd14; observed dashboard_title=fwgr6-n3 Bench Dashboard.",
+      "values": {
+        "dashboard_title": "fwgr6-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_9013b3"
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text panel to the fwgr6-n3 Bench Dashboard: set the panel title to \"fwgr6-n3 Notes\" and the text content to \"Bench run fwgr6-n3 — notes panel\" (Markdown mode), then saved via Ctrl+S → Save. Save succeeded: a \"Dashboard saved\" alert appeared, the \"Discard panel changes\" button is disabled, and no unsaved-changes indicator is present. Both the title and content are confirmed rendered on the dashboard in the live DOM.",
+      "values": {
+        "panel_title": "fwgr6-n3 Notes",
+        "panel_text_content": "Bench run fwgr6-n3 — notes panel",
+        "save_alert": "Dashboard saved",
+        "discard_panel_changes_disabled": "true",
+        "unsaved_changes_indicator": "none visible",
+        "url": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/fwgr6-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&editPanel=1"
+      },
+      "tier": "A",
+      "replayed": "1/16",
+      "repaired": false,
+      "turns": 51
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Opened dashboard settings, added the tag \"bench\" to the dashboard (confirmed visible as a listitem with a Remove button), and verified the time range was already set to \"Last 6 hours\" (confirmed in the top-right picker text and URL query params). Saved the dashboard (Ctrl+S → Save) — received a \"Dashboard saved\" alert. The tag \"bench\" is confirmed in the General settings Tags list, and the time range \"Last 6 hours\" is shown in the top-right picker. Save succeeded with no unsaved-changes issues.",
+      "values": {
+        "tags": "bench",
+        "time_range": "Last 6 hours",
+        "save_alert": "Dashboard saved",
+        "url": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/fwgr6-n3-bench-dashboard?from=now-6h&to=now&timezone=browser"
+      },
+      "tier": "B",
+      "replayed": "0/17",
+      "repaired": true,
+      "turns": 20
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to 1m via the top-right refresh dropdown (URL updated to refresh=1m), then saved the dashboard in edit mode via Ctrl+S with the \"Update default refresh value\" checkbox checked — a \"Dashboard saved\" alert confirmed success. Verified by reloading the dashboard fresh at http://127.0.0.1:3000/d/ffwfjocnjeeioe/fwgr6-n3-bench-dashboard (no query params): (a) refresh interval shows \"1m\" in the top-right picker, (b) time range shows \"Last 6 hours\", and (c) no unsaved-changes indicator is present (dashboard is in view mode with no save/discard prompts).",
+      "values": {
+        "refresh_interval": "1m",
+        "time_range": "Last 6 hours",
+        "unsaved_changes_indicator": "none",
+        "save_alert": "Dashboard saved",
+        "url": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/fwgr6-n3-bench-dashboard"
+      },
+      "tier": "A",
+      "replayed": "4/19",
+      "repaired": false,
+      "turns": 35
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8d0ad9; observed notes_panel_text=Bench run fwgr6-n3 — notes panel, panel_titles=fwgr6-n3 Notes, dashboard_title=fwgr6-n3 Bench Dashboard, tags=bench.",
+      "values": {
+        "notes_panel_text": "Bench run fwgr6-n3 — notes panel",
+        "panel_titles": "fwgr6-n3 Notes",
+        "dashboard_title": "fwgr6-n3 Bench Dashboard",
+        "tags": "bench"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_8d0ad9"
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Dashboard loaded fresh at http://127.0.0.1:3000/d/ffwfjocnjeeioe/fwgr6-n3-bench-dashboard (no query params). Confirmed clean saved state: no Discard or Save buttons present anywhere in the DOM (unsaved-changes indicator: none). Dashboard title: \"{{v1}} Bench Dashboard\". Panel titles: \"{{v1}} Notes\" (content: \"Bench run {{v1}} — notes panel\") and \"{{v1}} Availability\" (showing Stat value \"94.6\"). Time range: \"Last 6 hours\". Refresh interval: \"1m\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 2,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwgr6",
+      "step": "01-open",
+      "skill": "s_c10bcc",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "02-open",
+      "skill": "s_9013b3",
+      "atStep": "10",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": "click a[href=\"/dashboards\"]",
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "02-open",
+      "skill": "s_68a578",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('link', { name: 'New dashboard' })",
+      "fallbackUsed": "goto http://127.0.0.1:3000/dashboard/new",
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "03-add",
+      "skill": "s_d6d1cc",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 2 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "04-add",
+      "skill": "s_27afe8",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Mark as favorite')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "05-set",
+      "skill": "s_386c63",
+      "atStep": "5",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+    }
+  ],
+  "wallMs": 1608387,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2046679,
+    "completionTokens": 18322,
+    "cachedTokens": 1312512
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1425380,
+      "completionTokens": 9151,
+      "cachedTokens": 752128
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 621299,
+      "completionTokens": 9171,
+      "cachedTokens": 560384
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

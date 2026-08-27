@@ -1,0 +1,178 @@
+{
+  "flow": "fwgr6",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Successfully signed in to Grafana with admin/admin, navigated to the provisioned \"Service health\" dashboard (under \"Bench\" folder), and found exactly 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 17
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Cleared the 'Save dashboard title field' textbox and typed 'fwgr6-n2 Bench Dashboard' into it, then clicked the Save button. The dashboard saved successfully — an alert \"Dashboard saved\" appeared and the browser navigated to http://127.0.0.1:3000/d/afwffrkm9ut4wa/fwgr6-n2-bench-dashboard?from=now-6h&to=now&timezone=browser, with the breadcrumb confirming the new title \"fwgr6-n2 Bench Dashboard\".",
+      "values": {
+        "dashboard_title": "fwgr6-n2 Bench Dashboard",
+        "dashboard_uid": "afwffrkm9ut4wa",
+        "saved_successfully": "true"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 38
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text panel to the fwgr6-n2 Bench Dashboard: set the panel title to 'fwgr6-n2 Notes' and the text content to 'Bench run fwgr6-n2 — notes panel', then saved via Ctrl+S and clicking Save. The save succeeded — an alert \"Dashboard saved\" appeared, the 'Discard panel' button was disabled (no unsaved changes), and the dashboard view now shows the panel with heading \"fwgr6-n2 Notes\" and paragraph \"Bench run fwgr6-n2 — notes panel\".",
+      "values": {
+        "panel_text_content": "Bench run fwgr6-n2 — notes panel",
+        "panel_title": "fwgr6-n2 Notes",
+        "saved_successfully": "true"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 62
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added the tag 'bench' to the dashboard via Settings > General > Tags (typed 'bench' and pressed Enter), set the time range to 'Last 6 hours' (already reflected in the URL and picker), and saved the dashboard — an alert \"Dashboard saved\" appeared. Verified in settings that the Tags list shows 'bench' (with a \"Remove 'bench' tag\" button), and the top-right time range picker shows \"Last 6 hours\". The dashboard is in view mode with no unsaved-changes indicator.",
+      "values": {
+        "saved_successfully": "true",
+        "tags": "bench",
+        "time_range": "Last 6 hours"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 36
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to '1m' via the time range picker's refresh dropdown, then saved the dashboard with both \"Update default time range\" and \"Update default refresh value\" checked (Save button was enabled and clicked). Verified by reloading the dashboard fresh at http://127.0.0.1:3000/d/afwffrkm9ut4wa/fwgr6-n2-bench-dashboard (no URL query params): (a) the top-right refresh picker shows \"1m\" (\"Choose refresh time interval with current interval 1 minute selected\"), (b) the time range picker shows \"Last 6 hours\", and (c) there is no unsaved-changes indicator — the dashboard is in view mode with only Edit/Share/favorite buttons.",
+      "values": {
+        "refresh_interval": "1m",
+        "saved_successfully": "true",
+        "time_range": "Last 6 hours",
+        "unsaved_changes_indicator": "false"
+      },
+      "tier": "A",
+      "replayed": "3/17",
+      "repaired": false,
+      "turns": 32
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Refreshed the fwgr6-n2 Bench Dashboard and verified: (1) breadcrumb title is \"fwgr6-n2 Bench Dashboard\"; (2) the only panel is \"fwgr6-n2 Notes\" (no \"fwgr6-n2 Availability\" panel exists on this dashboard); (3) skipped — panel \"fwgr6-n2 Availability\" does not exist; (4) the \"fwgr6-n2 Notes\" panel renders text \"Bench run fwgr6-n2 — notes panel\"; (5) Settings > General shows tag \"bench\"; (6) time range picker shows \"Last 6 hours\" and refresh interval shows \"1m\". No changes were made.",
+      "values": {
+        "dashboard_title": "fwgr6-n2 Bench Dashboard",
+        "panel_titles": "fwgr6-n2 Notes",
+        "notes_panel_text": "Bench run fwgr6-n2 — notes panel",
+        "tags": "bench",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "3/12",
+      "repaired": false,
+      "turns": 14
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Dashboard loaded fresh at http://127.0.0.1:3000/d/afwffrkm9ut4wa/fwgr6-n2-bench-dashboard (no query params). Confirmed clean saved state: no Discard or Save buttons present anywhere in the DOM (unsaved-changes indicator: none). Dashboard title: \"{{v1}} Bench Dashboard\". Panel titles: \"{{v1}} Notes\" (content: \"Bench run {{v1}} — notes panel\") and \"{{v1}} Availability\" (showing Stat value \"94.6\"). Time range: \"Last 6 hours\". Refresh interval: \"1m\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr6",
+      "step": "01-open",
+      "skill": "s_c10bcc",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "05-set",
+      "skill": "s_0a0ba5",
+      "similarity": 0.981,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwffrkm9ut4wa/:id"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "06-report",
+      "skill": "s_8f43a8",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.991,
+      "missedLocator": "page.getByRole('heading', { name: 'fwgr6-n2 Availability' })",
+      "fallbackUsed": "goto http://127.0.0.1:3000/d/afwfbbc2of6rkf/fwgr6-n2-bench-dashboard",
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwfbbc2of6rkf/:id"
+    },
+    {
+      "flow": "fwgr6",
+      "step": "06-report",
+      "skill": "s_8f43a8",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.991,
+      "missedLocator": "page.getByTestId('data-testid Panel header fwgr6-n2 Availability')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwfbbc2of6rkf/:id"
+    }
+  ],
+  "wallMs": 3302802,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 4468962,
+    "completionTokens": 27483,
+    "cachedTokens": 2589824
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 3273440,
+      "completionTokens": 16822,
+      "cachedTokens": 1484032
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1195522,
+      "completionTokens": 10661,
+      "cachedTokens": 1105792
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

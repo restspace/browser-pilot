@@ -1,0 +1,48 @@
+[
+  {
+    "flow": "fwgr6",
+    "step": "01-open",
+    "skill": "s_c10bcc",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:3000/"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "05-set",
+    "skill": "s_0a0ba5",
+    "similarity": 0.981,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwffrkm9ut4wa/:id"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "06-report",
+    "skill": "s_8f43a8",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 0.991,
+    "missedLocator": "page.getByRole('heading', { name: 'fwgr6-n2 Availability' })",
+    "fallbackUsed": "goto http://127.0.0.1:3000/d/afwfbbc2of6rkf/fwgr6-n2-bench-dashboard",
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwfbbc2of6rkf/:id"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "06-report",
+    "skill": "s_8f43a8",
+    "atStep": "4",
+    "key": "target",
+    "similarity": 0.991,
+    "missedLocator": "page.getByTestId('data-testid Panel header fwgr6-n2 Availability')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwfbbc2of6rkf/:id"
+  }
+]

@@ -1,0 +1,90 @@
+{
+  "name": "fwgr6",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ in the browser, sign in to Grafana with username 'admin' and password 'admin' (if a password-change prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use search/dashboards if needed) and report the titles of all panels on that dashboard, exactly as shown on the page, as a list.",
+      "skill": "s_0d73a7",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-open",
+      "instruction": "The Grafana save-dashboard drawer is currently open in the browser at http://127.0.0.1:3000/. There is a textbox labeled 'Save dashboard title field' currently containing 'New dashboard', and a 'Save' button in the drawer. Do exactly two things, one at a time, NOT as a batch: first clear the textbox and type '{{runid}} Bench Dashboard' into it; then click the Save button. After that, report the browser's current URL and whether the dashboard saved successfully.",
+      "skill": "s_9013b3",
+      "params": {
+        "v2": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-add",
+      "instruction": "In Grafana at http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard, add a new Text panel to the dashboard. Set the panel title to exactly '{{runid}} Notes' and set the text content to include the runid, e.g. 'Bench run {{runid}} — notes panel'. Then save the dashboard (Ctrl+S opens the save drawer; click Save). Verify the save succeeded (no unsaved-changes indicator, 'Discard panel changes' disabled) and report the panel title and text content as shown on the dashboard.",
+      "skill": "s_ceb8f3",
+      "params": {
+        "v1": "{{runid}}",
+        "v2": "Text",
+        "v3": "{{runid}} Notes",
+        "v4": "Bench run {{runid}} — notes panel"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-add",
+      "instruction": "In Grafana at http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard, do two things and save: (1) Add the tag 'bench' to the dashboard — open the dashboard settings (gear icon), go to the General settings section, find the Tags field, add the tag 'bench'. (2) Set the dashboard's time range to the last 6 hours — open the time range picker in the top right and choose 'Last 6 hours'. Then save the dashboard (Ctrl+S then Save, or Save from settings). Verify the save succeeded and report the tags shown in dashboard settings and the time range shown in the top-right picker.",
+      "skill": "s_027c0b",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-set",
+      "instruction": "In Grafana at http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard, set the dashboard's auto-refresh interval to '1m': open the time range picker (top right), find the 'Auto refresh' / refresh interval dropdown, and select '1m'. Then save the dashboard (Ctrl+S then Save). After saving, verify by reloading the dashboard page fresh at http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard (no URL query params) and report: (a) the refresh interval shown in the top-right picker, (b) the time range shown in the top-right picker, (c) whether the dashboard shows any unsaved-changes indicator.",
+      "skill": "s_0a0ba5",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-report",
+      "instruction": "Verification task on Grafana at http://127.0.0.1:3000/. Load the dashboard at http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard fresh (no query params) and report these specific facts: (1) the dashboard title shown in the page header/breadcrumb; (2) the titles of every panel on the dashboard; (3) open the panel editor for the panel titled '{{runid}} Availability' and report its visualization type and which data source its query uses (then exit the editor without changing anything); (4) the text content rendered inside the panel titled '{{runid}} Notes'; (5) open dashboard Settings > General and report the tags listed; (6) the time range and refresh interval shown in the top-right picker. Do not modify anything.",
+      "skill": "s_8d0ad9",
+      "params": {
+        "v2": "http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard",
+        "v3": "{{runid}} Availability",
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-report",
+      "instruction": "Load http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard fresh in Grafana and confirm the dashboard is in a clean saved state: report whether any unsaved-changes indicator or 'Discard' button is present, the dashboard title, the panel titles, the time range, and the refresh interval. Do not click anything that would modify the dashboard.",
+      "skill": "s_85a700",
+      "params": {
+        "v2": "http://127.0.0.1:3000/d/{{02-open.url.p1}}/{{runid}}-bench-dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwgr6-n1",
+    "created": "2026-08-27T08:08:17.018Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

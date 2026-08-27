@@ -1,0 +1,74 @@
+[
+  {
+    "flow": "fwgr6",
+    "step": "01-open",
+    "skill": "s_c10bcc",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:3000/"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "02-open",
+    "skill": "s_9013b3",
+    "atStep": "10",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "(none recorded)",
+    "fallbackUsed": "click a[href=\"/dashboards\"]",
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "02-open",
+    "skill": "s_68a578",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByRole('link', { name: 'New dashboard' })",
+    "fallbackUsed": "goto http://127.0.0.1:3000/dashboard/new",
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "03-add",
+    "skill": "s_d6d1cc",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 2 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "04-add",
+    "skill": "s_27afe8",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByTestId('data-testid Mark as favorite')",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+    "fallbackIndex": 2,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+  },
+  {
+    "flow": "fwgr6",
+    "step": "05-set",
+    "skill": "s_386c63",
+    "atStep": "5",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button')",
+    "fallbackIndex": 2,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/ffwfjocnjeeioe/:id"
+  }
+]
