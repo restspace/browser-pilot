@@ -1,0 +1,145 @@
+{
+  "flow": "fwrd17",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as bench@example.com, created ticket titled \"fwrd17-n3 RD Bench Ticket\" (ID RD-1015). The ticket appears in the detail view with customer \"Bench Customer\", raised date Customer: Bench Customer · Raised 2026-08-27, and status \"Draft\".",
+      "values": {
+        "title": "fwrd17-n3 RD Bench Ticket",
+        "customer": "Bench Customer",
+        "status": "Draft",
+        "ticket_id": "RD-1015",
+        "raised": "Customer: Bench Customer · Raised 2026-08-27"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_85850b; observed price=$125.00, part_name=fwrd17-n3 RD Part A, cost=$100.00, markup=25%, supplier=No supplier.",
+      "values": {
+        "price": "$125.00",
+        "part_name": "fwrd17-n3 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "supplier": "No supplier"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added part 'fwrd17-n3 RD Part B' (cost $200.00, markup 25%) to ticket RD-1015. The ticket's parts list now shows both parts: (1) 'fwrd17-n3 RD Part A' — cost $100.00, markup 25%, computed price $125.00; (2) 'fwrd17-n3 RD Part B' — cost $200.00, markup 25%, computed price $250.00. The parts total displayed is $375.00, confirming Part A and Part B are both present and correctly priced.",
+      "values": {
+        "part_A": "{\"name\":\"fwrd17-n3 RD Part A\",\"cost\":\"$100.00\",\"markup\":\"25%\",\"price\":\"$125.00\"}",
+        "part_B": "{\"name\":\"fwrd17-n3 RD Part B\",\"cost\":\"$200.00\",\"markup\":\"25%\",\"price\":\"$250.00\"}",
+        "total": "$375.00",
+        "e368": "$250.00",
+        "section_table_tbody_tr_l": "fwrd17-n3 RD Part B"
+      },
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 7
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited Part A's cost from $100 to $150 (markup unchanged at 25%). The parts list now shows: Part A — cost $150.00, markup 25%, computed price $187.50; Part B — cost $200.00, markup 25%, computed price $250.00; total $437.50.",
+      "values": {
+        "total": "$437.50",
+        "read5": "fwrd17-n3 RD Part A",
+        "read6": "$150.00",
+        "read7": "25%",
+        "read8": "$187.50",
+        "read9": "fwrd17-n3 RD Part B",
+        "read10": "$200.00",
+        "read11": "25%",
+        "read12": "$250.00"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Changed ticket RD-1015 status from Draft to Ready. (a) The first attempt was refused with alert: \"Ticket is not ready Part \\\"fwrd17-n1 RD Part A\\\" has no supplier Part \\\"fwrd17-n1 RD Part B\\\" has no supplier\". (b) To satisfy the precondition, I edited each part via the \"Edit\" button and set the Supplier field to \"Acme Supplies\" for both parts. (c) After retrying \"Mark Ready\", the status changed to \"Ready\" as confirmed by the page showing Status: Ready and buttons \"Mark Draft\" and \"Mark Closed\".",
+      "values": {
+        "final_status": "Ready"
+      },
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-remove",
+      "status": "success",
+      "summary": "Deleted both parts and archived ticket RD-1015. (a) No precondition was needed — the app allowed deleting parts while the ticket was in Ready status (both deletions went through with a simple confirmation dialog). (b) Parts list confirmed empty: the table shows \"No parts on this ticket yet.\" (c) After archiving, the ticket shows a visible \"Archived\" badge next to the status and the Archive button has changed to \"Unarchive ticket\", confirming the ticket is now archived.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_bb4d47; observed archived_list_row=RD-1015 fwrd17-n3 RD Bench Ticket Archived — Bench Customer — Ready — 0 parts, read_back=RD-1015, detail_title=fwrd17-n3 RD Bench Ticket Archived, detail_status=Ready.",
+      "values": {
+        "archived_list_row": "RD-1015 fwrd17-n3 RD Bench Ticket Archived — Bench Customer — Ready — 0 parts",
+        "read_back": "RD-1015",
+        "detail_title": "fwrd17-n3 RD Bench Ticket Archived",
+        "detail_status": "Ready"
+      },
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwrd17",
+      "step": "03-add",
+      "skill": "s_85850b",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.856,
+      "missedLocator": "page.locator('section > div > table > tbody > tr > td:nth-of-type(1)')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 63649,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 69554,
+    "completionTokens": 1463,
+    "cachedTokens": 51200
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 69554,
+      "completionTokens": 1463,
+      "cachedTokens": 51200
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

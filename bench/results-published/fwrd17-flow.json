@@ -1,0 +1,167 @@
+{
+  "name": "fwrd17",
+  "origin": "http://127.0.0.1:4180",
+  "startUrl": "http://127.0.0.1:4180/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then create a new ticket titled exactly '{{runid}} RD Bench Ticket' (fill any other required fields sensibly). After submitting, wait for the list or detail view to refresh and confirm the ticket '{{runid}} RD Bench Ticket' exists, reporting its title, status, and any ticket ID shown.",
+      "skill": "s_81410c",
+      "params": {
+        "v2": "http://127.0.0.1:4180/",
+        "v3": "bench@example.com",
+        "v4": "bench-pass-1234",
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "ticket_id",
+        "title",
+        "customer",
+        "status",
+        "raised"
+      ],
+      "recorded": {
+        "ticket_id": "RD-1015",
+        "title": "fwrd17-n1 RD Bench Ticket",
+        "customer": "Bench Customer",
+        "status": "Draft",
+        "raised": "2026-08-27"
+      }
+    },
+    {
+      "id": "02-open",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}, currently open at http://127.0.0.1:4180/#/tickets/t15), add a part named exactly '{{runid}} RD Part A' with cost 100 and markup 25. Fill any other required fields sensibly. After saving, wait for the view to refresh and confirm the part appears in the ticket's parts list, reporting the part name, cost, markup, and the price the app computes for it (read the computed price value shown on the page, do not calculate it yourself).",
+      "skill": "s_85850b",
+      "params": {
+        "v1": "{{runid}}",
+        "v2": "t15",
+        "v3": "{{runid}} RD Part A",
+        "v4": "100",
+        "v5": "25"
+      },
+      "outputs": [
+        "part_name",
+        "cost",
+        "markup",
+        "qty",
+        "supplier",
+        "price",
+        "total"
+      ],
+      "recorded": {
+        "part_name": "fwrd17-n1 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "qty": "1",
+        "supplier": "No supplier",
+        "price": "$125.00",
+        "total": "$125.00"
+      }
+    },
+    {
+      "id": "03-add",
+      "instruction": "On the ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}, at http://127.0.0.1:4180/#/tickets/t15), which already has part '{{runid}} RD Part A', add a second part named exactly '{{runid}} RD Part B' with cost 200 and markup 25. Fill any other required fields sensibly. After saving, wait for the view to refresh and confirm BOTH parts appear in the ticket's parts list, reporting for each part its name, cost, markup, and the price the app computes for it (read the computed price values shown on the page, do not calculate them yourself).",
+      "skill": "s_85850b",
+      "outputs": [
+        "parts",
+        "total",
+        "e368"
+      ],
+      "recorded": {
+        "parts": "[object Object], [object Object]",
+        "total": "$375.00",
+        "e368": "$250.00"
+      }
+    },
+    {
+      "id": "04-edit",
+      "instruction": "On the ticket at http://127.0.0.1:4180/#/tickets/t15, edit the part named '{{runid}} RD Part A' and change its cost from 100 to 150, keeping its markup at 25. Save the change, wait for the view to refresh, and confirm the parts list now shows '{{runid}} RD Part A' with cost 150, markup 25, and report the price the app computes for it (read the computed price value shown on the page, do not calculate it yourself). Also report the price shown for '{{runid}} RD Part B' and the overall parts total.",
+      "skill": "s_42c9d4",
+      "params": {
+        "v1": "t15",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "parts",
+        "total"
+      ],
+      "recorded": {
+        "parts": "[object Object], [object Object]",
+        "total": "$437.50"
+      }
+    },
+    {
+      "id": "05-change",
+      "instruction": "On the ticket at http://127.0.0.1:4180/#/tickets/t15 (currently {{01-open.status}}, with two parts), change the ticket's status to 'Ready'. The app enforces preconditions before it will accept the 'Ready' status — attempt the change, observe any error/validation message the app shows, discover what the preconditions are, satisfy them (e.g. filling in whatever the app demands on the ticket), and retry until the ticket's status is actually 'Ready'. Do NOT delete or remove the two parts. Report: (a) the exact error/validation text the app showed when the change was first refused, (b) exactly what you had to do to satisfy the preconditions, and (c) the ticket's final status as shown on the page.",
+      "skill": "s_8a8671",
+      "params": {
+        "v1": "t15"
+      },
+      "outputs": [
+        "first_error",
+        "precondition_met",
+        "final_status"
+      ],
+      "recorded": {
+        "first_error": "Ticket is not ready Part \"fwrd17-n1 RD Part A\" has no supplier Part \"fwrd17-n1 RD Part B\" has no supplier",
+        "precondition_met": "Set supplier 'Acme Supplies' on both parts",
+        "final_status": "Ready"
+      }
+    },
+    {
+      "id": "06-remove",
+      "instruction": "On the ticket at http://127.0.0.1:4180/#/tickets/t15 (status {{05-change.final_status}}, with parts '{{runid}} RD Part A' and '{{runid}} RD Part B'), remove/delete BOTH parts so the ticket has no parts left. If the app refuses to remove a part while the ticket is in a given status, discover what it requires (e.g. moving the ticket back to {{01-open.status}} first) and satisfy that, then remove the parts. After each deletion wait for the view to refresh and confirm the part is gone. Then archive the ticket so nothing from this run is left active. Report: (a) whether any preconditions had to be satisfied to remove parts (and what they were), (b) confirmation that the parts list is empty, and (c) the exact confirmation text or state shown after archiving (e.g. the ticket's status or its absence from the active list).",
+      "skill": "s_64bb07",
+      "params": {
+        "v1": "t15",
+        "v3": "{{runid}} RD Part A",
+        "v4": "{{runid}} RD Part B"
+      },
+      "outputs": [
+        "preconditions_needed",
+        "parts_list_empty",
+        "archive_state"
+      ],
+      "recorded": {
+        "preconditions_needed": "None — parts deleted successfully while status Ready",
+        "parts_list_empty": "true",
+        "archive_state": "Archived badge visible, button shows 'Unarchive ticket'"
+      }
+    },
+    {
+      "id": "07-verify",
+      "instruction": "Verify the final state of this run without changing anything: (1) Go to the tickets list at http://127.0.0.1:4180/ and check whether the ticket '{{runid}} RD Bench Ticket' ({{01-open.ticket_id}}) appears in the ACTIVE (non-archived) ticket list — report whether it is present or absent there, and if there is an archived/archived-only view, report what it shows for this ticket. (2) Open http://127.0.0.1:4180/#/tickets/t15 and report the ticket's title, status, whether an 'Archived' badge is shown, and the exact text shown in its parts section. Do not modify anything.",
+      "skill": "s_e3f745",
+      "params": {
+        "v1": "{{runid}}",
+        "v2": "t15"
+      },
+      "outputs": [
+        "active_list_presence",
+        "archived_list_row",
+        "detail_title",
+        "detail_status",
+        "detail_archived_badge",
+        "detail_parts_text",
+        "read_back"
+      ],
+      "recorded": {
+        "active_list_presence": "Absent — ticket not shown with Show archived unchecked",
+        "archived_list_row": "RD-1015 fwrd17-n1 RD Bench Ticket Archived — Bench Customer — Ready — 0 parts",
+        "detail_title": "fwrd17-n1 RD Bench Ticket",
+        "detail_status": "Ready",
+        "detail_archived_badge": "true",
+        "detail_parts_text": "No parts on this ticket yet.",
+        "read_back": "RD-1015"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwrd17-n1",
+    "created": "2026-08-27T20:00:48.524Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
