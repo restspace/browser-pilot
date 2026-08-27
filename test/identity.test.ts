@@ -99,6 +99,37 @@ describe('identity precondition (compile)', () => {
   });
 });
 
+describe('anchors must parameterise (compile)', () => {
+  /** An anchor on the part's own row, the way the recorder now mints one. */
+  const anchored = (hasText: string): RecordedEntry[] => [
+    { k: 'instruction', text: ADD_PART, url: `${ORIGIN}/#/tickets/t15`, fingerprint: [1, 0, 0], startText: '- heading "r9-n2 RD Bench Ticket"' },
+    step('click', { target: '@e20' }, [
+      { kind: 'scoped', container: 'tr', hasText, selector: 'td:nth-of-type(7) > button' },
+      { kind: 'css', selector: 'tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button' },
+    ]),
+  ];
+
+  it("slots the anchor's text, so it names the replay's record and not the recording's", () => {
+    const [skill] = compile(anchored('r9-n2 RD Part A'), { runid: 'r9-n2' });
+    const primary = skill.steps[0].locators.target[0] as { kind: string; hasText: string };
+    expect(primary.kind).toBe('scoped');
+    expect(primary.hasText).toContain('{{');
+    // …and the slot is a known value, so replay holds fallbacks to it.
+    const name = primary.hasText.match(/\{\{(v\d+)\}\}/)![1];
+    expect(skill.params[name].known).toBe(true);
+  });
+
+  it('drops an anchor stranded on the recorded run, rather than replaying it positionally', () => {
+    // Nothing in THIS instruction types "r9-n1 RD Part Z" (it was created by an
+    // earlier one), so no slot covers it: the anchor would miss every future
+    // run, and carrying no marker it would also switch the identity guard off.
+    const [skill] = compile(anchored('r9-n1 RD Part Z'), { runid: 'r9-n1' });
+    const chain = skill.steps[0].locators.target;
+    expect(chain.some((c) => c.kind === 'scoped')).toBe(false);
+    expect(chain.length).toBe(1);
+  });
+});
+
 describe('identity-guarded fallthrough (replay)', () => {
   const skill = (known: boolean): Skill =>
     ({ params: { v1: { example: 'r9-n2 RD Bench Ticket', usedIn: [1], ...(known ? { known: true as const } : {}) } } }) as unknown as Skill;

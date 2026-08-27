@@ -77,6 +77,10 @@ export function compileSkills(input: CompileInput): Skill[] {
 
   const slots = discoverSlots(input.instruction, steps, input.knownValues);
   const sub = (s: string) => substitute(s, slots);
+  /** The caller's values for THIS run — a runid, a record it vouched for. */
+  const runValues = Object.values(input.knownValues ?? {})
+    .map((v) => String(v ?? '').trim())
+    .filter((v) => v.length >= 3);
 
   const reportValues = input.report.evidence?.values ?? {};
   // Inspection-only actions the agent used to ORIENT itself — probe the DOM with
@@ -161,7 +165,15 @@ export function compileSkills(input: CompileInput): Skill[] {
       const args = substituteDeep(substituteDeep(step.args, slots), mintedBefore) as Record<string, unknown>;
       const locators: Record<string, LocatorCandidate[]> = {};
       for (const [key, loc] of Object.entries(step.locators)) {
-        locators[key] = stableFirst((loc.chain ?? []).map((c) => substituteDeep(substituteDeep(c, slots), mintedBefore) as LocatorCandidate));
+        const filled = (loc.chain ?? []).map((c) => substituteDeep(substituteDeep(c, slots), mintedBefore) as LocatorCandidate);
+        // An identity anchor still carrying THIS RUN's known value after
+        // slotting (the recorded runid, because the value was typed in an
+        // earlier instruction and so is not a slot here) can never match
+        // again — and worse, with no {{marker}} it carries no identity, so
+        // replay stops holding its fallbacks to the record and follows a
+        // positional one onto whatever sorted into that row (fwrd12l 04-add,
+        // 06-set). An anchor that cannot parameterise is not an anchor.
+        locators[key] = stableFirst(filled.filter((c) => !stranded(c, runValues)));
       }
       const out: SkillStep = { tool: step.tool, args, locators };
       const expect = expectationFor(step, slots);
@@ -459,10 +471,21 @@ function occursAsToken(text: string, value: string): boolean {
  * and css selectors are excluded: their embedded ids are already handled by
  * stableFirst (demoted) and are not values a caller would supply.
  */
+/**
+ * An identity anchor left naming the recorded run's record: its text still
+ * contains a value the caller vouched for THIS run, with no slot to swap.
+ * Only anchors qualify — a role/text locator that survives un-slotted is
+ * ordinary UI text, and dropping it would cost a working fallback.
+ */
+function stranded(c: LocatorCandidate, runValues: string[]): boolean {
+  return c.kind === 'scoped' && runValues.some((v) => c.hasText.includes(v));
+}
+
 function locatorValues(chain: LocatorCandidate[]): string[] {
   const out: string[] = [];
   for (const c of chain) {
-    if (c.kind === 'role') out.push(c.name);
+    if (c.kind === 'scoped') out.push(c.hasText);
+    else if (c.kind === 'role') out.push(c.name);
     else if (c.kind === 'text') out.push(c.text);
     else if (c.kind === 'label') out.push(c.label);
     else if (c.kind === 'placeholder') out.push(c.placeholder);
