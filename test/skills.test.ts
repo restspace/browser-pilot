@@ -621,6 +621,20 @@ describe('canAdoptPin (a flow step may not adopt another step\'s procedure)', ()
     expect(canAdoptPin(s, steps, '09-delete', 's_deletes', 's_reads')).toBe(false);
   });
 
+  it('refuses a skill this run has ALREADY adopted for another step', () => {
+    const s = store();
+    put(s, 's_create', ['click', 'fill', 'click']);
+    put(s, 's_other', ['click', 'fill']);
+    // fwrd16-n3 re-pinned 02-create and 10-open onto one skill in a single
+    // pass: the write-back happens after the loop, so the flow object alone
+    // cannot see this run's own pending adoptions. The caller must fold them
+    // in — as runFlow now does — and then the gate holds.
+    const committed = [{ id: '02-create', skill: 's_old' }, { id: '10-open', skill: 's_other' }];
+    expect(canAdoptPin(s, committed, '02-create', 's_old', 's_create')).toBe(true);
+    const withPending = [{ id: '02-create', skill: 's_create' }, { id: '10-open', skill: 's_other' }];
+    expect(canAdoptPin(s, withPending, '10-open', 's_other', 's_create')).toBe(false);
+  });
+
   it('still adopts an honest repair of the same kind of work', () => {
     const s = store();
     put(s, 's_old', ['click', 'fill']);

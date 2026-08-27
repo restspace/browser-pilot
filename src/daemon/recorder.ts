@@ -221,8 +221,26 @@ export function isRecordable(tool: string): boolean {
 export class ScriptRecorder {
   readonly entries: RecordedEntry[] = [];
 
+  /**
+   * How many entries were already on disk when this daemon started — a
+   * PREVIOUS take under the same session name. They are kept (a daemon that
+   * crashed mid-instruction should not lose the run's history) but they are
+   * not part of this take: fwrd16's container restarted, the runner cleared
+   * bench/results and re-recorded, and because the session dir survived, the
+   * exported flow contained the task TWICE — nine steps from the killed take
+   * followed by eight from the re-run. Both replays dutifully did the whole
+   * lifecycle twice and the verifier still scored them 6/6.
+   */
+  readonly priorEntries: number;
+
   constructor(private readonly session: string) {
     this.load();
+    this.priorEntries = this.entries.length;
+  }
+
+  /** Entries recorded by THIS take — what a flow export may build from. */
+  entriesThisTake(): RecordedEntry[] {
+    return this.entries.slice(this.priorEntries);
   }
 
   private file(): string {

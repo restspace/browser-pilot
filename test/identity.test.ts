@@ -112,6 +112,13 @@ describe('session-minted url ids (fwgr6: the uid in the skill template)', () => 
     expect(freshUrlIds(`http://127.0.0.1:3000/d/${UID}/settings`, seen).map((p) => p.value)).not.toContain(UID);
   });
 
+  it('banks a three-character record id, which a four-character floor missed', () => {
+    // fwrd16 left a literal "#/tickets/t15" in six flow steps.
+    expect(freshUrlIds('http://127.0.0.1:4180/#/tickets/t15', new Set()).map((p) => p.value)).toContain('t15');
+    // Still not route words: no digit, no separator, under twelve characters.
+    expect(freshUrlIds('http://127.0.0.1:4180/#/tickets', new Set()).map((p) => p.value)).toEqual([]);
+  });
+
   it("slots a minted uid the NEXT instruction names, so the template is not pinned to the recording's record", () => {
     const instruction = `In Grafana at http://127.0.0.1:3000/d/${UID}/r9-n2-bench-dashboard, add a text panel.`;
     const entries: RecordedEntry[] = [
@@ -154,6 +161,49 @@ describe('anchors must parameterise (compile)', () => {
     // …and the slot is a known value, so replay holds fallbacks to it.
     const name = primary.hasText.match(/\{\{(v\d+)\}\}/)![1];
     expect(skill.params[name].known).toBe(true);
+  });
+
+  it('a READ that loses its anchor publishes nothing rather than reading by position', () => {
+    // fwrd16-n3: the read fell back to `tbody > tr:nth-of-type(1) > td`,
+    // resolved instantly on a list whose first row was a seed ticket, and
+    // published ref RD-1014 at tier A with zero turns.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: ADD_PART, url: `${ORIGIN}/#/tickets`, fingerprint: [1, 0, 0] },
+      step('read', { target: '@e9', what: 'text' }, [
+        { kind: 'scoped', container: '#ticket-rows tr', hasText: 'r9-n1 RD Bench Ticket', selector: 'td:nth-of-type(1)' },
+        { kind: 'css', selector: '#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(1)' },
+      ], { result: '"RD-1015"' }),
+    ];
+    const [skill] = compileSkills({
+      entries,
+      instruction: ADD_PART,
+      report: { status: 'success', summary: 'Read the ref.', evidence: { values: { ref: 'RD-1015' } } },
+      session: 's',
+      now: '2026-08-27T00:00:00.000Z',
+      knownValues: { runid: 'r9-n1' },
+    });
+    expect(skill.steps[0].locators.target).toEqual([]);
+    expect(skill.steps[0].label).toBeUndefined(); // and it promises no output
+  });
+
+  it('keeps a read whose surviving fallback still NAMES the element', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: ADD_PART, url: `${ORIGIN}/#/tickets`, fingerprint: [1, 0, 0] },
+      step('read', { target: '@e9', what: 'text' }, [
+        { kind: 'scoped', container: '#ticket-rows tr', hasText: 'r9-n1 RD Bench Ticket', selector: 'td' },
+        { kind: 'testid', attr: 'data-testid', value: 'list-summary' },
+      ], { result: '"Showing 1-1 of 1"' }),
+    ];
+    const [skill] = compileSkills({
+      entries,
+      instruction: ADD_PART,
+      report: { status: 'success', summary: 'Read it.', evidence: { values: { summary: 'Showing 1-1 of 1' } } },
+      session: 's',
+      now: '2026-08-27T00:00:00.000Z',
+      knownValues: { runid: 'r9-n1' },
+    });
+    expect(skill.steps[0].locators.target.length).toBe(1);
+    expect(skill.steps[0].locators.target[0].kind).toBe('testid');
   });
 
   it('drops an anchor stranded on the recorded run, rather than replaying it positionally', () => {

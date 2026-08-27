@@ -173,13 +173,28 @@ export function compileSkills(input: CompileInput): Skill[] {
         // replay stops holding its fallbacks to the record and follows a
         // positional one onto whatever sorted into that row (fwrd12l 04-add,
         // 06-set). An anchor that cannot parameterise is not an anchor.
-        locators[key] = stableFirst(filled.filter((c) => !stranded(c, runValues)));
+        const kept = stableFirst(filled.filter((c) => !stranded(c, runValues)));
+        // A READ that lost its anchor and can now only be found BY POSITION
+        // must not publish. fwrd16-n3 is the cost of the alternative: the
+        // read fell back to `tbody > tr:nth-of-type(1) > td`, resolved
+        // instantly on a list whose first row was a seed ticket, and the step
+        // published `ref: RD-1014` at tier A with zero turns — a confidently
+        // wrong identity, which every later step then carried. Emptying the
+        // chain makes replay SKIP the read (reads are observations; a missing
+        // one is recoverable), so the value comes back absent, not wrong.
+        const lostAnchor = filled.length !== kept.length && filled.some((c) => c.kind === 'scoped');
+        const isRead = step.tool === 'read' || step.tool === 'read_all';
+        locators[key] = isRead && lostAnchor && kept.every(positional) ? [] : kept;
       }
       const out: SkillStep = { tool: step.tool, args, locators };
       const expect = expectationFor(step, slots);
       if (expect) out.expect = substituteDeep(expect, mintedHere) as StepExpectation;
       const label = readLabel(step, reportValues);
-      if (label) out.label = label;
+      // A read with no way to find its element again publishes nothing, so it
+      // must not advertise the value either — publishedOutputs reads `label`,
+      // and a promised output that never arrives sends later steps to
+      // recovery with the reference blank.
+      if (label && Object.values(locators).some((chain) => chain.length)) out.label = label;
       if (step.via) out.via = step.via;
       for (const name of slotsUsed(JSON.stringify({ args, locators }))) segParams[name]?.usedIn.push(i + 1);
       return out;
@@ -477,6 +492,16 @@ function occursAsToken(text: string, value: string): boolean {
  * Only anchors qualify — a role/text locator that survives un-slotted is
  * ordinary UI text, and dropping it would cost a working fallback.
  */
+/**
+ * Positional: this candidate finds an element by WHERE it sits (a structural
+ * path, or an index into a set of matches), not by what it is. Fine as a
+ * fallback for an action whose target is otherwise pinned; never sufficient
+ * on its own for a read that names a record.
+ */
+function positional(c: LocatorCandidate): boolean {
+  return c.kind === 'css' || c.nth !== undefined;
+}
+
 function stranded(c: LocatorCandidate, runValues: string[]): boolean {
   return c.kind === 'scoped' && runValues.some((v) => c.hasText.includes(v));
 }

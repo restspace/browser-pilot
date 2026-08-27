@@ -454,7 +454,10 @@ export class Daemon {
     if (!this.browser.learn || !this.browser.script) {
       throw new Error('not a learning session — start it with --learn to record a flow');
     }
-    const entries = this.browser.script.entries;
+    // THIS take only — a session dir that survived a crash or a container
+    // restart must not blend the killed take into the exported flow.
+    const entries = this.browser.script.entriesThisTake();
+    const prior = this.browser.script.priorEntries;
     const firstGoto = entries.find((e) => e.k === 'step' && e.tool === 'goto');
     const startUrl =
       (firstGoto && 'args' in firstGoto ? String(firstGoto.args.url ?? '') : '') ||
@@ -487,6 +490,7 @@ export class Daemon {
       const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
       return chain.flatMap(publishedOutputs);
     });
+    if (prior) warnings.unshift(`warning: ignored ${prior} entr${prior === 1 ? 'y' : 'ies'} from an earlier take in session '${this.opts.session}' — this flow covers only what this daemon recorded`);
     return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars, ...(warnings.length ? { warnings } : {}) };
   }
 
@@ -539,6 +543,8 @@ export class Daemon {
     // rate, or the routing win is invisible in the bench.
     const usageBefore = JSON.parse(JSON.stringify(this.state.usageByModel)) as typeof this.state.usageByModel;
     let halted = false;
+    /** Adoptions decided this run, before the write-back — see the repin gate. */
+    const pendingPins = new Map<string, string>();
 
     for (const step of flow.steps) {
       if (opts.signal.aborted) {
@@ -661,9 +667,16 @@ ${direct.prelude}` : recoveryText) + resetNote,
         // created. A replay that reports success having done nothing is the
         // worst outcome this system can produce, so the pin must be about
         // this step's WORK, not merely a skill that resolves on this page.
-        const adoptable = outcome && canAdoptPin(this.browser.learn, flow.steps, step.id, step.skill, outcome.skill);
+        // Pending re-pins count as owned. The write-back happens after the
+        // loop, so on the flow object alone this run's own adoptions are
+        // invisible — fwrd16-n3 re-pinned 02-create AND 10-open onto the same
+        // s_738ec0 in one pass, straight through the gate that exists to
+        // forbid it.
+        const owned = flow.steps.map((st) => ({ id: st.id, skill: pendingPins.get(st.id) ?? st.skill }));
+        const adoptable = outcome && canAdoptPin(this.browser.learn, owned, step.id, step.skill, outcome.skill);
         if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill && adoptable) {
           repinned = outcome.skill;
+          pendingPins.set(step.id, outcome.skill);
         }
       }
       usage.promptTokens += result.usage.promptTokens;

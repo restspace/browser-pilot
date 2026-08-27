@@ -433,7 +433,11 @@ export function identifierLike(value: string): boolean {
 export function freshUrlIds(url: string, seen: Set<string>): { label: string; value: string }[] {
   const out: { label: string; value: string }[] = [];
   for (const part of urlParts(url)) {
-    if (seen.has(part.value) || part.value.length < 4 || !identifierLike(part.value)) continue;
+    // Three characters, not four: repair-desk's record ids are "t15", and at
+    // a four-character floor fwrd16 left a literal `#/tickets/t15` in six
+    // flow steps. identifierLike() still does the real work — a three-letter
+    // route word carries no digit and no separator, so it never qualifies.
+    if (seen.has(part.value) || part.value.length < 3 || !identifierLike(part.value)) continue;
     seen.add(part.value);
     out.push(part);
   }
