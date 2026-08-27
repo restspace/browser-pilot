@@ -1,0 +1,96 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "4bb42c5"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd16-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd16-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 401667,
+  "orchestrator": {
+    "input": 2979,
+    "cacheWrite": 0,
+    "cacheRead": 28160,
+    "output": 2730
+  },
+  "inner": {
+    "promptTokens": 1051205,
+    "cachedTokens": 812288,
+    "completionTokens": 11025,
+    "instructions": 8,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1051205,
+        "completionTokens": 11025,
+        "cachedTokens": 812288,
+        "instructions": 8
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 49,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 333011,
+  "commandBytes": 4534,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd16-skills",
+    "instructions": 8,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 49,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0235,
+  "maxUsd": 2,
+  "spendUsd": 0.0466,
+  "finalText": "All objectives verified. Final report:\n\n**Objective 1 — DONE.** Ticket `fwrd16-n1 RD Bench Ticket` created (reference **RD-1015**, customer \"Bench Customer\", created 2026-08-27). Confirmed present in the ticket list.\n\n**Objective 2 — DONE.** Part `fwrd16-n1 RD Part A` added with cost **$100.00** and markup **25%**. Computed price: **$125.00**.\n\n**Objective 3 — DONE.** Part `fwrd16-n1 RD Part B` added with cost **$200.00** and markup **25%**. Computed price: **$250.00**. (Ticket total parts value at that point: $375.00.)\n\n**Objective 4 — DONE.** Part A's cost edited from 100 to **$150.00**, markup unchanged at 25%. New computed price: **$187.50**. (Ticket total parts value updated to $437.50.)\n\n**Objective 5 — DONE.** Ticket status set to **Ready**. Preconditions discovered: **none were enforced** — clicking \"Mark Ready\" transitioned the status immediately with no validation errors, required fields, or intermediate steps. Final status text on the page: \"Ready\".\n\n**Objective 6 — DONE.** Both parts deleted (each deletion required a confirm-dialog click; the app did not block deletion at Ready status). Parts table now reads \"No parts on this ticket yet.\" with **0 parts**. Ticket then archived via \"Archive ticket\" (button flipped to \"Unarchive ticket\"; no preconditions blocked it). Verified: RD-1015 does **not** appear in the active ticket list, and appears only under the \"Show archived\" view with an \"Archived\" badge, status Ready, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd16-n1-browser-pilot-transcript.jsonl"
+}

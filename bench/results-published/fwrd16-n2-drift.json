@@ -1,0 +1,110 @@
+[
+  {
+    "flow": "fwrd16",
+    "step": "03-open",
+    "skill": "s_f202c5",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "04-open",
+    "skill": "s_c534f7",
+    "atStep": "7",
+    "key": "target",
+    "similarity": 0.998,
+    "missedLocator": "page.locator('section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "05-open",
+    "skill": "s_666705",
+    "similarity": 0.996,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "08-open",
+    "skill": "s_b9669e",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "09-open",
+    "skill": "s_3bf9af",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "12-add",
+    "skill": "s_c534f7",
+    "atStep": "7",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "14-set",
+    "skill": "s_f802a9",
+    "similarity": 0.998,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "15-remove",
+    "skill": "s_b9669e",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "16-archive",
+    "skill": "s_427138",
+    "atStep": "4",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.locator('#ticket-rows tr', { hasText: 'fwrd16-n2 RD Bench Ticket Archived' }).locator('td:nth-of-type(1) > a')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  },
+  {
+    "flow": "fwrd16",
+    "step": "17-report",
+    "skill": "s_22fc02",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 0.999,
+    "missedLocator": "page.locator('#ticket-rows tr', { hasText: 'fwrd16-n2 RD Bench Ticket Archived' }).locator('td:nth-of-type(1) > a')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  }
+]

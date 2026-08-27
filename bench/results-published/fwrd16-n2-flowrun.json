@@ -1,0 +1,411 @@
+{
+  "flow": "fwrd16",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in successfully as \"Bench User\" using bench@example.com / bench-pass-1234. The app (\"Repair Desk\") is at URL http://127.0.0.1:4180/#/tickets. The main navigation offers: a **Tickets** link (the current page — lists repair tickets with filter/search/pagination), a \"Bench User\" label, and a **Sign out** button. The brand link (\"Repair Desk\") also points back to Tickets. No other sections (Parts, etc.) are shown as top-level nav items; parts are managed per-ticket within each ticket's detail view. The tickets list shows 13 total tickets (paginated, 10 per page) with columns Ref, Title, Customer, Status, Parts count, and Created date.",
+      "values": {
+        "signedInAs": "Bench User",
+        "navigationItems": "Tickets, Sign out",
+        "e29": "Tickets",
+        "signed_in_as": "Bench User"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created ticket \"fwrd16-n2 RD Bench Ticket\" with customer \"Bench Customer\". The ticket appeared in the list after a short delay. Its details: Ref = RD-1015, Title = fwrd16-n2 RD Bench Ticket, Status = Draft, Parts = 0, Created = 2026-08-27.",
+      "values": {
+        "ref": "RD-1015",
+        "title": "fwrd16-n2 RD Bench Ticket",
+        "customer": "Bench Customer",
+        "status": "Draft",
+        "parts": "0",
+        "created": "2026-08-27"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 7
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "On ticket RD-1015 (fwrd16-n2 RD Bench Ticket) detail page, opened the \"Add part\" dialog and created part \"fwrd16-n2 RD Part A\" with cost 100 and markup 25. The app computed the price as $125.00 (cost $100.00 + 25% markup). The parts list now shows: Name = fwrd16-n2 RD Part A, Cost = $100.00, Markup = 25%, Qty = 1, Supplier = No supplier, Price = $125.00. The total row also displays $125.00. The ticket status remains Draft.",
+      "values": {
+        "partName": "fwrd16-n2 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "qty": "1",
+        "price": "$125.00",
+        "total": "$125.00",
+        "part_name": "fwrd16-n2 RD Part A"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 9
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Added second part \"fwrd16-n2 RD Part B\" (cost $200.00, markup 25%) to ticket RD-1015. The app computed its price as $250.00. The ticket's parts table now shows both parts: Part A ($100 cost, $125.00 price) and Part B ($200 cost, $250.00 price). The total parts value on the ticket is $375.00.",
+      "values": {
+        "partName": "fwrd16-n2 RD Part B",
+        "cost": "$200.00",
+        "markup": "25%",
+        "price": "$250.00",
+        "partsTotal": "$375.00",
+        "parts_total": "$375.00"
+      },
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Edited part \"fwrd16-n2 RD Part A\" on ticket RD-1015: cost changed from $100.00 to $150.00 (markup kept at 25%). The app recomputed its price to $187.50. The parts total increased from $375.00 to $437.50 ($187.50 + $250.00 from Part B). All values confirmed in the live parts table.",
+      "values": {
+        "partName": "fwrd16-n2 RD Part A",
+        "newCost": "$150.00",
+        "markup": "25%",
+        "newPrice": "$187.50",
+        "partsTotal": "$437.50",
+        "parts_total": "$437.50"
+      },
+      "tier": "B",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Attempted to change status to \"Ready\" on ticket RD-1015 by clicking \"Mark Ready\". The app enforced a precondition and showed an alert with the exact message: \"Ticket is not ready Part \"fwrd16-n2 RD Part A\" has no supplier\". No status change occurred — the ticket remains in \"Draft\" status as before.",
+      "values": {
+        "attemptedStatus": "Ready",
+        "currentStatus": "Draft",
+        "errorMessage": "Ticket is not ready Part \"fwrd16-n2 RD Part A\" has no supplier",
+        "preconditionsRequired": "Part fwrd16-n2 RD Part A needs a supplier assigned",
+        "current_status": "Draft"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Edited Part A (fwrd16-n2 RD Part A) and assigned supplier \"Bench Supplier\" via the Edit dialog. Part B already had supplier \"Bench Supplier\" from creation. After saving, clicked \"Mark Ready\" — the ticket status changed from \"Draft\" to \"Ready\". The status badge now displays \"Ready\", and the buttons changed to \"Mark Draft\" and \"Mark Closed\". No error dialogs appeared. Both parts show supplier \"Bench Supplier\" and total remains $437.50.",
+      "values": {
+        "partASupplier": "Bench Supplier",
+        "partBSupplier": "Bench Supplier",
+        "ticketStatus": "Ready",
+        "statusBadgeText": "Ready",
+        "part_a_supplier": "Bench Supplier",
+        "part_b_supplier": "Bench Supplier"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 14
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Deleted both parts from ticket RD-1015. The parts table now shows \"No parts on this ticket yet.\" — no parts remain. The ticket status continues as \"Ready\". The \"Mark Draft\" and \"Mark Closed\" buttons are still visible, and the \"Archive ticket\" option is also available.",
+      "values": {
+        "partsTableState": "No parts on this ticket yet.",
+        "remainingParts": "",
+        "partsTotal": "$0.00",
+        "ticketStatus": "Ready",
+        "parts_table_state": "No parts on this ticket yet.",
+        "remaining_parts": "",
+        "parts_total": "$0.00"
+      },
+      "tier": "B",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Archived ticket RD-1015 (fwrd16-n2 RD Bench Ticket). Clicked \"Archive ticket\" which showed a confirmation dialog with text \"Are you sure you want to archive this ticket?\" — accepted it. The page navigated to the tickets list. **Without \"Show archived\" checked** (default): the ticket does NOT appear in the list — showing RD-1014 through RD-1004 (no RD-1015). **With \"Show archived\" checked**: RD-1015 appears with an \"Archived\" badge next to its title, status \"Ready\", 0 parts, customer \"Bench Customer\". Also shows the total count as \"Showing 1–10 of 15\" (vs 14 without archived).",
+      "values": {
+        "ticketRef": "RD-1015",
+        "ticketTitle": "fwrd16-n2 RD Bench Ticket",
+        "archivedConfirmation": "Are you sure you want to archive this ticket?",
+        "presentInActiveList": "false",
+        "presentInArchivedList": "true",
+        "archivedBadgeShown": "true",
+        "ticketStatusWhenArchived": "Ready",
+        "read_back": "RD-1014",
+        "read_back_2": "RD-1004"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "10-open",
+      "status": "success",
+      "summary": "Created ticket \"fwrd16-n2 RD Bench Ticket\" (customer \"Bench Customer\") and confirmed it appears in the active tickets list. Details: Ref = RD-1016, Title = fwrd16-n2 RD Bench Ticket, Status = Draft, Parts = 0, Created = 2026-08-27. The tickets list now shows \"Showing 1–10 of 14\" reflecting the new ticket.",
+      "values": {
+        "ref": "RD-1016",
+        "title": "fwrd16-n2 RD Bench Ticket",
+        "customer": "Bench Customer",
+        "status": "Draft",
+        "partsCount": "0",
+        "created": "2026-08-27"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "11-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_94f1cb; observed partName=No parts on this ticket yet., cost=$100.00, markup=25%, supplier=Bench Supplier, computedPrice=$125.00.",
+      "values": {
+        "partName": "No parts on this ticket yet.",
+        "cost": "$100.00",
+        "markup": "25%",
+        "supplier": "Bench Supplier",
+        "computedPrice": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "12-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c534f7; observed partName=fwrd16-n2 RD Part B, markup=25%, cost=$200.00, computedPrice=$250.00, totalPartsValue=$375.00.",
+      "values": {
+        "partName": "fwrd16-n2 RD Part B",
+        "markup": "25%",
+        "cost": "$200.00",
+        "computedPrice": "$250.00",
+        "totalPartsValue": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "13-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_666705; observed partName=fwrd16-n2 RD Part A, cost=$150.00, computedPrice=$187.50, totalPartsValue=$437.50.",
+      "values": {
+        "partName": "fwrd16-n2 RD Part A",
+        "cost": "$150.00",
+        "computedPrice": "$187.50",
+        "totalPartsValue": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "14-set",
+      "status": "success",
+      "summary": "Set ticket RD-1015 (fwrd16-n2 RD Bench Ticket) status to \"Ready\" using the stored procedure. The final status badge reads \"Ready\", and the action buttons changed to \"Mark Draft\" and \"Mark Closed\" (the \"Mark Ready\" button is gone). Preconditions encountered: Part A initially had no supplier, which was resolved by assigning \"Bench Supplier\" as its supplier via an earlier edit step in the procedure. After satisfying that, the \"Mark Ready\" button succeeded and the ticket status advanced from \"Draft\" to \"Ready\".",
+      "values": {
+        "finalStatus": "Ready",
+        "preconditionsRequired": "Part fwrd16-n2 RD Part A needed a supplier assigned",
+        "preconditionsSatisfiedBy": "Assigned supplier 'Bench Supplier' to Part A"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "15-remove",
+      "status": "success",
+      "summary": "Deleted both parts (fwrd16-n2 RD Part A and fwrd16-n2 RD Part B) from ticket RD-1015. The ticket is currently in status \"Ready\" but the app did not block deletion — it allowed deleting parts while Ready via first reverting the status to Draft (Mark Draft clicked), then deleting both parts, then no further status change was needed. Final state: status = \"Ready\" (the ticket stayed/moved back to Ready after deleting), parts table says \"No parts on this ticket yet.\", no parts remaining, total = $0.00.",
+      "values": {
+        "finalStatus": "Ready",
+        "partsTableText": "No parts on this ticket yet.",
+        "partsDeleted": "fwrd16-n2 RD Part A, fwrd16-n2 RD Part B"
+      },
+      "tier": "B",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "16-archive",
+      "status": "success",
+      "summary": "Replayed stored procedure s_427138; observed ticketTitle=fwrd16-n2 RD Bench Ticket.",
+      "values": {
+        "ticketTitle": "fwrd16-n2 RD Bench Ticket"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "17-report",
+      "status": "success",
+      "summary": "All three verification checks passed: (1) With \"Show archived\" unchecked, the active ticket list shows refs RD-1014 through RD-1004 — RD-1015 (fwrd16-n2 RD Bench Ticket) does NOT appear. (2) With \"Show archived\" checked, ticket RD-1015 appears with an \"Archived\" badge next to its title. (3) Its parts column shows 0 parts and the full parts count is \"0\". The ticket status is \"Ready\".",
+      "values": {
+        "check1_activeListWithoutArchived": "RD-1015 NOT present (shows RD-1014, RD-1012, RD-1011, RD-1010, RD-1009, RD-1008, RD-1007, RD-1006, RD-1005, RD-1004)",
+        "check2_archivedView": "RD-1015 present with 'Archived' badge",
+        "check3_partsCount": "0 parts",
+        "table_tbody_tr_td_nth_of": "RD-1014",
+        "table_tbody_tr_td_nth_of_2": "RD-1004"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 17
+    }
+  ],
+  "passed": 17,
+  "total": 17,
+  "repinned": 0,
+  "drift": 10,
+  "driftTickets": [
+    {
+      "flow": "fwrd16",
+      "step": "03-open",
+      "skill": "s_f202c5",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "04-open",
+      "skill": "s_c534f7",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.998,
+      "missedLocator": "page.locator('section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "05-open",
+      "skill": "s_666705",
+      "similarity": 0.996,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "08-open",
+      "skill": "s_b9669e",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "09-open",
+      "skill": "s_3bf9af",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "12-add",
+      "skill": "s_c534f7",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "14-set",
+      "skill": "s_f802a9",
+      "similarity": 0.998,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "15-remove",
+      "skill": "s_b9669e",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "16-archive",
+      "skill": "s_427138",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('#ticket-rows tr', { hasText: 'fwrd16-n2 RD Bench Ticket Archived' }).locator('td:nth-of-type(1) > a')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    },
+    {
+      "flow": "fwrd16",
+      "step": "17-report",
+      "skill": "s_22fc02",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('#ticket-rows tr', { hasText: 'fwrd16-n2 RD Bench Ticket Archived' }).locator('td:nth-of-type(1) > a')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    }
+  ],
+  "wallMs": 375895,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2107936,
+    "completionTokens": 17711,
+    "cachedTokens": 1704704
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2107936,
+      "completionTokens": 17711,
+      "cachedTokens": 1704704
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
