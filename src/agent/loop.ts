@@ -9,7 +9,7 @@ import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
 import { addEvidenceValue, backfillReadValues, proseIdentifiers, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
-import { captureReadBack, captureReadBackAt } from '../daemon/recorder.js';
+import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
 /** Tools that change the page URL, staleing every existing snapshot's refs. */
 const NAVIGATION_TOOLS = new Set(['goto', 'back', 'tabs']);
@@ -206,6 +206,10 @@ export async function runInstruction(
   });
   // Script recording (opt-in) groups this instruction's actions under one
   // test.step, so a generated spec reads as the plan that produced it.
+  // Identity hints for this instruction's locators: the caller's declared
+  // variables (the runid every record of this run is named after). Typed
+  // values join them as the instruction runs — see ScriptRecorder.prepare.
+  setIdentityHints(Object.values(state.vars ?? {}));
   browser.script?.beginInstruction(
     opts.recordAs?.text ?? instruction,
     opts.recordAs ? { ...offered.context, resume: true } : offered.context,

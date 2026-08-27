@@ -20,6 +20,17 @@ export type LocatorCandidate = (
   | { kind: 'id'; selector: string }
   | { kind: 'text'; text: string }
   | { kind: 'css'; selector: string }
+  /**
+   * Identity-scoped: the element found INSIDE the repeated container (a table
+   * row, a list item) that shows `hasText`. The one locator shape that names
+   * a RECORD rather than a position — `hasText` carries a caller-vouched
+   * value, so compile slots it and every replay re-binds it to its own
+   * record. fwrd10-n2 is why it exists: its read-backs were pinned to
+   * `#ticket-rows > tr:nth-of-type(1)`, the newly created ticket was not row
+   * 1 on that run, and the flow published the SEED ticket's reference as its
+   * own identity — every later step then worked the wrong ticket.
+   */
+  | { kind: 'scoped'; container: string; hasText: string; selector?: string }
 ) & { nth?: number };
 
 /** Rebuild a candidate into a live Locator. Shared by recording and replay. */
@@ -45,6 +56,11 @@ export function makeLocator(page: Page, c: LocatorCandidate): Locator {
     case 'css':
       loc = page.locator(c.selector);
       break;
+    case 'scoped': {
+      const within = page.locator(c.container, { hasText: c.hasText });
+      loc = c.selector ? within.locator(c.selector) : within;
+      break;
+    }
   }
   return c.nth !== undefined && c.nth > 0 ? loc.nth(c.nth) : loc;
 }
@@ -71,6 +87,9 @@ export function candidateExpr(c: LocatorCandidate): string {
     case 'id':
     case 'css':
       expr = `page.locator(${q(c.selector)})`;
+      break;
+    case 'scoped':
+      expr = `page.locator(${q(c.container)}, { hasText: ${q(c.hasText)} })` + (c.selector ? `.locator(${q(c.selector)})` : '');
       break;
   }
   return c.nth !== undefined && c.nth > 0 ? `${expr}.nth(${c.nth})` : expr;
@@ -172,6 +191,9 @@ const CLICK_TOOLS = new Set(['click', 'dblclick', 'modifier_click', 'right_click
 const COMPONENT_TOOLS = new Set(['click', 'dblclick', 'fill', 'type', 'press']);
 
 /** Tools that map onto Playwright script lines; everything else is agent-only scaffolding. */
+/** Args whose typed value identifies a record (see addIdentityHint). */
+const VALUE_ARG_KEYS = ['value', 'text', 'option'] as const;
+
 const RECORDABLE = new Set([
   'click', 'dblclick', 'right_click', 'modifier_click', 'fill', 'type', 'press', 'select',
   'check', 'hover', 'scroll_into_view', 'drag', 'wait_for', 'read', 'read_all', 'eval',
@@ -347,6 +369,13 @@ export class ScriptRecorder {
     resolved?: Record<string, Locator>,
   ): Promise<RecordedStep | null> {
     if (!RECORDABLE.has(tool)) return null;
+    // What the agent types names what it creates: the ticket title typed here
+    // is how every later read in this instruction can be anchored to the row
+    // it belongs to rather than to a row number.
+    for (const key of VALUE_ARG_KEYS) {
+      const v = args[key];
+      if (typeof v === 'string') addIdentityHint(v);
+    }
     const locators: Record<string, LocatorExpr> = {};
     for (const key of ['target', 'source'] as const) {
       const raw = args[key];
@@ -401,6 +430,13 @@ interface ElementInfo {
   placeholder: string | null;
   text: string | null;
   cssPath: string;
+  /**
+   * The nearest repeated container (table row, list item) this element sits
+   * in: a GENERIC selector for containers of its kind, the container's
+   * visible text, and this element's path relative to it. Raw material for an
+   * identity-scoped candidate — see LocatorCandidate's 'scoped'.
+   */
+  row: { container: string; text: string; inner: string } | null;
 }
 
 interface Candidate {
@@ -466,6 +502,10 @@ function candidateIdentity(c: LocatorCandidate): string | null {
       return c.placeholder;
     case 'testid':
       return c.value;
+    case 'scoped':
+      // Anchoring a read to the very value it reads would re-read whatever
+      // the next run happens to show there — the circularity this guards.
+      return c.hasText;
     default:
       return null;
   }
@@ -660,6 +700,12 @@ async function matchIndex(locator: Locator, handle: ElementHandle<Node>): Promis
 
 function candidatesFor(info: ElementInfo): Candidate[] {
   const out: Candidate[] = [];
+  // Identity first, when the element sits in a record's row that shows a
+  // value the caller vouched for: that locator names the RECORD, so it is the
+  // only candidate here that survives the record moving, being renumbered, or
+  // another record sorting above it.
+  const anchor = identityAnchor(info);
+  if (anchor) out.push(cand(anchor));
   if (info.testid) {
     const { attr, value } = info.testid;
     out.push(cand({ kind: 'testid', attr, value }));
@@ -674,6 +720,38 @@ function candidatesFor(info: ElementInfo): Candidate[] {
   if (info.text && !info.role) out.push(cand({ kind: 'text', text: info.text }));
   out.push(cand({ kind: 'css', selector: info.cssPath }));
   return out;
+}
+
+/**
+ * Values that IDENTIFY the record being worked on this instruction: the
+ * caller's declared variables (a runid) plus anything typed during the
+ * instruction (the title of the thing just created). Set by the agent loop
+ * around each instruction; used only to prefer a record-anchored locator over
+ * a positional one, so a stale or empty list costs nothing but the old
+ * behaviour.
+ */
+let identityHints: string[] = [];
+
+export function setIdentityHints(values: string[]): void {
+  identityHints = values.map((v) => String(v ?? '').trim()).filter((v) => v.length >= MIN_HINT_LEN && v.length <= 120);
+}
+
+export function addIdentityHint(value: string): void {
+  const v = String(value ?? '').trim();
+  if (v.length >= MIN_HINT_LEN && v.length <= 120 && !identityHints.includes(v)) identityHints.push(v);
+}
+
+const MIN_HINT_LEN = 4;
+
+/** The scoped candidate for this element, when its row shows an identity hint. */
+function identityAnchor(info: ElementInfo): LocatorCandidate | null {
+  const row = info.row;
+  if (!row || !identityHints.length) return null;
+  // Longest match wins: a part's full name is a sharper anchor than the runid
+  // it starts with, and the runid alone would match every row of this run.
+  const hit = identityHints.filter((h) => row.text.includes(h)).sort((a, b) => b.length - a.length)[0];
+  if (!hit) return null;
+  return { kind: 'scoped', container: row.container, hasText: hit, ...(row.inner ? { selector: row.inner } : {}) };
 }
 
 function cand(spec: LocatorCandidate): Candidate {
@@ -763,6 +841,55 @@ function describeInPage(node: Node): ElementInfo {
     return parts.join(' > ');
   };
 
+  // Nearest repeated container and this element's path inside it. The
+  // container selector is deliberately GENERIC (its tag, scoped to a stable
+  // ancestor id when there is one) so it matches every record's container on
+  // a later run and `hasText` alone picks the record.
+  const rowOf = (): { container: string; text: string; inner: string } | null => {
+    let box = el.closest('tr, li, [role="row"], [role="listitem"], [role="option"]');
+    // Not every list is semantic: an app that renders rows as divs is just as
+    // common. Fall back to the nearest ancestor that HAS siblings of its own
+    // shape — that repetition is what makes it a record container.
+    if (!box) {
+      for (let cur: Element | null = el, hops = 0; cur && hops < 4; cur = cur.parentElement, hops++) {
+        const parent = cur.parentElement;
+        if (!parent) break;
+        const shape = (n: Element) => `${n.tagName}.${n.getAttribute('class') ?? ''}`;
+        const sibs = Array.from(parent.children).filter((c) => shape(c) === shape(cur!));
+        if (sibs.length >= 2 && cur !== el) {
+          box = cur;
+          break;
+        }
+      }
+    }
+    if (!box) return null;
+    const text = (box as HTMLElement).innerText?.replace(/\s+/g, ' ').trim() ?? '';
+    if (!text || text.length > 400) return null;
+    const cls = (box.getAttribute('class') ?? '').trim().split(/\s+/).filter(Boolean)[0];
+    const tagOf = box.tagName.toLowerCase() + (cls && /^[A-Za-z][\w-]*$/.test(cls) ? `.${cls}` : '');
+    let container = tagOf;
+    for (let p = box.parentElement, hops = 0; p && hops < 3; p = p.parentElement, hops++) {
+      if (p.id && !/^[:\d]/.test(p.id)) {
+        container = `#${CSS.escape(p.id)} ${tagOf}`;
+        break;
+      }
+    }
+    // The element's path relative to the container, same shape as cssPath.
+    const parts: string[] = [];
+    let cur: Element | null = el;
+    while (cur && cur !== box && parts.length < 5) {
+      const parent: Element | null = cur.parentElement;
+      let part = cur.tagName.toLowerCase();
+      if (parent) {
+        const sibs = Array.from(parent.children).filter((c) => c.tagName === cur!.tagName);
+        if (sibs.length > 1) part += `:nth-of-type(${sibs.indexOf(cur) + 1})`;
+      }
+      parts.unshift(part);
+      cur = parent;
+    }
+    return { container, text, inner: cur === box ? parts.join(' > ') : '' };
+  };
+
   const label = labelText();
   const name =
     clean(attr('aria-label')) ||
@@ -782,6 +909,7 @@ function describeInPage(node: Node): ElementInfo {
     placeholder: clean(attr('placeholder')),
     text: clean(tag === 'input' ? null : (el as HTMLElement).innerText),
     cssPath: cssPath(),
+    row: rowOf(),
   };
 }
 

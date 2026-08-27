@@ -608,8 +608,8 @@ export async function resolveChain(
  */
 export function identityOfPrimary(primary: LocatorCandidate | undefined, skill: Skill, params: Record<string, string>): string[] {
   if (!primary) return [];
-  const c = primary as { name?: string; text?: string; label?: string };
-  const named = [c.name, c.text, c.label].filter((v): v is string => typeof v === 'string');
+  const c = primary as { name?: string; text?: string; label?: string; hasText?: string };
+  const named = [c.name, c.text, c.label, c.hasText].filter((v): v is string => typeof v === 'string');
   if (!named.length) return [];
   const out = new Set<string>();
   for (const field of named) {

@@ -559,3 +559,77 @@ d('segment chains (two fixture pages)', () => {
     expect(second.replay?.values.dbanner).toBe('Noted from ada!');
   }, 60_000);
 });
+
+/**
+ * Record identity: a read taken inside a record's row must be re-read from
+ * THAT record's row on replay, not from the row that happens to sit in the
+ * same position. fwrd10-n2 (cloud) failed exactly here — its read-backs were
+ * pinned to `#ticket-rows > tr:nth-of-type(1)`, the run's own ticket was not
+ * row 1 that time, and the flow published a SEED ticket's reference as the
+ * run's identity, sending every later step to the wrong ticket.
+ */
+d('identity-scoped locators (fixture page)', () => {
+  let home: string, session: BrowserSession;
+  const dir = os.tmpdir();
+  const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, dir);
+
+  beforeAll(async () => {
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-ident-'));
+    process.env.BROWSER_PILOT_HOME = home;
+    process.env.BROWSER_PILOT_SKILLS_DIR = path.join(home, 'skills');
+    session = new BrowserSession({ session: 'ident', persist: false, learn: true });
+    await (await session.getPage()).goto(fixtureUrl);
+  }, 60_000);
+  afterAll(async () => {
+    await session?.close();
+    for (const k of ['BROWSER_PILOT_SKILLS_DIR', 'BROWSER_PILOT_HOME'] as const) delete process.env[k];
+    fs.rmSync(home, { recursive: true, force: true });
+  });
+
+  it('anchors a row read to the record it belongs to, and re-reads it after the rows move', async () => {
+    const { setIdentityHints } = await import('../src/daemon/recorder.js');
+    const { compileSkill } = await import('../src/skills/compile.js');
+    const { replaySkill } = await import('../src/skills/replay.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    const rec = session.script!;
+    const mark = rec.mark();
+    const instr = "report the button label on the row for 'Part Two'";
+    setIdentityHints(['Part Two']);
+    rec.beginInstruction(instr, { url: page.url() });
+    // Read the Remove button's text from Part Two's row — row 2 at record
+    // time — through a snapshot ref, the way the agent actually acts.
+    const snap = (await run('snapshot', {})).result;
+    const refs = [...snap.matchAll(/button "Remove" \[(@e\d+)\]/g)].map((m) => m[1]);
+    expect(refs.length).toBe(3);
+    await run('read', { target: refs[1], what: 'text' });
+    const skill = compileSkill({
+      entries: rec.entriesSince(mark),
+      instruction: instr,
+      report: { status: 'success', summary: "the row for 'Part Two' shows Remove", evidence: { values: { label: 'Remove' } } },
+      session: 'ident',
+      knownValues: { record: 'Part Two' },
+    })!;
+    // The recorded locator names the RECORD, not the row number.
+    const chain = skill.steps[0].locators.target ?? [];
+    expect(chain[0].kind).toBe('scoped');
+    expect(JSON.stringify(chain[0])).toContain('{{v1}}');
+
+    // Now the rows move: Part Two is no longer second.
+    await page.evaluate(() => {
+      const list = document.getElementById('dellist')!;
+      list.insertBefore(list.children[1], list.children[0]);
+      (list.children[1].querySelector('span') as HTMLElement).textContent = 'Part Nine';
+    });
+    const out = await replaySkill(skill, { v1: 'Part Two' }, {
+      page,
+      exec: async (tool, args, resolved) => ({ result: JSON.stringify(await resolved.target.first().innerText()) }),
+    });
+    expect(out.ok).toBe(true);
+    // It re-read from Part Two's row (now first) — a positional locator would
+    // have read the row that took its place.
+    const row = await page.locator('#dellist > div', { hasText: 'Part Two' }).getAttribute('data-row');
+    expect(row).toBe('2');
+    expect(out.fallthroughs).toBe(0);
+  }, 30_000);
+});
