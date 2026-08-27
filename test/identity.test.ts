@@ -14,7 +14,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { compileSkills } from '../src/skills/compile.js';
-import { buildFlow, jsonLeaves, lookupOutput } from '../src/skills/flow.js';
+import { buildFlow, freshUrlIds, jsonLeaves, lookupOutput } from '../src/skills/flow.js';
 import { addEvidenceValue, proseIdentifiers } from '../src/agent/report.js';
 import { identityOfPrimary } from '../src/skills/replay.js';
 import type { Skill } from '../src/skills/store.js';
@@ -96,6 +96,43 @@ describe('identity precondition (compile)', () => {
     expect(skills.length).toBe(2);
     expect(skills[0].preconditions.requireText).toBeUndefined(); // the list showed no ticket yet
     expect(skills[1].preconditions.requireText?.length).toBe(1);
+  });
+});
+
+describe('session-minted url ids (fwgr6: the uid in the skill template)', () => {
+  const UID = 'afwfbbc2of6rkf';
+
+  it('banks an identifier-like url part once, and ignores route words', () => {
+    const seen = new Set<string>();
+    const first = freshUrlIds(`http://127.0.0.1:3000/d/${UID}/r9-n2-bench-dashboard`, seen);
+    expect(first.map((p) => p.value)).toContain(UID);
+    // "d" is a route word, too short and not identifier-like.
+    expect(first.map((p) => p.value)).not.toContain('d');
+    // First appearance wins: the same uid on a later page is not minted twice.
+    expect(freshUrlIds(`http://127.0.0.1:3000/d/${UID}/settings`, seen).map((p) => p.value)).not.toContain(UID);
+  });
+
+  it("slots a minted uid the NEXT instruction names, so the template is not pinned to the recording's record", () => {
+    const instruction = `In Grafana at http://127.0.0.1:3000/d/${UID}/r9-n2-bench-dashboard, add a text panel.`;
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instruction, url: `${ORIGIN}/#/x`, fingerprint: [1, 0, 0] },
+      step('click', { target: '@e1' }, [{ kind: 'role', role: 'button', name: 'Add panel' }]),
+    ];
+    const rep = { status: 'success' as const, summary: 'Added.', evidence: { values: {} } };
+    const bare = compileSkills({ entries, instruction, report: rep, session: 's', now: '2026-08-27T00:00:00.000Z' })[0];
+    expect(bare.template).toContain(UID); // today's behaviour without the banked value
+
+    const [skill] = compileSkills({
+      entries,
+      instruction,
+      report: rep,
+      session: 's',
+      now: '2026-08-27T00:00:00.000Z',
+      knownValues: { runid: 'r9-n2', 'mint.p1.0': UID },
+    });
+    expect(skill.template).not.toContain(UID);
+    const name = Object.keys(skill.params).find((n) => skill.params[n].example === UID)!;
+    expect(skill.params[name].known).toBe(true);
   });
 });
 

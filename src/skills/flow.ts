@@ -421,8 +421,23 @@ const MAX_JSON_DEPTH = 4;
  * verify step ("on the {{01-open.url.h0}} list") — harmless there, but the
  * same substitution in a locator name would be a wildcarded procedure.
  */
-function identifierLike(value: string): boolean {
+export function identifierLike(value: string): boolean {
   return /\d/.test(value) || /[-_]/.test(value) || value.length >= 12;
+}
+
+/**
+ * Url parts of `url` that are identifier-like and that this session has not
+ * seen before — the values it just minted. First appearance wins, so the
+ * start url's own parts (and anything already banked) never qualify.
+ */
+export function freshUrlIds(url: string, seen: Set<string>): { label: string; value: string }[] {
+  const out: { label: string; value: string }[] = [];
+  for (const part of urlParts(url)) {
+    if (seen.has(part.value) || part.value.length < 4 || !identifierLike(part.value)) continue;
+    seen.add(part.value);
+    out.push(part);
+  }
+  return out;
 }
 
 /** Scalar leaves of a JSON read value, as `path` (dot/index joined) + value. */

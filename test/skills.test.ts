@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { coalesceControls, compileSkill, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
@@ -571,6 +571,23 @@ describe('selectCandidates (lifecycle-gated adoption)', () => {
     const out = selectCandidates([hint, sibling], hint.id, same, params);
     expect(out.map((c) => c.skill.id)).toEqual([sibling.id, hint.id]);
     expect(out[0].params).toEqual(params);
+  });
+});
+
+describe('dropSupersededNavigation (fwod6: exploration recorded as procedure)', () => {
+  const nav = (url: string): SkillStep => ({ tool: 'goto', args: { url }, locators: {} });
+  const click = (): SkillStep => ({ tool: 'click', args: { target: '@e1' }, locators: {} });
+
+  it('keeps only the last of a run of adjacent navigations', () => {
+    // fwod6 step 01 recorded a hand-built "#action=&...&menu_id=" url followed
+    // immediately by the url that actually landed.
+    const out = dropSupersededNavigation([nav('/web'), nav('/web#action=&menu_id='), nav('/web?cids=1'), click()]);
+    expect(out.map((s) => s.args.url ?? s.tool)).toEqual(['/web?cids=1', 'click']);
+  });
+
+  it('keeps a navigation that anything else follows — the page may be load-bearing', () => {
+    const out = dropSupersededNavigation([nav('/login'), click(), nav('/home')]);
+    expect(out.length).toBe(3);
   });
 });
 

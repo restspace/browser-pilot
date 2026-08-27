@@ -185,7 +185,7 @@ export function compileSkills(input: CompileInput): Skill[] {
       return out;
     });
     const mintedForStart = mintedMap((m) => m.keptIndex < base);
-    return { sg, segParams, mintedForStart, folded: foldLoops(coalesceControls(skillSteps)) };
+    return { sg, segParams, mintedForStart, folded: foldLoops(coalesceControls(dropSupersededNavigation(skillSteps))) };
   });
 
   // Derived-param metadata lands on the MINTING segment: which post-fold step
@@ -909,6 +909,19 @@ export function coalesceControls(steps: SkillStep[]): SkillStep[] {
     out.push(step);
   }
   return out;
+}
+
+/**
+ * Drop a navigation whose destination another navigation immediately
+ * replaces. The agent explores — fwod6's step-01 skill recorded `goto /web`,
+ * a hand-built `#action=&…&menu_id=` url, then `goto /web?cids=1` — and a
+ * procedure that re-walks the search is not the procedure, just its history.
+ * Only strictly adjacent navigations qualify: once anything else ran, the
+ * intermediate page may have been load-bearing (a session bootstrap, a
+ * redirect that set a cookie), and this cannot tell from the outside.
+ */
+export function dropSupersededNavigation(steps: SkillStep[]): SkillStep[] {
+  return steps.filter((step, i) => !(step.tool === 'goto' && steps[i + 1]?.tool === 'goto'));
 }
 
 /** Replace id-like whole tokens in a string with `*`, so per-record ids collapse. */

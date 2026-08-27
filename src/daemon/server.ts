@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
+import { buildFlow, freshUrlIds, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -54,6 +54,19 @@ export class Daemon {
   private queue: Promise<unknown> = Promise.resolve();
   /** Aborts the instruction currently running, so `stop` can preempt it. */
   private inflight: AbortController | null = null;
+  /**
+   * Identifiers THIS SESSION minted in a url (a created dashboard's uid, a new
+   * record's id), keyed by where they appeared. A later instruction that names
+   * one is naming a value of this run, not of the app, so compile must slot it
+   * — otherwise the skill template carries the recording run's id and every
+   * replay works the recording's record. fwgr6 shipped exactly that: n1's uid
+   * appeared 62 times across three skill templates ("In Grafana at
+   * .../d/afwfbbc2of6rkf/{{v1}}-bench-dashboard, add a panel…"), the flow
+   * export was clean, and n2's step 06 still replayed onto n1's dashboard.
+   * Flow replay already does this via provenanceValues(); recording did not.
+   */
+  private minted = new Map<string, string>();
+  private seenUrlValues = new Set<string>();
 
   constructor(private opts: DaemonOptions) {
     this.browser = new BrowserSession({
@@ -64,6 +77,15 @@ export class Daemon {
       learn: opts.learn,
     });
     this.state = new SessionState(opts.session);
+  }
+
+  /** Bank identifier-like url parts this instruction visited (see `minted`). */
+  private noteMintedIds(entries: ReturnType<ScriptRecorder['entriesSince']>): void {
+    for (const e of entries) {
+      const url = e.k === 'step' ? e.diff?.url : e.k === 'instruction' ? e.url : undefined;
+      if (!url) continue;
+      for (const part of freshUrlIds(url, this.seenUrlValues)) this.minted.set(`mint.${part.label}.${this.minted.size}`, part.value);
+    }
   }
 
   private provider(overrides: { provider?: string; model?: string; baseUrl?: string } = {}): Provider {
@@ -255,16 +277,22 @@ export class Daemon {
             );
             if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
           }
+          // Bank the ids this instruction minted BEFORE compiling it: a value
+          // first seen in this instruction's own url is already known to the
+          // caller by the time the next instruction names it, and compile
+          // must treat it as a run value rather than app furniture.
+          const entriesSince = this.browser.script?.entriesSince(mark) ?? [];
           const learned = this.browser.learn
             ? learnFromInstruction(this.browser.learn, {
                 result,
                 instruction,
-                entries: this.browser.script?.entriesSince(mark) ?? [],
+                entries: entriesSince,
                 session: this.opts.session,
                 model: provider.model,
-                vars: this.state.vars,
+                vars: { ...this.state.vars, ...Object.fromEntries(this.minted) },
               })
             : null;
+          this.noteMintedIds(entriesSince);
           if (learned) progress(`[learn] ${describeLearned(learned)}`);
           const pinned = learned?.compiled ?? learned?.merged ?? result.skill?.invoked;
           if (pinned) this.browser.script?.pinSkill(pinned);
