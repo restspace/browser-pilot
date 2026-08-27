@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "314c062"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd10-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd10-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 1897086,
+  "orchestrator": {
+    "input": 5378,
+    "cacheWrite": 0,
+    "cacheRead": 26496,
+    "output": 2180
+  },
+  "inner": {
+    "promptTokens": 1668894,
+    "cachedTokens": 1066048,
+    "completionTokens": 20176,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1319985,
+        "completionTokens": 8460,
+        "cachedTokens": 761344,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 348909,
+        "completionTokens": 11716,
+        "cachedTokens": 304704,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 45,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 1808385,
+  "commandBytes": 5466,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd10-skills",
+    "instructions": 8,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 45,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.024,
+  "maxUsd": 2,
+  "spendUsd": 0.2564,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**1. Ticket created — DONE.** Ticket titled `fwrd10-n1 RD Bench Ticket` exists, ref **RD-1015**, initial status **Draft**. The create form only required the title field.\n\n**2. Part A added — DONE.** Part `fwrd10-n1 RD Part A`, cost $100.00, markup 25%. App-computed price: **$125.00**.\n\n**3. Part B added — DONE.** Part `fwrd10-n1 RD Part B`, cost $200.00, markup 25%. App-computed price: **$250.00**.\n\n**4. Part A cost changed to 150 — DONE.** Cost updated to $150.00 (markup still 25%). App-computed price afterwards: **$187.50**. Ticket total at that point: $437.50.\n\n**5. Status set to Ready — DONE.** Precondition discovered: **every part on the ticket must have a supplier assigned**. The app refused the first \"Mark Ready\" attempt with the exact message: *\"Ticket is not ready. Part 'fwrd10-n1 RD Part A' has no supplier. Part 'fwrd10-n1 RD Part B' has no supplier.\"* The supplier field is free-text in the part edit form; I assigned **ABC Supplies** to Part A and **XYZ Supplies** to Part B, after which \"Mark Ready\" was accepted and the ticket showed **Status: Ready**.\n\n**6. Parts removed and ticket archived — DONE.** Both parts deleted; the parts table confirmed **\"No parts on this ticket yet.\"** with 0 parts. \"Archive ticket\" succeeded (button changed to \"Unarchive ticket\"). Verified independently: RD-1015 does **not** appear in the default active tickets list (which shows RD-1014 down to RD-1004), and appears only when \"Show archived\" is checked, with an **Archived** badge, status **Ready**, 0 parts. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd10-n1-browser-pilot-transcript.jsonl"
+}

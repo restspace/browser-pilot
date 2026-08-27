@@ -1,0 +1,91 @@
+[
+  {
+    "flow": "fwrd10",
+    "step": "02-add",
+    "skill": "s_13565f",
+    "similarity": 0.928,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "the page at http://127.0.0.1:4180/#/tickets/:id does not show \"fwrd10-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd10",
+    "step": "04-edit",
+    "skill": "s_228de0",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd10",
+    "step": "04-edit",
+    "skill": "s_228de0",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd10",
+    "step": "04-edit",
+    "skill": "s_228de0",
+    "atStep": "4",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd10",
+    "step": "06-edit",
+    "skill": "s_af4596",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd10",
+    "step": "07-remove",
+    "skill": "s_44ea0c",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.998,
+    "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(2)')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd10",
+    "step": "07-remove",
+    "skill": "s_44ea0c",
+    "atStep": "6",
+    "key": "target",
+    "similarity": 0.998,
+    "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(7) > button:nth-of-type(2)')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  }
+]

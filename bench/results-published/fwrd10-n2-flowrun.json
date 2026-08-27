@@ -1,0 +1,234 @@
+{
+  "flow": "fwrd10",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_869941; observed ref=RD-1014, title=fwrd10-n2 RD Bench Ticket, customer=Not recorded, created=2026-08-27.",
+      "values": {
+        "ref": "RD-1014",
+        "title": "fwrd10-n2 RD Bench Ticket",
+        "customer": "Not recorded",
+        "created": "2026-08-27"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-add",
+      "status": "success",
+      "summary": "Added part 'fwrd10-n2 RD Part A' to ticket RD-1014 with cost 100 and markup 25%. The part appears in the parts table with computed price $125.00 (cost × 1.25 markup). The total for the ticket is now $155.78 (including the existing Hinge kit at $30.78).",
+      "values": {
+        "part_name": "fwrd10-n2 RD Part A",
+        "cost": "$100.00",
+        "markup": "25%",
+        "qty": "1",
+        "supplier": "No supplier",
+        "computed_price": "$125.00",
+        "ticket_total": "$155.78",
+        "ticket_ref": "RD-1014"
+      },
+      "tier": "B",
+      "replayed": "0/11",
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_13565f; observed markup=25%, parts_present=fwrd10-n2 RD Part A, fwrd10-n2 RD Part B, price=$125.00, part_b_name=fwrd10-n2 RD Part A, cost=$100.00, tbody_tr_td_nth_child_6=$30.78.",
+      "values": {
+        "markup": "25%",
+        "parts_present": "fwrd10-n2 RD Part A, fwrd10-n2 RD Part B",
+        "price": "$125.00",
+        "part_b_name": "fwrd10-n2 RD Part A",
+        "cost": "$100.00",
+        "tbody_tr_td_nth_child_6": "$30.78"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited part 'fwrd10-n2 RD Part A' on ticket RD-1014: cost changed from 100 to 150, markup kept at 25%. The computed price is now $187.50 (150 × 1.25). The ticket total updated to $468.28.",
+      "values": {
+        "part_name": "fwrd10-n2 RD Part A",
+        "cost": "$150.00",
+        "markup": "25%",
+        "qty": "1",
+        "supplier": "No supplier",
+        "computed_price": "$187.50",
+        "ticket_total": "$468.28",
+        "ticket_ref": "RD-1014"
+      },
+      "tier": "B",
+      "replayed": "0/8",
+      "repaired": true,
+      "turns": 10
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8ccfd0; observed error_message=Ticket is not ready\nPart \"fwrd10-n2 RD Part A\" has no supplier\nPart \"fwrd10-n2 RD Part B\" has no supplier, actual_status=Draft.",
+      "values": {
+        "error_message": "Ticket is not ready\nPart \"fwrd10-n2 RD Part A\" has no supplier\nPart \"fwrd10-n2 RD Part B\" has no supplier",
+        "actual_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-edit",
+      "status": "success",
+      "summary": "Assigned supplier \"Northgate Parts\" to both parts (fwrd10-n2 RD Part A and fwrd10-n2 RD Part B) on ticket RD-1014. Then clicked \"Mark Ready\" — the status successfully changed from Draft to Ready. Both parts now show supplier \"Northgate Parts\". Ticket total is $468.28.",
+      "values": {
+        "ticket_ref": "RD-1014",
+        "final_status": "Ready",
+        "part_a_name": "fwrd10-n2 RD Part A",
+        "part_a_supplier": "Northgate Parts",
+        "part_a_price": "$187.50",
+        "part_b_name": "fwrd10-n2 RD Part B",
+        "part_b_supplier": "Northgate Parts",
+        "part_b_price": "$250.00",
+        "ticket_total": "$468.28"
+      },
+      "tier": "B",
+      "replayed": "0/17",
+      "repaired": true,
+      "turns": 20
+    },
+    {
+      "id": "07-remove",
+      "status": "success",
+      "summary": "On ticket RD-1014 (fwrd10-n2 RD Bench Ticket, status Ready): deleted both parts — first deleted Part B (fwrd10-n2 RD Part B), then deleted Part A (fwrd10-n2 RD Part A). Confirmed the parts table shows \"No parts on this ticket yet.\" Then clicked \"Archive ticket\" — the button changed to \"Unarchive ticket\" and the ticket shows \"Archived\" badge alongside its \"Ready\" status.",
+      "values": {
+        "ticket_ref": "RD-1014",
+        "title": "Under-counter fridge door misaligned",
+        "status": "Ready",
+        "archived": "Yes (shows Archived badge, Unarchive button present)",
+        "parts_table": "No parts on this ticket yet.",
+        "actions_available": "Mark Draft, Mark Closed, Unarchive ticket"
+      },
+      "tier": "B",
+      "replayed": "7/11",
+      "repaired": true,
+      "turns": 11
+    },
+    {
+      "id": "08-verify",
+      "status": "success",
+      "summary": "Verified end state: (1) In the default active tickets list (Show archived unchecked), ticket RD-1014 does NOT appear — the list shows RD-1015, RD-1012, RD-1011, RD-1010, RD-1009, RD-1008, RD-1007, RD-1006, RD-1005, RD-1004. (2) With \"Show archived\" checked, RD-1014 appears with title \"Under-counter fridge door misaligned\" (with \"Archived\" badge), customer \"Marlow Bakery\", status \"Ready\", parts count 0, created 2026-01-23. The ticket is correctly archived and no longer in the active list.",
+      "values": {
+        "active_list_contains_RD1014": "false",
+        "archived_list_contains_RD1014": "true",
+        "archived_ticket_ref": "RD-1014",
+        "archived_ticket_title": "Under-counter fridge door misaligned",
+        "archived_badge": "Archived",
+        "archived_customer": "Marlow Bakery",
+        "archived_status": "Ready",
+        "archived_parts": "0",
+        "archived_created": "2026-01-23",
+        "read_back": "RD-1015",
+        "read_back_2": "RD-1012",
+        "read_back_3": "RD-1011"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 10
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwrd10",
+      "step": "02-add",
+      "skill": "s_13565f",
+      "similarity": 0.928,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "the page at http://127.0.0.1:4180/#/tickets/:id does not show \"fwrd10-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd10",
+      "step": "04-edit",
+      "skill": "s_ce1ad7",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd10",
+      "step": "06-edit",
+      "skill": "s_25ab27",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd10",
+      "step": "07-remove",
+      "skill": "s_780081",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd10",
+      "step": "07-remove",
+      "skill": "s_780081",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.getByRole('button', { name: 'Delete' })",
+      "fallbackUsed": "page.getByTestId('part-delete-p19')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 1372840,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1045965,
+    "completionTokens": 6960,
+    "cachedTokens": 527104
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1045965,
+      "completionTokens": 6960,
+      "cachedTokens": 527104
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
