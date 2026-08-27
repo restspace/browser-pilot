@@ -7,7 +7,7 @@ import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { coalesceControls, compileSkill, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
-import { bindSkill, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
+import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
 import { candidatesFor, renderCandidates } from '../src/skills/replay.js';
 import { SkillStore, originOf, originSlug, type Skill } from '../src/skills/store.js';
 
@@ -571,6 +571,52 @@ describe('selectCandidates (lifecycle-gated adoption)', () => {
     const out = selectCandidates([hint, sibling], hint.id, same, params);
     expect(out.map((c) => c.skill.id)).toEqual([sibling.id, hint.id]);
     expect(out[0].params).toEqual(params);
+  });
+});
+
+describe('canAdoptPin (a flow step may not adopt another step\'s procedure)', () => {
+  const store = () => new SkillStore(path.join(tmp, `pin-${Math.random().toString(36).slice(2)}`));
+  const put = (s: SkillStore, id: string, tools: string[]): string => {
+    s.put({
+      id, origin: ORIGIN, template: 't', params: {}, preconditions: { urlPattern: `${ORIGIN}/#/tickets/:id` },
+      steps: tools.map((tool) => ({ tool, args: {}, locators: {} })),
+      stats: { uses: 3, successes: 3, partial: 0, created: 'now', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated', provenance: { session: 's', instruction: 't', created: 'now' },
+    });
+    return id;
+  };
+
+  it('refuses a skill another step of the flow already owns', () => {
+    const s = store();
+    put(s, 's_read', ['read', 'read_all']);
+    put(s, 's_create', ['click', 'fill', 'click']);
+    const steps = [{ id: '07-open', skill: 's_read' }, { id: '08-create', skill: 's_create' }];
+    // fwrd14l-n2: step 08's recovery invoked step 07's read-only skill, which
+    // resolved cleanly on the same detail page and reported success.
+    expect(canAdoptPin(s, steps, '08-create', 's_create', 's_read')).toBe(false);
+  });
+
+  it('refuses to trade a mutating procedure for a read-only one', () => {
+    const s = store();
+    put(s, 's_reads', ['read', 'read_all']);
+    put(s, 's_deletes', ['click', 'click']);
+    const steps = [{ id: '09-delete', skill: 's_deletes' }];
+    expect(canAdoptPin(s, steps, '09-delete', 's_deletes', 's_reads')).toBe(false);
+  });
+
+  it('still adopts an honest repair of the same kind of work', () => {
+    const s = store();
+    put(s, 's_old', ['click', 'fill']);
+    put(s, 's_new', ['click', 'fill', 'click']);
+    const steps = [{ id: '02-create', skill: 's_old' }];
+    expect(canAdoptPin(s, steps, '02-create', 's_old', 's_new')).toBe(true);
+  });
+
+  it('a read-only step may still repair to another read-only skill', () => {
+    const s = store();
+    put(s, 's_r1', ['read']);
+    put(s, 's_r2', ['read', 'read_all']);
+    expect(canAdoptPin(s, [{ id: '07-open', skill: 's_r1' }], '07-open', 's_r1', 's_r2')).toBe(true);
   });
 });
 

@@ -273,6 +273,46 @@ export function publishedOutputs(skill: Skill): string[] {
   return [...out];
 }
 
+/** Tools that CHANGE the app, as opposed to observing it. */
+const MUTATING = new Set(['click', 'dblclick', 'right_click', 'modifier_click', 'fill', 'type', 'press', 'select', 'check', 'drag', 'upload']);
+
+function mutates(store: SkillStore, id: string | undefined): boolean {
+  const skill = id ? store.get(id) : null;
+  if (!skill) return false;
+  const walk = (steps: Skill['steps']): boolean => steps.some((s) => MUTATING.has(s.tool) || (s.body ? walk(s.body) : false));
+  return walk(skill.steps);
+}
+
+/**
+ * May a flow step move its pin to `next`? Adoption is already gated on the
+ * skill being validated and having just replayed cleanly; these two say the
+ * candidate is about THIS STEP'S WORK, not merely a procedure that resolves
+ * on this page.
+ *
+ * fwrd14l-n2 is why. Step 08 (create a scratch ticket) and step 09 (delete
+ * both parts) were re-pinned to s_0b2413 — step 07's READ-ONLY skill, which
+ * was validated and matched the same detail page. The rewritten flow went to
+ * disk; n3 inherited it, replayed 07's read chain for all three steps,
+ * changed NOTHING, reported success three times, and halted at step 10 on a
+ * scratch ticket that never existed. A replay that reports success having
+ * done nothing is the worst failure this system has, so:
+ *
+ *  1. A skill another step of the flow already owns is that step's procedure.
+ *     Two steps are two different instructions; one skill cannot be both.
+ *  2. A read-only skill never replaces one that mutates. Reads resolve on any
+ *     plausible page, which is exactly why this swap looks like success.
+ */
+export function canAdoptPin(
+  store: SkillStore,
+  steps: { id: string; skill?: string }[],
+  stepId: string,
+  current: string | undefined,
+  next: string,
+): boolean {
+  if (steps.some((s) => s.id !== stepId && s.skill === next)) return false;
+  return !(mutates(store, current) && !mutates(store, next));
+}
+
 export function instructionEntry(entries: RecordedEntry[]): RecordedInstruction | undefined {
   return entries.find((e): e is RecordedInstruction => e.k === 'instruction');
 }

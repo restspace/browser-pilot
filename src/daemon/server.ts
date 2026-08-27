@@ -6,7 +6,7 @@ import { runEscalatingInstruction, type InstructionResult, type SkillRecord } fr
 import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
-import { bindSkill, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
+import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { originOf } from '../skills/store.js';
@@ -624,7 +624,17 @@ ${direct.prelude}` : recoveryText) + resetNote,
         // authority: selection each run is by track record (selectCandidates),
         // so an unhealthy pin costs one refused/failed attempt, not the step.
         const outcome = learned?.outcome;
-        if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill) {
+        // Two further gates, both from fwrd14l-n2, where step 08 (create a
+        // scratch ticket) and step 09 (delete both parts) were re-pinned to
+        // s_0b2413 — step 07's READ-ONLY skill, validated and matching the
+        // same detail page. n3 inherited the rewritten flow, replayed 07's
+        // read chain three times, mutated NOTHING, reported success for all
+        // three, and halted at step 10 on a scratch ticket that was never
+        // created. A replay that reports success having done nothing is the
+        // worst outcome this system can produce, so the pin must be about
+        // this step's WORK, not merely a skill that resolves on this page.
+        const adoptable = outcome && canAdoptPin(this.browser.learn, flow.steps, step.id, step.skill, outcome.skill);
+        if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill && adoptable) {
           repinned = outcome.skill;
         }
       }
