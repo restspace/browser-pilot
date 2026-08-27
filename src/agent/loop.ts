@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { backfillReadValues, validateReport, type Report } from './report.js';
+import { addEvidenceValue, backfillReadValues, proseIdentifiers, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt } from '../daemon/recorder.js';
 
@@ -235,6 +235,26 @@ export async function runInstruction(
     if (report.status === 'success' && browser.script) {
       const promoted = backfillReadValues(report, browser.script.readsThisInstruction());
       if (promoted.length) opts.onProgress?.(`[report] promoted ${promoted.length} prose-cited read value(s) into evidence: ${promoted.join(', ')}`);
+      // Second source, for the identifiers no read observed at all: a record
+      // reference the model only ever put in prose (a confirmed order's
+      // S00021). Pin it on the live page as a real read, so it becomes a
+      // published output a later step can reference and a replay re-reads its
+      // OWN — fwod5 cancelled the recorded run's order for want of this.
+      if (browser.isOpen) {
+        try {
+          const page = await browser.getPage();
+          const pinned: string[] = [];
+          for (const value of proseIdentifiers(report)) {
+            const step = await captureReadBack(page, value);
+            if (!step) continue; // not uniquely on the page — it stays prose
+            browser.script.addStep(step);
+            pinned.push(addEvidenceValue(report, String(step.args.target ?? 'ref'), value));
+          }
+          if (pinned.length) opts.onProgress?.(`[report] pinned ${pinned.length} prose-cited identifier(s) to the page: ${pinned.join(', ')}`);
+        } catch {
+          // a wedged/navigating page must never turn a good report into no report
+        }
+      }
     }
     // This line is what survives once the instruction's tool results are
     // elided at the next boundary, so the facts the caller asked for ride

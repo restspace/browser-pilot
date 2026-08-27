@@ -236,3 +236,46 @@ function uniqueName(base: string, taken: Record<string, unknown>): string {
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+/** Record identifiers cited in prose per report, and their shape. */
+const MAX_PROSE_IDS = 3;
+const MIN_PROSE_ID_LEN = 4;
+const MAX_PROSE_ID_LEN = 40;
+
+/**
+ * Identifier-like tokens the report's prose cites but `evidence.values` does
+ * not carry: an order reference (S00021), a ticket ref (RD-1015), a generated
+ * uid. Mixed letters AND digits is the test — it admits every app-minted
+ * reference seen across the bench targets while rejecting prices ("125.00"),
+ * counts, and ordinary words.
+ *
+ * These are the values later flow steps address the run's own record BY, so a
+ * step that leaves one unstructured strands every later step on the RECORDED
+ * run's record: fwod5-n2/n3 cancelled sales order S00021 — run n1's order —
+ * because the confirm step reported its reference only in prose and the flow
+ * had no reference to thread. The caller pins them on the live page (see
+ * captureReadBack) so a replay re-reads its own.
+ */
+export function proseIdentifiers(report: Report): string[] {
+  const prose = `${report.summary} ${report.details ?? ''}`;
+  const present = new Set(Object.values(report.evidence?.values ?? {}).map((v) => String(v).trim()));
+  const out: string[] = [];
+  for (const m of prose.matchAll(/[A-Za-z0-9][A-Za-z0-9._-]*/g)) {
+    if (out.length >= MAX_PROSE_IDS) break;
+    const v = m[0].replace(/[.\-_]+$/, '');
+    if (v.length < MIN_PROSE_ID_LEN || v.length > MAX_PROSE_ID_LEN) continue;
+    if (!/[A-Za-z]/.test(v) || !/\d/.test(v)) continue;
+    if (present.has(v) || out.includes(v)) continue;
+    out.push(v);
+  }
+  return out;
+}
+
+/** Add a value to a report's evidence under a fresh name derived from `base`. */
+export function addEvidenceValue(report: Report, base: string, value: string): string {
+  const values: Record<string, string | number | boolean | null> = { ...(report.evidence?.values ?? {}) };
+  const name = uniqueName(slug(base), values);
+  values[name] = value;
+  (report.evidence ??= {}).values = values;
+  return name;
+}

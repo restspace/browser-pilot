@@ -15,6 +15,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { compileSkills } from '../src/skills/compile.js';
 import { buildFlow, jsonLeaves, lookupOutput } from '../src/skills/flow.js';
+import { addEvidenceValue, proseIdentifiers } from '../src/agent/report.js';
 import { identityOfPrimary } from '../src/skills/replay.js';
 import type { Skill } from '../src/skills/store.js';
 
@@ -185,5 +186,27 @@ describe('reference integrity', () => {
     expect(instruction).toContain('.o_form_view_group}}');
     expect(instruction).toContain('a {{view}}.');
     expect(instruction).not.toContain('o_{{view}}_view');
+  });
+});
+
+describe('prose-cited record identifiers', () => {
+  const report = (summary: string, values: Record<string, string> = {}) => ({ status: 'success' as const, summary, evidence: { values } });
+
+  it('finds the app-minted reference a report left in prose', () => {
+    expect(proseIdentifiers(report('Confirmed the quotation. The order reference is **S00021** and the total is 4,550.00.'))).toEqual(['S00021']);
+  });
+
+  it('ignores prices, counts and plain words', () => {
+    expect(proseIdentifiers(report('Added 2 lines totalling 4,550.00 for the customer; the untaxed amount is 125.00.'))).toEqual([]);
+  });
+
+  it('skips a value evidence already carries', () => {
+    expect(proseIdentifiers(report('Order S00021 confirmed.', { ref: 'S00021' }))).toEqual([]);
+  });
+
+  it('names the pinned value and puts it in evidence', () => {
+    const r = report('Order S00021 confirmed.');
+    const name = addEvidenceValue(r, 'o_statusbar span', 'S00021');
+    expect(r.evidence.values[name]).toBe('S00021');
   });
 });
