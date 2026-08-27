@@ -1,0 +1,61 @@
+{
+  "flow": "fwod6",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "failure",
+      "summary": "Signed into Odoo as admin successfully, but the customer contact 'fwod6-n3 Bench Customer' with City 'Benchville' was NOT created. The Contacts app is not present in the visible app menu (only Discuss, Sales, Dashboards, Invoicing, Apps, Settings appear), and I could not reach a Contacts form before exhausting my turn budget. No record was saved, so there is no name/city to verify.",
+      "values": {
+        "customer_created": "false",
+        "customer_name": "null",
+        "city": "null",
+        "signed_in": "true",
+        "visible_apps": "Discuss, Sales, Dashboards, Invoicing, Apps, Settings"
+      },
+      "tier": "A",
+      "replayed": "8/10",
+      "repaired": false,
+      "turns": 59
+    }
+  ],
+  "passed": 0,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwod6",
+      "step": "01-open",
+      "skill": "s_9f1918",
+      "atStep": "9",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    }
+  ],
+  "wallMs": 726864,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 639879,
+    "completionTokens": 14124,
+    "cachedTokens": 496960
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 286976,
+      "completionTokens": 2974,
+      "cachedTokens": 167936
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 352903,
+      "completionTokens": 11150,
+      "cachedTokens": 329024
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

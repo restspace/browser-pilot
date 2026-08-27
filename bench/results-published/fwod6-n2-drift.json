@@ -1,0 +1,73 @@
+[
+  {
+    "flow": "fwod6",
+    "step": "01-open",
+    "skill": "s_9f1918",
+    "atStep": "9",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "(none recorded)",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+  },
+  {
+    "flow": "fwod6",
+    "step": "02-create",
+    "skill": "s_7c15a6",
+    "atStep": "7",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('option', { name: 'fwod6-n2 Bench Customer' })",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod6",
+    "step": "03-open",
+    "skill": "s_3ab991",
+    "similarity": 1.002,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "reason": "after step 10 none of the 5 recorded page change(s) appeared (e.g. \"- row \\\"20% £ 750.00\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod6",
+    "step": "05-open",
+    "skill": "s_02b4ab",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('.o_field_widget[name=\"name\"]')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod6",
+    "step": "06-open",
+    "skill": "s_ec313b",
+    "atStep": "4",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByRole('button', { name: 'Cancel' })",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(4)')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod6",
+    "step": "07-verify",
+    "skill": "s_f76f08",
+    "similarity": 0.999,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+  }
+]

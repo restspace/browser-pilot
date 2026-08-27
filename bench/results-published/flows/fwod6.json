@@ -1,0 +1,103 @@
+{
+  "name": "fwod6",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username 'admin' and password 'admin' (do not wait for network idle - the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (in Odoo 17: go to the Contacts app, click New, fill Name and City, save). Verify the record saved and report the customer's name and city as shown on the saved record.",
+      "skill": "s_56901e",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo 17 (already signed in as admin at http://127.0.0.1:8069/), create a new quotation in the Sales app (Sales -> Orders -> Quotations -> New). Set the Customer field to '{{runid}} Bench Customer' by typing it and selecting the matching option from the autocomplete dropdown (the value only counts if chosen from the dropdown). Then add exactly ONE order line: in the order lines table, pick any product from the product catalogue via the product autocomplete dropdown (must actually select an option from the dropdown), and set the quantity to 3. Let the app fill in the unit price automatically. Do NOT confirm the quotation yet - leave it as a draft quotation. Save if needed. Then report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, and (c) the Untaxed Amount shown in the totals. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_f1f21f",
+      "params": {
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "e1918"
+      ],
+      "recorded": {
+        "e1918": "product"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the existing draft quotation S00021 (Sales -> Orders -> Quotations, click quotation S00021 for customer '{{runid}} Bench Customer'). It currently has one order line: 'Conference Chair' quantity 3. Add a SECOND order line with a DIFFERENT {{02-create.e1918}} (any other {{02-create.e1918}} from the catalogue, chosen by actually selecting an option from the {{02-create.e1918}} autocomplete dropdown) with quantity 2. Let the app fill the unit price automatically. Do NOT change the first line and do NOT confirm the quotation - keep it a draft. Save. Then report: (a) the exact name of the second {{02-create.e1918}} you added, and (b) the new Untaxed Amount shown in the totals after saving. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_3ab991",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the existing draft quotation S00021 (Sales -> Orders -> Quotations -> S00021, customer '{{runid}} Bench Customer'). It has two order lines: line 1 'Conference Chair' quantity 3, line 2 'Customizable Desk' quantity 2. Change ONLY the first line's quantity from 3 to 5. Leave the second line unchanged. Do NOT confirm the quotation - keep it a draft. Save. Then report the Untaxed Amount shown in the totals after saving (and the quantity shown on line 1 to confirm the change took). Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_0b0d7d",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the existing draft quotation S00021 (Sales -> Orders -> Quotations -> S00021, customer '{{runid}} Bench Customer'). Confirm it by clicking the 'Confirm' button so it becomes a sales order. Wait for the page to reflect the confirmed state (do not wait for network idle - the app long-polls; wait on concrete page state instead). Then report: (a) the order reference / name shown for the record (e.g. S00021), and (b) the status the app now shows (e.g. from the status bar / 'Sales Order' label). Do not cancel it yet.",
+      "skill": "s_02b4ab",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "o_field_widget_name_name"
+      ],
+      "recorded": {
+        "o_field_widget_name_name": "S00021"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the confirmed sales order {{05-open.o_field_widget_name_name}} (Sales -> Orders -> Orders -> {{05-open.o_field_widget_name_name}}, customer '{{runid}} Bench Customer', status 'Sales Order'). Cancel it: look for a 'Cancel' button, or if not visible, use the Action/cog dropdown menu on the form and choose 'Cancel' (a confirmation dialog may appear - confirm it). Wait for the page to reflect the cancelled state (do not wait for network idle - the app long-polls; wait on concrete page state instead). Then report the status the app shows after cancelling (e.g. from the status bar / 'Cancelled' label).",
+      "skill": "s_ec313b",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-verify",
+      "instruction": "In Odoo 17 (already signed in as admin), verify two things and report them: (1) Open the customer contact '{{runid}} Bench Customer' (search for it via the global search or Sales -> Orders -> Customers) and report the Name and City shown on the saved record. (2) Open the sales order {{05-open.o_field_widget_name_name}} (Sales -> Orders -> Orders) and report its reference/name, the customer, and the status shown in the status bar. Do not modify anything - read only. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_f76f08",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "name_name_input",
+        "city_0",
+        "o_field_widget_name_name"
+      ],
+      "recorded": {
+        "name_name_input": "fwod6-n1 Bench Customer",
+        "city_0": "Benchville",
+        "o_field_widget_name_name": "S00021"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod6-n1",
+    "created": "2026-08-27T08:04:28.861Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

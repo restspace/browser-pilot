@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "314c062"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod6-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 3006549,
+  "orchestrator": {
+    "input": 4662,
+    "cacheWrite": 0,
+    "cacheRead": 24640,
+    "output": 2529
+  },
+  "inner": {
+    "promptTokens": 3993709,
+    "cachedTokens": 2913216,
+    "completionTokens": 27612,
+    "instructions": 12,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2254220,
+        "completionTokens": 10800,
+        "cachedTokens": 1248512,
+        "instructions": 7
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1739489,
+        "completionTokens": 16812,
+        "cachedTokens": 1664704,
+        "instructions": 5
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 3,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 85,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 2922556,
+  "commandBytes": 5339,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod6-skills",
+    "instructions": 7,
+    "offered": 3,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 85,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0241,
+  "maxUsd": 2,
+  "spendUsd": 0.7053,
+  "finalText": "All objectives completed and verified. Final report:\n\n**Objective 1 — DONE**: Customer `fwod6-n1 Bench Customer` created (record id 44) with City set to `Benchville`. Verified on the saved record: Name = \"fwod6-n1 Bench Customer\", City = \"Benchville\".\n\n**Objective 2 — DONE**: Quotation `S00021` created for that customer with one order line:\n- Product chosen: **Conference Chair** ([E-COM12] Conference Chair (Steel)), selected from the product autocomplete dropdown\n- Quantity: 3\n- Unit price auto-filled by the app: **£33.00**\n- Untaxed Amount computed: **£99.00** (TAX 20% £19.80, Total £118.80)\n\n**Objective 3 — DONE**: Second order line added to the same quotation:\n- Product: **Customizable Desk** ([FURN_0096] Customizable Desk (Steel, White), 160x80cm, with large legs), selected from the dropdown\n- Quantity: 2, unit price auto-filled £750.00 (line total £1,500.00)\n- New Untaxed Amount: **£1,599.00** (TAX 20% £319.80, Total £1,918.80)\n\n**Objective 4 — DONE**: First line's quantity changed from 3 to 5 (line 1 then showed qty 5.00 × £33.00 = £165.00; line 2 unchanged at qty 2).\n- Untaxed Amount afterwards: **£1,665.00** (TAX 20% £333.00, Total £1,998.00)\n\n**Objective 5 — DONE**: Quotation confirmed via the Confirm button. It became a sales order:\n- Order reference: **S00021**\n- Status shown: **Sales Order** (status bar showed \"Sales Order\" active; \"Quotation Sent\" and \"Quotation\" disabled)\n\n**Objective 6 — DONE**: Sales order cancelled via the Cancel button (confirmed through the \"Cancel Sales Order\" wizard dialog, cancelling without sending email).\n- Status shown after cancelling: **Cancelled** (status bar showed \"Cancelled\" active, with Sales Order / Quotation Sent / Quotation disabled)\n\nA final read-only verification confirmed both the customer record (Name \"fwod6-n1 Bench Customer\", City \"Benchville\") and the order S00021 in \"Cancelled\" state — nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod6-n1-browser-pilot-transcript.jsonl"
+}

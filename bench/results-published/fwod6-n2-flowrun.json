@@ -1,0 +1,181 @@
+{
+  "flow": "fwod6",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin (session already established from replayed steps), navigated to Contacts via Sales app > Orders > Customers (Contacts app not in the app menu), clicked New, filled Name='fwod6-n2 Bench Customer' and City='Benchville', and saved. Record saved as id=45; page title and form fields read back confirm Name='fwod6-n2 Bench Customer' and City='Benchville'.",
+      "values": {
+        "e812": "fwod6-n2 Bench Customer",
+        "e825": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "8/10",
+      "repaired": false,
+      "turns": 50
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created draft quotation S00021 (id 21) in Sales → Orders → Quotations → New. Customer set to 'fwod6-n2 Bench Customer' by typing and selecting the matching option from the autocomplete dropdown (verified on saved record). Added exactly one order line: product 'Conference Chair' ([E-COM12] Conference Chair (Steel)) chosen from the product autocomplete dropdown, quantity set to 3, unit price auto-filled by the app at 33.00. Saved (not confirmed) — status bar shows 'Quotation' as the active draft state. Verified on the saved record: line total £99.00, Untaxed Amount £99.00, TAX 20% £19.80, Total £118.80.",
+      "values": {
+        "e1918": "product"
+      },
+      "tier": "A",
+      "replayed": "19/19",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the draft quotation S00022 for fwod6-n2 Bench Customer. The replayed procedure had added 'Customizable Desk' as a second line but set qty to 1 instead of 2. Fixed quantity to 2.00. Saved. The quotation remains a draft (status: Quotation checked). Order lines: (1) Conference Chair qty 3 × £33.00 = £99.00, (2) Customizable Desk qty 2 × £750.00 = £1,500.00. (a) Second product: Customizable Desk ([FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.), (b) Untaxed Amount: £1,599.00.",
+      "values": {},
+      "tier": "A",
+      "replayed": "9/13",
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00021 and changed line 1 (Conference Chair) quantity from 3 to 5. Line 2 (Customizable Desk, qty 2) left unchanged. Saved without confirming — status bar shows 'Quotation' as the active draft state. Verified on the saved record: line 1 shows qty 5.00, unit price 33.00, line total £165.00; Untaxed Amount £1,665.00; TAX 20% £333.00; Total £1,998.00.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_02b4ab.",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened the confirmed sales order S00022 for fwod6-n2 Bench Customer (status was 'Sales Order'). Clicked the Cancel button, confirmed the cancellation dialog, and the Cancel Sales Order wizard appeared. Clicked 'Send and cancel' to complete the cancellation. The status bar now shows 'Cancelled' [checked] as the active state. (a) Order reference: S00022, (b) Status: Cancelled.",
+      "values": {},
+      "tier": "B",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 16
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "(1) Customer contact 'fwod6-n2 Bench Customer' — Name shown as \"fwod6-n2 Bench Customer\", City shown as \"Benchville\" (verified on the saved customer form). (2) Sales order S00022 — reference/name: S00022, customer: fwod6-n2 Bench Customer, status bar shows \"Cancelled\" as the active (checked) state.",
+      "values": {
+        "e2476": "fwod6-n2 Bench Customer"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 9
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwod6",
+      "step": "01-open",
+      "skill": "s_9f1918",
+      "atStep": "9",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod6",
+      "step": "02-create",
+      "skill": "s_7c15a6",
+      "atStep": "7",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('option', { name: 'fwod6-n2 Bench Customer' })",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod6",
+      "step": "03-open",
+      "skill": "s_3ab991",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "reason": "after step 10 none of the 5 recorded page change(s) appeared (e.g. \"- row \\\"20% £ 750.00\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod6",
+      "step": "05-open",
+      "skill": "s_02b4ab",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('.o_field_widget[name=\"name\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod6",
+      "step": "06-open",
+      "skill": "s_ec313b",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Cancel' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(4)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod6",
+      "step": "07-verify",
+      "skill": "s_f76f08",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 1462770,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1436550,
+    "completionTokens": 13593,
+    "cachedTokens": 878144
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1204798,
+      "completionTokens": 9696,
+      "cachedTokens": 663552
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 231752,
+      "completionTokens": 3897,
+      "cachedTokens": 214592
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
