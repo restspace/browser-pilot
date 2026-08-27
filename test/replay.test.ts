@@ -632,4 +632,77 @@ d('identity-scoped locators (fixture page)', () => {
     expect(row).toBe('2');
     expect(out.fallthroughs).toBe(0);
   }, 30_000);
+
+  /** Record a read on Part Two's Remove button, anchored by `hints`. */
+  const recordRowRead = async (hints: string[], known: Record<string, string>) => {
+    const { setIdentityHints } = await import('../src/daemon/recorder.js');
+    const { compileSkill } = await import('../src/skills/compile.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    const rec = session.script!;
+    const mark = rec.mark();
+    const instr = "report the button label on the row for 'Part Two'";
+    setIdentityHints(hints);
+    rec.beginInstruction(instr, { url: page.url() });
+    const snap = (await run('snapshot', {})).result;
+    const refs = [...snap.matchAll(/button "Remove" \[(@e\d+)\]/g)].map((m) => m[1]);
+    await run('read', { target: refs[1], what: 'text' });
+    const skill = compileSkill({
+      entries: rec.entriesSince(mark),
+      instruction: instr,
+      report: { status: 'success', summary: "the row for 'Part Two' shows Remove", evidence: { values: { label: 'Remove' } } },
+      session: 'ident',
+      knownValues: known,
+    })!;
+    return { skill, page };
+  };
+
+  it('narrows an anchor that would match every row to the cell naming the record', async () => {
+    // "Part" is true of all three rows. Anchoring on it records clean (the
+    // handle is simply one of the matches) and then reads as drift at replay.
+    const { skill } = await recordRowRead(['Part'], { record: 'Part' });
+    const chain = skill.steps[0].locators.target ?? [];
+    expect(chain[0].kind).toBe('scoped');
+    // Narrowed to the cell — and the known value inside it is still slotted,
+    // so the anchor parameterises: "{{v1}} Two" resolves to "Part Two".
+    const hasText = (chain[0] as { hasText: string }).hasText;
+    expect(hasText).toBe('{{v1}} Two');
+    expect(hasText.replace('{{v1}}', skill.params.v1.example)).toBe('Part Two');
+  }, 30_000);
+
+  it('drops an anchor it cannot make unique rather than recording an ambiguous one', async () => {
+    // Every row's button cell reads "Remove", and no cell narrows it further.
+    const { skill } = await recordRowRead(['Remove'], { record: 'Remove' });
+    const chain = skill.steps[0].locators.target ?? [];
+    expect(chain.some((c) => c.kind === 'scoped')).toBe(false);
+    expect(chain.length).toBeGreaterThan(0);
+  }, 30_000);
+
+  it('waits for a record that has not been painted yet instead of reading it as absent', async () => {
+    const { replaySkill } = await import('../src/skills/replay.js');
+    const { skill, page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    expect((skill.steps[0].locators.target ?? [])[0].kind).toBe('scoped');
+
+    // The app defers its repaint the way repair-desk does after a create: the
+    // row is gone when replay looks, and lands ~1.2s later.
+    await page.evaluate(() => {
+      const list = document.getElementById('dellist')!;
+      const row = list.children[1];
+      row.remove();
+      setTimeout(() => list.insertBefore(row, list.children[1] ?? null), 1_200);
+    });
+    const reads: string[] = [];
+    const out = await replaySkill(skill, { v1: 'Part Two' }, {
+      page,
+      exec: async (tool, args, resolved) => {
+        const text = await resolved.target.first().innerText();
+        reads.push(text);
+        return { result: JSON.stringify(text) };
+      },
+    });
+    expect(out.ok).toBe(true);
+    expect(reads).toEqual(['Remove']); // the read happened, not skipped
+    expect(out.warnings).toEqual([]);
+    expect(out.fallthroughs).toBe(0);
+  }, 30_000);
 });

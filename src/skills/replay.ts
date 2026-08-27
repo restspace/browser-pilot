@@ -561,6 +561,23 @@ export async function resolveChain(
   requireIdentity: string[] = [],
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
+  // A record the run just created may not be on the page YET. The agent never
+  // hit this: a model turn is seconds and it re-snapshots each time, so the
+  // deferred repaint every SPA does after a create (repair-desk defers ~1s by
+  // design) had always landed before it looked. Replay has no turns, and
+  // settleDom only proves the DOM went quiet — which it does, in the gap
+  // BEFORE the refetch paints. So when the primary names a record, give it
+  // that window rather than reading "not yet" as "not there": the fallbacks
+  // beside it are positional, the identity guard rightly refuses them, and
+  // the read is dropped (fwrd11l 01-open lost `ref` on both replays). Costs
+  // nothing when the row is already there.
+  if (candidates.length && requireIdentity.length) {
+    const primary = makeLocator(page, candidates[0]);
+    for (let waited = 0; waited < IDENTITY_WAIT_MS; waited += IDENTITY_POLL_MS) {
+      if (await primary.count().catch(() => 0)) break;
+      await page.waitForTimeout(IDENTITY_POLL_MS);
+    }
+  }
   /** Does this fallback still identify the record the primary named? */
   const keepsIdentity = async (index: number, candidate: LocatorCandidate, locator: Locator): Promise<boolean> => {
     if (index === 0 || !requireIdentity.length) return true;
@@ -654,6 +671,10 @@ async function linkToDestination(
 /** How long a loop iteration waits for its record to leave the guard's match set. */
 const LOOP_SHRINK_WAIT_MS = 1_000;
 const LOOP_SHRINK_POLL_MS = 100;
+
+/** How long a record-naming primary may still be pending before it counts as absent. */
+const IDENTITY_WAIT_MS = 3_000;
+const IDENTITY_POLL_MS = 100;
 
 const SETTLE_QUIET_MS = 250;
 const SETTLE_MAX_MS = 2_000;

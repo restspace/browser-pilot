@@ -436,7 +436,7 @@ interface ElementInfo {
    * visible text, and this element's path relative to it. Raw material for an
    * identity-scoped candidate — see LocatorCandidate's 'scoped'.
    */
-  row: { container: string; text: string; inner: string } | null;
+  row: { container: string; text: string; inner: string; cells: string[] } | null;
 }
 
 interface Candidate {
@@ -575,6 +575,8 @@ async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: st
     // Skip any candidate whose identity IS the value — locating the price by
     // "125.00" would never match a different price on the next run.
     if (candidateIdentity(candidate.spec) === v) continue;
+    // Same uniqueness rule as verifiedChain: an ambiguous anchor is not identity.
+    if (candidate.spec.kind === 'scoped' && (await candidate.make(page).count().catch(() => 0)) !== 1) continue;
     const match = await matchIndex(candidate.make(page), handle);
     if (match === null) continue;
     const spec = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
@@ -668,6 +670,11 @@ async function verifiedChain(
   const chain: LocatorCandidate[] = [];
   let winner: LocatorCandidate | null = null;
   for (const candidate of candidatesFor(info)) {
+    // An identity anchor that matches several elements is not identity. It
+    // would record clean (the handle is simply match 0) and then be discarded
+    // at replay, where ambiguity in the primary reads as drift — so prove it
+    // singles the record out HERE, while the page that produced it is live.
+    if (candidate.spec.kind === 'scoped' && (await candidate.make(page).count().catch(() => 0)) !== 1) continue;
     if (winner) {
       chain.push(candidate.spec);
       continue;
@@ -751,7 +758,14 @@ function identityAnchor(info: ElementInfo): LocatorCandidate | null {
   // it starts with, and the runid alone would match every row of this run.
   const hit = identityHints.filter((h) => row.text.includes(h)).sort((a, b) => b.length - a.length)[0];
   if (!hit) return null;
-  return { kind: 'scoped', container: row.container, hasText: hit, ...(row.inner ? { selector: row.inner } : {}) };
+  // A hint can be true of many rows at once: every part created this run is
+  // named "<runid> RD Part X", so `hasText: runid` matches them all and replay
+  // reads that ambiguity as drift (fwrd11l 03-add/04-edit/06-remove). Narrow
+  // it to the shortest CELL containing the hint — that cell names this record
+  // and still carries the hint, so compile slots the known value inside it.
+  const narrowed = row.cells.filter((c) => c.includes(hit)).sort((a, b) => a.length - b.length)[0];
+  const hasText = narrowed && narrowed.length <= 120 ? narrowed : hit;
+  return { kind: 'scoped', container: row.container, hasText, ...(row.inner ? { selector: row.inner } : {}) };
 }
 
 function cand(spec: LocatorCandidate): Candidate {
@@ -845,7 +859,7 @@ function describeInPage(node: Node): ElementInfo {
   // container selector is deliberately GENERIC (its tag, scoped to a stable
   // ancestor id when there is one) so it matches every record's container on
   // a later run and `hasText` alone picks the record.
-  const rowOf = (): { container: string; text: string; inner: string } | null => {
+  const rowOf = (): { container: string; text: string; inner: string; cells: string[] } | null => {
     let box = el.closest('tr, li, [role="row"], [role="listitem"], [role="option"]');
     // Not every list is semantic: an app that renders rows as divs is just as
     // common. Fall back to the nearest ancestor that HAS siblings of its own
@@ -887,7 +901,14 @@ function describeInPage(node: Node): ElementInfo {
       parts.unshift(part);
       cur = parent;
     }
-    return { container, text, inner: cur === box ? parts.join(' > ') : '' };
+    // The row's own cells, so an anchor can be narrowed from "contains the
+    // runid" (true of every row this run touched) to the one cell that
+    // actually names this record.
+    const cells = Array.from(box.children)
+      .map((c) => (c as HTMLElement).innerText?.replace(/\s+/g, ' ').trim() ?? '')
+      .filter((t) => t && t.length <= 120)
+      .slice(0, 12);
+    return { container, text, inner: cur === box ? parts.join(' > ') : '', cells };
   };
 
   const label = labelText();
