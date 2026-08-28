@@ -9,7 +9,7 @@ import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
-import { RunLedger, describeLeaks, scanForLeaks } from '../skills/ledger.js';
+import { RunLedger, bindingKey, describeLeaks, scanForLeaks } from '../skills/ledger.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
 import { snapshot, waitForContent } from './refs.js';
@@ -96,10 +96,32 @@ export class Daemon {
     for (const [name, value] of Object.entries(this.state.vars ?? {})) this.ledger.add(value, { from: 'var', name });
   }
 
-  /** Ledger values in the shape compile wants (informational keys, values matter). */
+  /**
+   * Scan a freshly compiled skill for values this run made. The flow export
+   * scan (below) covers what a flow carries; this covers the STORE, which is
+   * where the damage actually lands — an anchor holding the recording run's
+   * runid still resolves on the run that recorded it, so the sweep passes and
+   * the defect only shows up as a drift ticket two runs later.
+   *
+   * WARN, not ERROR: what is being measured is the ledger's coverage.
+   */
+  private reportSkillLeaks(learned: { compiled?: string; compiledAll?: string[] }, progress: (m: string) => void): void {
+    const store = this.browser.learn;
+    if (!store) return;
+    const ids = learned.compiledAll ?? (learned.compiled ? [learned.compiled] : []);
+    for (const id of ids) {
+      const skill = store.get(id);
+      if (!skill) continue;
+      const leaks = scanForLeaks(skill, this.ledger, id);
+      if (leaks.length) progress(`[learn] warning: ${leaks.length} run value(s) survived into ${id}:
+${describeLeaks(leaks.slice(0, 6))}`);
+    }
+  }
+
+  /** The run's values keyed by their ORIGIN, so a param can bind to where a value comes from. */
   private knownValues(): Record<string, string> {
     const out: Record<string, string> = {};
-    for (const [i, e] of this.ledger.all().entries()) out[`${e.binding.from}.${i}`] = e.value;
+    for (const e of this.ledger.all()) out[bindingKey(e.binding)] = e.value;
     return out;
   }
 
@@ -312,6 +334,7 @@ export class Daemon {
             : null;
           this.noteMintedIds(entriesSince, `i${this.instructionIndex}`);
           if (learned) progress(`[learn] ${describeLearned(learned)}`);
+          if (learned) this.reportSkillLeaks(learned, progress);
           const pinned = learned?.compiled ?? learned?.merged ?? result.skill?.invoked;
           if (pinned) this.browser.script?.pinSkill(pinned);
           if (result.skill) this.state.recordSkill(result.skill, learned);
@@ -493,7 +516,7 @@ export class Daemon {
       model: this.provider().model,
       bind: (id, instr) => {
         const sk = store.get(id);
-        return sk ? bindSkill(sk, instr) : null;
+        return sk ? bindSkill(sk, instr, this.knownValues()) : null;
       },
     });
     if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
@@ -844,9 +867,9 @@ ${direct.prelude}` : recoveryText) + resetNote,
     // experience), so a fragile pin cannot dominate the step run after run.
     let candidates: { skill: import('../skills/store.js').Skill; params: Record<string, string> }[];
     if (chosen) {
-      candidates = selectCandidates(store.list(origin), chosen.id, instruction, chosen.params);
+      candidates = selectCandidates(store.list(origin), chosen.id, instruction, chosen.params, this.knownValues());
     } else {
-      const m = matchTemplate(store.list(origin), instruction, url);
+      const m = matchTemplate(store.list(origin), instruction, url, this.knownValues());
       candidates = m ? [m] : [];
     }
     if (!candidates.length) return {};

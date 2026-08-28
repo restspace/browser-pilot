@@ -69,6 +69,16 @@ export interface SkillParam {
    * is not an acceptable substitute for the primary that carried it.
    */
   known?: true;
+  /**
+   * Where a later run gets its own value, as a RunLedger binding key
+   * ("var:runid", "url:01-open:p1"). Present when the value cannot be read
+   * out of this skill's own template — it was supplied by an EARLIER
+   * instruction, so there is no word in this instruction to match it against.
+   * Without it such a param used to be deleted and its value re-inlined as a
+   * literal, which is how the recording run's runid ended up inside a locator
+   * anchor that could never match again (fwrd19l 04-edit).
+   */
+  binding?: string;
 }
 
 export interface SkillStep {

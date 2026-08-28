@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
@@ -240,6 +240,40 @@ describe('slot-by-policy known values', () => {
     expect(skill.template).not.toContain('x7');
     for (const name of Object.keys(skill.params)) expect(skill.template).toContain(`{{${name}}}`);
     expect(bindSkill(skill, instr.replaceAll('x7', 'k9'))).toBeTruthy();
+  });
+
+  it('a known value this instruction never names binds to its ORIGIN, not a literal', () => {
+    // fwrd19l 04-edit: the instruction edits Part A, but a step's identity
+    // anchor names Part B — a value an EARLIER instruction supplied. The slot
+    // was formed and substituted correctly, then the mirror-hazard rule
+    // deleted the unbindable param and pasted the recording run's runid back
+    // into the anchor, so every replay missed it and fell to a positional
+    // fallback. Deterministically, on both replays of both sweeps.
+    const instr = "Edit the part named 'x7 RD Part A' and change its cost to 150.";
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instr, url: 'http://x.test/#/t/1', fingerprint: [1, 0, 0] },
+      // The step that TYPES Part A makes it a slot of its own, which swallows
+      // the bare runid in the template — the exact shape of the real skill.
+      step('fill', { target: '@e0', value: 'x7 RD Part A' }, [{ kind: 'label', label: 'Name' }]),
+      step('fill', { target: '@e1', value: '150' }, [{ kind: 'label', label: 'Cost' }]),
+      step('click', { target: '@e2' }, [
+        { kind: 'scoped', container: 'tr', hasText: 'x7 RD Part B', selector: 'td:nth-of-type(6)' },
+      ]),
+    ];
+    const known = { 'var:runid': 'x7' };
+    const [skill] = compileSkills({ entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's', knownValues: known });
+    expect(skill).toBeTruthy();
+    // The anchor keeps its marker: no run value survives into the procedure.
+    expect(JSON.stringify(skill.steps)).not.toContain('x7');
+    const bound = Object.entries(skill.params).find(([, p]) => p.binding);
+    expect(bound?.[1].binding).toBe('var:runid');
+    // A later run resolves its own value from the same origin, even though
+    // nothing in the instruction it is matching mentions it.
+    const params = bindSkill(skill, instr.replaceAll('x7', 'k9'), { 'var:runid': 'k9' });
+    expect(params).toBeTruthy();
+    expect(fillParamsDeep(skill.steps, params!)).toContainEqual(
+      expect.objectContaining({ locators: { target: [expect.objectContaining({ hasText: 'k9 RD Part B' })] } }),
+    );
   });
 });
 

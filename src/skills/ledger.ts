@@ -68,6 +68,26 @@ export function identifierLike(value: string): boolean {
 const MIN_ID_LEN = 3;
 const MAX_VALUE_LEN = 200;
 
+/**
+ * A binding's stable identity, so a compiled param can name the ORIGIN of its
+ * value ("var:runid", "url:01-open:p1") and a later run resolve its own from
+ * the same origin. This is what lets a value cross an instruction boundary: a
+ * skill whose template never mentions the runid can still bind it, because the
+ * param points at where the value comes from rather than at a word to match.
+ */
+export function bindingKey(b: Binding): string {
+  switch (b.from) {
+    case 'var':
+      return `var:${b.name}`;
+    case 'input':
+      return 'input';
+    case 'url':
+      return `url:${b.step}:${b.label}`;
+    case 'output':
+      return `output:${b.step}:${b.name}${b.path ? `#${b.path}` : ''}`;
+  }
+}
+
 export class RunLedger {
   private entries: LedgerEntry[] = [];
   /** Values already banked, so first appearance wins. */

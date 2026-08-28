@@ -128,12 +128,17 @@ export function learnFromInstruction(
  * matches the incoming instruction exactly (modulo case, whitespace and quote
  * style), and whose start page is the current one. Returns the bound params.
  */
-export function matchTemplate(skills: Skill[], instruction: string, url: string): { skill: Skill; params: Record<string, string> } | null {
+export function matchTemplate(
+  skills: Skill[],
+  instruction: string,
+  url: string,
+  known: Record<string, string> = {},
+): { skill: Skill; params: Record<string, string> } | null {
   for (const skill of skills) {
     if (skill.status !== 'validated') continue;
     if (skill.seq && skill.seq.index > 0) continue; // chains start at their head
     if (!urlMatches(skill.preconditions.urlPattern, url)) continue;
-    const params = bindSkill(skill, instruction);
+    const params = bindSkill(skill, instruction, known);
     if (params) return { skill, params };
   }
   return null;
@@ -154,6 +159,7 @@ export function selectCandidates(
   hintId: string | undefined,
   instruction: string,
   hintParams?: Record<string, string>,
+  known: Record<string, string> = {},
 ): { skill: Skill; params: Record<string, string> }[] {
   const hint = hintId ? skills.find((s) => s.id === hintId) : undefined;
   const pinned = hintParams && Object.keys(hintParams).length ? hintParams : undefined;
@@ -166,7 +172,7 @@ export function selectCandidates(
     // bindings when it shares the hint's procedure and its slots all resolve.
     let params: Record<string, string> | null = null;
     if (s.id === hintId && pinned) params = pinned;
-    else params = bindSkill(s, instruction);
+    else params = bindSkill(s, instruction, known);
     if (!params && pinned && hint && (s.template === hint.template || sameProcedure(s, hint)) && Object.keys(s.params).every((p) => pinned[p])) {
       params = pinned;
     }
@@ -190,7 +196,7 @@ export function selectCandidates(
  * chosen (pinned), so its status and the page are the flow's concern, not this
  * function's. Returns null unless every slot binds.
  */
-export function bindSkill(skill: Skill, instruction: string): Record<string, string> | null {
+export function bindSkill(skill: Skill, instruction: string, known: Record<string, string> = {}): Record<string, string> | null {
   const names: string[] = [];
   const pattern = escapeRe(squash(skill.template)).replace(/\\\{\\\{(v\d+)\\\}\\\}/g, (_m, name: string) => {
     names.push(name);
@@ -200,6 +206,14 @@ export function bindSkill(skill: Skill, instruction: string): Record<string, str
   if (!m) return null;
   const params: Record<string, string> = {};
   names.forEach((n, i) => (params[n] = m[i + 1].trim()));
+  // A param the template cannot supply binds to its ORIGIN instead: the value
+  // came from an earlier instruction, so this run resolves its own from the
+  // same place rather than the skill carrying the recorded literal.
+  for (const [n, p] of Object.entries(skill.params)) {
+    if (params[n] || !p.binding) continue;
+    const value = known[p.binding];
+    if (value) params[n] = value;
+  }
   return Object.keys(skill.params).every((n) => params[n]) ? params : null;
 }
 

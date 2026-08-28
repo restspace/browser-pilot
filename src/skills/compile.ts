@@ -237,13 +237,27 @@ export function compileSkills(input: CompileInput): Skill[] {
   );
   const finalTemplate = keptSlots.size === slots.size ? sub(input.instruction) : substitute(input.instruction, keptSlots);
   // The mirror hazard: a slot whose marker survives only in STEPS (its every
-  // instruction occurrence was swallowed by a longer slot) can never bind —
-  // bindSkill derives values from the template alone, then requires every
-  // param to have one. Re-inline the recorded value for such slots: a literal
-  // arg is worth more than a skill that refuses its own source instruction.
+  // instruction occurrence was swallowed by a longer slot, or the value came
+  // from an EARLIER instruction and this one never names it) can never bind
+  // from the template — bindSkill derives values from the template alone,
+  // then requires every param to have one.
+  //
+  // If the run banked the value, the param binds to its ORIGIN instead: a
+  // later run resolves its own from the same place, and the marker stays. Only
+  // when the origin is unknown do we fall back to re-inlining the recorded
+  // literal, which is the compromise that put the recording run's runid inside
+  // an anchor's hasText and cost every replay a positional fallback
+  // (fwrd19l 04-edit, on both replays, deterministically).
+  const originOfValue = new Map(Object.entries(input.knownValues ?? {}).map(([key, v]) => [String(v ?? '').trim(), key]));
+  const bindings = new Map<string, string>();
   const inTemplate = new Set(Array.from(finalTemplate.matchAll(/\{\{(v\d+)\}\}/g), (m) => m[1]));
   for (const [name, value] of [...keptSlots]) {
     if (inTemplate.has(name)) continue;
+    const origin = originOfValue.get(value);
+    if (origin) {
+      bindings.set(name, origin);
+      continue;
+    }
     keptSlots.delete(name);
     for (const b of built) b.folded = fillParamsDeep(b.folded, { [name]: value }) as SkillStep[];
   }
@@ -260,7 +274,11 @@ export function compileSkills(input: CompileInput): Skill[] {
     const params: Record<string, SkillParam> = {};
     for (const name of keptSlots.keys()) {
       const value = keptSlots.get(name) ?? '';
-      params[name] = { ...b.segParams[name], ...(derivesFromKnown(value, knownVals) ? { known: true as const } : {}) };
+      params[name] = {
+        ...b.segParams[name],
+        ...(derivesFromKnown(value, knownVals) ? { known: true as const } : {}),
+        ...(bindings.has(name) ? { binding: bindings.get(name) as string } : {}),
+      };
     }
     return {
       id: newSkillId(origin, of > 1 ? `${finalTemplate}#${k}` : finalTemplate, now),
