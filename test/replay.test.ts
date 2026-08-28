@@ -14,6 +14,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { runInstruction } from '../src/agent/loop.js';
 import type { ChatMessage, Completion, Provider, ToolDef } from '../src/agent/llm.js';
 import { executeTool } from '../src/agent/tools.js';
+import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import { BrowserSession } from '../src/daemon/browser.js';
 import { SessionState } from '../src/daemon/state.js';
 import { compileSkill, compileSkills } from '../src/skills/compile.js';
@@ -704,5 +705,49 @@ d('identity-scoped locators (fixture page)', () => {
     expect(reads).toEqual(['Remove']); // the read happened, not skipped
     expect(out.warnings).toEqual([]);
     expect(out.fallthroughs).toBe(0);
+  }, 30_000);
+
+  /**
+   * The cascade behind fwrd19l 01-open/02-open, isolated at the resolver.
+   *
+   * A sweep cannot prove this: the recording is model-driven, and the three
+   * `wait_for` steps with `text="..."` targets that fwrd19l produced simply
+   * did not reappear in fwrd20l or fwrd21l — the agent chose @refs instead.
+   * So the shape has to be constructed, not waited for.
+   */
+  it('holds a record-naming primary through a deferred repaint instead of taking the row beneath it', async () => {
+    const { resolveChain } = await import('../src/skills/replay.js');
+    const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    const defer = async () => {
+      await page.evaluate(() => {
+        const list = document.getElementById('dellist')!;
+        const row = list.querySelector('[data-row="2"]')!;
+        row.remove();
+        setTimeout(() => list.insertBefore(row, list.children[1] ?? null), 1_200);
+      });
+    };
+    // What the agent typed as `text="Part Two"`, now recorded as a text
+    // candidate — followed by the positional fallback the recorder always
+    // appends, which resolves INSTANTLY against the row that sorted into
+    // that slot ("Part One").
+    const chain: LocatorCandidate[] = [
+      { kind: 'text', text: 'Part Two' },
+      { kind: 'css', selector: '#dellist > div:nth-of-type(1)' },
+    ];
+
+    await defer();
+    const guarded = await resolveChain(page, chain, '', false, undefined, ['Part Two'], 3_000);
+    expect(guarded?.index).toBe(0);
+    expect(await guarded!.locator.first().innerText()).toContain('Part Two');
+
+    // And the pre-fix state, for the causal claim: typed `css`, the primary
+    // advertises no identity (identityOfPrimary skips css by design), so the
+    // guard is empty, the positional candidate is waved through on the first
+    // pass, and the wait never runs — landing on the WRONG record without a
+    // single warning.
+    await defer();
+    const unguarded = await resolveChain(page, chain, '', false, undefined, [], 3_000);
+    expect(unguarded?.index).toBe(1);
+    expect(await unguarded!.locator.first().innerText()).toContain('Part One');
   }, 30_000);
 });
