@@ -4,7 +4,7 @@ import path from 'node:path';
 import { AnthropicProvider, OpenAICompatProvider, resolveProviderConfig, type Provider } from '../agent/llm.js';
 import { runEscalatingInstruction, type InstructionResult, type SkillRecord } from '../agent/loop.js';
 import { executeTool } from '../agent/tools.js';
-import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
+import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, urlOutputs } from '../skills/flow.js';
@@ -117,6 +117,37 @@ export class Daemon {
       if (leaks.length) progress(`[learn] warning: ${leaks.length} run value(s) survived into ${id}:
 ${describeLeaks(leaks.slice(0, 6))}`);
     }
+  }
+
+  /**
+   * Drop locator candidates carrying a value the ledger knows this run made.
+   * Never empties a chain — a step with no way to find its element is worse
+   * than one carrying a candidate that will miss. Returns how many went.
+   */
+  private stripLeakedCandidates(flow: import('../skills/flow.js').Flow, store: NonNullable<typeof this.browser.learn>): number {
+    const runValues = this.ledger.values().filter((v) => v.length >= 3);
+    if (!runValues.length) return 0;
+    let removed = 0;
+    for (const st of flow.steps) {
+      const skill = st.skill ? store.get(st.skill) : null;
+      if (!skill) continue;
+      let touched = false;
+      const walk = (steps: typeof skill.steps): void => {
+        for (const step of steps) {
+          for (const [key, chain] of Object.entries(step.locators ?? {})) {
+            const kept = chain.filter((c) => !stranded(c, runValues));
+            if (!kept.length || kept.length === chain.length) continue;
+            removed += chain.length - kept.length;
+            step.locators[key] = kept;
+            touched = true;
+          }
+          if (step.body) walk(step.body);
+        }
+      };
+      walk(skill.steps);
+      if (touched) store.put(skill);
+    }
+    return removed;
   }
 
   /**
@@ -542,6 +573,18 @@ ${describeLeaks(leaks.slice(0, 6))}`);
     // Before anything is written. The first cut of this ran after saveFlow,
     // so a "refused" export still left a usable flow on disk and the next run
     // replayed it regardless — a gate that refuses to REPORT is not a gate.
+    // Export knows more than compile did. `ticket-link-t15` is welded out of
+    // a value the ticket-CREATING instruction minted, so while that
+    // instruction compiled, nothing had banked t15 and `stranded` could not
+    // see it — the ledger only learns it when a later instruction lands on
+    // that url. By export it is known, so apply the same provenance rule with
+    // the knowledge that arrived late, and refuse only what survives it.
+    //
+    // Deleting HERE and not at compile is the whole distinction: this is
+    // provenance (the ledger knows the run made the value), never a guess
+    // from the token's shape. A shape guess only ever demotes — see
+    // `bookmarked` — and observation settles it.
+    const stripped = this.stripLeakedCandidates(flow, store);
     const fatalLeaks = this.leaksIn(flow, store).filter(fatal);
     if (fatalLeaks.length) {
       const detail =
@@ -574,6 +617,7 @@ the flow was written to ${kept} for inspection (it will not be replayed)`);
       warnings.unshift(`warning: ${leaks.length} run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
 ${describeLeaks(leaks.slice(0, 10))}`);
     }
+    if (stripped) warnings.unshift(`note: dropped ${stripped} locator candidate(s) carrying a value this run minted (known only by export time)`);
     if (prior) warnings.unshift(`warning: ignored ${prior} entr${prior === 1 ? 'y' : 'ies'} from an earlier take in session '${this.opts.session}' — this flow covers only what this daemon recorded`);
     return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars, ...(warnings.length ? { warnings } : {}) };
   }

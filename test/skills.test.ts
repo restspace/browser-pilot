@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { specOf } from '../src/skills/replay.js';
+import { stranded } from '../src/skills/compile.js';
 import { recordCandidateEvidence, retired } from '../src/skills/repair.js';
 import { SkillStore } from '../src/skills/store.js';
 import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
@@ -1024,5 +1025,23 @@ describe('evidence, not shape, decides whether an id is real', () => {
     const chain = store.get('s_ev')!.steps[0].locators.target!;
     expect(chain[0].seen).toEqual({ hit: 1, miss: 2 });
     expect(retired(chain[0])).toBe(false);
+  });
+});
+
+describe('provenance that arrives late', () => {
+  it('strips a candidate the ledger only learns about after the step compiled', () => {
+    // fwrd25l refused its own export over `ticket-link-t15`. The instruction
+    // that MINTS t15 never visits a t15 url, so while it compiled nothing had
+    // banked the value and `stranded` could not see it; the ledger only learns
+    // it when a LATER instruction lands on that url. Export knows, so the same
+    // provenance rule is applied there with the knowledge that arrived late.
+    const chain: LocatorCandidate[] = [
+      { kind: 'scoped', container: 'tr', hasText: '{{v1}} RD Bench Ticket', selector: 'td > a' },
+      { kind: 'testid', attr: 'data-testid', value: 'ticket-link-t15' },
+    ];
+    expect(stranded(chain[0], ['t15'])).toBe(false); // a slot marker is not a value
+    expect(stranded(chain[1], ['t15'])).toBe(true);
+    // ...and with nothing banked, compile could not have known.
+    expect(stranded(chain[1], [])).toBe(false);
   });
 });

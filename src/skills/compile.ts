@@ -535,7 +535,7 @@ function positional(c: LocatorCandidate): boolean {
   return c.kind === 'css' || c.nth !== undefined;
 }
 
-function stranded(c: LocatorCandidate, runValues: string[]): boolean {
+export function stranded(c: LocatorCandidate, runValues: string[]): boolean {
   const fields: string[] = [];
   if (c.kind === 'scoped') fields.push(c.hasText);
   // A NAME that is really a record reference. The rule used to stop at
