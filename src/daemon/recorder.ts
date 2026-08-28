@@ -590,11 +590,47 @@ export async function captureReadBack(page: Page, value: string): Promise<Record
   if (v.length < 2 || v.length > 80) return null; // too short to be distinctive, or prose
   const loc = page.getByText(v, { exact: true });
   const count = await loc.count().catch(() => 0);
-  if (count !== 1) return null; // ambiguous or absent — cannot pin it by text
-  const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
+  if (count === 1) {
+    const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
+    if (handle) {
+      try {
+        return await readBackFromHandle(page, handle, v);
+      } finally {
+        await handle.dispose().catch(() => {});
+      }
+    }
+  }
+  // Not in a text node — try the form controls. An app that edits records
+  // in-place holds its values in `input.value`, which getByText cannot see:
+  // odoo reported six values from its order form and this pinned NONE of
+  // them, so every later step referencing one lost its zero-model path. The
+  // read is stored with what:'value' so the replay re-reads the control
+  // rather than its label.
+  return await captureFormValue(page, v);
+}
+
+/**
+ * The single form control whose value IS this string.
+ *
+ * One round trip: comparing values element-by-element from here would be a
+ * round trip each, and a record form can hold dozens.
+ */
+async function captureFormValue(page: Page, v: string): Promise<RecordedStep | null> {
+  const controls = page.locator('input, textarea, select');
+  let hits: number[];
+  try {
+    hits = await controls.evaluateAll(
+      (els, want) => els.map((el, i) => ((((el as HTMLInputElement).value ?? '') as string).trim() === want ? i : -1)).filter((i) => i >= 0),
+      v,
+    );
+  } catch {
+    return null;
+  }
+  if (hits.length !== 1) return null; // ambiguous or absent — same rule as the text path
+  const handle = await controls.nth(hits[0]).elementHandle({ timeout: 1_000 }).catch(() => null);
   if (!handle) return null;
   try {
-    return await readBackFromHandle(page, handle, v);
+    return await readBackFromHandle(page, handle, v, 'value');
   } finally {
     await handle.dispose().catch(() => {});
   }
@@ -632,7 +668,7 @@ export async function captureReadBackAt(page: Page, value: string, selector: str
 }
 
 /** Derive a durable, non-circular read step for `value` from a live element. */
-async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: string): Promise<RecordedStep | null> {
+async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: string, what: 'text' | 'value' = 'text'): Promise<RecordedStep | null> {
   const info = (await handle.evaluate(describeInPage)) as ElementInfo;
   const chain: LocatorCandidate[] = [];
   let winner: LocatorCandidate | null = null;
@@ -652,7 +688,7 @@ async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: st
   return {
     k: 'step',
     tool: 'read',
-    args: { target: '(read-back)', what: 'text' },
+    args: { target: '(read-back)', what },
     locators: { target: { expr: candidateExpr(winner), verified: true, raw: '(read-back)', chain } },
     result: JSON.stringify(v),
   };

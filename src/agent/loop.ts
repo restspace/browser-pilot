@@ -252,7 +252,13 @@ export async function runInstruction(
             const step = await captureReadBack(page, value);
             if (!step) continue; // not uniquely on the page — it stays prose
             browser.script.addStep(step);
-            pinned.push(addEvidenceValue(report, String(step.args.target ?? 'ref'), value));
+            // Named `ref`, not after the target. The target of a synthesized
+            // read-back is the literal "(read-back)" or, on the model-sourced
+            // path, a CSS selector — odoo published a value called
+            // `o_subtotal_o_total_name_`, slugged from
+            // `.o_subtotal, .o_total, [name="amount_untaxed"]`. A later step
+            // can only reference a name a human or a model would write.
+            pinned.push(addEvidenceValue(report, 'ref', value));
           }
           if (pinned.length) opts.onProgress?.(`[report] pinned ${pinned.length} prose-cited identifier(s) to the page: ${pinned.join(', ')}`);
         } catch {

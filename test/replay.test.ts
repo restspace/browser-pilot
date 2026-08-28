@@ -751,6 +751,45 @@ d('identity-scoped locators (fixture page)', () => {
     expect(await unguarded!.locator.first().innerText()).toContain('Part One');
   }, 30_000);
 
+  it('pins a value that lives in a form control, not just in a text node', async () => {
+    const { captureReadBack } = await import('../src/daemon/recorder.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    await page.fill('#name', '[FURN_7777] Office Chair');
+
+    // getByText cannot see an input's value, so the text path finds nothing.
+    expect(await page.getByText('[FURN_7777] Office Chair', { exact: true }).count()).toBe(0);
+
+    // odoo reported six values off its order form and this pinned NONE of
+    // them, so every later step referencing one lost its zero-model path.
+    const step = await captureReadBack(page, '[FURN_7777] Office Chair');
+    expect(step).toBeTruthy();
+    // Stored as a VALUE read, or the replay would re-read the label instead.
+    expect(step!.args.what).toBe('value');
+    expect(JSON.parse(step!.result!)).toBe('[FURN_7777] Office Chair');
+    // And it must not locate the field BY the value it is there to read.
+    const chain = step!.locators.target.chain ?? [];
+    expect(chain.length).toBeGreaterThan(0);
+    expect(JSON.stringify(chain)).not.toContain('Office Chair');
+  }, 30_000);
+
+  it('refuses an ambiguous form value rather than pinning the wrong control', async () => {
+    const { captureReadBack } = await import('../src/daemon/recorder.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    // A genuine second text control: #qty is type=number and coerces a
+    // non-numeric value straight back to empty, which is not ambiguity.
+    await page.evaluate(() => {
+      (document.getElementById('name') as HTMLInputElement).value = 'same';
+      const extra = document.createElement('input');
+      extra.type = 'text';
+      extra.value = 'same';
+      document.body.appendChild(extra);
+    });
+    // Same rule as the text path: two matches is not a pin.
+    expect(await captureReadBack(page, 'same')).toBeNull();
+  }, 30_000);
+
   it('records the match index of an AMBIGUOUS candidate, including index 0', async () => {
     const { setIdentityHints } = await import('../src/daemon/recorder.js');
     const { compileSkill } = await import('../src/skills/compile.js');
