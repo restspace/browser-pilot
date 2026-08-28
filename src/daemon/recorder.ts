@@ -590,7 +590,14 @@ export async function captureReadBack(page: Page, value: string): Promise<Record
   if (v.length < 2 || v.length > 80) return null; // too short to be distinctive, or prose
   const loc = page.getByText(v, { exact: true });
   const count = await loc.count().catch(() => 0);
-  if (count === 1) {
+  // Ambiguity is fine for a READ-BACK, unlike for an action target: every
+  // match shows the same string, so reading any of them returns the same
+  // value. fwrd27l reported part_A_supplier and part_B_supplier as the same
+  // supplier name, both matched twice, and neither was pinned — so a later
+  // step referencing either lost its zero-model path. candidatesFor still
+  // prefers a row-scoped anchor when one exists, so this only decides which
+  // element is read when nothing names it.
+  if (count >= 1) {
     const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
     if (handle) {
       try {
@@ -678,9 +685,15 @@ async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: st
     if (candidateIdentity(candidate.spec) === v) continue;
     // Same uniqueness rule as verifiedChain: an ambiguous anchor is not identity.
     if (candidate.spec.kind === 'scoped' && (await candidate.make(page).count().catch(() => 0)) !== 1) continue;
-    const match = await matchIndex(candidate.make(page), handle);
+    const loc = candidate.make(page);
+    const match = await matchIndex(loc, handle);
     if (match === null) continue;
-    const spec = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
+    // Same rule as verifiedChain: an AMBIGUOUS candidate needs its index, and
+    // `match === 0` is not the same as "unique". This copy was missed when
+    // that was fixed, so a read-back pinned to an ambiguous locator could not
+    // be re-resolved.
+    const ambiguous = (await loc.count().catch(() => 0)) > 1;
+    const spec = ambiguous || match !== 0 ? { ...candidate.spec, nth: match } : candidate.spec;
     if (!winner) winner = spec;
     chain.push(spec);
   }

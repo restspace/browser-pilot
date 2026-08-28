@@ -789,6 +789,32 @@ d('identity-scoped locators (fixture page)', () => {
     expect(JSON.stringify(chain)).not.toContain('Office Chair');
   }, 30_000);
 
+  it('pins a value that appears twice — every match reads the same string', async () => {
+    const { captureReadBack } = await import('../src/daemon/recorder.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    // fwrd27l reported part_A_supplier and part_B_supplier as the SAME
+    // supplier name. Both matched twice, neither was pinned, and the step
+    // referencing one lost its zero-model path.
+    await page.evaluate(() => {
+      for (const row of document.querySelectorAll('#dellist .prow')) {
+        const cell = document.createElement('span');
+        cell.className = 'supplier';
+        cell.textContent = 'Bench Supplier Co';
+        row.appendChild(cell);
+      }
+    });
+    expect(await page.getByText('Bench Supplier Co', { exact: true }).count()).toBe(3);
+    const step = await captureReadBack(page, 'Bench Supplier Co');
+    expect(step).toBeTruthy();
+    expect(JSON.parse(step!.result!)).toBe('Bench Supplier Co');
+    // Re-resolvable, and never circular: a field is not located by the very
+    // string it exists to report, or it could only ever find the old value.
+    const chain = step!.locators.target.chain ?? [];
+    expect(chain.length).toBeGreaterThan(0);
+    expect(JSON.stringify(chain)).not.toContain('Bench Supplier Co');
+  }, 30_000);
+
   it('refuses an ambiguous form value rather than pinning the wrong control', async () => {
     const { captureReadBack } = await import('../src/daemon/recorder.js');
     const page = await session.getPage();
