@@ -27,6 +27,14 @@ export interface DriftTicket {
   fallbackIndex?: number;
   /** The step went to model recovery. */
   recovered: boolean;
+  /**
+   * Why the ZERO-MODEL path did not run it — an unresolved reference, a
+   * refused precondition, no matching skill, a replay that stopped part-way.
+   * Without this every fallback with no locator miss produced an identical
+   * ticket, so three different causes wore one signature and the real one had
+   * to be guessed from the store.
+   */
+  fellBack?: string;
   reason?: string;
   pageUrlPattern?: string;
 }

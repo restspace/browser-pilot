@@ -649,9 +649,18 @@ ${describeLeaks(leaks.slice(0, 10))}`);
         : {};
       let result: InstructionResult;
       let recovered = false;
+      // Why this step could not run without the model, in the step result and
+      // the drift ticket. Without it every fallback looks the same from the
+      // outside and the cause has to be guessed from the store.
+      const fellBack = unresolved
+        ? `unresolved reference(s): ${[...missing, ...(bound?.missing ?? [])].join(', ')}`
+        : !step.skill
+          ? 'the flow step has no pinned skill'
+          : (direct.why ?? 'no reason recorded');
       if (direct.done) {
         result = direct.done;
       } else {
+        opts.progress(`[flow ${flow.name}] ${step.id}: falling back to the model — ${fellBack}`);
         // All recovery causes run cheap-first with the strong model as
         // escalation-on-blocked (see recoveryRoute): the fwrd4l sweep showed
         // the session model rescuing replay-failed steps too, at a fraction
@@ -811,6 +820,7 @@ ${direct.prelude}` : recoveryText) + resetNote,
           driftTickets.push({
             flow: flow.name, step: step.id, skill: sk.invoked, similarity: sk.similarity,
             missedLocator: null, fallbackUsed: null, recovered: true,
+            fellBack,
             ...(sk.failReason ? { reason: sk.failReason } : {}),
             ...(pageUrlPattern ? { pageUrlPattern } : {}),
           });
@@ -883,17 +893,24 @@ ${direct.prelude}` : recoveryText) + resetNote,
     progress: (m: string) => void,
     /** Flow replay pins the skill (and may supply its params); without it, fall back to a validated template match. */
     chosen?: { id: string; params?: Record<string, string> },
-  ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord>; wrongRecord?: string }> {
+    /**
+     * `why` explains a fallback. Tier B is expensive and its causes are not
+     * visible from the outside: a step that fell back with no locator miss and
+     * no fail reason produced an identical drift ticket whether no skill
+     * matched, a precondition refused, or the replay stopped part-way. Three
+     * different bugs, one signature.
+     */
+  ): Promise<{ done?: InstructionResult; prelude?: string; partial?: Partial<SkillRecord>; wrongRecord?: string; why?: string }> {
     const store = this.browser.learn;
-    if (!store || !this.browser.isOpen) return {};
+    if (!store || !this.browser.isOpen) return { why: 'no skill store, or the browser is closed' };
     let url: string;
     try {
       url = (await this.browser.getPage()).url();
     } catch {
-      return {};
+      return { why: 'could not read the page url' };
     }
     const origin = originOf(url);
-    if (!origin) return {};
+    if (!origin) return { why: `no origin for ${url}` };
     // Candidates for this instruction, best track record first. In flow mode
     // the pinned skill is only a hint that names the procedure family —
     // selection is by the store's own lifecycle (validated > success rate >
@@ -905,22 +922,24 @@ ${direct.prelude}` : recoveryText) + resetNote,
       const m = matchTemplate(store.list(origin), instruction, url, this.knownValues());
       candidates = m ? [m] : [];
     }
-    if (!candidates.length) return {};
+    if (!candidates.length) return { why: chosen ? `the pinned skill ${chosen.id} bound no params for this instruction` : 'no validated skill matched the instruction and page' };
     this.browser.script?.beginInstruction(instruction, { url });
     let match: { skill: import('../skills/store.js').Skill; params: Record<string, string> } | null = null;
     let replay: NonNullable<Awaited<ReturnType<typeof executeTool>>['replay']> | null = null;
     let attempts = 0;
     let wrongRecord: string | undefined;
+    const refusals: string[] = [];
     for (const cand of candidates) {
       if (attempts >= MAX_CANDIDATE_ATTEMPTS) break;
       progress(`[skill] trying ${cand.skill.id} (${cand.skill.status}, ${cand.skill.stats.successes}/${cand.skill.stats.uses}) without the model`);
       const execution = await executeTool(this.browser, 'run_skill', { id: cand.skill.id, params: cand.params }, screenshotDir, signal);
       const r = execution.replay;
-      if (!r) return {};
+      if (!r) return { why: `run_skill returned nothing for ${cand.skill.id}` };
       if (r.refused) {
         // Right template, wrong record: no other skill can fix that, so keep
         // the reason and let the caller re-establish the page (see below).
         if (r.wrongRecord) wrongRecord = r.wrongRecord;
+        refusals.push(`${cand.skill.id}: ${r.reason ?? 'refused'}`);
         continue; // wrong page / bad params: nothing ran, free to try the next
       }
       attempts++;
@@ -938,7 +957,10 @@ ${direct.prelude}` : recoveryText) + resetNote,
       }
       break; // partial: the page has changed — hand what ran to recovery, never restart another candidate
     }
-    if (!match || !replay) return wrongRecord ? { wrongRecord } : {};
+    if (!match || !replay) {
+      const why = refusals.length ? `every candidate refused — ${refusals.join('; ')}` : 'no candidate ran';
+      return wrongRecord ? { wrongRecord, why } : { why };
+    }
 
     // Walk the segment chain: a multi-segment skill replays segment by
     // segment, each gated by its own precondition. A cleanly-replayed
@@ -1015,6 +1037,7 @@ ${direct.prelude}` : recoveryText) + resetNote,
       return {
         prelude: ranNote + renderReplay(last, replay),
         partial: record,
+        why: `${last.id} stopped at step ${replay.failedAt ?? '?'} — ${replay.reason ?? 'no reason recorded'}`,
       };
     }
     const report = synthesizeReport(last, match.params, agg.values);
