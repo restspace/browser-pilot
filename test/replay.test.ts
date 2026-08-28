@@ -736,7 +736,7 @@ d('identity-scoped locators (fixture page)', () => {
     ];
 
     await defer();
-    const guarded = await resolveChain(page, chain, '', false, undefined, ['Part Two'], 3_000);
+    const guarded = await resolveChain(page, chain, { requireIdentity: ['Part Two'], waitMs: 3_000 });
     expect(guarded?.index).toBe(0);
     expect(await guarded!.locator.first().innerText()).toContain('Part Two');
 
@@ -746,8 +746,24 @@ d('identity-scoped locators (fixture page)', () => {
     // pass, and the wait never runs — landing on the WRONG record without a
     // single warning.
     await defer();
-    const unguarded = await resolveChain(page, chain, '', false, undefined, [], 3_000);
+    const unguarded = await resolveChain(page, chain, { waitMs: 3_000 });
     expect(unguarded?.index).toBe(1);
     expect(await unguarded!.locator.first().innerText()).toContain('Part One');
+  }, 30_000);
+
+  it('tries the record-naming candidate before a structural one that sits ahead of it', async () => {
+    const { resolveChain } = await import('../src/skills/replay.js');
+    const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    // Head-of-chain is structural and resolves instantly against the WRONG
+    // row. Resolution order is no longer array position, so the anchor behind
+    // it still wins — and `index` is still the stored index, so drift keeps
+    // reporting which recorded candidate took the step.
+    const chain: LocatorCandidate[] = [
+      { kind: 'css', selector: '#dellist > div:nth-of-type(1)' },
+      { kind: 'scoped', container: '.prow', hasText: 'Part Two' },
+    ];
+    const hit = await resolveChain(page, chain, {});
+    expect(hit?.index).toBe(1);
+    expect(await hit!.locator.first().innerText()).toContain('Part Two');
   }, 30_000);
 });

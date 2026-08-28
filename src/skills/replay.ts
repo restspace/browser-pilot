@@ -226,15 +226,13 @@ export async function replaySkill(
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
       const identity = identityOfPrimary(step.locators[key]?.[0], skill, params);
-      const hit = await resolveChain(
-        page,
-        chain,
-        typeof args[key] === 'string' ? String(args[key]) : '',
-        step.tool === 'read_all',
+      const hit = await resolveChain(page, chain, {
+        rawTarget: typeof args[key] === 'string' ? String(args[key]) : '',
+        allowMultiple: step.tool === 'read_all',
         ambiguousNth,
-        identity,
-        resolveWaitMs(),
-      );
+        requireIdentity: identity,
+        waitMs: resolveWaitMs(),
+      });
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
         res.misses.push({ step: tag, key, primary: chain[0] ? candidateExpr(chain[0]) : '(none recorded)', used: null });
@@ -447,7 +445,9 @@ export async function replaySkill(
       if (opts.signal?.aborted) break;
       await settleDom(page);
       const chain = fillParamsDeep(guard, params) as LocatorCandidate[];
-      const hit = await resolveChain(page, chain, '', true);
+      // No waitMs: this asks whether the list still has rows, and a null
+      // return is the loop's normal exit, not a failure to find something.
+      const hit = await resolveChain(page, chain, { allowMultiple: true });
       const remaining = hit ? await hit.locator.count().catch(() => 0) : 0;
       if (!remaining || cursor >= remaining) break;
       const sig: string[] = [];
@@ -533,12 +533,56 @@ function chain0Desc(chain: LocatorCandidate[]): string {
  * be unique on its own, since the element it was recorded against is gone.
  * A raw CSS target the agent chose is tried last if the chain is empty.
  */
-export async function resolveChain(
-  page: Page,
-  chain: LocatorCandidate[],
-  rawTarget: string,
+/**
+ * How a chain is READ: which candidates name the RECORD, which name the
+ * ELEMENT, and which only say where it sits.
+ *
+ * This is PLAN-provenance's ElementSpec as a VIEW over the stored array
+ * rather than a new stored shape, so no skill has to be migrated to gain the
+ * invariant. What it buys is that resolution order stops being a convention
+ * about array position: a chain whose head happens to be structural can no
+ * longer let a positional candidate win ahead of one that names the record.
+ * That is not hypothetical — the agent's own raw target is unshifted to the
+ * head at record time, which is exactly how `text="..."` came to sit in front
+ * of the identity anchor recorded for the same element.
+ */
+export interface ElementSpec {
+  /** Names the RECORD: an anchor whose hasText carries a caller-vouched value. */
+  identity: LocatorCandidate[];
+  /** Names the ELEMENT: test id, role+name, label, placeholder, visible text. */
+  handles: LocatorCandidate[];
+  /** Finds it by WHERE it sits. Last resort, and never enough to name a record. */
+  path: LocatorCandidate[];
+}
+
+/**
+ * Structural: a path through the document, or an index into a set of matches.
+ *
+ * Note this is NOT "kind === css". An agent-chosen `#modal-save` is a handle
+ * — it names one control — while `#view > div > button:nth-of-type(2)` is a
+ * route to wherever that shape currently sits. Demoting the first alongside
+ * the second would push a deliberate selector below a role guess.
+ */
+export function structural(c: LocatorCandidate): boolean {
+  if (c.nth !== undefined) return true;
+  if (c.kind !== 'css') return false;
+  return /[>+~]|:nth-/.test(c.selector);
+}
+
+export function specOf(chain: LocatorCandidate[]): ElementSpec {
+  return {
+    identity: chain.filter((c) => c.kind === 'scoped'),
+    handles: chain.filter((c) => c.kind !== 'scoped' && !structural(c)),
+    path: chain.filter((c) => c.kind !== 'scoped' && structural(c)),
+  };
+}
+
+/** Policy for one resolution. Named, because seven positional flags is how a call site gets one wrong. */
+export interface ResolvePolicy {
+  /** The agent's original target string, used only when no chain was recorded. */
+  rawTarget?: string;
   /** read_all reads across every match, so its target need not be unique. */
-  allowMultiple = false,
+  allowMultiple?: boolean;
   /**
    * Loop-body cursor: when a candidate matches several records, act on THIS
    * match index (the first unprocessed record) instead of skipping to a
@@ -547,7 +591,7 @@ export async function resolveChain(
    * drift — and the positional fallback it used to fall through to is pinned
    * to one recorded row, which is how fwrd4l edited part A seven times.
    */
-  ambiguousNth?: number,
+  ambiguousNth?: number;
   /**
    * Identity the PRIMARY candidate carried: values the caller vouched for
    * that named the record this step acts on ("fwrd8-n2 RD Bench Ticket").
@@ -559,26 +603,39 @@ export async function resolveChain(
    * way). When no fallback qualifies, the step fails to recovery, which is
    * cheap; acting on the wrong record is not.
    */
-  requireIdentity: string[] = [],
+  requireIdentity?: string[];
   /**
    * How long to keep re-trying the WHOLE chain when nothing resolves.
    *
    * The agent never needed this: a model turn is seconds and it re-snapshots
    * each time, so anything the app was about to paint (repair-desk defers its
-   * list refetch ~1s BY DESIGN — "close optimistically, then revalidate") had
-   * always landed before it looked. A replay has no turns, and settleDom only
-   * proves the DOM went quiet, which it does in the gap BEFORE the refetch
-   * paints. The wait costs nothing on a healthy page — it runs only after a
-   * full pass found nothing, i.e. on a path already headed for a positional
-   * fallthrough or model recovery, both far more expensive than 3s.
+   * list refetch ~1s BY DESIGN) had always landed before it looked. A replay
+   * has no turns, and settleDom only proves the DOM went quiet, which it does
+   * in the gap BEFORE the refetch paints. The wait costs nothing on a healthy
+   * page — it runs only after a full pass found nothing.
    *
    * Zero for a caller ASKING whether something is still there rather than
    * looking for it: the loop guard reads a null return as "the list is empty,
    * stop", so waiting there would stall every loop's normal exit.
    */
-  waitMs = 0,
+  waitMs?: number;
+}
+
+export async function resolveChain(
+  page: Page,
+  chain: LocatorCandidate[],
+  policy: ResolvePolicy = {},
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
+  const { rawTarget = '', allowMultiple = false, ambiguousNth, requireIdentity = [], waitMs = 0 } = policy;
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
+  // Identity, then handles, then paths — each keeping its recorded order, and
+  // each carrying its index in the STORED chain so drift still reports which
+  // recorded candidate actually took the step.
+  const spec = specOf(candidates);
+  const ordered = [...spec.identity, ...spec.handles, ...spec.path].map((candidate) => ({
+    candidate,
+    index: candidates.indexOf(candidate),
+  }));
   /** Does this fallback still identify the record the primary named? */
   const keepsIdentity = async (index: number, candidate: LocatorCandidate, locator: Locator): Promise<boolean> => {
     if (index === 0 || !requireIdentity.length) return true;
@@ -595,7 +652,7 @@ export async function resolveChain(
   };
   /** One pass over the chain, best candidate first. */
   const walk = async (): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> => {
-    for (const [index, candidate] of candidates.entries()) {
+    for (const { index, candidate } of ordered) {
       try {
         const locator = makeLocator(page, candidate);
         const count = await locator.count();

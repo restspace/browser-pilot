@@ -4,6 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
+import { specOf } from '../src/skills/replay.js';
 import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
@@ -925,5 +926,24 @@ describe('urlParts', () => {
       { label: 'q.action', value: '915' },
       { label: 'q.cids', value: '1' },
     ]);
+  });
+});
+
+describe('ElementSpec view', () => {
+  it('separates naming a record, naming an element, and saying where it sits', () => {
+    const chain: LocatorCandidate[] = [
+      { kind: 'css', selector: '#view > div > button:nth-of-type(2)' },
+      { kind: 'scoped', container: 'tr', hasText: '{{v1}} Two' },
+      { kind: 'testid', attr: 'data-testid', value: 'modal-save' },
+      { kind: 'css', selector: '#modal-save' },
+      { kind: 'role', role: 'button', name: 'Save', nth: 2 },
+    ];
+    const spec = specOf(chain);
+    expect(spec.identity.map((c) => c.kind)).toEqual(['scoped']);
+    // An agent-chosen `#modal-save` NAMES a control; it is not a route to
+    // wherever that shape currently sits, so it stays a handle.
+    expect(spec.handles.map((c) => (c as { value?: string; selector?: string }).value ?? (c as { selector?: string }).selector)).toEqual(['modal-save', '#modal-save']);
+    // A structural path, and a role pinned to a match index, are both routes.
+    expect(spec.path.length).toBe(2);
   });
 });
