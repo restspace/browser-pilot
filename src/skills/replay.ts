@@ -2,6 +2,7 @@ import type { Locator, Page } from 'playwright-core';
 import { captureSignature } from '../daemon/diff.js';
 import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
+import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
 import { fillParams, fillParamsDeep, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
 import type { Skill, SkillStep } from './store.js';
@@ -59,6 +60,14 @@ export interface ReplayResult {
   fallthroughs: number;
   /** Structured record of every locator that missed its primary. */
   misses: LocatorMiss[];
+  /**
+   * Per-candidate outcomes from the pass that resolved: which chain index won
+   * and which were rejected with the element demonstrably present. The caller
+   * folds these onto the stored chain only if the run past this point
+   * succeeded, so a candidate is retired for being repeatedly WRONG, never for
+   * looking wrong.
+   */
+  candidateEvidence: { step: string; key: string; hit: number; missed: number[]; skill?: string }[];
   /** Values this replay itself minted and bound ({{dN}} derived params), for later segments and callers. */
   derivedValues: Record<string, string>;
   /**
@@ -122,6 +131,7 @@ export async function replaySkill(
     misses: [],
     derivedValues: {},
     generalisations: [],
+    candidateEvidence: [],
     similarity: null,
     url: page.url(),
   };
@@ -239,6 +249,7 @@ export async function replaySkill(
         break;
       }
       resolved[key] = hit.locator;
+      if (hit.missed.length) res.candidateEvidence.push({ step: tag, key, hit: hit.index, missed: hit.missed });
       sink?.push(`${key}=${candidateExpr(hit.candidate)}`);
       if (hit.index > 0) {
         res.fallthroughs++;
@@ -625,14 +636,18 @@ export async function resolveChain(
   page: Page,
   chain: LocatorCandidate[],
   policy: ResolvePolicy = {},
-): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
+): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate; missed: number[] } | null> {
   const { rawTarget = '', allowMultiple = false, ambiguousNth, requireIdentity = [], waitMs = 0 } = policy;
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
   // Identity, then handles, then paths — each keeping its recorded order, and
   // each carrying its index in the STORED chain so drift still reports which
   // recorded candidate actually took the step.
   const spec = specOf(candidates);
-  const ordered = [...spec.identity, ...spec.handles, ...spec.path].map((candidate) => ({
+  // Demonstrated volatile last, whatever kind it is. Evidence outranks the
+  // identity/handle/path ordering because that ordering is a prior about what
+  // a candidate IS, and this is a measurement of whether it WORKS.
+  const byEvidence = (list: LocatorCandidate[]) => [...list].sort((a, b) => Number(retired(a)) - Number(retired(b)));
+  const ordered = [...byEvidence(spec.identity), ...byEvidence(spec.handles), ...byEvidence(spec.path)].map((candidate) => ({
     candidate,
     index: candidates.indexOf(candidate),
   }));
@@ -650,27 +665,46 @@ export async function resolveChain(
     }
     return wanted.every((v) => text.toLowerCase().includes(v.toLowerCase()));
   };
-  /** One pass over the chain, best candidate first. */
-  const walk = async (): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> => {
+  /**
+   * One pass over the chain, best candidate first, reporting which candidates
+   * it REJECTED before the winner.
+   *
+   * Per pass, deliberately. A candidate that missed while the page was still
+   * painting and hits on the next poll is not volatile — it was early. Only
+   * the pass that actually resolved is evidence about the locators, because
+   * only then do we know the element was there to be found.
+   */
+  const walk = async (): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate; missed: number[] } | null> => {
+    const missed: number[] = [];
     for (const { index, candidate } of ordered) {
       try {
         const locator = makeLocator(page, candidate);
         const count = await locator.count();
         if (count === 1) {
-          if (!(await keepsIdentity(index, candidate, locator))) continue;
-          return { locator, index, candidate };
+          if (!(await keepsIdentity(index, candidate, locator))) {
+            missed.push(index);
+            continue;
+          }
+          return { locator, index, candidate, missed };
         }
         if (count > 1) {
-          if (allowMultiple) return { locator, index, candidate };
+          if (allowMultiple) return { locator, index, candidate, missed };
           if (ambiguousNth !== undefined && candidate.nth === undefined && ambiguousNth < count) {
             const picked = locator.nth(ambiguousNth);
-            if (!(await keepsIdentity(index, candidate, picked))) continue;
-            return { locator: picked, index, candidate: { ...candidate, nth: ambiguousNth } };
+            if (!(await keepsIdentity(index, candidate, picked))) {
+              missed.push(index);
+              continue;
+            }
+            return { locator: picked, index, candidate: { ...candidate, nth: ambiguousNth }, missed };
           }
-          if (candidate.nth === undefined && index === 0) continue; // was unique; ambiguity is drift, keep looking
+          if (candidate.nth === undefined && index === 0) {
+            missed.push(index); // was unique; ambiguity is drift, keep looking
+            continue;
+          }
         }
+        missed.push(index);
       } catch {
-        // malformed selector or detached page — try the next candidate
+        missed.push(index); // malformed selector or detached page — try the next
       }
     }
     return null;

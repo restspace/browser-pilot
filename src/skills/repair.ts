@@ -238,3 +238,56 @@ export async function interactiveSnapshot(page: Page, limit = 120): Promise<stri
     .catch(() => [] as string[]);
   return rows.join('\n');
 }
+
+/**
+ * Fold a replay's per-candidate outcomes onto the stored skill.
+ *
+ * Only from a run that SUCCEEDED past the step, the same rule the url
+ * `generalisations` follow: a miss inside a run that then failed says more
+ * about the run than about the locator.
+ *
+ * This is the answer to "is this id real or ephemeral?" that does not guess
+ * from its shape. Grafana's `_r8b_` is a React-minted id matching no id-shaped
+ * pattern we have; two replays where it misses while a sibling resolves say so
+ * outright. Nothing is deleted — `retired` sorts it last, so if the app
+ * changes back it can still win on a later pass.
+ */
+export function recordCandidateEvidence(
+  store: SkillStore,
+  skillId: string,
+  evidence: { step: string; key: string; hit: number; missed: number[] }[],
+): boolean {
+  const skill = store.get(skillId);
+  if (!skill || !evidence.length) return false;
+  let touched = false;
+  for (const e of evidence) {
+    const step = stepByTag(skill, e.step);
+    const chain = step?.locators[e.key];
+    if (!chain) continue;
+    const bump = (i: number, field: 'hit' | 'miss') => {
+      const c = chain[i];
+      if (!c) return;
+      c.seen = { hit: c.seen?.hit ?? 0, miss: c.seen?.miss ?? 0 };
+      c.seen[field] += 1;
+      touched = true;
+    };
+    bump(e.hit, 'hit');
+    for (const i of e.missed) bump(i, 'miss');
+  }
+  if (touched) store.put(skill);
+  return touched;
+}
+
+/**
+ * Demonstrated volatile: it has missed at least twice with the element
+ * present, and has never once resolved.
+ *
+ * Twice, not once — a single miss can be a transient (a slow paint the
+ * poll happened to lose, a modal in the way). Two independent runs is the
+ * cheapest evidence that is not one bad afternoon.
+ */
+export function retired(c: { seen?: { hit: number; miss: number } }): boolean {
+  return (c.seen?.hit ?? 0) === 0 && (c.seen?.miss ?? 0) >= MIN_MISSES_TO_RETIRE;
+}
+
+const MIN_MISSES_TO_RETIRE = 2;

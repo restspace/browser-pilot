@@ -31,7 +31,23 @@ export type LocatorCandidate = (
    * own identity — every later step then worked the wrong ticket.
    */
   | { kind: 'scoped'; container: string; hasText: string; selector?: string }
-) & { nth?: number };
+) & {
+  nth?: number;
+  /**
+   * What LATER RUNS observed about this candidate: how often it resolved, and
+   * how often it missed while a candidate behind it resolved (so the element
+   * was there and this way of naming it failed).
+   *
+   * Whether a value is a stable app identifier or an ephemeral one is not
+   * decidable from its shape — grafana's `_r8b_` is a React-minted id that
+   * changes every load and matches no id-shaped pattern we have. It IS
+   * decidable by observation: run it again and see whether it still finds the
+   * element. Counted here, persisted only after the run past it succeeded,
+   * and used to order the chain — the same evidence-then-persist rule as the
+   * url `generalisations`, applied to locator values instead of url segments.
+   */
+  seen?: { hit: number; miss: number };
+};
 
 /** Rebuild a candidate into a live Locator. Shared by recording and replay. */
 export function makeLocator(page: Page, c: LocatorCandidate): Locator {

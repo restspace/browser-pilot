@@ -175,8 +175,20 @@ export function compileSkills(input: CompileInput): Skill[] {
         // 06-set). An anchor that cannot parameterise is not an anchor.
         // Never strand the whole chain: a step with no way at all to find its
         // element is worse than one carrying a candidate that will miss.
-        const usable = filled.filter((c) => !stranded(c, runValues) && !bookmarked(c));
-        const kept = stableFirst(usable.length ? usable : filled);
+        // `stranded` DELETES: the ledger knows the run made that value, so the
+        // candidate demonstrably cannot match another run. That is provenance,
+        // not a guess.
+        //
+        // `bookmarked` only DEMOTES. It reads an id's shape, and shape is a
+        // weak signal: grafana's ephemeral `_r8b_` matches none of our
+        // id patterns while odoo's stable `o_form_view` hooks trip several. A
+        // wrong deletion costs a working locator permanently; a wrong demotion
+        // costs one failed count(), and two replays of evidence put it right
+        // either way. So the shape rule sets the starting order and the
+        // running tally decides — see recordCandidateEvidence.
+        const usable = filled.filter((c) => !stranded(c, runValues));
+        const ranked = [...usable].sort((a, b) => Number(bookmarked(a)) - Number(bookmarked(b)));
+        const kept = stableFirst(ranked.length ? ranked : filled);
         // A READ that lost its anchor and can now only be found BY POSITION
         // must not publish. fwrd16-n3 is the cost of the alternative: the
         // read fell back to `tbody > tr:nth-of-type(1) > td`, resolved

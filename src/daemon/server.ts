@@ -9,6 +9,7 @@ import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, urlOutputs } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
+import { recordCandidateEvidence } from '../skills/repair.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
@@ -975,6 +976,7 @@ ${direct.prelude}` : recoveryText) + resetNote,
       stepsTotal: replay.stepsTotal,
       fallthroughs: replay.fallthroughs,
       misses: replay.misses.map((m) => ({ ...m, skill: replay!.skill })),
+      evidence: replay.candidateEvidence.map((e) => ({ ...e, skill: match!.skill.id })),
       values: { ...replay.values },
       segmentsDone: 0,
     };
@@ -1005,6 +1007,7 @@ ${direct.prelude}` : recoveryText) + resetNote,
       agg.stepsTotal += r.stepsTotal;
       agg.fallthroughs += r.fallthroughs;
       agg.misses.push(...r.misses.map((m) => ({ ...m, skill: next.id })));
+      agg.evidence.push(...r.candidateEvidence.map((e) => ({ ...e, skill: next.id })));
       Object.assign(agg.values, r.values);
     }
     // The walk records each segment when it advances PAST it, and the
@@ -1012,6 +1015,19 @@ ${direct.prelude}` : recoveryText) + resetNote,
     // FINAL segment is neither — record it here, or it could never validate.
     if (replay.ok && last.id !== match.skill.id) {
       store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
+    }
+    // Per-candidate evidence, folded on ONLY when the run got past these steps
+    // — the same rule the url generalisations follow. A miss inside a run that
+    // then failed says more about the run than about the locator. This is what
+    // decides whether a recorded id is a real handle or an ephemeral one:
+    // observation across runs, not the shape of the token.
+    if (replay.ok) {
+      const bySkill = new Map<string, typeof agg.evidence>();
+      for (const e of agg.evidence) {
+        if (!e.skill) continue;
+        bySkill.set(e.skill, [...(bySkill.get(e.skill) ?? []), e]);
+      }
+      for (const [id, list] of bySkill) recordCandidateEvidence(store, id, list);
     }
 
     const record: Partial<SkillRecord> = {

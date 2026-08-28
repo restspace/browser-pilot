@@ -5,6 +5,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { specOf } from '../src/skills/replay.js';
+import { recordCandidateEvidence, retired } from '../src/skills/repair.js';
+import { SkillStore } from '../src/skills/store.js';
 import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
@@ -289,11 +291,15 @@ describe('slot-by-policy known values', () => {
     expect((skill.steps[0].locators.target ?? []).length).toBe(1);
   });
 
-  it('drops a minted-id address even when nothing banked the id yet', () => {
+  it('DEMOTES a minted-id address it can only guess at, rather than deleting it', () => {
     // The instruction that MINTS t15 never visits a t15 url, so no ledger
-    // entry exists while it compiles — yet the testid recorded on that very
-    // step already has it welded in. Provenance cannot reach this one; the
-    // shape of the token can.
+    // entry exists while it compiles. Provenance cannot reach this one and
+    // only the token's SHAPE suggests it — which is a weak signal: grafana's
+    // ephemeral `_r8b_` matches none of our id patterns while odoo's stable
+    // `o_form_view` hooks trip several. A wrong deletion costs a working
+    // locator permanently; a wrong demotion costs one failed count(), and two
+    // replays of evidence settle it either way. So it sorts last and the
+    // running tally decides — see recordCandidateEvidence.
     const instr = 'Create a ticket and confirm it appears in the list.';
     const entries: RecordedEntry[] = [
       { k: 'instruction', text: instr, url: 'http://x.test/#/tickets', fingerprint: [1, 0, 0] },
@@ -303,7 +309,9 @@ describe('slot-by-policy known values', () => {
       ]),
     ];
     const [skill] = compileSkills({ entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's', knownValues: {} });
-    expect(JSON.stringify(skill.steps)).not.toContain('ticket-link-t15');
+    const chain = skill.steps[0].locators.target ?? [];
+    expect(chain.some((c) => c.kind === 'testid')).toBe(true); // kept...
+    expect(chain[chain.length - 1]).toMatchObject({ value: 'ticket-link-t15' }); // ...but last
   });
 
   it('leaves ordinary numbered hooks alone', () => {
@@ -969,5 +977,52 @@ describe('ElementSpec view', () => {
     expect(spec.handles.map((c) => (c as { value?: string; selector?: string }).value ?? (c as { selector?: string }).selector)).toEqual(['modal-save', '#modal-save']);
     // A structural path, and a role pinned to a match index, are both routes.
     expect(spec.path.length).toBe(2);
+  });
+});
+
+describe('evidence, not shape, decides whether an id is real', () => {
+  const chainOf = (): LocatorCandidate[] => [
+    { kind: 'id', selector: '[id="_r8b_"]' },      // grafana: React-minted, changes every load
+    { kind: 'role', role: 'button', name: 'Save' }, // stable
+  ];
+  const skillWith = (chain: LocatorCandidate[]): Skill =>
+    ({
+      id: 's_ev', origin: ORIGIN, template: 't', params: {},
+      preconditions: { urlPattern: ORIGIN },
+      steps: [{ tool: 'click', args: { target: '@e1' }, locators: { target: chain } }],
+      stats: { uses: 1, successes: 1, partial: 0, created: '', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated', provenance: { session: 's', instruction: 't', created: '' },
+    }) as unknown as Skill;
+
+  it('retires a candidate only after it misses TWICE with the element present', () => {
+    const store = new SkillStore();
+    const skill = skillWith(chainOf());
+    store.put(skill);
+    // `_r8b_` matches no id-shaped pattern we have, so no heuristic would
+    // catch it. One replay: it missed, the role candidate resolved.
+    recordCandidateEvidence(store, 's_ev', [{ step: '1', key: 'target', hit: 1, missed: [0] }]);
+    let chain = store.get('s_ev')!.steps[0].locators.target!;
+    expect(chain[0].seen).toEqual({ hit: 0, miss: 1 });
+    // One miss is not evidence — a slow paint or a modal can do that.
+    expect(retired(chain[0])).toBe(false);
+    recordCandidateEvidence(store, 's_ev', [{ step: '1', key: 'target', hit: 1, missed: [0] }]);
+    chain = store.get('s_ev')!.steps[0].locators.target!;
+    expect(retired(chain[0])).toBe(true);
+    // The one that worked is not retired, and nothing was deleted: if the app
+    // changes back it can still win a later pass.
+    expect(retired(chain[1])).toBe(false);
+    expect(chain).toHaveLength(2);
+  });
+
+  it('a candidate that ever resolves is never retired, however odd it looks', () => {
+    const store = new SkillStore();
+    store.put(skillWith(chainOf()));
+    // Odoo's `o_data_row_7` trips every id-shaped rule we have — and works.
+    recordCandidateEvidence(store, 's_ev', [{ step: '1', key: 'target', hit: 0, missed: [] }]);
+    recordCandidateEvidence(store, 's_ev', [{ step: '1', key: 'target', hit: 1, missed: [0] }]);
+    recordCandidateEvidence(store, 's_ev', [{ step: '1', key: 'target', hit: 1, missed: [0] }]);
+    const chain = store.get('s_ev')!.steps[0].locators.target!;
+    expect(chain[0].seen).toEqual({ hit: 1, miss: 2 });
+    expect(retired(chain[0])).toBe(false);
   });
 });
