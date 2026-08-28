@@ -265,6 +265,30 @@ describe('slot-by-policy known values', () => {
     expect(JSON.stringify(skill.steps)).not.toContain('ticket-link-t15');
   });
 
+  it('drops a NAME that is really a record reference', () => {
+    // fwrd22l shipped six: getByText('RD-1015') and getByRole('link', {name:
+    // 'RD-1015'}), each pinned to the ticket the RECORDING run created. The
+    // rule used to stop at anchors on the grounds that role/text locators are
+    // ordinary UI text worth keeping as fallbacks — true, until the name IS
+    // the record's reference.
+    const instr = 'Open the ticket list and archive the ticket.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instr, url: 'http://x.test/#/tickets', fingerprint: [1, 0, 0] },
+      step('click', { target: '@e1' }, [
+        { kind: 'role', role: 'link', name: 'RD-1015' },
+        { kind: 'text', text: 'RD-1015' },
+        { kind: 'css', selector: '#ticket-rows > tr:nth-of-type(1) > td' },
+      ]),
+    ];
+    const [skill] = compileSkills({
+      entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's',
+      knownValues: { 'output:i1:ref': 'RD-1015' },
+    });
+    expect(JSON.stringify(skill.steps)).not.toContain('RD-1015');
+    // The structural path survives — dropping the whole chain would be worse.
+    expect((skill.steps[0].locators.target ?? []).length).toBe(1);
+  });
+
   it('drops a minted-id address even when nothing banked the id yet', () => {
     // The instruction that MINTS t15 never visits a t15 url, so no ledger
     // entry exists while it compiles — yet the testid recorded on that very

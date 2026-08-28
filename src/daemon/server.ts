@@ -9,7 +9,7 @@ import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
-import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks } from '../skills/ledger.js';
+import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
 import { snapshot, waitForContent } from './refs.js';
@@ -116,6 +116,20 @@ export class Daemon {
       if (leaks.length) progress(`[learn] warning: ${leaks.length} run value(s) survived into ${id}:
 ${describeLeaks(leaks.slice(0, 6))}`);
     }
+  }
+
+  /**
+   * Everything of this run's that survived into what the export will publish.
+   * The SKILLS as well as the flow: a flow has no locators of its own, and a
+   * locator is where a leak does its damage silently.
+   */
+  private leaksIn(flow: import('../skills/flow.js').Flow, store: NonNullable<typeof this.browser.learn>): Leak[] {
+    const leaks = scanForLeaks(flow, this.ledger, 'flow');
+    for (const st of flow.steps) {
+      const sk = st.skill ? store.get(st.skill) : null;
+      if (sk) leaks.push(...scanForLeaks(sk, this.ledger, `${st.id}(${sk.id})`));
+    }
+    return leaks;
   }
 
   /** The run's values keyed by their ORIGIN, so a param can bind to where a value comes from. */
@@ -473,7 +487,11 @@ ${describeLeaks(leaks.slice(0, 6))}`);
           try {
             savedFlow = this.exportFlow(String(a.saveFlow));
           } catch (err) {
-            savedFlow = { error: err instanceof Error ? err.message : String(err) };
+            const message = err instanceof Error ? err.message : String(err);
+            // Swallowing this into a result field is how a refused export went
+            // unnoticed through a whole sweep: nothing prints it.
+            console.error(`[flow] export failed: ${message}`);
+            savedFlow = { error: message };
           }
         }
         const videos = await this.browser.close();
@@ -520,6 +538,17 @@ ${describeLeaks(leaks.slice(0, 6))}`);
       },
     });
     if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
+    // Before anything is written. The first cut of this ran after saveFlow,
+    // so a "refused" export still left a usable flow on disk and the next run
+    // replayed it regardless — a gate that refuses to REPORT is not a gate.
+    const fatalLeaks = this.leaksIn(flow, store).filter(fatal);
+    if (fatalLeaks.length) {
+      throw new Error(
+        `refusing to export: ${fatalLeaks.length} value(s) this run made survived into a locator or precondition, ` +
+          `where they would silently move a step onto another record:
+${describeLeaks(fatalLeaks.slice(0, 10))}`,
+      );
+    }
     const file = saveFlow(flow);
     // Reference lint (case 4a): warn now, while re-recording is still cheap,
     // about any {{step.output}} only model recovery could re-observe. A step's
@@ -534,23 +563,7 @@ ${describeLeaks(leaks.slice(0, 6))}`);
     // Phase 2 of PLAN-provenance: report anything of this run's that survived
     // into the flow. WARN for now — the ledger's coverage is what is being
     // measured, and a false alarm must not block an export.
-    //
-    // Export is the commit point, so it scans the SKILLS the flow will replay
-    // as well as the flow itself — a flow has no locators of its own, and a
-    // locator is where a leak does its damage silently.
-    const leaks = scanForLeaks(flow, this.ledger, 'flow');
-    for (const st of flow.steps) {
-      const sk = st.skill ? store.get(st.skill) : null;
-      if (sk) leaks.push(...scanForLeaks(sk, this.ledger, `${st.id}(${sk.id})`));
-    }
-    const fatalLeaks = leaks.filter(fatal);
-    if (fatalLeaks.length) {
-      throw new Error(
-        `refusing to export: ${fatalLeaks.length} value(s) this run made survived into a locator or precondition, ` +
-          `where they would silently move a step onto another record:
-${describeLeaks(fatalLeaks.slice(0, 10))}`,
-      );
-    }
+    const leaks = this.leaksIn(flow, store);
     if (leaks.length) {
       warnings.unshift(`warning: ${leaks.length} run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
 ${describeLeaks(leaks.slice(0, 10))}`);

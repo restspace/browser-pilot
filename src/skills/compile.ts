@@ -526,6 +526,18 @@ function positional(c: LocatorCandidate): boolean {
 function stranded(c: LocatorCandidate, runValues: string[]): boolean {
   const fields: string[] = [];
   if (c.kind === 'scoped') fields.push(c.hasText);
+  // A NAME that is really a record reference. The rule used to stop at
+  // anchors, reasoning that "a role/text locator that survives un-slotted is
+  // ordinary UI text, and dropping it would cost a working fallback". True of
+  // ordinary UI text — false of a link whose accessible name IS the ticket
+  // ref. fwrd22l shipped six of these, `getByText('RD-1015')` and
+  // `getByRole('link', { name: 'RD-1015' })`, every one of them pinned to the
+  // record the RECORDING run created. A value that changes every run is not a
+  // working fallback, it is a fallback that has already stopped working.
+  else if (c.kind === 'role') fields.push(c.name);
+  else if (c.kind === 'text') fields.push(c.text);
+  else if (c.kind === 'label') fields.push(c.label);
+  else if (c.kind === 'placeholder') fields.push(c.placeholder);
   // An ADDRESS welded out of a value this run minted. `ticket-link-t15` is
   // the record's own id inside a test hook, and it survived every fix so far
   // because this check only ever looked at anchors: fwrd20l and fwrd21l both
