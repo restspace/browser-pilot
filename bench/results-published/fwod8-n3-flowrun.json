@@ -1,0 +1,142 @@
+{
+  "flow": "fwod8",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with admin/admin, navigated to Sales > Customers, created a new contact named 'fwod8-n3 Bench Customer' with City 'Benchville'. The record was saved successfully and the form displays the customer name as \"fwod8-n3 Bench Customer\" and city as \"Benchville\". A \"Contact created\" confirmation notification was also shown.",
+      "values": {
+        "customer_name": "fwod8-n3 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_2a0a2d; observed product_name=[FURN_6666] Acoustic Bloc Screens, unit_price=295.00, customer=fwod8-n3 Bench Customer, quotation_ref=S00023.",
+      "values": {
+        "product_name": "[FURN_6666] Acoustic Bloc Screens",
+        "unit_price": "295.00",
+        "customer": "fwod8-n3 Bench Customer",
+        "quotation_ref": "S00023"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line to quotation S00023: product \"Conference Chair\" ([E-COM12] Conference Chair (Steel)), unit price 33.00, quantity 2, giving tax excl. £66.00. The first line (Acoustic Bloc Screens, 3 x 295.00 = £885.00) was unchanged. The combined untaxed amount in the totals section is now £951.00. Saved and verified on the form.",
+      "values": {
+        "quotation_ref": "S00023",
+        "second_line_unit_price": "33.00",
+        "second_line_product": "Conference Chair",
+        "new_untaxed_amount": "£ 951.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00023 and changed the first order line (Acoustic Bloc Screens) quantity from 3 to 5. The first line now shows quantity 5.00 with unit price 295.00, giving £1,475.00 tax excl. The second line (Conference Chair, qty 2, £66.00) was unchanged. The new untaxed amount in the totals section is £1,541.00. Saved and all values verified on the form.",
+      "values": {
+        "first_line_quantity": "5.00",
+        "new_untaxed_amount": "£ 1,541.00"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_0a0f2a; observed order_reference=S00023.",
+      "values": {
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_f78fd2; observed order_reference=S00023.",
+      "values": {
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c81dda; observed order_reference=S00023, customer_name=fwod8-n3 Bench Customer, customer_city=Benchville.",
+      "values": {
+        "order_reference": "S00023",
+        "customer_name": "fwod8-n3 Bench Customer",
+        "customer_city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_37331b"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod8",
+      "step": "01-open",
+      "skill": "s_d9df14",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('div > div:nth-of-type(1) > div:nth-of-type(2) > div > div:nth-of-type(1) > span')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    },
+    {
+      "flow": "fwod8",
+      "step": "02-create",
+      "skill": "s_d7103d",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.getByRole('option', { name: 'fwod8-n3 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 129082,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
