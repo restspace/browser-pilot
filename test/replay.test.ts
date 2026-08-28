@@ -751,6 +751,22 @@ d('identity-scoped locators (fixture page)', () => {
     expect(await unguarded!.locator.first().innerText()).toContain('Part One');
   }, 30_000);
 
+  it('takes identity from anywhere in the chain, not just its head', async () => {
+    const { identityOfPrimary } = await import('../src/skills/replay.js');
+    const skill = { params: { v5: { example: 'x7 RD Bench Ticket', usedIn: [], known: true as const } } } as unknown as Skill;
+    // fwrd26l: the agent's raw target was an XPath, stored as `css` because
+    // the recorder does not parse selector strings. Reading only chain[0] saw
+    // no identity, disarmed the guard, and let `tr:nth-of-type(1)` take the
+    // step — while the anchor right behind it named the record perfectly.
+    const chain: LocatorCandidate[] = [
+      { kind: 'css', selector: "//tr[contains(., '{{v5}}')]" },
+      { kind: 'scoped', container: '#ticket-rows tr', hasText: '{{v5}}' },
+      { kind: 'css', selector: '#ticket-rows > tr:nth-of-type(1)' },
+    ];
+    expect(identityOfPrimary([chain[0]], skill, { v5: 'n2 RD Bench Ticket' })).toEqual([]);
+    expect(identityOfPrimary(chain, skill, { v5: 'n2 RD Bench Ticket' })).toEqual(['n2 RD Bench Ticket']);
+  }, 30_000);
+
   it('pins a value that lives in a form control, not just in a text node', async () => {
     const { captureReadBack } = await import('../src/daemon/recorder.js');
     const page = await session.getPage();

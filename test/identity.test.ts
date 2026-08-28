@@ -223,17 +223,17 @@ describe('identity-guarded fallthrough (replay)', () => {
 
   it('reads the identity out of a text-bearing primary locator', () => {
     const primary = { kind: 'role', role: 'link', name: '{{v1}}' } as never;
-    expect(identityOfPrimary(primary, skill(true), { v1: 'r9-n2 RD Bench Ticket' })).toEqual(['r9-n2 RD Bench Ticket']);
+    expect(identityOfPrimary([primary], skill(true), { v1: 'r9-n2 RD Bench Ticket' })).toEqual(['r9-n2 RD Bench Ticket']);
   });
 
   it('ignores a slot the compiler guessed — only caller-vouched values are identity', () => {
     const primary = { kind: 'role', role: 'link', name: '{{v1}}' } as never;
-    expect(identityOfPrimary(primary, skill(false), { v1: 'r9-n2 RD Bench Ticket' })).toEqual([]);
+    expect(identityOfPrimary([primary], skill(false), { v1: 'r9-n2 RD Bench Ticket' })).toEqual([]);
   });
 
   it('ignores slots inside a selector: an address is not a name', () => {
     const primary = { kind: 'css', selector: '#row-{{v1}} > a' } as never;
-    expect(identityOfPrimary(primary, skill(true), { v1: 'r9-n2 RD Bench Ticket' })).toEqual([]);
+    expect(identityOfPrimary([primary], skill(true), { v1: 'r9-n2 RD Bench Ticket' })).toEqual([]);
   });
 });
 

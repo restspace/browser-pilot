@@ -235,7 +235,7 @@ export async function replaySkill(
     for (const key of ['target', 'source']) {
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
-      const identity = identityOfPrimary(step.locators[key]?.[0], skill, params);
+      const identity = identityOfPrimary(step.locators[key] ?? [], skill, params);
       const hit = await resolveChain(page, chain, {
         rawTarget: typeof args[key] === 'string' ? String(args[key]) : '',
         allowMultiple: step.tool === 'read_all',
@@ -249,7 +249,16 @@ export async function replaySkill(
         break;
       }
       resolved[key] = hit.locator;
-      if (hit.missed.length) res.candidateEvidence.push({ step: tag, key, hit: hit.index, missed: hit.missed });
+      // Evidence ONLY from a pass whose winner names something. When a
+      // structural path won, that is precisely the resolution we distrust —
+      // it may have acted on whatever sorted into that position — and banking
+      // it would retire the anchors that missed and confirm the path that hit,
+      // turning one bad resolution into a permanent one. fwrd26l did exactly
+      // that: its 8/8 zero-model replay had retired two identity anchors in
+      // favour of `tr:nth-of-type(1)`.
+      if (hit.missed.length && !structural(hit.candidate)) {
+        res.candidateEvidence.push({ step: tag, key, hit: hit.index, missed: hit.missed });
+      }
       sink?.push(`${key}=${candidateExpr(hit.candidate)}`);
       if (hit.index > 0) {
         res.fallthroughs++;
@@ -735,10 +744,23 @@ export async function resolveChain(
  * testid is an address, not a name, and holding a fallback to it would break
  * ordinary form fills whose fallbacks are structural by design.
  */
-export function identityOfPrimary(primary: LocatorCandidate | undefined, skill: Skill, params: Record<string, string>): string[] {
-  if (!primary) return [];
-  const c = primary as { name?: string; text?: string; label?: string; hasText?: string };
-  const named = [c.name, c.text, c.label, c.hasText].filter((v): v is string => typeof v === 'string');
+export function identityOfPrimary(chain: LocatorCandidate[], skill: Skill, params: Record<string, string>): string[] {
+  // The WHOLE chain, not chain[0]. Identity is a property of the STEP — which
+  // record it acts on — not of whichever candidate happens to sit first.
+  //
+  // fwrd26l is why. The agent's raw target was an XPath,
+  // `//tr[contains(., '{{v5}}')]`, stored as `css` because the recorder does
+  // not parse selector strings. So the primary advertised no identity, the
+  // guard was disarmed, and `#ticket-rows > tr:nth-of-type(1)` took the step —
+  // while the scoped anchor sitting right behind it named the record perfectly
+  // well. Same shape as the `text="..."` case, different syntax; reading the
+  // chain instead of its head fixes both without parsing anything.
+  const named = chain
+    .flatMap((c) => {
+      const f = c as { name?: string; text?: string; label?: string; hasText?: string };
+      return [f.name, f.text, f.label, f.hasText];
+    })
+    .filter((v): v is string => typeof v === 'string');
   if (!named.length) return [];
   const out = new Set<string>();
   for (const field of named) {
