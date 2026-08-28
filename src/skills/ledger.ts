@@ -68,7 +68,14 @@ export function identifierLike(value: string): boolean {
   // then refused a clean 37-minute run because a text locator legitimately
   // matched the app's own error message.
   if (/\s/.test(value)) return false;
-  return /\d/.test(value) || /[-_]/.test(value) || value.length >= 12;
+  // A hyphenated pair of words is a SLUG, not a minted id: grafana's
+  // "bench-service-health", atelyr's "project-manager". Those are route
+  // segments every run shares, and banking them made the export gate refuse a
+  // whole recording. A separator only makes a reference when a digit comes
+  // with it ("RD-1015", "fwrd24l-n1"); a digitless opaque token still
+  // qualifies on length alone, which is what grafana's "cfwcsdxqdjabkf" needs.
+  if (/[-_]/.test(value)) return /\d/.test(value);
+  return /\d/.test(value) || value.length >= 12;
 }
 
 /** Three, not four: repair-desk's record ids are "t15". */
@@ -277,5 +284,13 @@ export function fatal(leak: Leak): boolean {
   // doing its job. Refusing an export over one of those trains people to
   // force past the gate, which costs more than the leak it caught.
   if (leak.kind !== 'identifier') return false;
-  return /(^|\.)locators(\.|\[)/.test(leak.where) || /(^|\.)preconditions(\.|\[)/.test(leak.where);
+  // ...and only in a LOCATOR, which is the silent case: the step resolves,
+  // the run continues, and nothing says the procedure moved record.
+  //
+  // A precondition is loud. A stale urlPattern or requireText makes the skill
+  // REFUSE — softUrlMatch may generalise it, requireText gates identity, and
+  // either way the step falls to recovery and says so. Grafana's dashboards
+  // put a minted uid in almost every precondition, so treating those as fatal
+  // refused whole recordings for a defect that announces itself.
+  return /(^|\.)locators(\.|\[)/.test(leak.where);
 }

@@ -18,6 +18,20 @@ describe('identifierLike (the one copy)', () => {
     expect(identifierLike('fwrd17-n2')).toBe(true);
   });
 
+  it('rejects a slug: a hyphenated pair of words is a route, not an id', () => {
+    // Every one of these was banked from a url and made the export gate refuse
+    // a whole recording: grafana's dashboard slug, atelyr's route segment.
+    expect(identifierLike('bench-service-health')).toBe(false);
+    expect(identifierLike('service-health')).toBe(false);
+    expect(identifierLike('project-manager')).toBe(false);
+    // A separator makes a reference when a digit comes with it...
+    expect(identifierLike('RD-1015')).toBe(true);
+    expect(identifierLike('fwrd24l-n1')).toBe(true);
+    // ...and a digitless opaque token still qualifies on length, which is what
+    // grafana's uids need ("cfwcsdxqdjabkf" sank fwgr2).
+    expect(identifierLike('cfwcsdxqdjabkf')).toBe(true);
+  });
+
   it('rejects prose, so an observed error message is not a reference', () => {
     // fwrd23l refused a clean 37-minute export because the app's validation
     // heading was reported as a value, cleared the `length >= 12` clause meant
@@ -179,9 +193,14 @@ describe('fatal leaks', () => {
   const at = (where: string, kind: 'identifier' | 'name' | 'text') => ({
     where, kind, value: 'x', binding: { from: 'input' } as const, context: 'x',
   });
-  it('is an identifier in a locator or precondition, and nothing else', () => {
+  it('is an identifier in a LOCATOR, and nothing else', () => {
     expect(fatal(at('s.steps[0].locators.target[1].text', 'identifier'))).toBe(true);
-    expect(fatal(at('s.preconditions.urlPattern', 'identifier'))).toBe(true);
+    // A precondition is loud: a stale urlPattern or requireText makes the
+    // skill refuse and the step says so. Grafana puts a minted uid in almost
+    // every precondition, so treating those as fatal refused whole recordings
+    // for a defect that announces itself.
+    expect(fatal(at('s.preconditions.urlPattern', 'identifier'))).toBe(false);
+    expect(fatal(at('s.preconditions.requireText[0]', 'identifier'))).toBe(false);
     // Text the run OBSERVED rather than made: a locator matching the app's own
     // copy is doing its job, and refusing an export over it trains people to
     // force past the gate.
