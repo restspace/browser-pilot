@@ -9,6 +9,10 @@ import type { Page } from 'playwright-core';
 import { replaySkill } from '../src/skills/replay.js';
 import type { Skill } from '../src/skills/store.js';
 
+// These exercise what happens AFTER the locator chain misses; the resolver's
+// wait-for-the-element window would otherwise be paid on every case.
+process.env.BROWSER_PILOT_RESOLVE_WAIT_MS = '0';
+
 /** The minimal Page surface replaySkill touches on this path. settleDom's
  * evaluate passes a second argument; linkToDestination's does not — that is
  * how the fake tells them apart. */

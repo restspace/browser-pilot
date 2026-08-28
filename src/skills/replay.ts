@@ -233,6 +233,7 @@ export async function replaySkill(
         step.tool === 'read_all',
         ambiguousNth,
         identity,
+        resolveWaitMs(),
       );
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
@@ -559,25 +560,25 @@ export async function resolveChain(
    * cheap; acting on the wrong record is not.
    */
   requireIdentity: string[] = [],
+  /**
+   * How long to keep re-trying the WHOLE chain when nothing resolves.
+   *
+   * The agent never needed this: a model turn is seconds and it re-snapshots
+   * each time, so anything the app was about to paint (repair-desk defers its
+   * list refetch ~1s BY DESIGN — "close optimistically, then revalidate") had
+   * always landed before it looked. A replay has no turns, and settleDom only
+   * proves the DOM went quiet, which it does in the gap BEFORE the refetch
+   * paints. The wait costs nothing on a healthy page — it runs only after a
+   * full pass found nothing, i.e. on a path already headed for a positional
+   * fallthrough or model recovery, both far more expensive than 3s.
+   *
+   * Zero for a caller ASKING whether something is still there rather than
+   * looking for it: the loop guard reads a null return as "the list is empty,
+   * stop", so waiting there would stall every loop's normal exit.
+   */
+  waitMs = 0,
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> {
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
-  // A record the run just created may not be on the page YET. The agent never
-  // hit this: a model turn is seconds and it re-snapshots each time, so the
-  // deferred repaint every SPA does after a create (repair-desk defers ~1s by
-  // design) had always landed before it looked. Replay has no turns, and
-  // settleDom only proves the DOM went quiet — which it does, in the gap
-  // BEFORE the refetch paints. So when the primary names a record, give it
-  // that window rather than reading "not yet" as "not there": the fallbacks
-  // beside it are positional, the identity guard rightly refuses them, and
-  // the read is dropped (fwrd11l 01-open lost `ref` on both replays). Costs
-  // nothing when the row is already there.
-  if (candidates.length && requireIdentity.length) {
-    const primary = makeLocator(page, candidates[0]);
-    for (let waited = 0; waited < IDENTITY_WAIT_MS; waited += IDENTITY_POLL_MS) {
-      if (await primary.count().catch(() => 0)) break;
-      await page.waitForTimeout(IDENTITY_POLL_MS);
-    }
-  }
   /** Does this fallback still identify the record the primary named? */
   const keepsIdentity = async (index: number, candidate: LocatorCandidate, locator: Locator): Promise<boolean> => {
     if (index === 0 || !requireIdentity.length) return true;
@@ -592,26 +593,46 @@ export async function resolveChain(
     }
     return wanted.every((v) => text.toLowerCase().includes(v.toLowerCase()));
   };
-  for (const [index, candidate] of candidates.entries()) {
-    try {
-      const locator = makeLocator(page, candidate);
-      const count = await locator.count();
-      if (count === 1) {
-        if (!(await keepsIdentity(index, candidate, locator))) continue;
-        return { locator, index, candidate };
-      }
-      if (count > 1) {
-        if (allowMultiple) return { locator, index, candidate };
-        if (ambiguousNth !== undefined && candidate.nth === undefined && ambiguousNth < count) {
-          const picked = locator.nth(ambiguousNth);
-          if (!(await keepsIdentity(index, candidate, picked))) continue;
-          return { locator: picked, index, candidate: { ...candidate, nth: ambiguousNth } };
+  /** One pass over the chain, best candidate first. */
+  const walk = async (): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate } | null> => {
+    for (const [index, candidate] of candidates.entries()) {
+      try {
+        const locator = makeLocator(page, candidate);
+        const count = await locator.count();
+        if (count === 1) {
+          if (!(await keepsIdentity(index, candidate, locator))) continue;
+          return { locator, index, candidate };
         }
-        if (candidate.nth === undefined && index === 0) continue; // was unique; ambiguity is drift, keep looking
+        if (count > 1) {
+          if (allowMultiple) return { locator, index, candidate };
+          if (ambiguousNth !== undefined && candidate.nth === undefined && ambiguousNth < count) {
+            const picked = locator.nth(ambiguousNth);
+            if (!(await keepsIdentity(index, candidate, picked))) continue;
+            return { locator: picked, index, candidate: { ...candidate, nth: ambiguousNth } };
+          }
+          if (candidate.nth === undefined && index === 0) continue; // was unique; ambiguity is drift, keep looking
+        }
+      } catch {
+        // malformed selector or detached page — try the next candidate
       }
-    } catch {
-      // malformed selector or detached page — try the next candidate
     }
+    return null;
+  };
+
+  // Fast path first: on a page that is ready this returns immediately and the
+  // wait below never runs. Re-walking the WHOLE chain each poll (rather than
+  // waiting on the primary alone) keeps the preference order intact — the
+  // best candidate still wins the moment it appears — and the identity guard
+  // stops a positional fallback taking the turn while the anchor is pending.
+  const first = await walk();
+  if (first) return first;
+  for (let waited = 0; waited < waitMs; waited += RESOLVE_POLL_MS) {
+    // A plain timer, not page.waitForTimeout: this path runs precisely when
+    // the page is unhappy, and a navigating or detached page makes its own
+    // clock throw.
+    await new Promise((r) => setTimeout(r, RESOLVE_POLL_MS));
+    const hit = await walk();
+    if (hit) return hit;
   }
   return null;
 }
@@ -672,9 +693,16 @@ async function linkToDestination(
 const LOOP_SHRINK_WAIT_MS = 1_000;
 const LOOP_SHRINK_POLL_MS = 100;
 
-/** How long a record-naming primary may still be pending before it counts as absent. */
-const IDENTITY_WAIT_MS = 3_000;
-const IDENTITY_POLL_MS = 100;
+/**
+ * How long a step keeps re-trying its locator chain before calling the target
+ * absent. Overridable so a test exercising a FALLBACK path need not sit
+ * through the wait that precedes it.
+ */
+function resolveWaitMs(): number {
+  const raw = Number(process.env.BROWSER_PILOT_RESOLVE_WAIT_MS);
+  return Number.isFinite(raw) && raw >= 0 ? raw : 3_000;
+}
+const RESOLVE_POLL_MS = 100;
 
 const SETTLE_QUIET_MS = 250;
 const SETTLE_MAX_MS = 2_000;
