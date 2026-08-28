@@ -61,6 +61,13 @@ export interface LedgerEntry {
  */
 export function identifierLike(value: string): boolean {
   if (value.length < MIN_ID_LEN) return false;
+  // No minted id contains whitespace. Without this the `length >= 12` clause
+  // — which exists for digitless uids like "afwfbbc2of6rkf" — swallows
+  // ordinary prose: fwrd23l reported the app's validation heading "Ticket is
+  // not ready" as a value, it was banked as an identifier, and the export gate
+  // then refused a clean 37-minute run because a text locator legitimately
+  // matched the app's own error message.
+  if (/\s/.test(value)) return false;
   return /\d/.test(value) || /[-_]/.test(value) || value.length >= 12;
 }
 
@@ -204,6 +211,8 @@ export interface Leak {
   where: string;
   value: string;
   binding: Binding;
+  /** The entry's kind. Only an `identifier` leak is fatal — see `fatal`. */
+  kind: LedgerEntry['kind'];
   /** The surrounding text, trimmed, so a reader can see it in context. */
   context: string;
 }
@@ -225,7 +234,7 @@ export function scanForLeaks(artifact: unknown, ledger: RunLedger, where = ''): 
     if (exempt(path)) return;
     if (typeof node === 'string') {
       for (const entry of ledger.runValuesIn(node)) {
-        out.push({ where: path, value: entry.value, binding: entry.binding, context: node.slice(0, 160) });
+        out.push({ where: path, value: entry.value, binding: entry.binding, kind: entry.kind, context: node.slice(0, 160) });
       }
       return;
     }
@@ -263,5 +272,10 @@ export function describeLeaks(leaks: Leak[]): string {
  * already contained would only teach people to pass a --force flag.
  */
 export function fatal(leak: Leak): boolean {
+  // Only an IDENTIFIER. A run also reports text it merely observed — an error
+  // heading, a status word — and a locator matching the app's own copy is
+  // doing its job. Refusing an export over one of those trains people to
+  // force past the gate, which costs more than the leak it caught.
+  if (leak.kind !== 'identifier') return false;
   return /(^|\.)locators(\.|\[)/.test(leak.where) || /(^|\.)preconditions(\.|\[)/.test(leak.where);
 }

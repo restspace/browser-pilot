@@ -7,7 +7,7 @@
  * the finding.
  */
 import { describe, expect, it } from 'vitest';
-import { RunLedger, identifierLike, occursAsToken, scanForLeaks } from '../src/skills/ledger.js';
+import { RunLedger, fatal, identifierLike, occursAsToken, scanForLeaks } from '../src/skills/ledger.js';
 import { primaryFor } from '../src/daemon/recorder.js';
 
 describe('identifierLike (the one copy)', () => {
@@ -16,6 +16,17 @@ describe('identifierLike (the one copy)', () => {
     expect(identifierLike('RD-1015')).toBe(true);
     expect(identifierLike('afwfbbc2of6rkf')).toBe(true); // grafana uid: no digit, but long
     expect(identifierLike('fwrd17-n2')).toBe(true);
+  });
+
+  it('rejects prose, so an observed error message is not a reference', () => {
+    // fwrd23l refused a clean 37-minute export because the app's validation
+    // heading was reported as a value, cleared the `length >= 12` clause meant
+    // for digitless uids, and was banked as an identifier.
+    expect(identifierLike('Ticket is not ready')).toBe(false);
+    expect(identifierLike('No parts on this ticket yet.')).toBe(false);
+    expect(identifierLike('Bench Customer')).toBe(false);
+    // ...while the digitless uid that clause exists for still passes.
+    expect(identifierLike('afwfbbc2of6rkf')).toBe(true);
   });
 
   it('rejects route words, which is what stops a url turning into prose', () => {
@@ -161,5 +172,22 @@ describe('a raw text target is recorded as text, not css', () => {
     expect(primaryFor('text=/^Ready$/')).toEqual({ kind: 'css', selector: 'text=/^Ready$/' });
     expect(primaryFor('#ticket-rows tr')).toEqual({ kind: 'css', selector: '#ticket-rows tr' });
     expect(primaryFor('button:has-text("Save")')).toEqual({ kind: 'css', selector: 'button:has-text("Save")' });
+  });
+});
+
+describe('fatal leaks', () => {
+  const at = (where: string, kind: 'identifier' | 'name' | 'text') => ({
+    where, kind, value: 'x', binding: { from: 'input' } as const, context: 'x',
+  });
+  it('is an identifier in a locator or precondition, and nothing else', () => {
+    expect(fatal(at('s.steps[0].locators.target[1].text', 'identifier'))).toBe(true);
+    expect(fatal(at('s.preconditions.urlPattern', 'identifier'))).toBe(true);
+    // Text the run OBSERVED rather than made: a locator matching the app's own
+    // copy is doing its job, and refusing an export over it trains people to
+    // force past the gate.
+    expect(fatal(at('s.steps[0].locators.target[1].text', 'text'))).toBe(false);
+    // Announces itself at replay, so it warns rather than blocks.
+    expect(fatal(at('s.reportTemplate.summary', 'identifier'))).toBe(false);
+    expect(fatal(at('s.steps[0].expect.urlPattern', 'identifier'))).toBe(false);
   });
 });

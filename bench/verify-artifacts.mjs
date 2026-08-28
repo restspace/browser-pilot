@@ -32,11 +32,12 @@ const exists = (p) => fs.existsSync(p);
 
 const flowPath = path.join(dir, 'flows', `${tag}.json`);
 const skillsDir = path.join(dir, `${tag}-skills`);
-if (!exists(flowPath)) {
-  console.error(`no flow at ${flowPath} — did run 1 export?`);
-  process.exit(2);
-}
-const flow = read(flowPath);
+// A REFUSED export leaves no flow, and that is exactly when the store most
+// needs reading: the refusal message goes to the daemon's stderr, which the
+// sweep harness does not capture. Check what can be checked and say so.
+const hasFlow = exists(flowPath);
+const flow = hasFlow ? read(flowPath) : { steps: [] };
+if (!hasFlow) console.log(`note  no flow at ${flowPath} — run 1 never exported one (refused, or incomplete)`);
 const store = exists(skillsDir)
   ? fs.readdirSync(skillsDir).filter((f) => f.endsWith('.json')).flatMap((f) => read(path.join(skillsDir, f)))
   : [];
@@ -49,11 +50,35 @@ const store = exists(skillsDir)
  * instructions mention. It can only under-report, never invent — a value it
  * misses is a leak this check cannot see, not a false alarm.
  */
+/** Report entries from the recording session, for when no flow was exported. */
+function sessionReports() {
+  const home = process.env.BROWSER_PILOT_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.browser-pilot');
+  const file = path.join(home, 'sessions', `${tag}-n1`, 'script.jsonl');
+  if (!exists(file)) return [];
+  const out = [];
+  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      const e = JSON.parse(line);
+      if (e.k === 'report' && e.values) out.push({ id: `i${out.length + 1}`, values: e.values });
+    } catch {
+      /* a truncated last line is normal */
+    }
+  }
+  return out;
+}
+
 function recordingLedger() {
   const l = new RunLedger();
   l.add(`${tag}-n1`, { from: 'var', name: 'runid' });
-  for (const st of flow.steps ?? []) {
-    for (const [name, value] of Object.entries(st.recorded ?? {})) {
+  // Prefer the flow's `recorded` values; without a flow (a refused export) fall
+  // back to the session recording, which holds the same report entries. A
+  // ledger seeded from the runid alone finds nothing and reads as a pass.
+  const groups = flow.steps?.length
+    ? flow.steps.map((st) => ({ id: st.id, values: st.recorded ?? {} }))
+    : sessionReports();
+  for (const st of groups) {
+    for (const [name, value] of Object.entries(st.values ?? {})) {
       // Only REFERENCES, not every reported word. The recording run reported
       // status 'Ready', which is also half of the app's own `status-to-Ready`
       // test hook and its `Mark Ready` button — flagging those would be the
@@ -130,7 +155,9 @@ for (const step of flow.steps) {
     }
   }
 }
-if (fragile.size) {
+if (!hasFlow) {
+  console.log('skip  cross-step references (no flow was exported)');
+} else if (fragile.size) {
   fail(`${fragile.size} reference(s) depend on a value a zero-model replay will not republish`);
   for (const f of [...fragile].slice(0, 10)) console.log(`      ${f}`);
 } else {
