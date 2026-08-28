@@ -173,7 +173,10 @@ export function compileSkills(input: CompileInput): Skill[] {
         // replay stops holding its fallbacks to the record and follows a
         // positional one onto whatever sorted into that row (fwrd12l 04-add,
         // 06-set). An anchor that cannot parameterise is not an anchor.
-        const kept = stableFirst(filled.filter((c) => !stranded(c, runValues)));
+        // Never strand the whole chain: a step with no way at all to find its
+        // element is worse than one carrying a candidate that will miss.
+        const usable = filled.filter((c) => !stranded(c, runValues) && !bookmarked(c));
+        const kept = stableFirst(usable.length ? usable : filled);
         // A READ that lost its anchor and can now only be found BY POSITION
         // must not publish. fwrd16-n3 is the cost of the alternative: the
         // read fell back to `tbody > tr:nth-of-type(1) > td`, resolved
@@ -521,7 +524,44 @@ function positional(c: LocatorCandidate): boolean {
 }
 
 function stranded(c: LocatorCandidate, runValues: string[]): boolean {
-  return c.kind === 'scoped' && runValues.some((v) => c.hasText.includes(v));
+  const fields: string[] = [];
+  if (c.kind === 'scoped') fields.push(c.hasText);
+  // An ADDRESS welded out of a value this run minted. `ticket-link-t15` is
+  // the record's own id inside a test hook, and it survived every fix so far
+  // because this check only ever looked at anchors: fwrd20l and fwrd21l both
+  // shipped it. stableFirst demotes it to the tail, so it is not usually
+  // reached — but if the anchor and the structural path both miss, it
+  // resolves against whatever wears that id NEXT run, which on an app that
+  // reuses ids is a different record.
+  else if (c.kind === 'testid') fields.push(c.value);
+  else if (c.kind === 'id' || c.kind === 'css') fields.push(c.selector);
+  return fields.some((f) => runValues.some((v) => f.includes(v)));
+}
+
+/**
+ * An ADDRESS that is really a bookmark: a test hook or an id whose text
+ * carries a minted identifier, like `ticket-link-t15`. Next run the record is
+ * t16 and it matches nothing — or worse, on an app that reuses ids, it
+ * matches a DIFFERENT record.
+ *
+ * Distinct from `stranded`, which needs the value to be one the run
+ * demonstrably made. That is not enough here: the id an instruction MINTS is
+ * unknown while that instruction is compiling — repair-desk's create step
+ * never visits a t15 url, so nothing banks it — yet the testid recorded on
+ * that very step already has it welded in. fwrd19l shipped three, fwrd20l and
+ * fwrd21l two each, all of them below `stranded`'s reach.
+ *
+ * Structural, so it needs no provenance: an id-like token that is not a slot
+ * marker. Bare one- and two-digit numbers are excluded by `isIdLike`'s
+ * callers here, so ordinary hooks (`del-1`, `row-2`) are untouched.
+ */
+function bookmarked(c: LocatorCandidate): boolean {
+  if (c.kind !== 'testid' && c.kind !== 'id') return false;
+  const text = c.kind === 'testid' ? c.value : c.selector;
+  return text
+    .split(/[^A-Za-z0-9{}]+/)
+    .filter(Boolean)
+    .some((tok) => !tok.includes('{{') && isIdLike(tok) && !/^\d{1,2}$/.test(tok));
 }
 
 function locatorValues(chain: LocatorCandidate[]): string[] {

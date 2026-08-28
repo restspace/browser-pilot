@@ -162,6 +162,40 @@ describe('synthesizeReport honesty', () => {
     const r = synthesizeReport(skill, { v1: 'q9 RD Part B' }, { price: '375.00', ticket: 'RD-1099' });
     expect(r.evidence!.values).toMatchObject({ part: 'q9 RD Part B', price: '375.00', ticket: 'RD-1099' });
   });
+
+  it('compares loosely, so punctuation cannot smuggle a stale literal through', () => {
+    // fwrd19l stored the app's validation message twice: the summary kept its
+    // "-" bullets, the values copy had them collapsed. An exact substring test
+    // missed by that one character and published the recording run's part
+    // names as this run's observation.
+    const bulleted = compileSkill({
+      entries: [
+        { k: 'instruction', text: "mark ticket ready", url: `${ORIGIN}/#/tickets/t15` },
+        { k: 'step', tool: 'click', args: { target: '@e1' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'Mark Ready' }] } } },
+      ],
+      instruction: 'mark ticket ready',
+      report: {
+        status: 'success',
+        summary: `Validation message: 'Ticket is not ready - Part "x7 RD Part A" has no supplier'. Then marked ready.`,
+        evidence: { values: { message: 'Ticket is not ready Part "x7 RD Part A" has no supplier' } },
+      },
+      session: 's',
+    })!;
+    const r = synthesizeReport(bulleted, {}, {});
+    expect(r.summary).not.toContain('x7 RD Part A');
+    expect(r.summary).toMatch(/Replayed stored procedure/);
+  });
+
+  it('drops a summary still naming the RECORDING run, even when nothing else is stale', () => {
+    // The param filled cleanly, so the old rule saw no stale value at all —
+    // but the prose still carries the recorded example beside it.
+    const r = synthesizeReport(
+      { ...skill, reportTemplate: { summary: "Edited '{{v1}}', the sibling of 'x7 RD Part A'.", values: {} } },
+      { v1: 'q9 RD Part B' },
+      {},
+    );
+    expect(r.summary).not.toContain('x7 RD Part A');
+  });
 });
 
 describe('flow url outputs (mechanism 1 at the flow level)', () => {

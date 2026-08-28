@@ -242,6 +242,73 @@ describe('slot-by-policy known values', () => {
     expect(bindSkill(skill, instr.replaceAll('x7', 'k9'))).toBeTruthy();
   });
 
+  it('drops an address welded out of a run value, not just an anchor', () => {
+    // fwrd20l and fwrd21l both shipped `data-testid="ticket-link-t15"`: the
+    // record's own id inside a test hook. The check only ever looked at
+    // scoped anchors, so an address carrying the same value walked straight
+    // through. stableFirst demotes it to the tail, so it is reached only when
+    // everything better has missed — and then it resolves against whatever
+    // wears that id NEXT run.
+    const instr = 'Open the ticket list and read the first ticket reference.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instr, url: 'http://x.test/#/tickets', fingerprint: [1, 0, 0] },
+      step('read', { target: '@e1', what: 'text' }, [
+        { kind: 'scoped', container: 'tr', hasText: 'x7 RD Bench Ticket', selector: 'td > a' },
+        { kind: 'testid', attr: 'data-testid', value: 'ticket-link-t15' },
+      ]),
+    ];
+    const [skill] = compileSkills({
+      entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's',
+      knownValues: { 'var:runid': 'x7', 'url:i1:h1': 't15' },
+    });
+    expect(JSON.stringify(skill.steps)).not.toContain('ticket-link-t15');
+  });
+
+  it('drops a minted-id address even when nothing banked the id yet', () => {
+    // The instruction that MINTS t15 never visits a t15 url, so no ledger
+    // entry exists while it compiles — yet the testid recorded on that very
+    // step already has it welded in. Provenance cannot reach this one; the
+    // shape of the token can.
+    const instr = 'Create a ticket and confirm it appears in the list.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instr, url: 'http://x.test/#/tickets', fingerprint: [1, 0, 0] },
+      step('read', { target: '@e1', what: 'text' }, [
+        { kind: 'scoped', container: 'tr', hasText: 'x7 RD Bench Ticket', selector: 'td > a' },
+        { kind: 'testid', attr: 'data-testid', value: 'ticket-link-t15' },
+      ]),
+    ];
+    const [skill] = compileSkills({ entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's', knownValues: {} });
+    expect(JSON.stringify(skill.steps)).not.toContain('ticket-link-t15');
+  });
+
+  it('leaves ordinary numbered hooks alone', () => {
+    const instr = 'Remove the first row.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instr, url: 'http://x.test/#/tickets', fingerprint: [1, 0, 0] },
+      step('click', { target: '@e1' }, [
+        { kind: 'testid', attr: 'data-testid', value: 'del-1' },
+        { kind: 'css', selector: '#dellist > div:nth-of-type(1)' },
+      ]),
+    ];
+    const [skill] = compileSkills({ entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's', knownValues: {} });
+    expect(JSON.stringify(skill.steps)).toContain('del-1');
+  });
+
+  it('keeps a chain that would otherwise be emptied entirely', () => {
+    // Failing closed is right for ONE candidate, not for the whole step: with
+    // nothing left the step cannot even be attempted.
+    const instr = 'Open the ticket list and read the first ticket reference.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: instr, url: 'http://x.test/#/tickets', fingerprint: [1, 0, 0] },
+      step('click', { target: '@e1' }, [{ kind: 'testid', attr: 'data-testid', value: 'ticket-link-t15' }]),
+    ];
+    const [skill] = compileSkills({
+      entries, instruction: instr, report: { status: 'success', summary: 'ok' }, session: 's',
+      knownValues: { 'url:i1:h1': 't15' },
+    });
+    expect((skill.steps[0].locators.target ?? []).length).toBe(1);
+  });
+
   it('a known value this instruction never names binds to its ORIGIN, not a literal', () => {
     // fwrd19l 04-edit: the instruction edits Part A, but a step's identity
     // anchor names Part B — a value an EARLIER instruction supplied. The slot

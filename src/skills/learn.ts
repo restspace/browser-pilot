@@ -230,6 +230,8 @@ function squash(text: string): string {
  * This is the honesty rule the scref3 fabrication made load-bearing, applied
  * to the model-free path.
  */
+const MIN_STALE_LEN = 4;
+
 export function synthesizeReport(skill: Skill, params: Record<string, string>, liveValues: Record<string, string>): Report {
   const template = skill.reportTemplate ?? { summary: '', values: {} };
   const values: Record<string, string> = {};
@@ -251,7 +253,23 @@ export function synthesizeReport(skill: Skill, params: Record<string, string>, l
   }
   // Strip stale recorded literals from the prose so the summary cannot state a
   // value this run did not observe.
-  const dropped = stale.some((v) => summary.includes(v));
+  //
+  // Containment is compared LOOSELY. fwrd19l stored the same validation
+  // message twice — once in the summary keeping the app's "-" bullets, once
+  // in values with them collapsed by whitespace normalisation — and an exact
+  // substring test missed by that one character, publishing the recording
+  // run's part names as this run's finding.
+  const loose = (t: string): string => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const hay = loose(summary);
+  const dropped =
+    stale.some((v) => loose(v).length >= MIN_STALE_LEN && hay.includes(loose(v))) ||
+    // A param's `example` IS the recording run's value. If one survives in the
+    // prose while this run bound something else to that param, the sentence is
+    // describing the wrong record however well the rest of it filled.
+    Object.entries(skill.params).some(([n, p]) => {
+      const example = String(p.example ?? '');
+      return example.length >= MIN_STALE_LEN && params[n] !== example && hay.includes(loose(example));
+    });
   const clean = dropped
     ? `Replayed stored procedure ${skill.id}${Object.keys(values).length ? `; observed ${Object.entries(values).map(([k, v]) => `${k}=${v}`).join(', ')}` : ''}.`
     : summary;

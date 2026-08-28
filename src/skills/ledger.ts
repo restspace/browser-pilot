@@ -247,3 +247,21 @@ export function describeLeaks(leaks: Leak[]): string {
     .map((l) => `  ${l.where}: ${JSON.stringify(l.value)} (${l.binding.from}) in ${JSON.stringify(l.context)}`)
     .join('\n');
 }
+
+/**
+ * Which leaks are fatal.
+ *
+ * A leak in a LOCATOR or a precondition acts on the wrong record silently:
+ * the step resolves, the run continues, and nothing in the output says the
+ * procedure moved. That is the failure this whole plan exists to stop, and it
+ * is worth refusing an export over.
+ *
+ * Everywhere else the leak announces itself. A stale `expect.urlPattern`
+ * fails its assertion loudly; a stale `reportTemplate` is caught at replay by
+ * synthesizeReport, which refuses to publish a value this run did not
+ * observe. Those stay warnings — blocking an export on a defect that is
+ * already contained would only teach people to pass a --force flag.
+ */
+export function fatal(leak: Leak): boolean {
+  return /(^|\.)locators(\.|\[)/.test(leak.where) || /(^|\.)preconditions(\.|\[)/.test(leak.where);
+}
