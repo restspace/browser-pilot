@@ -11,7 +11,8 @@ import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRou
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
-import { originOf } from '../skills/store.js';
+import { originOf, type Skill } from '../skills/store.js';
+import type { LocatorCandidate } from './recorder.js';
 import { generateScript } from './codegen.js';
 import { snapshot, waitForContent } from './refs.js';
 import { ScriptRecorder } from './recorder.js';
@@ -128,13 +129,11 @@ ${describeLeaks(leaks.slice(0, 6))}`);
     const runValues = this.ledger.values().filter((v) => v.length >= 3);
     if (!runValues.length) return 0;
     let removed = 0;
-    for (const st of flow.steps) {
-      const skill = st.skill ? store.get(st.skill) : null;
-      if (!skill) continue;
+    for (const skill of this.sessionSkills(flow, store)) {
       let touched = false;
-      const walk = (steps: typeof skill.steps): void => {
+      const walk = (steps: Skill['steps']): void => {
         for (const step of steps) {
-          for (const [key, chain] of Object.entries(step.locators ?? {})) {
+          for (const [key, chain] of Object.entries(step.locators ?? {}) as [string, LocatorCandidate[]][]) {
             const kept = chain.filter((c) => !stranded(c, runValues));
             if (!kept.length || kept.length === chain.length) continue;
             removed += chain.length - kept.length;
@@ -157,11 +156,31 @@ ${describeLeaks(leaks.slice(0, 6))}`);
    */
   private leaksIn(flow: import('../skills/flow.js').Flow, store: NonNullable<typeof this.browser.learn>): Leak[] {
     const leaks = scanForLeaks(flow, this.ledger, 'flow');
+    for (const sk of this.sessionSkills(flow, store)) leaks.push(...scanForLeaks(sk, this.ledger, sk.id));
+    return leaks;
+  }
+
+  /**
+   * The skills this run's ledger has any business rewriting: everything THIS
+   * SESSION compiled, plus whatever the flow pinned.
+   *
+   * Pinned-only was too narrow. fwrd26l exported clean while two skills it had
+   * just compiled still carried `RD-1015` and a creation date in a row-text
+   * locator — unpinned, so unscanned, and selectCandidates will happily pick
+   * one at replay because it binds the instruction. Session-scoped and not
+   * store-wide, because a skill some EARLIER run made is not ours to rewrite:
+   * a literal that looks like this run's value may have been legitimate in its.
+   */
+  private sessionSkills(flow: import('../skills/flow.js').Flow, store: NonNullable<typeof this.browser.learn>): Skill[] {
+    const out = new Map<string, Skill>();
+    for (const sk of store.list(flow.origin)) {
+      if (sk.provenance?.session === this.opts.session) out.set(sk.id, sk);
+    }
     for (const st of flow.steps) {
       const sk = st.skill ? store.get(st.skill) : null;
-      if (sk) leaks.push(...scanForLeaks(sk, this.ledger, `${st.id}(${sk.id})`));
+      if (sk) out.set(sk.id, sk);
     }
-    return leaks;
+    return [...out.values()];
   }
 
   /** The run's values keyed by their ORIGIN, so a param can bind to where a value comes from. */
