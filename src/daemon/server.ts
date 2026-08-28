@@ -1016,6 +1016,10 @@ ${direct.prelude}` : recoveryText) + resetNote,
         // Record the failure so the store's own lifecycle (two strikes →
         // demoted) drops a flaky skill out of selection.
         store.recordOutcome(cand.skill.id, { ok: false, failedAt: r.failedAt, fallthroughs: r.fallthroughs, instructionSucceeded: false });
+        // Recorded, or the fallback reason reads "no candidate ran" and names
+        // neither the skill nor the failure — which is exactly what fwrd28l's
+        // one tier-B step reported, leaving nothing to diagnose it with.
+        refusals.push(`${cand.skill.id}: failed at step ${r.failedAt ?? '?'} before touching the page — ${r.reason ?? 'no reason recorded'}`);
         match = null;
         replay = null;
         continue;
