@@ -1,0 +1,50 @@
+[
+  {
+    "flow": "fwgr7",
+    "step": "02-create",
+    "skill": "s_e595d4",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.986,
+    "missedLocator": "page.locator('[id=\"_r8b_\"]')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+  },
+  {
+    "flow": "fwgr7",
+    "step": "04-open",
+    "skill": "s_34df19",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.892,
+    "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+  },
+  {
+    "flow": "fwgr7",
+    "step": "05-set",
+    "skill": "s_4adbe6",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 04-open.tags_in_settings, 04-open.save_confirmed, 04-open.tags_in_settings, 04-open.save_confirmed",
+    "reason": "missing params: v6 (e.g. \"Dashboard saved\") — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+  },
+  {
+    "flow": "fwgr7",
+    "step": "06-report",
+    "skill": "s_43c50b",
+    "atStep": "15",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByTestId('data-testid Exit edit mode button')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "flow": "fwgr7",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed into Grafana with username/password 'admin' (skipped the password change prompt), searched for and opened the 'Service health' dashboard, and identified all 3 panel titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\". These were confirmed by h2 headings, region aria-labels, and panel menu titles in the DOM.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e595d4; observed panel_title=fwgr7-n3 Availability, url=http://127.0.0.1:3000/d/afwk79qhv4a9sf/fwgr7-n3-bench-dashboard, dashboard_title=fwgr7-n3 Bench Dashboard.",
+      "values": {
+        "panel_title": "fwgr7-n3 Availability",
+        "url": "http://127.0.0.1:3000/d/afwk79qhv4a9sf/fwgr7-n3-bench-dashboard",
+        "dashboard_title": "fwgr7-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Completed the Text panel editing: the 'Search options' filter box was already empty so Panel options was visible; set panel Title to 'fwgr7-n3 Notes'; clicked Apply to close the panel editor; clicked Save dashboard and confirmed the 'Dashboard saved' alert. The dashboard now shows two panel titles: \"fwgr7-n3 Notes\" (Text panel) and \"fwgr7-n3 Availability\" (Stat panel). Save succeeded.",
+      "values": {
+        "panel_titles": "fwgr7-n3 Notes, fwgr7-n3 Availability",
+        "save_confirmed": "true",
+        "button": "Save dashboard",
+        "h2": "fwgr7-n3 Notes",
+        "h2_2": "fwgr7-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "04-open",
+      "status": "blocked",
+      "summary": "Instruction timed out after 600s (13 turns, 11 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 43
+    }
+  ],
+  "passed": 3,
+  "total": 6,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr7",
+      "step": "02-create",
+      "skill": "s_e595d4",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.986,
+      "missedLocator": "page.locator('[id=\"_r8b_\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwkb7jcs9xxcd/:id"
+    },
+    {
+      "flow": "fwgr7",
+      "step": "03-open",
+      "skill": "s_03b6d3",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_03b6d3 stopped at step 3 — after step 3 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 3 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwkb7jcs9xxcd/:id"
+    }
+  ],
+  "wallMs": 821348,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 747664,
+    "completionTokens": 17492,
+    "cachedTokens": 623232
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 569961,
+      "completionTokens": 7895,
+      "cachedTokens": 489472
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 177703,
+      "completionTokens": 9597,
+      "cachedTokens": 133760
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

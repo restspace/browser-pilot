@@ -1,0 +1,147 @@
+{
+  "flow": "fwgr7",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed into Grafana with username/password 'admin' (skipped the password change prompt), searched for and opened the 'Service health' dashboard, and identified all 3 panel titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\". These were confirmed by h2 headings, region aria-labels, and panel menu titles in the DOM.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e595d4; observed panel_title=fwgr7-n2 Availability, url=http://127.0.0.1:3000/d/afwk79qhv4a9sf/fwgr7-n2-bench-dashboard, dashboard_title=fwgr7-n2 Bench Dashboard.",
+      "values": {
+        "panel_title": "fwgr7-n2 Availability",
+        "url": "http://127.0.0.1:3000/d/afwk79qhv4a9sf/fwgr7-n2-bench-dashboard",
+        "dashboard_title": "fwgr7-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "The Text panel (editPanel=2) did not exist yet, so I created it: opened the dashboard's edit mode, added a new visualization, changed it to a Text panel, set its content to 'Notes for run fwgr7-n2' and its title to 'fwgr7-n2 Notes', then closed the editor and clicked Save dashboard. The save succeeded — the 'Dashboard saved' confirmation appeared. The dashboard now shows two panels: 'fwgr7-n2 Notes' (Text, content 'Notes for run fwgr7-n2') and 'fwgr7-n2 Availability' (Stat).",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 56
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened dashboard settings, added the tag 'bench' to the Tags field (verified the tag 'bench' is present in settings). Set the dashboard's time range to 'Last 6 hours' (confirmed in the top bar time picker). Saved the dashboard and received the 'Dashboard saved' confirmation. The dashboard's two panels are 'fwgr7-n2 Notes' (Text panel with content 'Notes for run fwgr7-n2') and 'fwgr7-n2 Availability' (Stat panel).",
+      "values": {},
+      "tier": "B",
+      "replayed": "0/15",
+      "repaired": true,
+      "turns": 28
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to '1m' via the time range picker popover. Saved the dashboard with 'Update default time range' checked and received the 'Dashboard saved' confirmation. After saving, the auto-refresh interval shown in the top bar is '1m'.",
+      "values": {},
+      "tier": "B",
+      "replayed": "0/10",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Fresh page load confirmed: (1) Dashboard title: \"fwgr7-n2 Bench Dashboard\" in breadcrumbs. (2) Panel titles: \"fwgr7-n2 Notes\" (Text) and \"fwgr7-n2 Availability\" (Stat). (3) Time range: \"Last 6 hours\" in the time picker. (4) Auto-refresh interval: \"1m\" shown in the top bar. (5) Tags in settings: [\"bench\"]. (6) Panel \"fwgr7-n2 Availability\" uses data source \"TestData\" (grafana-testdata-datasource, uid: benchtestdata) with visualization type \"Stat\". (7) Notes panel content: \"Notes for run fwgr7-n2\".",
+      "values": {
+        "e318": "Stat"
+      },
+      "tier": "B",
+      "replayed": "14/19",
+      "repaired": true,
+      "turns": 30
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr7",
+      "step": "02-create",
+      "skill": "s_e595d4",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.986,
+      "missedLocator": "page.locator('[id=\"_r8b_\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+    },
+    {
+      "flow": "fwgr7",
+      "step": "04-open",
+      "skill": "s_34df19",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.892,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+    },
+    {
+      "flow": "fwgr7",
+      "step": "05-set",
+      "skill": "s_4adbe6",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 04-open.tags_in_settings, 04-open.save_confirmed, 04-open.tags_in_settings, 04-open.save_confirmed",
+      "reason": "missing params: v6 (e.g. \"Dashboard saved\") — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+    },
+    {
+      "flow": "fwgr7",
+      "step": "06-report",
+      "skill": "s_43c50b",
+      "atStep": "15",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Exit edit mode button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efwka0jncnnr4f/:id"
+    }
+  ],
+  "wallMs": 800420,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2204632,
+    "completionTokens": 24790,
+    "cachedTokens": 1898816
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1836563,
+      "completionTokens": 22689,
+      "cachedTokens": 1601280
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 368069,
+      "completionTokens": 2101,
+      "cachedTokens": 297536
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
