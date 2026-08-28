@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, urlOutputs } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
 import { originOf } from '../skills/store.js';
@@ -791,14 +791,10 @@ ${direct.prelude}` : recoveryText) + resetNote,
       // result — they are addresses, not findings.
       const stepOutputs: Record<string, string> = { ...values };
       try {
-        const liveUrl = (await this.browser.getPage()).url();
-        // The whole url first: a later step's `{{02-add.url}}` must resolve
-        // from where THIS run's browser landed, not from whether the report
-        // happened to mention it.
-        if (!('url' in stepOutputs)) stepOutputs.url = liveUrl;
-        for (const part of urlParts(liveUrl)) {
-          const key = `url.${part.label}`;
-          if (part.value.length >= 4 && !(key in stepOutputs)) stepOutputs[key] = part.value;
+        // Whatever this run's browser landed on, published under the same
+        // rule buildFlow used to mint the references — see urlOutputs.
+        for (const [key, value] of Object.entries(urlOutputs((await this.browser.getPage()).url()))) {
+          if (!(key in stepOutputs)) stepOutputs[key] = value;
         }
       } catch {
         /* browser gone — nothing to bind */

@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, lintFlowRefs, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, type Flow, type FlowStep } from '../src/skills/flow.js';
+import { buildFlow, lintFlowRefs, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, publishedOutputs, synthesizeReport } from '../src/skills/learn.js';
 import type { Skill } from '../src/skills/store.js';
 import { compileSkill } from '../src/skills/compile.js';
@@ -436,5 +436,20 @@ describe('the whole url is provenance, not a report name', () => {
     expect(flow.steps[1].instruction).not.toContain(detail);
     // ...and the lint treats it as re-observable, like url.* parts.
     expect(lintFlowRefs({ ...flow, steps: [flow.steps[0], { ...flow.steps[1], instruction: 'go to {{01-a.url}}' }] }, () => [])).toEqual([]);
+  });
+});
+
+describe('urlOutputs', () => {
+  it('publishes a three-character record id, which is what buildFlow mints refs for', () => {
+    // fwrd24l: buildFlow minted {{02-open.url.h1}} for the ticket id "t16"
+    // (identifierLike accepts three characters — repair-desk's ids are "t15"),
+    // while the daemon published parts at length >= 4. The ref could never
+    // resolve, so four steps skipped the zero-model path on every replay.
+    const out = urlOutputs('http://127.0.0.1:4180/#/tickets/t16');
+    expect(out.url).toBe('http://127.0.0.1:4180/#/tickets/t16');
+    expect(out['url.h1']).toBe('t16');
+    // A route word is not a reference, so it is not published — the same
+    // predicate buildFlow uses to decide what is worth minting.
+    expect(out['url.h0']).toBeUndefined();
   });
 });

@@ -336,6 +336,26 @@ export function lintFlowRefs(flow: Flow, publishes: (skillId: string) => string[
  * an id an app only ever returned in a response body gets threaded — see the
  * jsonLeaves() publication in buildFlow.
  */
+/**
+ * The outputs a step's END URL publishes: the whole url, plus every part
+ * specific enough to be a reference.
+ *
+ * ONE function, because the producer and the consumer disagreeing is a silent
+ * dead reference. buildFlow mints `{{step.url.h1}}` for any part that is
+ * `identifierLike` (three characters is enough — repair-desk's ids are "t15"),
+ * while the daemon published parts at `length >= 4`. So every flow that named
+ * a three-character record id minted a ref nothing would ever resolve, and the
+ * four steps depending on it skipped the zero-model path on every replay.
+ */
+export function urlOutputs(url: string): Record<string, string> {
+  const out: Record<string, string> = { url };
+  for (const part of urlParts(url)) {
+    const key = `url.${part.label}`;
+    if (identifierLike(part.value) && !(key in out)) out[key] = part.value;
+  }
+  return out;
+}
+
 export function lookupOutput(outputs: Record<string, Record<string, string>>, sid: string, out: string): string | undefined {
   const hash = out.indexOf('#');
   if (hash < 0) return outputs[sid]?.[out];
