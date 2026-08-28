@@ -469,20 +469,51 @@ interface Candidate {
  * `@ref` handles are re-derived from the element's own attributes, preferring
  * test ids and roles over structural paths.
  */
+/**
+ * How to record a raw target the agent typed. Almost everything is an opaque
+ * selector string and stays `css` — but `text="..."` is Playwright's TEXT
+ * engine, not CSS, and typing it as css cost us the whole identity guard:
+ * identityOfPrimary reads name/text/label/hasText and deliberately skips css
+ * ("a slot inside a selector is an address, not a name"), so a primary that
+ * named the record by its title advertised NO identity, and every fallback —
+ * including `tr:nth-of-type(1)` — was waved through unchecked.
+ *
+ * fwrd19l 01-open and 02-open, on every replay: the row was not painted yet
+ * (repair-desk defers its list refetch BY DESIGN), all three text-bearing
+ * candidates missed, and the positional one resolved instantly against
+ * whatever sat in row 1. It passed only because a new ticket sorts to the top.
+ *
+ * Typing it correctly re-arms the guard, which rejects the positional
+ * fallback, which makes the walk return nothing — which is what lets
+ * resolveChain's wait run at all, so the anchor wins once the row lands.
+ *
+ * Only the quoted form maps cleanly: `text="X"` is exact and whitespace
+ * -trimmed, which is what getByText(X, { exact: true }) does. Unquoted
+ * (substring, case-insensitive) and regex forms have no equivalent, so they
+ * stay css rather than being silently narrowed.
+ */
+export function primaryFor(raw: string): LocatorCandidate {
+  const m = /^text=(?:"([^"]*)"|'([^']*)')$/.exec(raw.trim());
+  const text = m ? (m[1] ?? m[2]) : undefined;
+  return text ? { kind: 'text', text } : { kind: 'css', selector: raw };
+}
+
 export async function describeTarget(page: Page, raw: string, retarget = false): Promise<LocatorExpr> {
   if (!isRefTarget(raw)) {
     // A raw selector the agent chose: keep it as the primary, but still
     // describe the element it hit so replay has attribute-based fallbacks.
     const loc = page.locator(raw);
     const count = await loc.count().catch(() => 0);
-    const primary: LocatorCandidate = { kind: 'css', selector: raw };
+    const primary: LocatorCandidate = primaryFor(raw);
     if (count !== 1) return { expr: candidateExpr(primary), verified: false, raw, chain: [primary] };
     const handle = await loc.elementHandle({ timeout: 2_000 }).catch(() => null);
     if (!handle) return { expr: candidateExpr(primary), verified: true, raw, chain: [primary] };
     try {
       const info = (await handle.evaluate(describeInPage)) as ElementInfo;
-      const chain = [primary, ...(await verifiedChain(page, info, handle)).chain];
-      return { expr: candidateExpr(primary), verified: true, raw, chain };
+      // Dedupe: a `text="X"` primary is now the same candidate the described
+      // element yields, and carrying it twice only shortens the useful chain.
+      const rest = (await verifiedChain(page, info, handle)).chain.filter((c) => candidateExpr(c) !== candidateExpr(primary));
+      return { expr: candidateExpr(primary), verified: true, raw, chain: [primary, ...rest] };
     } finally {
       await handle.dispose().catch(() => {});
     }

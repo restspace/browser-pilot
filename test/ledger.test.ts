@@ -8,6 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { RunLedger, identifierLike, occursAsToken, scanForLeaks } from '../src/skills/ledger.js';
+import { primaryFor } from '../src/daemon/recorder.js';
 
 describe('identifierLike (the one copy)', () => {
   it('accepts minted ids, including the three-character ones', () => {
@@ -140,5 +141,25 @@ describe('the scanner reproduces every leak we found the slow way', () => {
       ['RD-1015', 'output'],
       ['t15', 'url'],
     ]);
+  });
+});
+
+describe('a raw text target is recorded as text, not css', () => {
+  it('maps the quoted form, which is what disarmed the identity guard', () => {
+    // fwrd19l 01-open/02-open: the agent's own `text="..."` target was kept
+    // verbatim at the head of the chain and typed css, so identityOfPrimary
+    // (which skips css by design) saw no identity and every fallback —
+    // including tr:nth-of-type(1) — was accepted unchecked.
+    expect(primaryFor('text="x7 RD Bench Ticket"')).toEqual({ kind: 'text', text: 'x7 RD Bench Ticket' });
+    expect(primaryFor("text='x7 RD Bench Ticket'")).toEqual({ kind: 'text', text: 'x7 RD Bench Ticket' });
+  });
+
+  it('leaves everything else css, including the forms that do not mean exact', () => {
+    // Unquoted is substring + case-insensitive and the regex form is neither;
+    // typing them as `text` would silently NARROW what the agent asked for.
+    expect(primaryFor('text=Ready')).toEqual({ kind: 'css', selector: 'text=Ready' });
+    expect(primaryFor('text=/^Ready$/')).toEqual({ kind: 'css', selector: 'text=/^Ready$/' });
+    expect(primaryFor('#ticket-rows tr')).toEqual({ kind: 'css', selector: '#ticket-rows tr' });
+    expect(primaryFor('button:has-text("Save")')).toEqual({ kind: 'css', selector: 'button:has-text("Save")' });
   });
 });
