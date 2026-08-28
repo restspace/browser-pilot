@@ -751,6 +751,50 @@ d('identity-scoped locators (fixture page)', () => {
     expect(await unguarded!.locator.first().innerText()).toContain('Part One');
   }, 30_000);
 
+  it('records the match index of an AMBIGUOUS candidate, including index 0', async () => {
+    const { setIdentityHints } = await import('../src/daemon/recorder.js');
+    const { compileSkill } = await import('../src/skills/compile.js');
+    const { replaySkill } = await import('../src/skills/replay.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    const rec = session.script!;
+    const mark = rec.mark();
+    const instr = 'edit the first item';
+    setIdentityHints([]); // no identity to anchor on: both rows read "Edit"
+    rec.beginInstruction(instr, { url: page.url() });
+    const snap = (await run('snapshot', {})).result;
+    const refs = [...snap.matchAll(/button "Edit" \[(@e\d+)\]/g)].map((m) => m[1]);
+    expect(refs.length).toBe(2); // ambiguous by construction
+    await run('click', { target: refs[0] });
+    const skill = compileSkill({
+      entries: rec.entriesSince(mark),
+      instruction: instr,
+      report: { status: 'success', summary: 'removed', evidence: { values: {} } },
+      session: 'ident',
+      knownValues: {},
+    })!;
+    const chain = skill.steps[0].locators.target ?? [];
+    const role = chain.find((c) => c.kind === 'role');
+    // The button matched at index 0 of three. Before this, `match === 0` meant
+    // "no nth needed", so replay saw three matches, read it as drift, and fell
+    // through to a structural path onto a record row.
+    expect(role?.nth).toBe(0);
+
+    // And it resolves back to that row rather than falling through.
+    await page.goto(fixtureUrl);
+    const clicked: string[] = [];
+    const out = await replaySkill(skill, {}, {
+      page,
+      exec: async (_tool, _args, resolved) => {
+        clicked.push(await resolved.target.first().evaluate((el: Element) => el.closest('.erow')?.getAttribute('data-row') ?? '?'));
+        return { result: 'ok' };
+      },
+    });
+    expect(out.ok).toBe(true);
+    expect(clicked).toEqual(['1']);
+    expect(out.fallthroughs).toBe(0);
+  }, 30_000);
+
   it('tries the record-naming candidate before a structural one that sits ahead of it', async () => {
     const { resolveChain } = await import('../src/skills/replay.js');
     const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });

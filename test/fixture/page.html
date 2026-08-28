@@ -31,6 +31,16 @@
   <button class="dup" type="button">Dup A</button>
   <button class="dup" type="button">Dup B</button>
 
+  <!-- repair-desk's shape: a per-record control whose accessible name is
+       shared across rows and which carries NO test id, so the role locator is
+       both the WINNING candidate and ambiguous. That combination is what needs
+       its match index recorded; with a testid present (as in #dellist below)
+       the testid wins and the question never arises. -->
+  <div id="editlist">
+    <div class="erow" data-row="1"><span>Item One</span><button type="button">Edit</button></div>
+    <div class="erow" data-row="2"><span>Item Two</span><button type="button">Edit</button></div>
+  </div>
+
   <!-- delete-loop: each row removes itself; the Remove buttons share an
        accessible name but carry a per-row testid, so a recording of deleting
        two rows compiles into a loop that clears a list of any length. -->

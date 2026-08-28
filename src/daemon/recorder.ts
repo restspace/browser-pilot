@@ -62,7 +62,7 @@ export function makeLocator(page: Page, c: LocatorCandidate): Locator {
       break;
     }
   }
-  return c.nth !== undefined && c.nth > 0 ? loc.nth(c.nth) : loc;
+  return c.nth !== undefined ? loc.nth(c.nth) : loc;
 }
 
 /** Source text for a candidate, e.g. `page.getByRole('button', { name: 'Save' })`. */
@@ -92,7 +92,7 @@ export function candidateExpr(c: LocatorCandidate): string {
       expr = `page.locator(${q(c.container)}, { hasText: ${q(c.hasText)} })` + (c.selector ? `.locator(${q(c.selector)})` : '');
       break;
   }
-  return c.nth !== undefined && c.nth > 0 ? `${expr}.nth(${c.nth})` : expr;
+  return c.nth !== undefined ? `${expr}.nth(${c.nth})` : expr;
 }
 
 /**
@@ -728,9 +728,20 @@ async function verifiedChain(
       chain.push(candidate.spec);
       continue;
     }
-    const match = await matchIndex(candidate.make(page), handle);
+    const loc = candidate.make(page);
+    const match = await matchIndex(loc, handle);
     if (match === null) continue;
-    winner = match === 0 ? candidate.spec : { ...candidate.spec, nth: match };
+    // Record the index whenever the locator is AMBIGUOUS, including index 0.
+    // `match === 0` used to mean "no nth needed", conflating "unique" with
+    // "first of several": every part row carries an Edit button, so the
+    // recorded getByRole('button', { name: 'Edit' }) stored no index, and at
+    // replay it matched two elements, read as drift, and fell through to
+    // `tr:nth-of-type(1) > td:nth-of-type(7)` — a structural path onto a
+    // record row, which is the shape behind every wrong-record bug this plan
+    // exists to stop. An ambiguous candidate needs its index to be
+    // reproducible, exactly as an ambiguous anchor needs to be unique.
+    const ambiguous = (await loc.count().catch(() => 0)) > 1;
+    winner = ambiguous || match !== 0 ? { ...candidate.spec, nth: match } : candidate.spec;
     chain.push(winner);
   }
   return { winner, chain };
