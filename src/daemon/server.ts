@@ -7,8 +7,9 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, freshUrlIds, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
+import { RunLedger, describeLeaks, scanForLeaks } from '../skills/ledger.js';
 import { originOf } from '../skills/store.js';
 import { generateScript } from './codegen.js';
 import { snapshot, waitForContent } from './refs.js';
@@ -55,18 +56,16 @@ export class Daemon {
   /** Aborts the instruction currently running, so `stop` can preempt it. */
   private inflight: AbortController | null = null;
   /**
-   * Identifiers THIS SESSION minted in a url (a created dashboard's uid, a new
-   * record's id), keyed by where they appeared. A later instruction that names
-   * one is naming a value of this run, not of the app, so compile must slot it
-   * — otherwise the skill template carries the recording run's id and every
-   * replay works the recording's record. fwgr6 shipped exactly that: n1's uid
-   * appeared 62 times across three skill templates ("In Grafana at
-   * .../d/afwfbbc2of6rkf/{{v1}}-bench-dashboard, add a panel…"), the flow
-   * export was clean, and n2's step 06 still replayed onto n1's dashboard.
-   * Flow replay already does this via provenanceValues(); recording did not.
+   * Everything THIS RUN made — caller vars, ids minted in a url, values a
+   * step reported — each with a binding saying how a later run re-derives its
+   * own. A later instruction naming one of these is naming a value of this
+   * run, not of the app, so compile must slot it; fwgr6 shipped n1's uid 62
+   * times inside skill templates because recording had no such registry.
+   * See PLAN-provenance.md.
    */
-  private minted = new Map<string, string>();
-  private seenUrlValues = new Set<string>();
+  private ledger = new RunLedger();
+  /** Instruction counter, so a ledger entry can say where it first appeared. */
+  private instructionIndex = 0;
 
   constructor(private opts: DaemonOptions) {
     this.browser = new BrowserSession({
@@ -79,13 +78,29 @@ export class Daemon {
     this.state = new SessionState(opts.session);
   }
 
-  /** Bank identifier-like url parts this instruction visited (see `minted`). */
-  private noteMintedIds(entries: ReturnType<ScriptRecorder['entriesSince']>): void {
+  /** Bank what this instruction minted: url ids first, then reported values. */
+  private noteMintedIds(entries: ReturnType<ScriptRecorder['entriesSince']>, stepId: string): void {
     for (const e of entries) {
       const url = e.k === 'step' ? e.diff?.url : e.k === 'instruction' ? e.url : undefined;
-      if (!url) continue;
-      for (const part of freshUrlIds(url, this.seenUrlValues)) this.minted.set(`mint.${part.label}.${this.minted.size}`, part.value);
+      if (url) this.ledger.addUrlIds(url, stepId, urlParts(url));
+      if (e.k === 'report') {
+        for (const [name, value] of Object.entries(e.values ?? {})) {
+          this.ledger.add(String(value), { from: 'output', step: stepId, name }, { known: true });
+        }
+      }
     }
+  }
+
+  /** Caller vars seeded once, so every producer sees the same run values. */
+  private seedLedger(): void {
+    for (const [name, value] of Object.entries(this.state.vars ?? {})) this.ledger.add(value, { from: 'var', name });
+  }
+
+  /** Ledger values in the shape compile wants (informational keys, values matter). */
+  private knownValues(): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const [i, e] of this.ledger.all().entries()) out[`${e.binding.from}.${i}`] = e.value;
+    return out;
   }
 
   private provider(overrides: { provider?: string; model?: string; baseUrl?: string } = {}): Provider {
@@ -282,6 +297,9 @@ export class Daemon {
           // caller by the time the next instruction names it, and compile
           // must treat it as a run value rather than app furniture.
           const entriesSince = this.browser.script?.entriesSince(mark) ?? [];
+          this.instructionIndex += 1;
+          this.ledger.beginInstruction(this.instructionIndex);
+          this.seedLedger();
           const learned = this.browser.learn
             ? learnFromInstruction(this.browser.learn, {
                 result,
@@ -289,10 +307,10 @@ export class Daemon {
                 entries: entriesSince,
                 session: this.opts.session,
                 model: provider.model,
-                vars: { ...this.state.vars, ...Object.fromEntries(this.minted) },
+                vars: this.knownValues(),
               })
             : null;
-          this.noteMintedIds(entriesSince);
+          this.noteMintedIds(entriesSince, `i${this.instructionIndex}`);
           if (learned) progress(`[learn] ${describeLearned(learned)}`);
           const pinned = learned?.compiled ?? learned?.merged ?? result.skill?.invoked;
           if (pinned) this.browser.script?.pinSkill(pinned);
@@ -490,6 +508,14 @@ export class Daemon {
       const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
       return chain.flatMap(publishedOutputs);
     });
+    // Phase 2 of PLAN-provenance: report anything of this run's that survived
+    // into the flow. WARN for now — the ledger's coverage is what is being
+    // measured, and a false alarm must not block an export.
+    const leaks = scanForLeaks(flow, this.ledger, 'flow');
+    if (leaks.length) {
+      warnings.unshift(`warning: ${leaks.length} run value(s) survived into the flow unslotted:
+${describeLeaks(leaks.slice(0, 10))}`);
+    }
     if (prior) warnings.unshift(`warning: ignored ${prior} entr${prior === 1 ? 'y' : 'ies'} from an earlier take in session '${this.opts.session}' — this flow covers only what this daemon recorded`);
     return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars, ...(warnings.length ? { warnings } : {}) };
   }

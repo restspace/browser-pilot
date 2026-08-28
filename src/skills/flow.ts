@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { RecordedEntry, RecordedInstruction, RecordedReport } from '../daemon/recorder.js';
 import { rootDir } from '../shared/paths.js';
 import { escapeRe, urlParts } from './compile.js';
+import { identifierLike } from './ledger.js';
 
 /**
  * A flow is the resolved path a session took: the instructions the caller
@@ -172,7 +173,7 @@ export function buildFlow(
         // identifierLike() accepts a long word too. It still refuses short
         // route words — "tickets" out of a url was being substituted into
         // fwrd8's verify prose ("on the {{01-open.url.h0}} list").
-        if (!fresh || part.value.length < 4 || !identifierLike(part.value)) continue;
+        if (!fresh || !identifierLike(part.value)) continue;
         if (produced.some((p) => p.value === part.value) || varEntries.some(([, v]) => v === part.value)) continue;
         minted.push({ stepId: id, output: `url.${part.label}`, value: part.value });
       }
@@ -412,18 +413,6 @@ export function resolveStepParams(
 const MAX_JSON_LEAVES = 12;
 const MAX_JSON_DEPTH = 4;
 
-/**
- * Identifier-like: a value specific enough to be a REFERENCE rather than a
- * word the app happens to use. A route word ("tickets", "dashboards") is a
- * common lowercase noun; a minted id carries a digit, a separator, or the
- * length of a generated uid. Without this guard, flow export referencized the
- * word "tickets" out of a url and substituted it into the prose of fwrd8's
- * verify step ("on the {{01-open.url.h0}} list") — harmless there, but the
- * same substitution in a locator name would be a wildcarded procedure.
- */
-export function identifierLike(value: string): boolean {
-  return /\d/.test(value) || /[-_]/.test(value) || value.length >= 12;
-}
 
 /**
  * Url parts of `url` that are identifier-like and that this session has not
@@ -437,7 +426,7 @@ export function freshUrlIds(url: string, seen: Set<string>): { label: string; va
     // a four-character floor fwrd16 left a literal `#/tickets/t15` in six
     // flow steps. identifierLike() still does the real work — a three-letter
     // route word carries no digit and no separator, so it never qualifies.
-    if (seen.has(part.value) || part.value.length < 3 || !identifierLike(part.value)) continue;
+    if (seen.has(part.value) || !identifierLike(part.value)) continue;
     seen.add(part.value);
     out.push(part);
   }
@@ -463,7 +452,7 @@ export function jsonLeaves(text: string): { path: string; value: string }[] {
     }
     if (typeof node !== 'string' && typeof node !== 'number') return;
     const value = String(node);
-    if (value.length < 4 || value.length > 120 || !identifierLike(value)) return;
+    if (value.length > 120 || !identifierLike(value)) return;
     if (!path) return;
     out.push({ path, value });
   };

@@ -343,12 +343,24 @@ for (const runid of runids) {
     }
   }
 
+  // Doing the task TWICE is not a pass. fwrd16's replays executed the whole
+  // lifecycle on two tickets (17 and 19 mutations against a clean run's 10)
+  // and still scored 6/6, because a duplicate was only ever a warning — so
+  // the corrupted flow that caused it read as a green run.
+  const extraTickets = ticketCreates.length - 1
+  if (extraTickets > 0) {
+    console.log(
+      `  *** DUPLICATE WORK *** ${ticketCreates.length} tickets created with this title ` +
+        `(${ticketCreates.map((t) => t.after.ref).join(', ')}) — the run did its task more than once`,
+    )
+  }
+
   const passed = objectives.filter((o) => o.pass).length
-  if (passed < objectives.length || mismatches) anyFailure = true
+  if (passed < objectives.length || mismatches || extraTickets > 0) anyFailure = true
   console.log(
     `  summary: ${passed}/${objectives.length} objectives PASS, ` +
-      `${mismatches} price claim mismatch(es)` +
-      (passed === objectives.length && !mismatches ? '' : ' — RUN NOT CLEAN'),
+      `${mismatches} price claim mismatch(es), ${extraTickets} duplicate ticket(s)` +
+      (passed === objectives.length && !mismatches && !extraTickets ? '' : ' — RUN NOT CLEAN'),
   )
 
   report.push({
@@ -358,6 +370,7 @@ for (const runid of runids) {
     ticketId,
     objectives: Object.fromEntries(objectives.map((o) => [o.n, o.pass])),
     claimMismatches: mismatches,
+    duplicateTickets: extraTickets,
     passed,
   })
 }
