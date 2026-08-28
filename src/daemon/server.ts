@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, urlOutputs } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, urlOutputs } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
 import { originOf } from '../skills/store.js';
@@ -543,11 +543,16 @@ ${describeLeaks(leaks.slice(0, 6))}`);
     // replayed it regardless — a gate that refuses to REPORT is not a gate.
     const fatalLeaks = this.leaksIn(flow, store).filter(fatal);
     if (fatalLeaks.length) {
-      throw new Error(
-        `refusing to export: ${fatalLeaks.length} value(s) this run made survived into a locator or precondition, ` +
-          `where they would silently move a step onto another record:
-${describeLeaks(fatalLeaks.slice(0, 10))}`,
-      );
+      const detail =
+        `${fatalLeaks.length} value(s) this run made survived into a locator, ` +
+        `where they would silently move a step onto another record:
+${describeLeaks(fatalLeaks.slice(0, 10))}`;
+      // Kept, but somewhere nothing will replay it: the recording cost real
+      // time and money, and the fix is usually obvious from the leak list.
+      const kept = saveRejectedFlow(flow, detail);
+      throw new Error(`refusing to export: ${detail}
+
+the flow was written to ${kept} for inspection (it will not be replayed)`);
     }
     const file = saveFlow(flow);
     // Reference lint (case 4a): warn now, while re-recording is still cheap,

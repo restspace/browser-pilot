@@ -60,6 +60,24 @@ export function saveFlow(flow: Flow): string {
   return file;
 }
 
+/**
+ * A flow the export REFUSED, written where nothing will replay it.
+ *
+ * Refusing is right — a flow carrying a run value in a locator quietly does
+ * its work on the wrong record — but throwing the recording away with it is
+ * not. fwrd23l cost 37 minutes and $0.26 to record and left nothing at all
+ * behind, and a cloud run is dearer. The `.rejected.json` suffix keeps it out
+ * of listFlows — which is excluded explicitly, since `.rejected.json` ends in
+ * `.json` too — while leaving it for verify-artifacts and for a human to read.
+ */
+export function saveRejectedFlow(flow: Flow, reason: string): string {
+  const dir = flowsDir();
+  fs.mkdirSync(dir, { recursive: true });
+  const file = flowFile(flow.name).replace(/\.json$/, '.rejected.json');
+  fs.writeFileSync(file, JSON.stringify({ rejected: reason, flow }, null, 2));
+  return file;
+}
+
 export function loadFlow(nameOrPath: string): Flow | null {
   const candidates = [nameOrPath, flowFile(nameOrPath)];
   for (const c of candidates) {
@@ -75,7 +93,7 @@ export function loadFlow(nameOrPath: string): Flow | null {
 export function listFlows(): Flow[] {
   let names: string[];
   try {
-    names = fs.readdirSync(flowsDir()).filter((n) => n.endsWith('.json'));
+    names = fs.readdirSync(flowsDir()).filter((n) => n.endsWith('.json') && !n.endsWith('.rejected.json'));
   } catch {
     return [];
   }

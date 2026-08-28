@@ -453,3 +453,24 @@ describe('urlOutputs', () => {
     expect(out['url.h0']).toBeUndefined();
   });
 });
+
+describe('a refused export keeps the recording', () => {
+  it('writes .rejected.json, and listFlows does not offer it', async () => {
+    const { saveRejectedFlow, listFlows, flowsDir } = await import('../src/skills/flow.js');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-rej-'));
+    process.env.BROWSER_PILOT_FLOWS_DIR = dir;
+    try {
+      const flow = { name: 'rej', origin: ORIGIN, startUrl: ORIGIN, vars: [], steps: [], created: '', session: '' } as unknown as Flow;
+      const file = saveRejectedFlow(flow, 'a run value reached a locator');
+      expect(file.endsWith('.rejected.json')).toBe(true);
+      expect(JSON.parse(fs.readFileSync(file, 'utf8')).rejected).toMatch(/reached a locator/);
+      // `.rejected.json` ends in `.json`, so the listing has to exclude it
+      // explicitly or a refused flow is offered for replay like any other.
+      expect(listFlows().map((f) => f.name)).not.toContain('rej');
+      expect(flowsDir()).toBe(dir);
+    } finally {
+      delete process.env.BROWSER_PILOT_FLOWS_DIR;
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
