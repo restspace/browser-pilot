@@ -1,0 +1,202 @@
+{
+  "flow": "fwgr8",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_fcf057; observed h2=fwgr8-n1 Notes, h2_2=fwgr8-n1 Availability.",
+      "values": {
+        "h2": "fwgr8-n1 Notes",
+        "h2_2": "fwgr8-n1 Availability"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_27614a; observed dashboard_title=fwgr8-n2 Bench Dashboard, panel_title=fwgr8-n2 Availability.",
+      "values": {
+        "dashboard_title": "fwgr8-n2 Bench Dashboard",
+        "panel_title": "fwgr8-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text visualization panel titled \"fwgr8-n2 Notes\" with markdown content \"# Notes for run fwgr8-n2\" (containing runid 'fwgr8-n2'). Applied the panel, then saved the dashboard (\"fwgr8-n2 Bench Dashboard\") via the Save dialog. The \"Dashboard saved\" alert confirmed the save succeeded.",
+      "values": {
+        "panel_title": "fwgr8-n2 Notes",
+        "panel_content": "Notes for run fwgr8-n2",
+        "dashboard_title": "fwgr8-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_b06b12; observed dashboard_title=fwgr8-n2 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "dashboard_title": "fwgr8-n2 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to '1m' using the refresh interval picker in the top bar. Saved the dashboard and the save succeeded (no error dialogs, query parameter &refresh=1m confirmed in URL). The refresh picker shows \"1m\" after saving.",
+      "values": {
+        "refresh_interval": "1m"
+      },
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c5e8fb.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Set time range to \"Last 6 hours\" and refresh to \"1m\", then saved the dashboard. The save dialog showed \"No changes to save\" text with the Save button disabled, but checking \"Update default time range\" and \"Update default refresh value\" enabled saving. After saving (\"Dashboard saved\" alert confirmed), I checked the API JSON at /api/dashboards/uid/cfwl8p17eroqoa: dashboard.time = {\"from\":\"now-6h\",\"to\":\"now\"} and dashboard.refresh = \"1m\". Both keys are present and persist the desired values.",
+      "values": {
+        "time": "{\"from\":\"now-6h\",\"to\":\"now\"}",
+        "refresh": "1m"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 23
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "The time range (\"Last 6 hours\") and refresh interval (\"1m\") were already persisted from the prior save. Opening the Save dashboard dialog showed \"No changes to save\" text with no checkboxes visible, because nothing had changed since the last save. The Save button was disabled. The API JSON confirms: dashboard.time = {\"from\":\"now-6h\",\"to\":\"now\"} and dashboard.refresh = \"1m\". Both keys are present and set correctly.",
+      "values": {
+        "time": "{\"from\":\"now-6h\",\"to\":\"now\"}",
+        "refresh": "1m",
+        "save_dialog_show_checkbox": "No changes to save — no checkbox appeared",
+        "save_dialog_checkbox_label": "No checkbox visible"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Final verification complete. Loaded the dashboard with no query params; Grafana then applied the saved defaults as URL params. (1) Dashboard title: \"fwgr8-n2 Bench Dashboard\". (2) Panel titles: \"fwgr8-n2 Notes\" and \"fwgr8-n2 Availability\". (3) Time range picker: \"Last 6 hours\". (4) Refresh interval picker: \"1m\". (5) URL after load: http://127.0.0.1:3000/d/cfwl8p17eroqoa/fwgr8-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m. Settings > General shows tags: \"bench\". All values verified from the live DOM.",
+      "values": {
+        "dashboard_title": "fwgr8-n2 Bench Dashboard",
+        "panel_titles": "fwgr8-n2 Notes, fwgr8-n2 Availability",
+        "refresh_picker": "1m",
+        "tags": "bench",
+        "time_range_picker": "Last 6 hours",
+        "url_after_load": "http://127.0.0.1:3000/d/cfwl8p17eroqoa/fwgr8-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 62
+    },
+    {
+      "id": "10-find",
+      "status": "success",
+      "summary": "Found the Text panel titled \"fwgr8-n2 Notes\" on the dashboard. The exact text content rendered inside that panel (the markdown body) is: \"Notes for run fwgr8-n2\". This content does contain the string \"fwgr8-n2\". Verified from the live DOM (the panel's markdown element inside the panel container).",
+      "values": {
+        "contains_fwgr8-n2": "true",
+        "panel_title": "fwgr8-n2 Notes",
+        "rendered_text_content": "Notes for run fwgr8-n2"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 9
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr8",
+      "step": "01-open",
+      "skill": "s_fcf057",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.953,
+      "missedLocator": "page.locator('header > div:nth-of-type(2) > nav > ol > li:nth-of-type(4) > span')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwl6032r5fcwe/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "01-open",
+      "skill": "s_fcf057",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.953,
+      "missedLocator": "page.locator('[id=\"_r1i_\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwl6032r5fcwe/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "05-open",
+      "skill": "s_68b34d",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 04-open.tags, 04-open.tags",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl8p17eroqoa/:id"
+    }
+  ],
+  "wallMs": 637516,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2132162,
+    "completionTokens": 22687,
+    "cachedTokens": 1845888
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1294245,
+      "completionTokens": 12612,
+      "cachedTokens": 1126912
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 837917,
+      "completionTokens": 10075,
+      "cachedTokens": 718976
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

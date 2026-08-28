@@ -1,0 +1,246 @@
+{
+  "flow": "fwgr8",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_fcf057; observed h2=fwgr8-n1 Notes, h2_2=fwgr8-n1 Availability.",
+      "values": {
+        "h2": "fwgr8-n1 Notes",
+        "h2_2": "fwgr8-n1 Availability"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_27614a; observed dashboard_title=fwgr8-n3 Bench Dashboard, panel_title=fwgr8-n3 Availability.",
+      "values": {
+        "dashboard_title": "fwgr8-n3 Bench Dashboard",
+        "panel_title": "fwgr8-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text visualization panel titled \"fwgr8-n3 Notes\" with markdown content \"# Notes for run fwgr8-n3\" (containing runid 'fwgr8-n3'). Applied the panel, then saved the dashboard (\"fwgr8-n3 Bench Dashboard\") via the Save dialog. The \"Dashboard saved\" alert confirmed the save succeeded.",
+      "values": {
+        "panel_title": "fwgr8-n3 Notes",
+        "panel_content": "Notes for run fwgr8-n3",
+        "dashboard_title": "fwgr8-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_b06b12; observed dashboard_title=fwgr8-n3 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "dashboard_title": "fwgr8-n3 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the dashboard auto-refresh interval to '1m' via the refresh picker, then saved the dashboard explicitly. After saving, the refresh picker shows '1m' and the URL includes &refresh=1m. Save confirmed successful.",
+      "values": {
+        "refresh_interval": "1m"
+      },
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c5e8fb.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Completed the persisted time range and refresh interval save. The previous attempt had already set the time range to 'Last 6 hours' (via Last 24 hours first) and refresh to '1m' (via 5m first), and had the save dialog open with both 'Update default time range' and 'Update default refresh value' checkboxes checked. I clicked Save, which succeeded with a 'Dashboard saved' alert (version bumped to 4). The saved dashboard JSON at /api/dashboards/uid/cfwl9na6fyn0ge now contains \"time\": {\"from\":\"now-6h\",\"to\":\"now\"} and \"refresh\": \"1m\" — both keys present, not absent.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 35
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Already on the dashboard with no query params; time range showed 'Last 6 hours' and refresh picker showed '1m' (steps 1 & 2 already satisfied from prior save). Entered edit mode and clicked 'Save dashboard' — the save dialog displayed 'No changes to save' (Save button disabled) with no checkboxes visible, because the time range and refresh were already persisted in the saved JSON (version 4). Navigated to the API endpoint. The saved dashboard JSON at /api/dashboards/uid/cfwl9na6fyn0ge contains: \"time\": {\"from\":\"now-6h\",\"to\":\"now\"} and \"refresh\": \"1m\" — both keys present.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 9
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Final verification completed. (1) Dashboard title in top bar: \"fwgr8-n3 Bench Dashboard\". (2) Panel titles visible: \"fwgr8-n3 Notes\" and \"fwgr8-n3 Availability\". (3) Time range picker shows: \"Last 6 hours\". (4) Refresh interval picker shows: \"1m\". (5) Full URL: http://127.0.0.1:3000/d/cfwl9na6fyn0ge/fwgr8-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m. (6) Dashboard Settings > General tags: [\"bench\"].",
+      "values": {},
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 7
+    },
+    {
+      "id": "10-find",
+      "status": "success",
+      "summary": "Found the Text panel titled 'fwgr8-n3 Notes' on the dashboard. The rendered markdown text content inside the panel is \"Notes for run fwgr8-n3\", which does contain the string 'fwgr8-n3' (confirmed by substring match).",
+      "values": {
+        "e729": "Notes for run fwgr8-n3"
+      },
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 2
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "repinned": 0,
+  "drift": 8,
+  "driftTickets": [
+    {
+      "flow": "fwgr8",
+      "step": "01-open",
+      "skill": "s_fcf057",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.953,
+      "missedLocator": "page.locator('header > div:nth-of-type(2) > nav > ol > li:nth-of-type(4) > span')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwl6032r5fcwe/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "01-open",
+      "skill": "s_fcf057",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.953,
+      "missedLocator": "page.locator('[id=\"_r1i_\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwl6032r5fcwe/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "05-open",
+      "skill": "s_68b34d",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 04-open.tags, 04-open.tags",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl9na6fyn0ge/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "09-open",
+      "skill": "s_1bfcf0",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 04-open.tags, 04-open.tags",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl9na6fyn0ge/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "10-find",
+      "skill": "s_66a0ad",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.897,
+      "missedLocator": "page.getByTestId('data-testid Back to dashboard button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl9na6fyn0ge/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "10-find",
+      "skill": "s_66a0ad",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.897,
+      "missedLocator": "page.getByRole('heading', { name: 'Notes for run fwgr8-n3' })",
+      "fallbackUsed": "page.locator('section > div:nth-of-type(3) > div > div:nth-of-type(1) > div > h1')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl9na6fyn0ge/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "10-find",
+      "skill": "s_66a0ad",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.897,
+      "missedLocator": "page.locator('[id=\"_r3a_\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl9na6fyn0ge/:id"
+    },
+    {
+      "flow": "fwgr8",
+      "step": "10-find",
+      "skill": "s_66a0ad",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.897,
+      "missedLocator": "page.locator('[id=\"_r3a_\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwl9na6fyn0ge/:id"
+    }
+  ],
+  "wallMs": 265705,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 860159,
+    "completionTokens": 10329,
+    "cachedTokens": 736768
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 788188,
+      "completionTokens": 9346,
+      "cachedTokens": 676864
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 71971,
+      "completionTokens": 983,
+      "cachedTokens": 59904
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

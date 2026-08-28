@@ -1,0 +1,238 @@
+{
+  "name": "fwgr8",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin'. If Grafana asks you to change/skip the password, choose Skip. Then find and open the provisioned dashboard named 'Service health' (use search/dashboards if needed) and report the titles of every panel on that dashboard, exactly as displayed on the page.",
+      "skill": "s_faa9e7",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "dashboard",
+        "panels",
+        "h2",
+        "h2_2",
+        "h2_3"
+      ],
+      "recorded": {
+        "dashboard": "Service Health",
+        "panels": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Grafana, create a NEW dashboard. Add a 'Stat' visualization panel. Set the panel title to exactly '{{runid}} Availability'. For the panel's query, select the 'TestData' data source (it may be called 'TestData' or 'grafana-testdata-datasource' — pick the TestData one) and leave its default scenario (e.g. random walk / no scenario change needed). Then set the dashboard title to exactly '{{runid}} Bench Dashboard' (use dashboard settings > General > Title). Save the dashboard (Save button / Ctrl+S), confirm the save, and report the dashboard URL/UID shown in the address bar after saving.",
+      "skill": "s_cd057e",
+      "params": {
+        "v2": "{{runid}} Availability",
+        "v3": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "dashboard_uid",
+        "dashboard_title",
+        "panel_title",
+        "panel_type",
+        "data_source"
+      ],
+      "recorded": {
+        "dashboard_uid": "ffwl6032r5fcwe",
+        "dashboard_title": "fwgr8-n1 Bench Dashboard",
+        "panel_title": "fwgr8-n1 Availability",
+        "panel_type": "Stat",
+        "data_source": "TestData"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard in Grafana. Add a NEW 'Text' visualization panel to the dashboard. Set the Text panel's title to exactly '{{runid}} Notes' and set its text content to include the runid '{{runid}}' (e.g. content like 'Notes for run {{runid}}'). Apply the panel edit, then SAVE the dashboard (explicit Save button or Ctrl+S) and confirm the save succeeded. Report the panel title and the text content you entered, and confirm the save.",
+      "skill": "s_1eb12f",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard",
+        "v4": "{{runid}} Notes",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "panel_title",
+        "panel_content",
+        "dashboard_title",
+        "save_confirmed"
+      ],
+      "recorded": {
+        "panel_title": "fwgr8-n1 Notes",
+        "panel_content": "Notes for run fwgr8-n1",
+        "dashboard_title": "fwgr8-n1 Bench Dashboard",
+        "save_confirmed": "true"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard in Grafana. Do two things: (1) In dashboard Settings > General, add the tag 'bench' to the dashboard's tags (type it in the Tags field and press Enter so it becomes a tag chip), keeping the title '{{runid}} Bench Dashboard'. (2) Using the time range picker in the top-right, set the dashboard's time range to 'Last 6 hours'. Then SAVE the dashboard explicitly (Save button or Ctrl+S) and confirm the save succeeded. Report the tags shown in settings and the time range shown in the picker after saving.",
+      "skill": "s_b06b12",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard",
+        "v4": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "dashboard_title",
+        "tags",
+        "time_range",
+        "save_confirmed"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr8-n1 Bench Dashboard",
+        "tags": "bench",
+        "time_range": "Last 6 hours",
+        "save_confirmed": "true"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard in Grafana. Using the refresh interval picker in the top bar (next to the time range picker, usually showing 'Off' or '5m'), set the dashboard's auto-refresh interval to '1m'. Then SAVE the dashboard explicitly (Save button or Ctrl+S) and confirm the save succeeded. Report what the refresh picker shows after saving.",
+      "skill": "s_68b34d",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}}-{{04-open.tags}}-dashboard"
+      },
+      "outputs": [
+        "refresh_interval",
+        "refresh_button_text",
+        "save_dialog_message"
+      ],
+      "recorded": {
+        "refresh_interval": "1m",
+        "refresh_button_text": "1m",
+        "save_dialog_message": "No changes to save"
+      }
+    },
+    {
+      "id": "06-report",
+      "instruction": "In the same browser session (already signed into Grafana as admin), navigate to http://127.0.0.1:3000/api/dashboards/uid/{{02-create.url.p1}} which returns JSON. Report these specific fields from the JSON: dashboard.title, dashboard.tags, dashboard.time, dashboard.refresh, and for each entry in dashboard.panels report its type, title, and datasource. Quote the values exactly.",
+      "skill": "s_c5e8fb",
+      "params": {
+        "v2": "http://127.0.0.1:3000/api/dashboards/uid/{{02-create.url.p1}}"
+      },
+      "outputs": [
+        "dashboard.title",
+        "dashboard.tags",
+        "dashboard.time",
+        "dashboard.refresh",
+        "panel_1",
+        "panel_2"
+      ],
+      "recorded": {
+        "dashboard.title": "fwgr8-n1 Bench Dashboard",
+        "dashboard.tags": "bench",
+        "dashboard.time": "null",
+        "dashboard.refresh": "null",
+        "panel_1": "{\"type\":\"text\",\"title\":\"fwgr8-n1 Notes\",\"datasource\":null}",
+        "panel_2": "{\"type\":\"stat\",\"title\":\"fwgr8-n1 Availability\",\"datasource\":{\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}}"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "Open the Grafana dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard with NO query parameters in the URL. Goal: make the dashboard's time range ('{{04-open.time_range}}') and auto-refresh interval ('{{05-open.refresh_interval}}') persist in the SAVED dashboard JSON. Do this: (1) Using the time range picker in the top-right, first set the range to 'Last 24 hours', then set it to '{{04-open.time_range}}'. (2) Using the refresh interval picker next to it, first set it to '5m', then set it to '{{05-open.refresh_interval}}'. (3) Click the Save dashboard button in the top bar and complete the save (confirm in the save dialog). If Grafana reports '{{05-open.save_dialog_message}}', report that exact message. (4) After saving, navigate to http://127.0.0.1:3000/api/dashboards/uid/{{02-create.url.p1}} and report the exact verbatim JSON values for the keys 'time' and 'refresh' (or say 'absent' if those keys do not appear in the JSON).",
+      "skill": "s_6b28fe",
+      "params": {
+        "v7": "http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard",
+        "v5": "{{04-open.time_range}}",
+        "v6": "{{05-open.save_dialog_message}}",
+        "v8": "http://127.0.0.1:3000/api/dashboards/uid/{{02-create.url.p1}}"
+      },
+      "outputs": [
+        "save_dialog_message",
+        "has_time",
+        "time_value",
+        "has_refresh",
+        "refresh_value"
+      ],
+      "recorded": {
+        "save_dialog_message": "No changes to save",
+        "has_time": "false",
+        "time_value": "absent",
+        "has_refresh": "false",
+        "refresh_value": "absent"
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "Open the Grafana dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard with NO query parameters. Goal: persist the time range and refresh interval into the saved dashboard JSON. Steps: (1) Use the time range picker (top right) to set the range to '{{04-open.time_range}}'. (2) Use the refresh interval picker (next to it) to set auto-refresh to '{{05-open.refresh_interval}}'. (3) Click the 'Save dashboard' button in the top bar to open the save dialog. In the save dialog there should be a checkbox like 'Save current time range as dashboard default' (and possibly one about variables) — CHECK that checkbox so the current time range gets saved. Then click Save/confirm. (4) After saving, navigate to http://127.0.0.1:3000/api/dashboards/uid/{{02-create.url.p1}} and report the exact verbatim JSON values for the keys 'time' and 'refresh' (or say '{{07-open.time_value}}' if a key does not appear). Also report whether the save dialog showed any checkbox and what it was labeled.",
+      "skill": "s_7b2c40",
+      "params": {
+        "v7": "http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard",
+        "v5": "{{04-open.time_range}}",
+        "v8": "http://127.0.0.1:3000/api/dashboards/uid/{{02-create.url.p1}}",
+        "v6": "{{07-open.time_value}}"
+      },
+      "outputs": [
+        "save_dialog_checkboxes",
+        "dashboard_time",
+        "dashboard_refresh"
+      ],
+      "recorded": {
+        "save_dialog_checkboxes": "Update default time range — Will make current time range the new default, Update default refresh value — Will make the current refresh the new default",
+        "dashboard_time": "{\"from\":\"now-6h\",\"to\":\"now\"}",
+        "dashboard_refresh": "1m"
+      }
+    },
+    {
+      "id": "09-open",
+      "instruction": "Final verification. Open http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard with NO query parameters (fresh load, no URL params). Report: (1) the dashboard title shown in the top bar; (2) the titles of all panels visible on the dashboard; (3) what the time range picker in the top-right shows; (4) what the refresh interval picker shows; (5) the full URL in the address bar after the page loads. Then open dashboard Settings > General and report the tags listed there.",
+      "skill": "s_1bfcf0",
+      "params": {
+        "v5": "http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "time_range_picker",
+        "refresh_picker",
+        "tags"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr8-n1 Bench Dashboard",
+        "panel_titles": "fwgr8-n1 Availability, fwgr8-n1 Notes",
+        "time_range_picker": "Last 6 hours",
+        "refresh_picker": "1m",
+        "tags": "bench"
+      }
+    },
+    {
+      "id": "10-find",
+      "instruction": "On the Grafana dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tags}}-dashboard, find the Text panel titled '{{runid}} Notes' and report the exact text content rendered inside that panel (the markdown body text), and confirm whether it contains the string '{{runid}}'.",
+      "skill": "s_66a0ad",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}}-{{04-open.tags}}-dashboard",
+        "v5": "{{runid}} Notes",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "panel_title",
+        "rendered_text_content",
+        "contains_fwgr8_n1"
+      ],
+      "recorded": {
+        "panel_title": "fwgr8-n1 Notes",
+        "rendered_text_content": "Notes for run fwgr8-n1",
+        "contains_fwgr8_n1": "true"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr8-n1",
+    "created": "2026-08-28T23:24:08.948Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
