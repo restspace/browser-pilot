@@ -165,6 +165,18 @@ export function buildFlow(
     // the uid blanked until it turn-capped.
     const minted: { stepId: string; output: string; value: string }[] = [];
     if (g.endUrl) {
+      // The WHOLE url, not only its parts. A step's params often carry it
+      // entire ("On ticket {{v1}} (url {{v2}})"), and without provenance that
+      // literal gets referencized under whatever the RECORDING run's report
+      // happened to name it. fwrd21l shows the cost: 02-add's model report
+      // named it `url`, so the flow said {{02-add.url}} — then on replay 02-add
+      // went tier A, synthesizeReport honestly dropped a recorded url it could
+      // not re-observe, the ref went unresolved, and FOUR later steps skipped
+      // the zero-model path entirely. Exactly the fwgr-n2/n3 failure the parts
+      // loop below was written for, one level up.
+      if (!produced.some((p) => p.value === g.endUrl) && !varEntries.some(([, v]) => v === g.endUrl)) {
+        minted.push({ stepId: id, output: 'url', value: g.endUrl });
+      }
       for (const part of urlParts(g.endUrl)) {
         const fresh = !seenUrl.has(part.value);
         seenUrl.add(part.value);
@@ -284,7 +296,7 @@ export function recoveryRoute(
  * Export-time reference lint (PLAN-no-skill-steps case 4a): find every
  * `{{stepId.output}}` reference whose producing step cannot re-publish the
  * value deterministically on replay, and say so while the author can still do
- * something about it. `url.*` parts are exempt — every replay re-binds them
+ * something about it. `url` and its `url.*` parts are exempt — every replay re-binds them
  * from where its own browser lands. `publishes` answers, for a skill id, which
  * output names a tier-A replay re-observes (labelled reads + param-derived
  * report values); null when the skill is not in the store. Advisory only:
@@ -300,7 +312,7 @@ export function lintFlowRefs(flow: Flow, publishes: (skillId: string) => string[
     for (const text of texts) {
       for (const m of text.matchAll(/\{\{([\w-]+)\.([\w.#-]+)\}\}/g)) {
         const [, sid, out] = m;
-        if (out.startsWith('url.')) continue;
+        if (out === 'url' || out.startsWith('url.')) continue;
         const producer = byId.get(sid);
         if (!producer || seen.has(`${sid}.${out}`)) continue;
         seen.add(`${sid}.${out}`);

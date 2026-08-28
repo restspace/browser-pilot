@@ -399,3 +399,42 @@ describe('publishedOutputs', () => {
     expect(publishedOutputs(skill).sort()).toEqual(['ref', 'row_total', 'title']);
   });
 });
+
+describe('the whole url is provenance, not a report name', () => {
+  it('referencizes a param carrying the full end url', () => {
+    // fwrd21l: the recording's report named it `url`, so the flow said
+    // {{02-add.url}}. On replay 02-add went tier A and synthesizeReport
+    // honestly dropped a recorded url it could not re-observe — so the ref
+    // went unresolved and FOUR later steps skipped the zero-model path.
+    const detail = `${ORIGIN}/#/tickets/t15`;
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create a ticket.', url: `${ORIGIN}/#/tickets` },
+      {
+        k: 'step', tool: 'click', args: { target: '@e1' },
+        locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'Create' }] } },
+        diff: { url: detail, alerts: [], added: [] },
+      },
+      // Deliberately publishes NO url value: provenance alone must supply it,
+      // which is the whole point — a tier-A replay drops recorded values it
+      // cannot re-observe, so a report name is not something to depend on.
+      // The report publishes the url under ITS OWN name. Pre-fix that name
+      // won the referencizing (longest value first), so the flow depended on
+      // a tier-A replay re-publishing `detail_link` — which it will not.
+      { k: 'report', status: 'success', summary: 'made it', values: { detail_link: detail }, skill: 's_a' },
+      { k: 'instruction', text: `On the ticket at url ${detail}, add a part.`, url: detail },
+      {
+        k: 'step', tool: 'click', args: { target: '@e2' },
+        locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'role', role: 'button', name: 'Add part' }] } },
+      },
+      { k: 'report', status: 'success', summary: 'added', values: {}, skill: 's_b' },
+    ];
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/#/tickets`, vars: {}, session: 's' })!;
+    // Provenance wins: the ref names the step's END URL, which every replay
+    // re-binds from where its own browser landed.
+    expect(flow.steps[1].instruction).toMatch(/\{\{01-\w+\.url\}\}/);
+    expect(flow.steps[1].instruction).not.toContain('detail_link');
+    expect(flow.steps[1].instruction).not.toContain(detail);
+    // ...and the lint treats it as re-observable, like url.* parts.
+    expect(lintFlowRefs({ ...flow, steps: [flow.steps[0], { ...flow.steps[1], instruction: 'go to {{01-a.url}}' }] }, () => [])).toEqual([]);
+  });
+});

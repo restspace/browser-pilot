@@ -770,6 +770,10 @@ ${direct.prelude}` : recoveryText) + resetNote,
       const stepOutputs: Record<string, string> = { ...values };
       try {
         const liveUrl = (await this.browser.getPage()).url();
+        // The whole url first: a later step's `{{02-add.url}}` must resolve
+        // from where THIS run's browser landed, not from whether the report
+        // happened to mention it.
+        if (!('url' in stepOutputs)) stepOutputs.url = liveUrl;
         for (const part of urlParts(liveUrl)) {
           const key = `url.${part.label}`;
           if (part.value.length >= 4 && !(key in stepOutputs)) stepOutputs[key] = part.value;
