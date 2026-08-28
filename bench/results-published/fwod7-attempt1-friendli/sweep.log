@@ -1,0 +1,42 @@
+
+[sweep] run 1/3: fwod7-n1 (store: /home/user/browser-pilot/bench/results/fwod7-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[harness] odoo: no rollback — writes are runid-scoped, verified by name over JSON-RPC
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod7-n1 stop=completed
+turns=1 wall=15.1s
+commands=0 cmdTime=0.0s cmdBytes=0 timeouts=0
+orchestrator in=2259 cw=0 cr=0 out=2009
+inner prompt=0 cached=0 completion=0
+spend=$0.012 maxUsd=2
+learn: A_n=n/a replayed=0/0 full=0 repaired=0 compiled=0 variants=0
+-> /home/user/browser-pilot/bench/results/fwod7-n1-browser-pilot-result.json
+
+fwod7-n1: objectives passed 0/6
+  obj 1: FAIL — customer not found
+  obj 2: FAIL — no customer, so no order
+  obj 3: FAIL — no customer, so no order
+  obj 4: FAIL — no customer, so no order
+  obj 5: FAIL — no order
+  obj 6: FAIL — no order
+
+[sweep] run 2/3: fwod7-n2 (replay flow fwod7, no orchestrator)
+[sweep] fwod7-n2: flow "fwod7" was never saved (run 1 incomplete?) — SKIPPING replay
+
+[sweep] run 3/3: fwod7-n3 (replay flow fwod7, no orchestrator)
+[sweep] fwod7-n3: flow "fwod7" was never saved (run 1 incomplete?) — SKIPPING replay
+
+Learning sweep fwod7 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬───────┬───────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n   │ replayed  │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼───────┼───────────┼────────┤
+│ 0       │ 1 │ 'fwod7-n1' │ '0/6'    │ 'completed' │ 1     │ 0    │ 0.012     │ 'n/a' │ '0/0'     │ 15     │
+│ 1       │ 2 │ 'fwod7-n2' │ ''       │ 'no-flow'   │ null  │ null │ null      │ ''    │ 'skipped' │ null   │
+│ 2       │ 3 │ 'fwod7-n3' │ ''       │ 'no-flow'   │ null  │ null │ null      │ ''    │ 'skipped' │ null   │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴───────┴───────────┴────────┘
+no stored procedures (store: /home/user/browser-pilot/bench/results/fwod7-skills)
+
+summary: /home/user/browser-pilot/bench/results/fwod7-sweep.json
+SWEEP_EXIT=0

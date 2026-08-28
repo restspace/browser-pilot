@@ -1,0 +1,249 @@
+{
+  "flow": "fwod7",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Read the contact record (id=45) on the Odoo partner form. (1) Customer Name is \"fwod7-n1 Bench Customer\". (2) City is already \"Benchville\", so no change was needed. Both values confirmed from the live form fields.",
+      "values": {
+        "e96": "Benchville",
+        "e83": "fwod7-n1 Bench Customer"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 30
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_9b526a; observed product_name=[E-COM11] Cabinet with Doors, unit_price=140.00, quotation_number=S00022.",
+      "values": {
+        "product_name": "[E-COM11] Cabinet with Doors",
+        "unit_price": "140.00",
+        "quotation_number": "S00022"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00022. The second order line was already added (from the partial replay): product **[FURN_7777] Office Chair**, quantity 2.00, unit price 70.00 (auto-filled), subtotal £140.00. The Untaxed Amount in the totals section is **£ 560.00** (first line £420.00 + second line £140.00). The quotation is saved as a draft (no unsaved changes indicator).",
+      "values": {
+        "o_subtotal_o_total_name_": "Untaxed Amount"
+      },
+      "tier": "A",
+      "replayed": "15/19",
+      "repaired": false,
+      "turns": 27
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00022. Changed first line quantity from 3 to 5 (now shows 5.00), while the second line remained at 2.00. Saved. The Untaxed Amount shown in the totals section is **£ 840.00** (first line £700.00 + second line £140.00). The quotation remains a draft.",
+      "values": {
+        "e662": "5.00"
+      },
+      "tier": "B",
+      "replayed": "11/17",
+      "repaired": true,
+      "turns": 19
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed draft quotation S00022. The quotation has become a sales order. (a) Order reference: **S00022**. (b) Status shown: **Sales Order** (checked/active in the status bar).",
+      "values": {
+        "e286": "S00022"
+      },
+      "tier": "B",
+      "replayed": "1/6",
+      "repaired": true,
+      "turns": 5
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened confirmed sales order S00022 (customer fwod7-n2 Bench Customer) and cancelled it. Clicked the Cancel button in the header, which opened an HTML \"Cancel Sales Order\" modal (not a native dialog); clicked the modal's \"Cancel\" button to confirm. The modal closed and the status bar now shows \"Cancelled\" as the checked status (aria-checked=true), with \"Sales Order\", \"Quotation Sent\" and \"Quotation\" unchecked. The order was not deleted — only cancelled. Screenshot saved as evidence.",
+      "values": {
+        "order_reference": "S00022",
+        "status_after_cancel": "Cancelled"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 44
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_b3a68a; observed order_reference=S00022, contact_name=fwod7-n2 Bench Customer.",
+      "values": {
+        "order_reference": "S00022",
+        "contact_name": "fwod7-n2 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 10,
+  "driftTickets": [
+    {
+      "flow": "fwod7",
+      "step": "02-create",
+      "skill": "s_092dc6",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('option', { name: 'fwod7-n2 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "03-open",
+      "skill": "s_53bd22",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_53bd22 stopped at step 16 — wait_for failed: locator.waitFor: Timeout 10000ms exceeded.",
+      "reason": "wait_for failed: locator.waitFor: Timeout 10000ms exceeded.",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "04-open",
+      "skill": "s_d149ee",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[name=\"product_uom_qty\"] >> nth=0')",
+      "fallbackUsed": "page.getByText('3.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "04-open",
+      "skill": "s_d149ee",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[name=\"product_uom_qty\"] >> nth=0')",
+      "fallbackUsed": "page.getByText('3.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "04-open",
+      "skill": "s_d149ee",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[name=\"product_uom_qty\"] >> nth=0')",
+      "fallbackUsed": "page.getByText('3.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "04-open",
+      "skill": "s_d149ee",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[name=\"product_uom_qty\"] >> nth=0')",
+      "fallbackUsed": "page.getByText('3.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "04-open",
+      "skill": "s_d149ee",
+      "atStep": "8",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[name=\"product_uom_qty\"] >> nth=0')",
+      "fallbackUsed": "page.getByText('3.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "04-open",
+      "skill": "s_d149ee",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[name=\"product_uom_qty\"] >> nth=0')",
+      "fallbackUsed": "page.getByText('3.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "05-open",
+      "skill": "s_935854",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.975,
+      "missedLocator": "page.getByRole('button', { name: 'Confirm' }).nth(1)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "07-verify",
+      "skill": "s_b3a68a",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a > span:nth-of-type(2)')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 1276161,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2247008,
+    "completionTokens": 23001,
+    "cachedTokens": 1830848
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1887902,
+      "completionTokens": 19566,
+      "cachedTokens": 1591808
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 359106,
+      "completionTokens": 3435,
+      "cachedTokens": 239040
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

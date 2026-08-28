@@ -1,0 +1,184 @@
+{
+  "flow": "fwod7",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-report",
+      "status": "success",
+      "summary": "Read the contact record (id=45) on the Odoo partner form. (1) Customer Name is \"fwod7-n1 Bench Customer\". (2) City is already \"Benchville\", so no change was needed. Both values confirmed from the live form fields.",
+      "values": {
+        "e96": "Benchville",
+        "e83": "fwod7-n1 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_acda5c"
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_9b526a; observed product_name=[E-COM11] Cabinet with Doors, unit_price=140.00, quotation_number=S00023.",
+      "values": {
+        "product_name": "[E-COM11] Cabinet with Doors",
+        "unit_price": "140.00",
+        "quotation_number": "S00023"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00023. The second order line was already added (from the partial replay): product **[FURN_7777] Office Chair**, quantity 2.00, unit price 70.00 (auto-filled), subtotal £140.00. The Untaxed Amount in the totals section is **£ 560.00** (first line £420.00 + second line £140.00). The quotation is saved as a draft (no unsaved changes indicator).",
+      "values": {
+        "o_subtotal_o_total_name_": "Untaxed Amount"
+      },
+      "tier": "A",
+      "replayed": "23/23",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_ad6aa5"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened draft quotation S00023 (customer fwod7-n3 Bench Customer). Changed only the first line's quantity from 3.00 to 5.00 ([E-COM11] Cabinet with Doors, unit price 140.00, line subtotal now £ 700.00); second line ([FURN_7777] Office Chair) left at 2.00 (£ 140.00). Saved the quotation via the Save button. The totals section now shows Untaxed Amount £ 840.00. Status bar still shows \"Quotation\" (checked) — it remains a draft, not confirmed. Note: the previous attempt had been blocked by a \"Configure your product\" dialog overlay; dismissing it allowed the quantity cell to be edited normally.",
+      "values": {
+        "quotation": "S00023",
+        "line1_product": "[E-COM11] Cabinet with Doors",
+        "line1_quantity": "5.00",
+        "line1_subtotal": "£ 700.00",
+        "line2_product": "[FURN_7777] Office Chair",
+        "line2_quantity": "2.00",
+        "line2_subtotal": "£ 140.00",
+        "untaxed_amount": "£ 840.00",
+        "status": "Quotation (draft)"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 46
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed draft quotation S00023 (fwod7-n3 Bench Customer). The Confirm button was clicked and the page updated. (a) The order reference shown is S00023. (b) The status bar now shows \"Sales Order\" as the checked/active status (with \"Quotation Sent\" and \"Quotation\" as disabled options). The order is now a confirmed sales order.",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Sales Order"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 4,
+      "repinned": "s_b93d3b"
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_aa6a5b; observed order_reference=S00023.",
+      "values": {
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Read-only verification completed. (1) Contact record for fwod7-n3 Bench Customer: Name shown is \"fwod7-n3 Bench Customer\", City field is empty (blank). (2) Sales Order S00023: reference/name is \"S00023\", status bar shows \"Sales Order\" as the active/checked state. Nothing was modified.",
+      "values": {
+        "contact_name": "fwod7-n3 Bench Customer",
+        "contact_city": "",
+        "order_reference": "S00023",
+        "order_status": "Sales Order"
+      },
+      "tier": "B",
+      "replayed": "0/1",
+      "repaired": true,
+      "turns": 25
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 3,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwod7",
+      "step": "02-create",
+      "skill": "s_092dc6",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('option', { name: 'fwod7-n3 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "05-open",
+      "skill": "s_b93d3b",
+      "similarity": 0.993,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-open.second_line_product, 03-open.second_line_product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "06-open",
+      "skill": "s_aa6a5b",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('button >> text=\"Send and cancel\"')",
+      "fallbackUsed": "page.getByText('Send and cancel', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod7",
+      "step": "07-verify",
+      "skill": "s_80f5ef",
+      "similarity": 0.972,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "no candidate ran",
+      "reason": "after step 1 the page did not show \"- link \\\"S00023\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 1088931,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1245565,
+    "completionTokens": 20909,
+    "cachedTokens": 999646
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1029986,
+      "completionTokens": 12255,
+      "cachedTokens": 871168
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 215579,
+      "completionTokens": 8654,
+      "cachedTokens": 128478
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
