@@ -1,0 +1,140 @@
+{
+  "name": "fwod16",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-verify",
+      "instruction": "You are on an Odoo contact form (browser is at a res.partner form view, title 'Odoo - New'). Verify the Name field currently contains '{{runid}} Bench Customer'. If it does not, set it. Then set the City field to 'Benchville' (City is in the Address section; if the address block is not visible, click the address area to expand it). Then click Save. Report the exact name and city values shown on the saved record. Do not create a duplicate contact if one already exists with this name — instead open it and just make sure City is Benchville.",
+      "skill": "s_86edfe",
+      "params": {
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "name",
+        "city",
+        "record_id"
+      ],
+      "recorded": {
+        "name": "fwod16-n1 Bench Customer",
+        "city": "Benchville",
+        "record_id": "44"
+      }
+    },
+    {
+      "id": "02-add",
+      "instruction": "You are on the Odoo quotation S00021 form (draft, customer '{{runid}} Bench Customer'). It currently has ONE order line: 'Chair floor protection', quantity 3.00, unit price 12.00, Untaxed Amount £36.00. Add a SECOND order line: click 'Add a product' in the Order Lines table, then in the new row's Product field pick a DIFFERENT product from the catalogue (it is an autocomplete dropdown — type a few letters and actually select an option from the dropdown list, do not just type free text). Set its Quantity to 2. Let the app fill the unit price automatically. Do NOT confirm the quotation. Report: (a) the exact product name of the new second line, (b) its unit price, and (c) the new Untaxed Amount shown in the totals. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_7cfd6b",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "second_line_product",
+        "unit_price",
+        "untaxed_amount",
+        "quotation"
+      ],
+      "recorded": {
+        "second_line_product": "[E-COM11] Cabinet with Doors",
+        "unit_price": "140.00",
+        "untaxed_amount": "£316.00",
+        "quotation": "S00021"
+      }
+    },
+    {
+      "id": "03-change",
+      "instruction": "You are on the Odoo quotation {{02-add.quotation}} form (draft). It has two order lines: line 1 'Chair floor protection' quantity 3.00 unit price 12.00, and line 2 '{{02-add.second_line_product}}' quantity 2.00 unit price {{02-add.unit_price}}, with Untaxed Amount {{02-add.untaxed_amount}}. Change ONLY the first line's Quantity from 3 to 5 (click the 3.00 cell in the Chair floor protection row, clear it, type 5, then click elsewhere or press Tab so the value is applied). Do NOT change the second line and do NOT confirm the quotation. Report the new Untaxed Amount shown in the totals, and confirm both lines' quantities as shown afterwards. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_d49388",
+      "params": {
+        "v1": "{{02-add.quotation}}",
+        "v2": "{{02-add.second_line_product}}",
+        "v3": "{{02-add.unit_price}}",
+        "v4": "{{02-add.untaxed_amount}}"
+      },
+      "outputs": [
+        "line1_qty",
+        "line2_qty",
+        "untaxed_amount",
+        "quotation"
+      ],
+      "recorded": {
+        "line1_qty": "5.00",
+        "line2_qty": "2.00",
+        "untaxed_amount": "£340.00",
+        "quotation": "S00021"
+      }
+    },
+    {
+      "id": "04-change",
+      "instruction": "You are on the Odoo quotation {{02-add.quotation}} form (draft status 'Quotation'). It has two order lines: 'Chair floor protection' qty {{03-change.line1_qty}} unit price 12.00, and '{{02-add.second_line_product}}' qty {{03-change.line2_qty}} unit price {{02-add.unit_price}}, Untaxed Amount {{03-change.untaxed_amount}}. Click the 'Confirm' button so the quotation becomes a sales order. If a confirmation dialog appears, accept it. Wait for the status bar to change. Report: (a) the order reference/name shown (e.g. {{02-add.quotation}}), and (b) the exact status the app now shows in the status bar (e.g. 'Sales Order'). Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_a40018",
+      "params": {
+        "v1": "{{02-add.quotation}}",
+        "v2": "{{03-change.line1_qty}}",
+        "v4": "{{02-add.second_line_product}}",
+        "v3": "{{03-change.line2_qty}}",
+        "v5": "{{02-add.unit_price}}",
+        "v6": "{{03-change.untaxed_amount}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order"
+      }
+    },
+    {
+      "id": "05-change",
+      "instruction": "You are on the Odoo sales order {{02-add.quotation}} form, currently in status '{{04-change.status}}' (confirmed). Cancel this order: click the 'Cancel' button, and if a confirmation dialog appears asking to confirm cancellation, accept it. Wait for the status to change. Report the exact status the app shows after cancelling (e.g. 'Cancelled'). Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_40b916",
+      "params": {
+        "v1": "{{02-add.quotation}}",
+        "v2": "{{04-change.status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Cancelled"
+      }
+    },
+    {
+      "id": "06-verify",
+      "instruction": "You are on the Odoo sales order {{02-add.quotation}} form. Verify and report the current state: (a) the order reference/name, (b) the status shown in the status bar, (c) the customer name, (d) each order line's product name and quantity, and (e) the Untaxed Amount. Do not change anything — this is a read-only verification.",
+      "skill": "s_0fedc9",
+      "params": {
+        "v1": "{{02-add.quotation}}"
+      },
+      "outputs": [
+        "reference",
+        "status",
+        "customer",
+        "line1",
+        "line2",
+        "untaxed_amount",
+        "total"
+      ],
+      "recorded": {
+        "reference": "S00021",
+        "status": "Cancelled",
+        "customer": "fwod16-n1 Bench Customer",
+        "line1": "{\"product\":\"Chair floor protection\",\"qty\":\"5.00\"}",
+        "line2": "{\"product\":\"[E-COM11] Cabinet with Doors\",\"qty\":\"2.00\"}",
+        "untaxed_amount": "£340.00",
+        "total": "£408.00"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod16-n1",
+    "created": "2026-08-29T19:35:58.003Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

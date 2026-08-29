@@ -1,0 +1,69 @@
+{
+  "flow": "fwod16",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-verify",
+      "status": "success",
+      "summary": "The contact 'fwod16-n3 Bench Customer' was not found in the existing contacts, so I searched, found no match, created a new one. The Name field was set to 'fwod16-n3 Bench Customer', the City field to 'Benchville', and the record was saved. On the saved form, Name reads 'fwod16-n3 Bench Customer' and City reads 'Benchville', confirmed from the live DOM.",
+      "values": {
+        "name": "fwod16-n3 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_86edfe"
+    },
+    {
+      "id": "02-add",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": "B",
+      "replayed": "0/14",
+      "repaired": false,
+      "turns": 37
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 1,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwod16",
+      "step": "02-add",
+      "skill": "s_7cfd6b",
+      "similarity": 0.992,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "every candidate refused — s_7cfd6b: not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form; the url shape is close but the page structure is not — similarity 0.306) — nothing was run",
+      "reason": "the page at http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form does not show \"fwod16-n3 Bench Customer\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 726463,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 340391,
+    "completionTokens": 5143,
+    "cachedTokens": 254912
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 318211,
+      "completionTokens": 4313,
+      "cachedTokens": 232960
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 22180,
+      "completionTokens": 830,
+      "cachedTokens": 21952
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

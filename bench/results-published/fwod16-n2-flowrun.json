@@ -1,0 +1,54 @@
+{
+  "flow": "fwod16",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-verify",
+      "status": "success",
+      "summary": "The contact 'fwod16-n2 Bench Customer' was not found in the existing contacts, so I searched, found no match, created a new one. The Name field was set to 'fwod16-n2 Bench Customer', the City field to 'Benchville', and the record was saved. On the saved form, Name reads 'fwod16-n2 Bench Customer' and City reads 'Benchville', confirmed from the live DOM.",
+      "values": {
+        "name": "fwod16-n2 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 16
+    },
+    {
+      "id": "02-add",
+      "status": "blocked",
+      "summary": "Instruction timed out after 600s (32 turns, 27 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 62
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 848298,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 884083,
+    "completionTokens": 11737,
+    "cachedTokens": 753792
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 530968,
+      "completionTokens": 8738,
+      "cachedTokens": 422400
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 353115,
+      "completionTokens": 2999,
+      "cachedTokens": 331392
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
