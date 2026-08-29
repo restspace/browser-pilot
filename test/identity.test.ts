@@ -432,3 +432,57 @@ describe('a step that MINTS a record is known as such', () => {
     expect(prelude).toMatch(/may already exist/);
   });
 });
+
+describe('a replay that acted is never retried by a sibling', () => {
+  it('marks `acted` when the action fired, even if the step did not complete', async () => {
+    const { replaySkill } = await import('../src/skills/replay.js');
+    const skill = {
+      id: 's_act', origin: 'http://x.test', template: 't', params: {},
+      preconditions: { urlPattern: 'http://x.test/orders' },
+      steps: [
+        // The click fires; the expectation then fails. stepsRun stays 0 —
+        // which the caller used to read as "the page was not touched".
+        { tool: 'click', args: { target: '@e1' }, locators: { target: [{ kind: 'role', role: 'button', name: 'Create' }] },
+          expect: { urlPattern: 'http://x.test/nowhere/:id' } },
+      ],
+      stats: { uses: 1, successes: 1, partial: 0, created: '', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated', provenance: { session: 's', instruction: 't', created: '' },
+    } as unknown as Skill;
+    const fired: string[] = [];
+    const page = {
+      url: () => 'http://x.test/orders',
+      async goto() {}, async content() { return '<html></html>'; },
+      async evaluate() { return ''; }, async waitForLoadState() {},
+      getByRole: () => ({ count: async () => 1, first: () => ({ textContent: async () => '' }) }),
+      locator: () => ({ count: async () => 1, first: () => ({ textContent: async () => '' }) }),
+    } as unknown as import('playwright-core').Page;
+    const out = await replaySkill(skill, {}, {
+      page,
+      exec: async (tool) => { fired.push(tool); return { result: 'ok' }; },
+    });
+    expect(fired).toEqual(['click']); // the action really did fire
+    expect(out.stepsRun).toBe(0); // ...and the step still did not complete
+    expect(out.acted).toBe(true); // which is exactly what `acted` records
+    expect(out.ok).toBe(false);
+  });
+
+  it('does not mark `acted` for a read', async () => {
+    const { replaySkill } = await import('../src/skills/replay.js');
+    const skill = {
+      id: 's_read', origin: 'http://x.test', template: 't', params: {},
+      preconditions: { urlPattern: 'http://x.test/orders' },
+      steps: [{ tool: 'read', args: { target: '@e1', what: 'text' }, locators: { target: [{ kind: 'role', role: 'link', name: 'Ref' }] }, label: 'ref' }],
+      stats: { uses: 1, successes: 1, partial: 0, created: '', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated', provenance: { session: 's', instruction: 't', created: '' },
+    } as unknown as Skill;
+    const page = {
+      url: () => 'http://x.test/orders',
+      async goto() {}, async content() { return '<html></html>'; },
+      async evaluate() { return ''; }, async waitForLoadState() {},
+      getByRole: () => ({ count: async () => 1, first: () => ({ textContent: async () => '' }) }),
+      locator: () => ({ count: async () => 1, first: () => ({ textContent: async () => '' }) }),
+    } as unknown as import('playwright-core').Page;
+    const out = await replaySkill(skill, {}, { page, exec: async () => ({ result: '"S1"' }) });
+    expect(out.acted).toBe(false); // observing is not acting
+  });
+});

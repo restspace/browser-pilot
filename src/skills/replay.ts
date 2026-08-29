@@ -77,6 +77,12 @@ export interface ReplayResult {
    */
   created: string[];
   /**
+   * A state-changing action was DISPATCHED — whether or not the step it
+   * belonged to went on to complete. The page may have changed, so this
+   * replay is not repeatable and no sibling candidate may be tried after it.
+   */
+  acted: boolean;
+  /**
    * Url patterns whose literal segment(s) disagreed with the live url while
    * everything else matched (mechanism 2, PLAN-replay-v2). The replay
    * proceeded optimistically; the caller persists the generalised pattern
@@ -139,6 +145,7 @@ export async function replaySkill(
     generalisations: [],
     candidateEvidence: [],
     created: [],
+    acted: false,
     similarity: null,
     url: page.url(),
   };
@@ -349,6 +356,12 @@ export async function replaySkill(
     }
 
     let outcome: { result: string; diff?: StepDiff };
+    // Dispatched, not completed. A step whose action fires and whose
+    // EXPECTATION then fails returns 'stop' without incrementing stepsRun, so
+    // stepsRun === 0 has never meant "the page was not touched" — and the
+    // caller reads it as exactly that before trying another candidate. A
+    // second candidate then clicks Create again.
+    if (!isRead) res.acted = true;
     try {
       outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: failIndex });
     } catch (err) {

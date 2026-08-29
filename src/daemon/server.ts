@@ -1011,8 +1011,13 @@ ${direct.prelude}` : recoveryText) + resetNote,
       match = cand;
       replay = r;
       if (r.ok) break;
-      if (r.stepsRun === 0) {
+      if (r.stepsRun === 0 && !r.acted && !r.created.length) {
         // Failed before touching the page — safe to try the next candidate.
+        // `stepsRun === 0` alone does NOT establish that: a step whose action
+        // fires and whose expectation then fails stops without counting, so
+        // the click already happened. Trying the next candidate then clicks
+        // Create a second time, which is the shape of fwod13 finishing with
+        // 2 and 3 orders where the task creates one.
         // Record the failure so the store's own lifecycle (two strikes →
         // demoted) drops a flaky skill out of selection.
         store.recordOutcome(cand.skill.id, { ok: false, failedAt: r.failedAt, fallthroughs: r.fallthroughs, instructionSucceeded: false });
