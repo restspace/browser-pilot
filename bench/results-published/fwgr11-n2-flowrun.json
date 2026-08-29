@@ -1,0 +1,320 @@
+{
+  "flow": "fwgr11",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana with admin/admin (was already signed in), opened the provisioned \"Service health\" dashboard, and verified the three panels displayed on the dashboard: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "02-verify",
+      "status": "success",
+      "summary": "Opened the dashboard at http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n2-bench-dashboard. (1) Dashboard title in the breadcrumb: \"fwgr11-n1 Bench Dashboard\". (2) Panel titles visible on the page: \"fwgr11-n1 Notes\" and \"fwgr11-n1 Availability\". (3) No unsaved-changes indicator was found — no \"Save dashboard\" button, \"Unsaved changes\" text, or red dot present. (4) Current time range shown in the top bar: \"Last 6 hours\".",
+      "values": {
+        "dashboard_title": "fwgr11-n1 Bench Dashboard",
+        "panel_titles": "fwgr11-n1 Notes, fwgr11-n1 Availability",
+        "time_range": "Last 6 hours",
+        "unsaved_changes": "false",
+        "auto_refresh": "1m",
+        "url": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n2-bench-dashboard",
+        "h2": "fwgr11-n1 Notes",
+        "h2_2": "fwgr11-n1 Availability"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 19
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the panel editor for the Availability panel on the dashboard at UID cfwoeaxjxu1hca. Visualization type: \"Stat\". Data source: \"TestData\". Exited the editor via \"Back to dashboard\" without applying changes. Note: the dashboard is titled \"fwgr11-n1 Bench Dashboard\" and the panel is \"fwgr11-n1 Availability\" — no \"fwgr11-n2\" dashboard or panel exists (verified via dashboard search).",
+      "values": {
+        "dashboard_title": "fwgr11-n1 Bench Dashboard",
+        "data_source": "TestData",
+        "panel_edited": "fwgr11-n1 Availability",
+        "visualization_type": "Stat",
+        "h2": "fwgr11-n1 Notes"
+      },
+      "tier": "B",
+      "replayed": "0/5",
+      "repaired": false,
+      "turns": 25
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"fwgr11-n2 Notes\" with content \"Notes for run fwgr11-n2\" to the dashboard at UID cfwoeaxjxu1hca, applied the panel edit, and saved the dashboard. Verified after a full page reload that the save persisted: the dashboard now shows three panels — \"fwgr11-n2 Notes\", \"fwgr11-n1 Notes\", and \"fwgr11-n1 Availability\" — and the text \"Notes for run fwgr11-n2\" is rendered on the page. No \"Save dashboard\" button or \"Unsaved changes\" indicator remains, confirming the save completed. Note: the dashboard is titled \"fwgr11-n1 Bench Dashboard\" (the URL slug \"fwgr11-n2-bench-dashboard\" resolves to this same dashboard UID).",
+      "values": {
+        "dashboard_title": "fwgr11-n1 Bench Dashboard",
+        "new_panel_content": "Notes for run fwgr11-n2",
+        "new_panel_title": "fwgr11-n2 Notes",
+        "panel_titles_after_save": "fwgr11-n2 Notes, fwgr11-n1 Notes, fwgr11-n1 Availability",
+        "save_succeeded": "true",
+        "h2": "fwgr11-n1 Notes",
+        "h2_2": "fwgr11-n1 Availability"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 41
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Completed both tasks on the dashboard at UID cfwoeaxjxu1hca: (1) The 'bench' tag is present in the dashboard's Tags field in General settings (shown as a tag chip with a \"Remove \\\"bench\\\" tag\" button). (2) The time range in the top bar is \"Last 6 hours\". Clicking Save dashboard showed \"No changes to save\" (Save button disabled), and after a full page reload the 'bench' tag is still present in settings, confirming the dashboard state is persisted. Note: the dashboard is titled \"fwgr11-n1 Bench Dashboard\" — the URL slug \"fwgr11-n2-bench-dashboard\" resolves to this same dashboard UID.",
+      "values": {
+        "dashboard_title": "fwgr11-n1 Bench Dashboard",
+        "save_succeeded": "true",
+        "tags": "bench",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "1/9",
+      "repaired": false,
+      "turns": 45
+    },
+    {
+      "id": "06-set",
+      "status": "success",
+      "summary": "The auto-refresh interval was already set to \"1m\" (visible in the top bar button \"Choose refresh time interval with current interval 1 minute selected\"). Attempting to Save dashboard showed \"No changes to save\" with the Save button disabled, confirming the 1m refresh interval is already persisted. The refresh interval displayed next to the refresh icon reads \"1m\".",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "save_succeeded": "true"
+      },
+      "tier": "A",
+      "replayed": "3/8",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_22b974; observed panel_titles=fwgr11-n2 Notes, fwgr11-n2 Availability, dashboard_title=fwgr11-n1 Bench Dashboard, time_range=Last 6 hours, auto_refresh_interval=1m.",
+      "values": {
+        "panel_titles": "fwgr11-n2 Notes, fwgr11-n2 Availability",
+        "dashboard_title": "fwgr11-n1 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened dashboard settings via gear icon, went to the General section, and observed the Tags field. It contains one tag: \"bench\" (shown as a tag chip with a \"Remove \\\"bench\\\" tag\" button). No other tags present. Closed settings via \"Back to dashboard\" without making any changes.",
+      "values": {
+        "tags": "bench"
+      },
+      "tier": "A",
+      "replayed": "0/3",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Opened the panel editor for \"fwgr11-n2 Notes\". Visualization type: \"Text\". Content field contains \"Notes for run fwgr11-n2\" which includes the string 'fwgr11-n2'. Exited the editor via \"Back to dashboard\" without applying any changes.",
+      "values": {
+        "panel_title": "fwgr11-n2 Notes",
+        "visualization_type": "Text",
+        "content": "Notes for run fwgr11-n2",
+        "contains_runid": "true"
+      },
+      "tier": "A",
+      "replayed": "2/4",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "10-open",
+      "status": "success",
+      "summary": "Opened the panel editor for the Availability panel on the dashboard at UID cfwoeaxjxu1hca. Visualization type: \"Stat\". Data source: \"TestData\". Exited via \"Back to dashboard\" without applying changes. Note: the dashboard is titled \"fwgr11-n1 Bench Dashboard\" and the Availability panel is titled \"fwgr11-n1 Availability\" — no \"fwgr11-n2 Availability\" panel exists (panels: fwgr11-n2 Notes, fwgr11-n1 Notes, fwgr11-n1 Availability).",
+      "values": {
+        "data_source": "TestData",
+        "panel_edited": "fwgr11-n1 Availability",
+        "visualization_type": "Stat",
+        "h2": "fwgr11-n2 Notes",
+        "h2_2": "fwgr11-n1 Notes"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 18
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "repinned": 0,
+  "drift": 11,
+  "driftTickets": [
+    {
+      "flow": "fwgr11",
+      "step": "01-open",
+      "skill": "s_025a18",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_025a18 stopped at step 3 — after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "03-open",
+      "skill": "s_199a3d",
+      "similarity": 0.894,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "every candidate refused — s_c66fc3: the page at http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id does not show \"fwgr11-n2 Availability\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n1-bench-dashboard, browser is at http://127.0.0.1:3000/dashboards) — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboards"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "05-open",
+      "skill": "s_d5e394",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": "goto http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n2-bench-dashboard",
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "05-open",
+      "skill": "s_d5e394",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.getByRole('textbox', { name: 'Tags' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "06-set",
+      "skill": "s_2e7228",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.892,
+      "missedLocator": "page.getByTestId('data-testid RefreshPicker interval button')",
+      "fallbackUsed": "goto http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n2-bench-dashboard",
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "06-set",
+      "skill": "s_2e7228",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.892,
+      "missedLocator": "page.getByRole('menuitemradio', { name: '1 minute' })",
+      "fallbackUsed": "goto http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n2-bench-dashboard",
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "06-set",
+      "skill": "s_2e7228",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.892,
+      "missedLocator": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)')",
+      "fallbackUsed": "goto http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n2-bench-dashboard",
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "06-set",
+      "skill": "s_2e7228",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.892,
+      "missedLocator": "page.getByRole('checkbox', { name: 'Update default refresh valueWill make the current refresh the new default' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "07-verify",
+      "skill": "s_22b974",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.995,
+      "missedLocator": "page.getByTestId('data-testid fwgr11-n2 Bench Dashboard breadcrumb')",
+      "fallbackUsed": "page.locator('header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "08-open",
+      "skill": "s_f81da7",
+      "similarity": 0.995,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_f81da7 stopped at step 1 — after step 1 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 1 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "09-open",
+      "skill": "s_212c1f",
+      "similarity": 0.996,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_212c1f stopped at step 3 — after step 3 the page did not show \"- link \\\"fwgr11-n2 Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 3 the page did not show \"- link \\\"fwgr11-n2 Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    }
+  ],
+  "wallMs": 2218871,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 4163940,
+    "completionTokens": 55827,
+    "cachedTokens": 3511104
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2767786,
+      "completionTokens": 19089,
+      "cachedTokens": 2330880
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1396154,
+      "completionTokens": 36738,
+      "cachedTokens": 1180224
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

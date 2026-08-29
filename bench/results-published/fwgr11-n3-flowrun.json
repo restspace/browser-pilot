@@ -1,0 +1,98 @@
+{
+  "flow": "fwgr11",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Opened the provisioned 'Service Health' dashboard in Grafana and found 3 panels with the following exact titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\". All titles were read from the live DOM as h2 headings within region elements.",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "02-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a35f68; observed url=http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n3-bench-dashboard, h2=fwgr11-n1 Availability, dashboard_title=fwgr11-n1 Bench Dashboard, time_range=Last 6 hours, auto_refresh=1m.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/fwgr11-n3-bench-dashboard",
+        "h2": "fwgr11-n1 Availability",
+        "dashboard_title": "fwgr11-n1 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "auto_refresh": "1m"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_a35f68"
+    },
+    {
+      "id": "03-open",
+      "status": "blocked",
+      "summary": "Instruction timed out after 600s (10 turns, 6 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 25
+    }
+  ],
+  "passed": 2,
+  "total": 10,
+  "repinned": 1,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr11",
+      "step": "01-open",
+      "skill": "s_025a18",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_025a18 stopped at step 3 — after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr11",
+      "step": "02-verify",
+      "skill": "s_a35f68",
+      "atStep": "9",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('[id=\"_rv_\"]')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwoeaxjxu1hca/:id"
+    }
+  ],
+  "wallMs": 672057,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 283106,
+    "completionTokens": 7237,
+    "cachedTokens": 242688
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 213901,
+      "completionTokens": 4797,
+      "cachedTokens": 184064
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 69205,
+      "completionTokens": 2440,
+      "cachedTokens": 58624
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
