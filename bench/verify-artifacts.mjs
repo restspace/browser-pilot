@@ -164,7 +164,31 @@ if (!hasFlow) {
   pass('every cross-step reference is provenance-backed or re-observed');
 }
 
-// 3. How much of each replay ran without the model at all. Reported, not
+// 3. Did any step resolve POSITIONALLY — by where an element sat rather than
+//    by what it was? That silently acts on whatever sorted into that slot, and
+//    it is the failure this whole plan exists to stop, so it is a finding even
+//    when the run passes.
+//
+//    An anchored locator is NOT positional even though it usually ends in a
+//    positional cell selector: `locator('#rows tr', { hasText: 'x7 Ticket' })
+//    .locator('td:nth-of-type(2)')` names the record and then picks a cell
+//    inside THAT row. Eyeballing drift files for "nth-of-type" flags every one
+//    of those, which is how a clean repairdesk run first read as two
+//    regressions.
+const anchored = (expr) => /hasText:/.test(expr);
+const positional = (expr) => !anchored(expr) && (/nth-of-type|nth-child|>>\s*nth=/.test(expr) || (expr.match(/>/g) ?? []).length > 2);
+let positionalHits = 0;
+for (const f of fs.readdirSync(dir).filter((n) => n.startsWith(`${tag}-n`) && n.endsWith('-drift.json'))) {
+  for (const t of read(path.join(dir, f))) {
+    if (!t.fallbackUsed || !positional(t.fallbackUsed)) continue;
+    positionalHits += 1;
+    console.log(`      ${f.replace(`${tag}-`, '').replace('-drift.json', '')} ${t.step}: ${t.fallbackUsed}`);
+  }
+}
+if (positionalHits) fail(`${positionalHits} step(s) resolved by POSITION, which can act on the wrong record`);
+else pass('no step resolved positionally');
+
+// 4. How much of each replay ran without the model at all. Reported, not
 //    asserted: the right number depends on the procedure the run recorded, and
 //    a threshold here would just be another way of comparing two sweeps.
 for (const f of fs.readdirSync(dir).filter((n) => /^\Q\E/.test(n) === false && n.startsWith(`${tag}-n`) && n.endsWith('-flowrun.json'))) {
