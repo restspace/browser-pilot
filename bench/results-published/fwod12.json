@@ -1,0 +1,94 @@
+{
+  "name": "fwod12",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in Odoo, create a new customer contact named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (fill the city in the address section; save the record). Verify the contact is saved and report the customer's name and city as shown on the saved record. Do not wait for network idle.",
+      "skill": "s_a7437f",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [
+        "e1001",
+        "e1014"
+      ],
+      "recorded": {
+        "e1001": "fwod10-n1 Bench Customer",
+        "e1014": "Benchville"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo (already signed in as admin), go to Sales -> Orders -> Quotations and create a new quotation for the customer '{{runid}} Bench Customer' (choose them from the autocomplete dropdown). Add exactly ONE order line: pick any product from the product catalogue using the product autocomplete dropdown (a real option must be selected), set the quantity to 3. Save the quotation. Report: the quotation reference/name (e.g. S00042), the product you chose, the unit price the app filled in automatically, and the Untaxed Amount the app computes. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_7f6ee3",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v2": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo, open the existing quotation S00021 (customer {{runid}} Bench Customer, currently one order line: Pedal Bin [E-COM10] qty 3). Add a SECOND order line with a DIFFERENT product (choose a real option from the product autocomplete dropdown, not Pedal Bin) and set its quantity to 2. Save the quotation. Report: the second product you chose and the new Untaxed Amount the app computes for the whole quotation. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_18cbe1",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo, open the existing quotation S00021 (customer {{runid}} Bench Customer). It has two order lines: line 1 Pedal Bin [E-COM10] quantity 3, line 2 Conference Chair [E-COM12] quantity 2. Change ONLY the first line's quantity from 3 to 5. Save the quotation. Report the new Untaxed Amount the app computes for the whole quotation (and confirm line 1 now shows quantity 5). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_d7ac12",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo, open the existing quotation S00021 (customer {{runid}} Bench Customer, two lines: Pedal Bin qty 5, Conference Chair qty 2, untaxed £301.00). Confirm the quotation so it becomes a sales order (use the Confirm button / Confirm Order action). Report: the order reference/name shown after confirmation (e.g. S00021) and the exact status the app now displays (e.g. 'Sales Order' or 'Quotation Sent'). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_7ff03e",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo, open the confirmed sales order S00021 (customer {{runid}} Bench Customer, status 'Sales Order'). Cancel the order (use the Cancel action, e.g. from the Order dropdown / 'Cancel' button, and confirm any dialog that appears). Report the exact status the app displays after cancelling (e.g. 'Cancelled'). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_1f9347",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-verify",
+      "instruction": "In Odoo (signed in as admin), verify two things and report them without changing anything: (1) Open the contact '{{runid}} Bench Customer' (id 44) and report its Name and City as shown on the saved record. (2) Open the sales order S00021 (id 21) and report its reference/name, the current status shown in the statusbar, and the Untaxed Amount shown. Do not edit or save anything. Do not wait for network idle.",
+      "skill": "s_80fe0d",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod10-n1",
+    "created": "2026-08-29T11:42:22.808Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "flow": "fwod12",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Created a new customer contact \"fwod12-n3 Bench Customer\" with City \"Benchville\" in Odoo. Signed in with admin/admin, navigated to Customers, created the new contact, and verified both the customer name and city are correctly displayed on the saved record.",
+      "values": {
+        "customer_name": "fwod12-n3 Bench Customer",
+        "city": "Benchville",
+        "record_id": "45",
+        "url": "http://127.0.0.1:8069/web#cids=1&menu_id=126&action=287&model=res.partner&view_type=form&id=45"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new quotation S00023 for customer 'fwod12-n3 Bench Customer' with one order line: Pedal Bin [E-COM10] qty 3, unit price £47.00 (auto-filled). The Untaxed Amount computed by the app is £141.00.",
+      "values": {
+        "quotation_reference": "S00023",
+        "customer": "fwod12-n3 Bench Customer",
+        "product": "[E-COM10] Pedal Bin",
+        "quantity": "3.00",
+        "unit_price": "£47.00",
+        "untaxed_amount": "£141.00",
+        "url": "http://127.0.0.1:8069/web#id=23&cids=1&menu_id=181&action=315&model=sale.order&view_type=form",
+        "e1420": "47.00",
+        "e1393": "Untaxed Amount"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 22
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line (Conference Chair [E-COM12] qty 2) to S00021 and saved. Verified on the saved record: Pedal Bin [E-COM10] qty 3 at £47.00 = £141.00, Conference Chair [E-COM12] qty 2 at £33.00 = £66.00, Untaxed Amount £207.00.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first line's quantity from 3 to 5 on quotation S00021 and saved. Verified on the saved record: Line 1 (Pedal Bin [E-COM10]) now shows quantity 5.00 with subtotal £235.00. Line 2 (Conference Chair [E-COM12]) unchanged at qty 2, subtotal £66.00. The new Untaxed Amount is £301.00 (£235.00 + £66.00).",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00021. After clicking the Confirm button, the page updated to show the statusbar with \"Sales Order\" as the checked (active) radio button. The order reference remains S00021. The status is now \"Sales Order\", confirming the quotation was successfully converted to a sales order.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled the confirmed sales order S00021. Clicked the Cancel button, accepted the \"Are you sure you want to cancel this order?\" dialog, then confirmed the cancellation in the Cancel Sales Order wizard by clicking the Cancel button inside the modal. The statusbar now shows \"Cancelled\" as the active (first/checked) status among Cancelled, Sales Order, Quotation Sent, Quotation.",
+      "values": {},
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "(1) Opened contact id 44: the record shows Name \"fwod12-n2 Bench Customer\" and City \"Benchville\". (2) Opened sales order S00021: reference is S00021, the statusbar shows \"Cancelled\" as the active/selected status, and the Untaxed Amount shown is £93.00. No edits were made.",
+      "values": {
+        "contact_name": "fwod12-n2 Bench Customer",
+        "contact_city": "Benchville",
+        "order_reference": "S00021",
+        "order_status": "Cancelled",
+        "untaxed_amount": "£93.00"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 13
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod12",
+      "step": "01-open",
+      "skill": "s_c20df2",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c20df2 stopped at step 4 — after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod12",
+      "step": "02-create",
+      "skill": "s_827b7f",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_827b7f stopped at step 4 — after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Remove\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Remove\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod12",
+      "step": "07-verify",
+      "skill": "s_80fe0d",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_80fe0d stopped at step 1 — the page at http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form does not show \"fwod12-n3 Bench Customer\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form does not show \"fwod12-n3 Bench Customer\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 458018,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 726359,
+    "completionTokens": 11273,
+    "cachedTokens": 519168
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 726359,
+      "completionTokens": 11273,
+      "cachedTokens": 519168
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

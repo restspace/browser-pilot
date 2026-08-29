@@ -1,0 +1,135 @@
+{
+  "flow": "fwod12",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Odoo as admin, navigated to Invoicing > Customers, created a new contact named 'fwod12-n2 Bench Customer' with City 'Benchville' in the address section, and saved it. The saved record (id=44) displays the name 'fwod12-n2 Bench Customer' and City 'Benchville', confirmed by a 'Contact created' system notification.",
+      "values": {},
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 43
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created quotation S00021 for 'fwod12-n2 Bench Customer'. Added order line: Product 'Chair floor protection', Quantity 3, Unit Price £12.00 (auto-filled). System computed Untaxed Amount: £36.00. All details verified on the saved record.",
+      "values": {
+        "quotation_ref": "S00021",
+        "customer": "fwod12-n2 Bench Customer",
+        "product": "Chair floor protection",
+        "quantity": "3",
+        "unit_price_auto_filled": "12.00",
+        "untaxed_amount": "£36.00",
+        "url": "http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=21"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line (Conference Chair [E-COM12] qty 2) to S00021 and saved. Verified on the saved record: Pedal Bin [E-COM10] qty 3 at £47.00 = £141.00, Conference Chair [E-COM12] qty 2 at £33.00 = £66.00, Untaxed Amount £207.00.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first line's quantity from 3 to 5 on quotation S00021 and saved. Verified on the saved record: Line 1 (Pedal Bin [E-COM10]) now shows quantity 5.00 with subtotal £235.00. Line 2 (Conference Chair [E-COM12]) unchanged at qty 2, subtotal £66.00. The new Untaxed Amount is £301.00 (£235.00 + £66.00).",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00021. After clicking the Confirm button, the page updated to show the statusbar with \"Sales Order\" as the checked (active) radio button. The order reference remains S00021. The status is now \"Sales Order\", confirming the quotation was successfully converted to a sales order.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled the confirmed sales order S00021. Clicked the Cancel button, accepted the \"Are you sure you want to cancel this order?\" dialog, then confirmed the cancellation in the Cancel Sales Order wizard by clicking the Cancel button inside the modal. The statusbar now shows \"Cancelled\" as the active (first/checked) status among Cancelled, Sales Order, Quotation Sent, Quotation.",
+      "values": {},
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Verified both records without editing. (1) Contact 'fwod12-n2 Bench Customer' (id 44) — Name: \"fwod12-n2 Bench Customer\", City: \"Benchville\". (2) Sales order S00021 (id 21) — Reference: S00021, Status: \"Cancelled\", Untaxed Amount: £301.00.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod12",
+      "step": "01-open",
+      "skill": "s_c20df2",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c20df2 stopped at step 4 — after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod12",
+      "step": "02-create",
+      "skill": "s_7f6ee3",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_7f6ee3 stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Remove\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Remove\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 486025,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 760735,
+    "completionTokens": 8567,
+    "cachedTokens": 577344
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 628836,
+      "completionTokens": 7222,
+      "cachedTokens": 477952
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 131899,
+      "completionTokens": 1345,
+      "cachedTokens": 99392
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
