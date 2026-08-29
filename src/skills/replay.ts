@@ -927,6 +927,17 @@ export function renderReplay(skill: Skill, res: ReplayResult): string {
     lines.push(
       `Steps 1-${res.stepsRun} HAVE run and changed the page — do not repeat them. Observe the current page and continue from here to finish the instruction yourself.`,
     );
+    // Naming the steps is not enough when the steps CREATED something. fwod13
+    // replayed 02-create part-way, stopped, and recovery created a second
+    // order: run n2 finished with 2 orders for its customer and n3 with 3,
+    // which is why every later objective scored "no single order to check".
+    // The model was told which steps ran; it was not told that a record it is
+    // about to create may already exist.
+    if (res.stepsRun > 0) {
+      lines.push(
+        `If this instruction CREATES a record, one may already exist from those steps — search for it first and continue with it. Creating a second one is a silent duplicate, not a recovery.`,
+      );
+    }
   }
   const values = Object.entries(res.values);
   if (values.length) lines.push(`values read from the live page: ${values.map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(', ')}`);

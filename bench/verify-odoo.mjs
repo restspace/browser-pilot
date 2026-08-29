@@ -85,6 +85,15 @@ for (const runid of runids) {
     if (orders.length === 1) order = orders[0]
     obj(2, orders.length === 1 && order.order_line.length >= 1,
       `orders for customer: ${orders.length}${order ? `, lines: ${order.order_line.length}` : ''}`)
+    // Say it in the words the failure deserves. "orders for customer: 3"
+    // followed by four "no single order to check" reads like a lookup problem;
+    // it is the run having done its work more than once. fwod13 cost a full
+    // diagnosis cycle to a misreading of exactly this.
+    if (orders.length > 1) {
+      console.log(`  *** DUPLICATE WORK *** ${orders.length} orders exist for this customer ` +
+        `(${orders.map((o) => o.name).join(', ')}) — the run created the record more than once, ` +
+        `so objectives 3-6 cannot be attributed to any single order.`)
+    }
     if (order) {
       lines = await kw('sale.order.line', 'read', [order.order_line], {
         fields: ['product_id', 'product_uom_qty', 'price_unit', 'price_subtotal'],
