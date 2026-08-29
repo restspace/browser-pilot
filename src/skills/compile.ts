@@ -202,6 +202,12 @@ export function compileSkills(input: CompileInput): Skill[] {
         locators[key] = isRead && lostAnchor && kept.every(positional) ? [] : kept;
       }
       const out: SkillStep = { tool: step.tool, args, locators };
+      // Record-minting, from the evidence discoverMinted already gathered:
+      // this step's post-nav url carried an identifier the run had not seen
+      // before. Stored per step because a replay that stops needs to know
+      // whether it is past the point of creation, not merely how far it got.
+      const mintedHereOnly = mintedAll.find((m) => m.keptIndex === g);
+      if (mintedHereOnly) out.mints = { at: mintedHereOnly.at };
       const expect = expectationFor(step, slots);
       if (expect) out.expect = substituteDeep(expect, mintedHere) as StepExpectation;
       const label = readLabel(step, reportValues);

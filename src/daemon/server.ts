@@ -1075,6 +1075,10 @@ ${direct.prelude}` : recoveryText) + resetNote,
       agg.fallthroughs += r.fallthroughs;
       agg.misses.push(...r.misses.map((m) => ({ ...m, skill: next.id })));
       agg.evidence.push(...r.candidateEvidence.map((e) => ({ ...e, skill: next.id })));
+      // A chain's earlier segment may have created the record the later one
+      // stops on; recovery needs the whole chain's creations, not the last
+      // segment's.
+      replay.created.push(...r.created);
       Object.assign(agg.values, r.values);
     }
     // The walk records each segment when it advances PAST it, and the

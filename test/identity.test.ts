@@ -372,3 +372,63 @@ describe('a self-navigating procedure is checked AFTER its goto', () => {
     expect(out.stepsRun).toBe(1); // the goto ran and is not pretended away
   });
 });
+
+describe('a step that MINTS a record is known as such', () => {
+  it('compiles `mints` from the url that first carried the identifier', async () => {
+    const { compileSkill } = await import('../src/skills/compile.js');
+    const instr = 'Create a quotation for Bench Customer.';
+    const skill = compileSkill({
+      entries: [
+        { k: 'instruction', text: instr, url: 'http://x.test/orders' },
+        { k: 'step', tool: 'click', args: { target: '@e1' },
+          locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'New' }] } } },
+        { k: 'step', tool: 'click', args: { target: '@e2' },
+          locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'role', role: 'button', name: 'Save' }] } },
+          // Only after Save does an order id exist.
+          diff: { url: 'http://x.test/orders/S00021', alerts: [], added: [] } },
+        { k: 'step', tool: 'click', args: { target: '@e3' },
+          locators: { target: { expr: 'x', verified: true, raw: '@e3', chain: [{ kind: 'role', role: 'button', name: 'Confirm' }] } } },
+      ],
+      instruction: instr,
+      report: { status: 'success', summary: 'made S00021', evidence: { values: { ref: 'S00021' } } },
+      session: 's',
+    })!;
+    const minting = skill.steps.filter((s) => s.mints);
+    expect(minting).toHaveLength(1);
+    // The SAVE step, not the New click before it and not the Confirm after.
+    expect(skill.steps.indexOf(minting[0])).toBe(1);
+    expect(minting[0].mints!.at).toBeTruthy();
+  });
+
+  it('tells recovery what THIS run created, not what the recording did', async () => {
+    const { renderReplay } = await import('../src/skills/replay.js');
+    const skill = { id: 's_mint', steps: [{}, {}] } as unknown as Skill;
+    // `created` is filled as each minting step runs, by reading the live url
+    // through the `at` label compile stored — so it holds S00099, this run's
+    // order, never the recorded S00021.
+    const res = {
+      ok: false, refused: false, stepsRun: 1, stepsTotal: 2, failedAt: 2,
+      lines: ['1. click → ok'], warnings: [], values: {}, misses: [],
+      derivedValues: {}, generalisations: [], candidateEvidence: [],
+      created: ['S00099'], similarity: null, fallthroughs: 0,
+    } as unknown as import('../src/skills/replay.js').ReplayResult;
+    const prelude = renderReplay(skill, res);
+    expect(prelude).toContain('ALREADY CREATED');
+    expect(prelude).toContain('S00099');
+    expect(prelude).not.toContain('S00021');
+    expect(prelude).toMatch(/silent duplicate/);
+  });
+
+  it('falls back to the generic warning when nothing was minted', async () => {
+    const { renderReplay } = await import('../src/skills/replay.js');
+    const skill = { id: 's_plain', steps: [{}, {}] } as unknown as Skill;
+    const res = {
+      ok: false, refused: false, stepsRun: 1, stepsTotal: 2, failedAt: 2,
+      lines: [], warnings: [], values: {}, misses: [], derivedValues: {},
+      generalisations: [], candidateEvidence: [], created: [], similarity: null, fallthroughs: 0,
+    } as unknown as import('../src/skills/replay.js').ReplayResult;
+    const prelude = renderReplay(skill, res);
+    expect(prelude).not.toContain('ALREADY CREATED');
+    expect(prelude).toMatch(/may already exist/);
+  });
+});

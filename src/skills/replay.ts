@@ -71,6 +71,12 @@ export interface ReplayResult {
   /** Values this replay itself minted and bound ({{dN}} derived params), for later segments and callers. */
   derivedValues: Record<string, string>;
   /**
+   * Identifiers of records this replay BROUGHT INTO EXISTENCE, read off the
+   * live url as each minting step ran. Past one of these a stop is not a
+   * clean slate, and recovery must be told so by name.
+   */
+  created: string[];
+  /**
    * Url patterns whose literal segment(s) disagreed with the live url while
    * everything else matched (mechanism 2, PLAN-replay-v2). The replay
    * proceeded optimistically; the caller persists the generalised pattern
@@ -132,6 +138,7 @@ export async function replaySkill(
     derivedValues: {},
     generalisations: [],
     candidateEvidence: [],
+    created: [],
     similarity: null,
     url: page.url(),
   };
@@ -369,6 +376,16 @@ export async function replaySkill(
           res.derivedValues[name] = v;
         }
       }
+    }
+
+    // A step declared record-minting has now run: read THIS run's identifier
+    // off the live url and keep it. If the replay later stops, recovery is
+    // told the record already exists and what it is called, instead of being
+    // told only how many steps ran and left to infer the rest — which is how
+    // fwod13 came to create a second and third order.
+    if (step.mints) {
+      const made = urlPart(page.url(), step.mints.at);
+      if (made) res.created.push(made);
     }
 
     // Hard expectation: where the step was supposed to leave the browser.
@@ -933,7 +950,15 @@ export function renderReplay(skill: Skill, res: ReplayResult): string {
     // which is why every later objective scored "no single order to check".
     // The model was told which steps ran; it was not told that a record it is
     // about to create may already exist.
-    if (res.stepsRun > 0) {
+    if (res.created.length) {
+      // Evidence, not persuasion: these were read off the live url as the
+      // minting steps ran, so they are THIS run's records, not the
+      // recording's.
+      lines.push(
+        `ALREADY CREATED by those steps: ${res.created.map((c) => JSON.stringify(c)).join(', ')}. ` +
+          `Continue with ${res.created.length === 1 ? 'it' : 'them'} — creating another is a silent duplicate, not a recovery.`,
+      );
+    } else if (res.stepsRun > 0) {
       lines.push(
         `If this instruction CREATES a record, one may already exist from those steps — search for it first and continue with it. Creating a second one is a silent duplicate, not a recovery.`,
       );

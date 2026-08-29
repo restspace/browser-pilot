@@ -93,6 +93,20 @@ export interface SkillStep {
   /** Step-level provenance: executed by replay of another skill, or chosen by the agent. */
   via?: { skill: string; step: number };
   /**
+   * This step CREATED a record: the run's url carried an identifier after it
+   * that had never appeared before. `at` is the url part that held it, so a
+   * later run can re-read ITS identifier from the live page rather than
+   * inheriting the recorded one.
+   *
+   * The distinction that matters is not "does this step mutate" — every click
+   * does, which is why the tool-level MUTATING set is too coarse to act on —
+   * but "does replaying this step bring a record into existence". Past such a
+   * step, a stop is not a clean slate: fwod13's recovery created a second
+   * order because the prelude could say which STEPS had run but not that a
+   * record already existed.
+   */
+  mints?: { at: string };
+  /**
    * `tool: 'loop'` only. The steps to repeat while `while` still matches an
    * element, capped at `max` iterations. Folded from a run of identical action
    * groups that differed only in a per-record id (e.g. deleting each part of a
