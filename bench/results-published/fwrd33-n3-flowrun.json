@@ -1,0 +1,169 @@
+{
+  "flow": "fwrd33",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_6ecf93; observed title=fwrd33-n3 RD Bench Ticket, reference=RD-1015, customer=Bench Customer, created=2026-08-29.",
+      "values": {
+        "title": "fwrd33-n3 RD Bench Ticket",
+        "reference": "RD-1015",
+        "customer": "Bench Customer",
+        "created": "2026-08-29"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-add",
+      "status": "success",
+      "summary": "Opened ticket RD-1015 ('fwrd33-n3 RD Bench Ticket'), clicked 'Add part', filled the part form with name 'No parts on this ticket yet.', cost 100, and markup 25, then submitted. The part appears in the parts table on the ticket detail page with the app-computed price displayed.",
+      "values": {
+        "part_name": "No parts on this ticket yet.",
+        "cost": "$100.00",
+        "markup": "25%",
+        "computed_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added second part 'fwrd33-n3 RD Part B' with cost $200.00 and markup 25% to ticket RD-1015. Both parts are now listed: Part A ($100.00 cost, 25% markup → $125.00 price) and Part B ($200.00 cost, 25% markup → $250.00 price). The computed price for Part B is $250.00 (cost × 1.25). The page also shows a total of $375.00 for both parts combined.",
+      "values": {
+        "part_b_name": "fwrd33-n3 RD Part B",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_price": "$250.00",
+        "part_a_price": "$125.00",
+        "line_total": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited Part A on ticket RD-1015: changed cost from $100 to $150 while keeping markup at 25%. The app recomputed the price to $187.50 (150 × 1.25). The ticket parts total updated from $375.00 to $437.50. Both parts are still listed: Part A ($150.00, 25% markup, $187.50 price) and Part B ($200.00, 25% markup, $250.00 price).",
+      "values": {
+        "part_a_name": "fwrd33-n3 RD Part A",
+        "part_a_new_cost": "$150.00",
+        "part_a_markup": "25%",
+        "part_a_new_price": "$187.50",
+        "part_b_price": "$250.00",
+        "ticket_parts_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Replayed stored procedure s_79fe66; observed first_error=Ticket is not ready Part \"fwrd33-n3 RD Part B\" has no supplier, final_status=Ready, part_a_supplier=Generic Supplier, part_a_price=$187.50, part_b_price=$250.00, parts_total=$437.50.",
+      "values": {
+        "first_error": "Ticket is not ready Part \"fwrd33-n3 RD Part B\" has no supplier",
+        "final_status": "Ready",
+        "part_a_supplier": "Generic Supplier",
+        "part_a_price": "$187.50",
+        "part_b_price": "$250.00",
+        "parts_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_79fe66"
+    },
+    {
+      "id": "06-remove",
+      "status": "success",
+      "summary": "Deleted both parts from ticket RD-1015, then archived it. Part A: clicked Delete, confirmed in the modal (\"Delete part\"), it was removed — only Part B remained. Part B: same process — clicked Delete, confirmed \"Delete part\", removed. Parts table now shows \"No parts on this ticket yet.\" Then clicked \"Archive ticket\" — immediately succeeded (no precondition blocking). The ticket now displays status \"Ready\" alongside label \"Archived\", and the archive button changed to \"Unarchive ticket\". Ticket is fully archived with 0 parts.",
+      "values": {
+        "archive_button": "Unarchive ticket"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Ticket RD-1015 ('fwrd33-n3 RD Bench Ticket') is fully archived:\n\n- **Active list (unchecked \"Show archived\")**: RD-1015 does **not** appear — only RD-1014 | RD-1012 | RD-1011 | RD-1010 | RD-1009 | RD-1008 | RD-1007 | RD-1006 | RD-1005 | RD-1004 and below are shown.\n- **Archived list (checked \"Show archived\")**: RD-1015 appears with an **Archived** badge alongside its title, showing status **Ready** and parts count **0**.\n- **Detail page**: Shows the **Archived** label next to the status **Ready**, the \"Unarchive ticket\" button is present, and the parts table reads **\"No parts on this ticket yet.\"** (0 parts).",
+      "values": {
+        "table_tr_td_nth_child_1": "RD-1014 | RD-1012 | RD-1011 | RD-1010 | RD-1009 | RD-1008 | RD-1007 | RD-1006 | RD-1005 | RD-1004",
+        "status": "Ready"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_cbb262"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 2,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwrd33",
+      "step": "05-change",
+      "skill": "s_79fe66",
+      "atStep": "6",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.getByTestId('part-edit-p19')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd33",
+      "step": "05-change",
+      "skill": "s_79fe66",
+      "atStep": "13",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(6)')",
+      "fallbackUsed": "page.getByTestId('part-price-p18')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd33",
+      "step": "05-change",
+      "skill": "s_79fe66",
+      "atStep": "14",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(6)')",
+      "fallbackUsed": "page.getByTestId('part-price-p19')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 33138,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

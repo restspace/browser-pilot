@@ -1,0 +1,164 @@
+{
+  "flow": "fwrd33",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_6ecf93; observed title=fwrd33-n2 RD Bench Ticket, reference=RD-1015, customer=Bench Customer, created=2026-08-29.",
+      "values": {
+        "title": "fwrd33-n2 RD Bench Ticket",
+        "reference": "RD-1015",
+        "customer": "Bench Customer",
+        "created": "2026-08-29"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-add",
+      "status": "success",
+      "summary": "Opened ticket RD-1015 ('fwrd33-n2 RD Bench Ticket'), clicked 'Add part', filled the part form with name 'No parts on this ticket yet.', cost 100, and markup 25, then submitted. The part appears in the parts table on the ticket detail page with the app-computed price displayed.",
+      "values": {
+        "part_name": "No parts on this ticket yet.",
+        "cost": "$100.00",
+        "markup": "25%",
+        "computed_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added second part 'fwrd33-n2 RD Part B' with cost $200.00 and markup 25% to ticket RD-1015. Both parts are now listed: Part A ($100.00 cost, 25% markup → $125.00 price) and Part B ($200.00 cost, 25% markup → $250.00 price). The computed price for Part B is $250.00 (cost × 1.25). The page also shows a total of $375.00 for both parts combined.",
+      "values": {
+        "part_b_name": "fwrd33-n2 RD Part B",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_price": "$250.00",
+        "part_a_price": "$125.00",
+        "line_total": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited Part A on ticket RD-1015: changed cost from $100 to $150 while keeping markup at 25%. The app recomputed the price to $187.50 (150 × 1.25). The ticket parts total updated from $375.00 to $437.50. Both parts are still listed: Part A ($150.00, 25% markup, $187.50 price) and Part B ($200.00, 25% markup, $250.00 price).",
+      "values": {
+        "part_a_name": "fwrd33-n2 RD Part A",
+        "part_a_new_cost": "$150.00",
+        "part_a_markup": "25%",
+        "part_a_new_price": "$187.50",
+        "part_b_price": "$250.00",
+        "ticket_parts_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Changed ticket RD-1015 status to 'Ready'. Encountered one error: \"Ticket is not ready Part 'fwrd33-n2 RD Part B' has no supplier\". The replayed procedure had already set a supplier on Part A (Generic Supplier), but Part B had no supplier. I edited Part B, set its supplier to \"Generic Supplier\", and saved. Then clicked \"Mark Ready\" — it accepted with no dialog. The final status displayed on the page is **Ready**, with \"Mark Draft\" and \"Mark Closed\" buttons shown in place of the former \"Mark Ready\" button.",
+      "values": {
+        "first_error": "Ticket is not ready Part \"fwrd33-n2 RD Part B\" has no supplier",
+        "fix_applied": "Set supplier for Part B to 'Generic Supplier'",
+        "final_status": "Ready",
+        "part_a_supplier": "Generic Supplier",
+        "part_b_supplier": "Generic Supplier",
+        "part_a_price": "$187.50",
+        "part_b_price": "$250.00",
+        "parts_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "2/7",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "06-remove",
+      "status": "success",
+      "summary": "Deleted both parts from ticket RD-1015, then archived it. Part A: clicked Delete, confirmed in the modal (\"Delete part\"), it was removed — only Part B remained. Part B: same process — clicked Delete, confirmed \"Delete part\", removed. Parts table now shows \"No parts on this ticket yet.\" Then clicked \"Archive ticket\" — immediately succeeded (no precondition blocking). The ticket now displays status \"Ready\" alongside label \"Archived\", and the archive button changed to \"Unarchive ticket\". Ticket is fully archived with 0 parts.",
+      "values": {
+        "archive_button": "Unarchive ticket"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Ticket RD-1015 ('fwrd33-n2 RD Bench Ticket') is fully archived:\n\n- **Active list (unchecked \"Show archived\")**: RD-1015 does **not** appear — only RD-1014 and below are shown.\n- **Archived list (checked \"Show archived\")**: RD-1015 appears with an **Archived** badge alongside its title, showing status **Ready** and parts count **0**.\n- **Detail page**: Shows the **Archived** label next to the status **Ready**, the \"Unarchive ticket\" button is present, and the parts table reads **\"No parts on this ticket yet.\"** (0 parts).",
+      "values": {
+        "active_list_presence": "false",
+        "archived_flag_on_detail": "true",
+        "archived_list_presence": "true",
+        "parts_count": "0",
+        "status": "Ready",
+        "table_tr_td_nth_child_1": "RD-1014"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 14
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwrd33",
+      "step": "05-change",
+      "skill": "s_0149cd",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_0149cd stopped at step 3 — step 3 raised an alert the recording never saw: Ticket is not ready Part \"fwrd33-n2 RD Part B\" has no supplier",
+      "reason": "step 3 raised an alert the recording never saw: Ticket is not ready Part \"fwrd33-n2 RD Part B\" has no supplier",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd33",
+      "step": "07-verify",
+      "skill": "s_6eaed1",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_6eaed1 stopped at step 1 — the page at http://127.0.0.1:4180/#/tickets does not show \"fwrd33-n2 RD Bench Ticket\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:4180/#/tickets does not show \"fwrd33-n2 RD Bench Ticket\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 178317,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 334845,
+    "completionTokens": 5140,
+    "cachedTokens": 257536
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 334845,
+      "completionTokens": 5140,
+      "cachedTokens": 257536
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

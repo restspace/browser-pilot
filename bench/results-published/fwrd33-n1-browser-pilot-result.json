@@ -1,0 +1,97 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "7487e6e"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd33-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd33-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 421541,
+  "orchestrator": {
+    "input": 8035,
+    "cacheWrite": 0,
+    "cacheRead": 25280,
+    "output": 2113
+  },
+  "inner": {
+    "promptTokens": 1056090,
+    "cachedTokens": 837376,
+    "completionTokens": 11080,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1056090,
+        "completionTokens": 11080,
+        "cachedTokens": 837376,
+        "instructions": 7
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 57,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 382806,
+  "commandBytes": 9335,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd33-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 57,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Modal",
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0271,
+  "maxUsd": 2,
+  "spendUsd": 0.0494,
+  "finalText": "All objectives complete and verified.\n\n## Final Report\n\n**1. Ticket created — DONE.** Ticket titled `fwrd33-n1 RD Bench Ticket` exists, reference **RD-1015**, customer \"Bench Customer\", initial status **Draft**.\n\n**2. Part A added — DONE.** Part `fwrd33-n1 RD Part A`, cost $100.00, markup 25%. App-computed price: **$125.00**.\n\n**3. Part B added — DONE.** Part `fwrd33-n1 RD Part B`, cost $200.00, markup 25%. App-computed price: **$250.00**. (Parts total at that point: $375.00.)\n\n**4. Part A cost changed 100 → 150 — DONE.** New cost $150.00, markup 25%. App-computed price afterwards: **$187.50**. Ticket parts total updated to $437.50.\n\n**5. Status set to Ready — DONE.** Precondition discovered: the first attempt was rejected with the alert *\"Ticket is not ready Part 'fwrd33-n1 RD Part A' has no supplier Part 'fwrd33-n1 RD Part B' has no supplier\"*. **What was required: every part on the ticket must have a supplier set.** I edited both parts and set supplier to \"Generic Supplier\" on each; after that, \"Mark Ready\" succeeded and the status displayed as **Ready** (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n**6. Parts removed and ticket archived — DONE.** Both parts deleted (each via Delete + \"Delete part\" confirmation modal, waiting for the refresh after each); parts table then read \"No parts on this ticket yet.\" Archive succeeded immediately with no precondition blocking — the ticket shows status **Ready** with an **Archived** label, the action button now reads \"Unarchive ticket\", and the ticket no longer appears in the active ticket list (it only appears when \"Show archived\" is checked). Final verified state: 0 parts, archived, nothing from this run left active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd33-n1-browser-pilot-transcript.jsonl"
+}
