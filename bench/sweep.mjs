@@ -38,6 +38,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--verify') own.verify = true;
   else if (a === '--verify-cmd') own.verifyCmd = argv[++i] ?? '';
   else if (a === '--reset-cmd') own.resetCmd = argv[++i] ?? '';
+  else if (a === '--from') own.from = argv[++i] ?? '';
   else if (a === '--out') {
     own.out = argv[++i];
     pass.push('--out', own.out);
@@ -54,7 +55,36 @@ const rows = [];
 const flowsDir = own.flow ? path.resolve(learnDir ? path.join(learnDir, '..', 'flows') : outDir) : null;
 const armBin = process.platform === 'win32' ? 'browser-pilot.cmd' : 'browser-pilot';
 
-for (let n = 1; n <= own.k; n++) {
+// --from <tag>: reuse an earlier sweep's recording instead of making a new one.
+//
+// Run 1 is the expensive half — it drives the orchestrator through the whole
+// task (fwod11-n1: 27 minutes, $0.54) — while a replay is seconds and pennies.
+// A fix that only changes REPLAY can therefore be measured against the very
+// same flow and skill store, which also makes it a clean A/B: identical
+// artifacts, only the code differs. Sweep-to-sweep comparison cannot do that,
+// because each recording compiles a different procedure.
+//
+// The caller is responsible for the precondition in that sentence. A fix in
+// the recorder, in compile, or in buildFlow changes what run 1 PRODUCES and
+// must be measured with a fresh recording; only a replay-path fix qualifies.
+if (own.from) {
+  const src = path.resolve(own.out, `${own.from}-skills`);
+  const srcFlow = path.resolve(own.out, 'flows', `${own.from}.json`);
+  if (!fs.existsSync(src) || !fs.existsSync(srcFlow)) {
+    console.error(`[sweep] --from ${own.from}: need both ${src} and ${srcFlow}`);
+    process.exit(2);
+  }
+  fs.mkdirSync(learnDir, { recursive: true });
+  for (const f of fs.readdirSync(src)) fs.copyFileSync(path.join(src, f), path.join(learnDir, f));
+  fs.mkdirSync(flowsDir, { recursive: true });
+  // Under the NEW flow's name, so the replays invoke `run <own.flow>`.
+  const flow = JSON.parse(fs.readFileSync(srcFlow, 'utf8'));
+  flow.name = own.flow;
+  fs.writeFileSync(path.join(flowsDir, `${own.flow}.json`), JSON.stringify(flow, null, 2));
+  console.error(`[sweep] reusing ${own.from}'s recording: ${flow.steps.length} step(s), store from ${src}`);
+}
+
+for (let n = own.from ? 2 : 1; n <= own.k; n++) {
   const runid = `${own.base}-n${n}`;
   // Flow mode: run 1 records the flow with the orchestrator; runs 2..K replay
   // it with NO orchestrator (`browser-pilot run`) — the whole point: the caller
