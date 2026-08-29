@@ -1,6 +1,7 @@
 import type { LocatorCandidate, RecordedEntry, RecordedInstruction, RecordedStep } from '../daemon/recorder.js';
 import type { Report } from '../agent/report.js';
 import { newSkillId, originOf, type Skill, type SkillParam, type SkillStep, type StepExpectation } from './store.js';
+import { identifierLike } from './ledger.js';
 
 /** Args whose string values are candidates for parameter slots. */
 const VALUE_ARGS = new Set(['value', 'text', 'option', 'url', 'prompt_text']);
@@ -369,7 +370,6 @@ function identityOf(startText: string | undefined, slots: Map<string, string>, k
   return out;
 }
 
-const MIN_MINTED_LEN = 4;
 const MAX_MINTED = 8;
 
 interface MintedValue {
@@ -389,7 +389,7 @@ interface MintedValue {
  * uid). Every later occurrence is downstream of that step's outcome, so it
  * becomes a {{dN}} reference bound at replay time from where the browser
  * actually lands — the same mechanism as discoverSlots, with a new value
- * source, and the same guards: length >= 4, whole-value match, first
+ * source, and the same guards: id-shaped, whole-value match, first
  * appearance wins.
  */
 function discoverMinted(kept: RecordedStep[], startUrl: string, slots: Map<string, string>): MintedValue[] {
@@ -404,7 +404,19 @@ function discoverMinted(kept: RecordedStep[], startUrl: string, slots: Map<strin
       const v = part.value;
       const fresh = !seen.has(v);
       seen.add(v);
-      if (!fresh || v.length < MIN_MINTED_LEN || slotVals.has(v) || /\{\{/.test(v)) continue;
+      // Position is evidence. A bare "44" free in prose means nothing, which is
+      // why the ledger keeps a length floor — but "44" sitting in a url part
+      // is a record id, and isIdLike already says so for url-pattern
+      // generalisation. Requiring 4 characters here contradicted that: odoo's
+      // record ids are two-digit integers, so fwod15 compiled ZERO minting
+      // steps and the whole `mints` mechanism was inert on that target.
+      //
+      // Same shape as the two floor mismatches already fixed today ("t15"
+      // below identifierLike's floor; url parts published at >= 4 while
+      // buildFlow minted refs at >= 3). Three separate thresholds asking one
+      // question, disagreeing three times. This one now asks the question the
+      // url code already answers.
+      if (!fresh || !(isIdLike(v) || identifierLike(v)) || slotVals.has(v) || /\{\{/.test(v)) continue;
       // A stable route word ("tickets", "dashboards") also first appears in a
       // post-nav url once; claiming it would wildcard preconditions that
       // should stay exact. Requiring a digit is a heuristic, but one whose

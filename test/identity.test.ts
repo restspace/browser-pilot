@@ -395,6 +395,7 @@ describe('a step that MINTS a record is known as such', () => {
     })!;
     const minting = skill.steps.filter((s) => s.mints);
     expect(minting).toHaveLength(1);
+
     // The SAVE step, not the New click before it and not the Confirm after.
     expect(skill.steps.indexOf(minting[0])).toBe(1);
     expect(minting[0].mints!.at).toBeTruthy();
@@ -484,5 +485,33 @@ describe('a replay that acted is never retried by a sibling', () => {
     } as unknown as import('playwright-core').Page;
     const out = await replaySkill(skill, {}, { page, exec: async () => ({ result: '"S1"' }) });
     expect(out.acted).toBe(false); // observing is not acting
+  });
+});
+
+describe('a two-digit record id still marks its minting step', () => {
+  it('accepts a bare numeric url id, which is what odoo uses', async () => {
+    const { compileSkill } = await import('../src/skills/compile.js');
+    const instr = 'Create a contact named Bench Customer.';
+    // fwod15 compiled ZERO minting steps because odoo's ids are two-digit
+    // integers and the floor here was four characters — while the url-pattern
+    // code has always treated a bare number in a url as an id. Position is
+    // the evidence: "44" free in prose means nothing, "44" in a url part is
+    // a record.
+    const skill = compileSkill({
+      entries: [
+        { k: 'instruction', text: instr, url: 'http://x.test/web#model=res.partner' },
+        { k: 'step', tool: 'click', args: { target: '@e1' },
+          locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'Save' }] } },
+          diff: { url: 'http://x.test/web#id=44&model=res.partner', alerts: [], added: [] } },
+        { k: 'step', tool: 'click', args: { target: '@e2' },
+          locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'role', role: 'button', name: 'Close' }] } } },
+      ],
+      instruction: instr,
+      report: { status: 'success', summary: 'made it', evidence: { values: {} } },
+      session: 's',
+    })!;
+    const minting = skill.steps.filter((s) => s.mints);
+    expect(minting).toHaveLength(1);
+    expect(skill.steps.indexOf(minting[0])).toBe(0); // the Save, not the Close
   });
 });
