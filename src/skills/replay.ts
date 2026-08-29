@@ -551,7 +551,14 @@ export async function replaySkill(
     // work on it. Refusing here costs a recovery; not refusing costs the work
     // being done to the wrong record and reported as success.
     if (navigatesItself && n === 1 && skill.preconditions.requireText?.length && !(await checkIdentity())) {
-      res.stepsRun = 0; // a goto changed the page but touched no record
+      // NOT `refused`. Refused means "nothing ran, free to try the next
+      // candidate" — and the goto has already moved the browser, so trying
+      // another candidate would run it from a page nobody expects. This is a
+      // partial stop: what ran, ran, and the caller hands it to recovery
+      // rather than restarting. `wrongRecord` still tells the flow runner to
+      // put the browser back on the flow's start url first.
+      res.refused = false;
+      res.failedAt = n;
       return res;
     }
   }

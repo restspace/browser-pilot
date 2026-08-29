@@ -360,10 +360,15 @@ describe('a self-navigating procedure is checked AFTER its goto', () => {
       page,
       exec: async (tool) => { ran.push(tool); return { result: 'ok' }; },
     });
-    expect(out.refused).toBe(true);
+    // NOT refused: refused means "nothing ran, try another candidate", and the
+    // goto has already moved the browser. It is a partial stop, so the caller
+    // hands it to recovery instead of replaying a sibling from a page nobody
+    // expects.
+    expect(out.refused).toBe(false);
+    expect(out.failedAt).toBe(1);
     expect(out.wrongRecord).toMatch(/different record/);
     // The goto ran — that is how we learn where it lands. Nothing after it did.
     expect(ran).toEqual(['goto']);
-    expect(out.stepsRun).toBe(0);
+    expect(out.stepsRun).toBe(1); // the goto ran and is not pretended away
   });
 });
