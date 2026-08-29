@@ -1,0 +1,154 @@
+{
+  "flow": "fwod9",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3cac85; observed e610=fwod9-n1 Bench Customer, e623=Benchville.",
+      "values": {
+        "e610": "fwod9-n1 Bench Customer",
+        "e623": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "28/28",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created and saved quotation S00023 for customer 'fwod9-n2 Bench Customer' (chosen from the autocomplete dropdown — the \"Internal link\" button confirmed the commit). Added exactly one order line: product 'Customizable Desk' [FURN_0096] (Steel, White), also chosen from the product autocomplete dropdown, with quantity 3.00. The app auto-filled unit price £750.00 and the totals show Untaxed Amount £2,250.00 (TAX 20% £450.00). The record saved as S00023 (URL id=23, title \"Odoo - S00023\"), and all values were verified by re-reading the saved form in the live DOM.",
+      "values": {
+        "role_option": "fwod9-n2 Bench Customer",
+        "role_option_2": "Customizable Desk",
+        "h1": "S00023"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 57
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line to quotation S00023 (customer fwod9-n2 Bench Customer). The new line is product '[FURN_0269] Office Chair Black' (chosen from the product autocomplete dropdown), quantity 2.00, unit price £120.50 (auto-filled by the app). The totals now show Untaxed Amount £2,491.00 (£2,250.00 from line 1 + £241.00 from line 2). The quotation was saved successfully.",
+      "values": {
+        "role_option": "[FURN_0269] Office Chair Black",
+        "ref": "S00023"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 17
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first line's quantity from 3 to 5 on quotation S00023 (customer fwod9-n2 Bench Customer). After saving, line 1 (Customizable Desk) shows quantity 5.00 with subtotal £3,750.00, and line 2 (Office Chair Black) remains at quantity 2.00 with subtotal £241.00. The untaxed amount in the totals is £3,991.00 (£3,750 + £241). Verified by reading the saved form's live DOM.",
+      "values": {
+        "h1": "S00023"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00023 for customer fwod9-n2 Bench Customer via the Confirm button. The order was successfully converted to a Sales Order. The status bar shows \"Sales Order\" as the active/checked radio button (with Quotation and Quotation Sent disabled). The order reference/name remains S00023. The Confirm button has been replaced by \"Create Invoice\", \"Send by Email\", \"Preview\", and \"Cancel\" buttons, confirming the order is now in confirmed status.",
+      "values": {
+        "e1176": "S00023"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Successfully cancelled the confirmed sales order S00023 for customer fwod9-n2 Bench Customer. The Statusbar now shows \"Cancelled\" as the active/checked radio button, and all other status buttons (Sales Order, Quotation Sent, Quotation) are disabled, confirming the order is no longer in an active or cancellable state. The Cancelled button itself is also disabled, meaning no further cancellation action can be taken. Order reference remains S00023.",
+      "values": {
+        "e1176": "S00023"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Verified read-only facts from the live DOM: (1) In Sales > Orders > Customers, searching for 'fwod9-n2 Bench Customer' returns exactly 1 matching record. Opening it confirms City = 'Benchville'. (2) In Sales > Orders > Quotations/Sales Orders, order S00023 for the same customer has Status = 'Cancelled' and Untaxed Amount = £3,991.00. No data was created, edited, or deleted.",
+      "values": {
+        "ref": "S00023"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 10
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod9",
+      "step": "05-open",
+      "skill": "s_87c408",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.e1176, 02-create.e1176, 02-create.e1176",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "06-open",
+      "skill": "s_a5c3da",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.e1176, 02-create.e1176",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "07-report",
+      "skill": "s_456d30",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.e1176, 02-create.e1176",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+    }
+  ],
+  "wallMs": 497137,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1704927,
+    "completionTokens": 15704,
+    "cachedTokens": 1467776
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1374873,
+      "completionTokens": 12294,
+      "cachedTokens": 1162752
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 330054,
+      "completionTokens": 3410,
+      "cachedTokens": 305024
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

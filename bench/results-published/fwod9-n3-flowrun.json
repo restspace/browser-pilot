@@ -1,0 +1,257 @@
+{
+  "flow": "fwod9",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3cac85; observed e610=fwod9-n1 Bench Customer, e623=Benchville.",
+      "values": {
+        "e610": "fwod9-n1 Bench Customer",
+        "e623": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "28/28",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_1b0415; observed role_option=fwod9-n3 Bench Customer, role_option_2=Customizable Desk.",
+      "values": {
+        "role_option": "fwod9-n3 Bench Customer",
+        "role_option_2": "Customizable Desk"
+      },
+      "tier": "A",
+      "replayed": "30/30",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_52dc69"
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line to quotation S00025 (customer fwod9-n3 Bench Customer): product \"Corner Desk Left Sit\" chosen from the product autocomplete dropdown, quantity 2.00, unit price 85.00 (line total £170.00). Saved successfully — the form reloaded read-only with both lines committed. New untaxed amount shown in totals: £2,420.00 (TAX 20% £484.00, Total £2,904.00). The previous attempt had left the product uncommitted (0.00 price) because a \"Configure your product\" dialog was open; I completed that dialog (qty 2) and confirmed, which committed the line properly.",
+      "values": {
+        "customer": "fwod9-n3 Bench Customer",
+        "line_1": "Customizable Desk, qty 3, unit price 750.00, tax excl. 2,250.00",
+        "line_2_product": "Corner Desk Left Sit",
+        "line_2_quantity": "2.00",
+        "line_2_unit_price": "85.00",
+        "line_2_line_total": "£ 170.00",
+        "quotation_ref": "S00025",
+        "tax_20pct": "£ 484.00",
+        "total": "£ 2,904.00",
+        "untaxed_amount": "£ 2,420.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 41
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first line's quantity from 3 to 5 on quotation S00025 (customer fwod9-n3 Bench Customer). After saving, verified: (a) the quantity on line 1 is 5.00, and (b) the untaxed amount now shows £3,920.00 (line 1: Customizable Desk 5×£750 = £3,750.00, line 2: Corner Desk Left Sit 2×£85 = £170.00).",
+      "values": {
+        "line1_quantity": "5.00",
+        "untaxed_amount": "£3,920.00",
+        "line1_product": "Customizable Desk",
+        "line1_unit_price": "750.00",
+        "line1_total": "£3,750.00",
+        "line2_product": "Corner Desk Left Sit",
+        "line2_quantity": "2.00",
+        "line2_unit_price": "85.00",
+        "line2_total": "£170.00",
+        "tax": "£784.00",
+        "total": "£4,704.00",
+        "ref": "S00025"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 26
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00025 for customer fwod9-n3 Bench Customer successfully. The order now shows (a) reference S00025 (same ref), and (b) status \"Sales Order\" (shown as checked/disabled radio button in the statusbar). The Confirm button is replaced by Cancel, Create Invoice, Send by Email, and other post-confirmation actions.",
+      "values": {
+        "order_ref": "S00025",
+        "status": "Sales Order"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled confirmed sales order S00025 for customer fwod9-n3 Bench Customer. After cancellation: (a) the status shown is \"Cancelled\" (the Cancelled radio button in the statusbar is checked and disabled; the other states Sales Order/Quotation Sent/Quotation are unchecked), and (b) the order is no longer active/cancellable — the Cancel button is gone, and the statusbar is fully disabled confirming the order is in a terminal cancelled state.",
+      "values": {
+        "statusbar": "Cancelled (checked, disabled)",
+        "reference": "S00025",
+        "customer": "fwod9-n3 Bench Customer",
+        "statusbar_labels": "Cancelled, Sales Order, Quotation Sent, Quotation"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Read-only verification complete: (1) Searching for 'fwod9-n3 Bench Customer' found exactly 1 matching customer record; opening it confirmed the City is 'Benchville'. (2) Order S00025 for this customer currently has status 'Cancelled' (Cancelled radio checked and disabled, no active/cancellable state) and its untaxed amount is £3,920.00.",
+      "values": {
+        "customer_matches": "1",
+        "customer_city": "Benchville",
+        "order_ref": "S00025",
+        "order_status": "Cancelled",
+        "order_untaxed_amount": "£3,920.00"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 20
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 9,
+  "driftTickets": [
+    {
+      "flow": "fwod9",
+      "step": "02-create",
+      "skill": "s_1130c3",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('menuitem', { name: 'Sales' })",
+      "fallbackUsed": "page.locator('body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "02-create",
+      "skill": "s_96e368",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('[role=\"option\"] >> nth=0')",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "02-create",
+      "skill": "s_69d688",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('[role=\"option\"] >> nth=0')",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "02-create",
+      "skill": "s_69d688",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('[role=\"option\"] >> nth=4')",
+      "fallbackUsed": "page.getByRole('option', { name: 'Customizable Desk' })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "02-create",
+      "skill": "s_1b0415",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "02-create",
+      "skill": "s_1b0415",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "05-open",
+      "skill": "s_87c408",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.e1176, 02-create.e1176, 02-create.e1176",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "06-open",
+      "skill": "s_a5c3da",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.e1176, 02-create.e1176",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod9",
+      "step": "07-report",
+      "skill": "s_456d30",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.e1176, 02-create.e1176",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+    }
+  ],
+  "wallMs": 908937,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1912629,
+    "completionTokens": 22908,
+    "cachedTokens": 1574784
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1743076,
+      "completionTokens": 15582,
+      "cachedTokens": 1438976
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 169553,
+      "completionTokens": 7326,
+      "cachedTokens": 135808
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
