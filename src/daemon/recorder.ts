@@ -590,18 +590,25 @@ export async function captureReadBack(page: Page, value: string): Promise<Record
   if (v.length < 2 || v.length > 80) return null; // too short to be distinctive, or prose
   const loc = page.getByText(v, { exact: true });
   const count = await loc.count().catch(() => 0);
-  // Ambiguity is fine for a READ-BACK, unlike for an action target: every
-  // match shows the same string, so reading any of them returns the same
-  // value. fwrd27l reported part_A_supplier and part_B_supplier as the same
-  // supplier name, both matched twice, and neither was pinned — so a later
-  // step referencing either lost its zero-model path. candidatesFor still
-  // prefers a row-scoped anchor when one exists, so this only decides which
-  // element is read when nothing names it.
+  // Ambiguity is acceptable for a READ-BACK only when something ELSE names the
+  // record. Within one page state, two matches of the same string do both read
+  // that string — which is what made this look safe. Across RUNS it is not:
+  // odoo keeps every run's records (no rollback, writes are runid-scoped), so
+  // by run 2 the page holds n1's customer as well as n2's and `.first()` is
+  // the wrong one. fwod9 replayed step 1 at tier A and published
+  // "fwod9-n1 Bench Customer" as run n2's observation; 1/6 objectives passed.
+  //
+  // So an ambiguous match must resolve through a row anchor, which carries the
+  // record's own identity and re-binds per run. Repairdesk never showed this
+  // because the harness resets it between runs — there was no earlier record
+  // to find.
   if (count >= 1) {
     const handle = await loc.first().elementHandle({ timeout: 1_000 }).catch(() => null);
     if (handle) {
       try {
-        return await readBackFromHandle(page, handle, v);
+        const step = await readBackFromHandle(page, handle, v);
+        const winner = step?.locators.target.chain?.[0];
+        if (step && (count === 1 || winner?.kind === 'scoped')) return step;
       } finally {
         await handle.dispose().catch(() => {});
       }
@@ -633,7 +640,7 @@ async function captureFormValue(page: Page, v: string): Promise<RecordedStep | n
   } catch {
     return null;
   }
-  if (hits.length !== 1) return null; // ambiguous or absent — same rule as the text path
+  if (hits.length !== 1) return null; // ambiguous or absent — a form control has no row anchor to fall back on
   const handle = await controls.nth(hits[0]).elementHandle({ timeout: 1_000 }).catch(() => null);
   if (!handle) return null;
   try {

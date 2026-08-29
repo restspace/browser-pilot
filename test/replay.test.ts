@@ -789,13 +789,16 @@ d('identity-scoped locators (fixture page)', () => {
     expect(JSON.stringify(chain)).not.toContain('Office Chair');
   }, 30_000);
 
-  it('pins a value that appears twice — every match reads the same string', async () => {
-    const { captureReadBack } = await import('../src/daemon/recorder.js');
+  it('pins an ambiguous value only when a row anchor names the record', async () => {
+    const { captureReadBack, setIdentityHints } = await import('../src/daemon/recorder.js');
     const page = await session.getPage();
     await page.goto(fixtureUrl);
     // fwrd27l reported part_A_supplier and part_B_supplier as the SAME
-    // supplier name. Both matched twice, neither was pinned, and the step
-    // referencing one lost its zero-model path.
+    // supplier name; both matched twice and neither was pinned. Accepting
+    // ambiguity outright then broke odoo (fwod9), which keeps every run's
+    // records: by run 2 the page held n1's customer too and `.first()` was
+    // the wrong one. The anchor is what makes it safe — it re-binds per run.
+    setIdentityHints(['Part One']); // names the row the first match sits in
     await page.evaluate(() => {
       for (const row of document.querySelectorAll('#dellist .prow')) {
         const cell = document.createElement('span');
@@ -808,11 +811,29 @@ d('identity-scoped locators (fixture page)', () => {
     const step = await captureReadBack(page, 'Bench Supplier Co');
     expect(step).toBeTruthy();
     expect(JSON.parse(step!.result!)).toBe('Bench Supplier Co');
-    // Re-resolvable, and never circular: a field is not located by the very
-    // string it exists to report, or it could only ever find the old value.
+    // Won by a row anchor, so a later run re-binds to ITS record; and never
+    // circular — a field is not located by the string it exists to report.
     const chain = step!.locators.target.chain ?? [];
-    expect(chain.length).toBeGreaterThan(0);
+    expect(chain[0].kind).toBe('scoped');
     expect(JSON.stringify(chain)).not.toContain('Bench Supplier Co');
+  }, 30_000);
+
+  it('refuses an ambiguous value with no anchor, rather than pinning the wrong record', async () => {
+    const { captureReadBack, setIdentityHints } = await import('../src/daemon/recorder.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    setIdentityHints([]); // nothing names a record
+    await page.evaluate(() => {
+      for (const t of ['a', 'b']) {
+        const el = document.createElement('p');
+        el.id = `loose-${t}`;
+        el.textContent = 'Acme Holdings';
+        document.body.appendChild(el);
+      }
+    });
+    // Two loose matches, no row to scope to: pinning `.first()` would bind
+    // this run's report to whichever record happens to sort first NEXT run.
+    expect(await captureReadBack(page, 'Acme Holdings')).toBeNull();
   }, 30_000);
 
   it('refuses an ambiguous form value rather than pinning the wrong control', async () => {
