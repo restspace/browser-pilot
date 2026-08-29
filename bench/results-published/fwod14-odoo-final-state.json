@@ -1,0 +1,95 @@
+{
+  "note": "final odoo state after fwod14 sweep; odoo has no rollback (writes are runid-scoped)",
+  "orders": [
+    {
+      "id": 23,
+      "name": "S00023",
+      "state": "cancel",
+      "partner_id": [
+        45,
+        "fwod14-n3 Bench Customer"
+      ],
+      "amount_untaxed": 93,
+      "create_date": "2026-08-29 17:05:01",
+      "write_date": "2026-08-29 17:06:52",
+      "order_line": [
+        47,
+        48
+      ],
+      "lines": [
+        {
+          "id": 47,
+          "name": "Chair floor protection\nOffice chairs can harm your floor: protect it.",
+          "product_uom_qty": 5,
+          "price_unit": 12,
+          "price_subtotal": 60
+        },
+        {
+          "id": 48,
+          "name": "[E-COM12] Conference Chair (Steel)",
+          "product_uom_qty": 1,
+          "price_unit": 33,
+          "price_subtotal": 33
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "S00022",
+      "state": "draft",
+      "partner_id": [
+        45,
+        "fwod14-n3 Bench Customer"
+      ],
+      "amount_untaxed": 0,
+      "create_date": "2026-08-29 17:03:25",
+      "write_date": "2026-08-29 17:03:25",
+      "order_line": [],
+      "lines": []
+    },
+    {
+      "id": 21,
+      "name": "S00021",
+      "state": "cancel",
+      "partner_id": [
+        44,
+        "fwod14-n2 Bench Customer"
+      ],
+      "amount_untaxed": 383,
+      "create_date": "2026-08-29 16:58:12",
+      "write_date": "2026-08-29 17:00:42",
+      "order_line": [
+        45,
+        46
+      ],
+      "lines": [
+        {
+          "id": 45,
+          "name": "[FURN_7777] Office Chair",
+          "product_uom_qty": 5,
+          "price_unit": 70,
+          "price_subtotal": 350
+        },
+        {
+          "id": 46,
+          "name": "[E-COM12] Conference Chair (Steel)",
+          "product_uom_qty": 1,
+          "price_unit": 33,
+          "price_subtotal": 33
+        }
+      ]
+    }
+  ],
+  "partners": [
+    {
+      "id": 44,
+      "name": "fwod14-n2 Bench Customer",
+      "city": "Benchville"
+    },
+    {
+      "id": 45,
+      "name": "fwod14-n3 Bench Customer",
+      "city": "Benchville"
+    }
+  ]
+}
