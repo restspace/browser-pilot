@@ -1,0 +1,312 @@
+{
+  "name": "fwod18",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username 'admin' and password 'admin'. If a database selector appears, pick the only/default database. Wait for the Odoo apps/home page to actually load (do NOT wait for network idle - the app long-polls; wait for a concrete element like the apps menu or the user avatar instead). Report what page you see after login and the name shown for the logged-in user.",
+      "skill": "s_0e5ce2",
+      "params": {
+        "v1": "http://127.0.0.1:8069/"
+      },
+      "outputs": [
+        "logged_in_user",
+        "page_title",
+        "app"
+      ],
+      "recorded": {
+        "logged_in_user": "Mitchell Adminbench",
+        "page_title": "Odoo - Discuss",
+        "app": "Discuss"
+      }
+    },
+    {
+      "id": "02-open",
+      "instruction": "A contact record is currently open in Odoo at URL http://127.0.0.1:8069/web#id=44&cids=1&menu_id=186&action=287&model=res.partner&view_type=form. Read the Name field and the City field values shown on this open form and report them exactly. If the City field is empty, click Edit, set City to 'Benchville', save, and report the final values. Do not create a new contact - this one already exists.",
+      "skill": "s_7f9fbb",
+      "params": {},
+      "outputs": [
+        "name",
+        "city"
+      ],
+      "recorded": {
+        "name": "fwod18-n1 Bench Customer",
+        "city": "Benchville"
+      }
+    },
+    {
+      "id": "03-create",
+      "instruction": "In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{runid}} Bench Customer' - IMPORTANT: the customer field is an autocomplete dropdown, so type the name and then click the matching option that appears in the dropdown list so the value is actually selected. Then in the Order Lines tab, add ONE order line: click 'Add a product', type a product name in the Product autocomplete field and pick an actual option from the dropdown list (e.g. a real product from the catalogue like 'Desk Combination' or whatever appears), and set Quantity to 3. Do NOT wait for network idle (the app long-polls) - wait for concrete page state. Then report: (a) the exact product name you selected, (b) the Unit Price the app filled in for that line, (c) the Untaxed Amount shown in the totals section, and (d) the quotation reference/name (e.g. S00042) shown in the breadcrumb or title. Do not confirm the quotation yet.",
+      "skill": "s_aeb663",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "Desk"
+      },
+      "outputs": [
+        "customer",
+        "product",
+        "quotation_reference",
+        "quantity",
+        "taxes",
+        "total",
+        "unit_price",
+        "untaxed_amount",
+        "name_price_unit"
+      ],
+      "recorded": {
+        "customer": "fwod18-n1 Bench Customer",
+        "product": "[FURN_7800] Desk Combination",
+        "quotation_reference": "S00021",
+        "quantity": "3.00",
+        "taxes": "TAX 20%: £ 270.00",
+        "total": "£ 1,620.00",
+        "unit_price": "£ 450.00",
+        "untaxed_amount": "£ 1,350.00",
+        "name_price_unit": "450.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "In this Odoo 17 instance, open the existing quotation {{03-create.quotation_reference}} (id 21, customer '{{runid}} Bench Customer') from Sales > Quotations. It currently has ONE order line: '{{03-create.product}}' quantity {{03-create.quantity}}. Click Edit, then add a SECOND order line: click 'Add a product' on a new empty line, type a DIFFERENT product name in the Product autocomplete field and pick an actual option from the dropdown list (must be a different product from Desk Combination), and set its Quantity to 2. Then save the quotation. Do NOT wait for network idle (the app long-polls) - wait for concrete page state. Do NOT change the first line and do NOT confirm the quotation. Report: (a) the exact product name you selected for the second line, (b) its unit price, (c) the new Untaxed Amount shown in the totals section, and (d) confirm the first line is still Desk Combination qty 3.",
+      "skill": "s_55d2f8",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-create.product}}",
+        "v5": "{{03-create.quantity}}"
+      },
+      "outputs": [
+        "first_line_product",
+        "first_line_qty",
+        "quotation",
+        "second_line_product",
+        "second_line_qty",
+        "second_line_unit_price",
+        "taxes",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "first_line_product": "[FURN_7800] Desk Combination",
+        "first_line_qty": "3.00",
+        "quotation": "S00021",
+        "second_line_product": "Conference Chair",
+        "second_line_qty": "2.00",
+        "second_line_unit_price": "£ 33.00",
+        "taxes": "TAX 20%: £ 283.20",
+        "untaxed_amount": "£ 1,416.00"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "In this Odoo 17 instance, open the existing quotation {{03-create.quotation_reference}} (id 21) from Sales > Quotations. It has two order lines: line 1 '{{03-create.product}}' qty {{03-create.quantity}}, line 2 '{{04-open.second_line_product}}' qty {{04-open.second_line_qty}}. Click Edit, then change ONLY the first line's Quantity from 3 to 5 (leave the second line untouched). Save the quotation. Do NOT wait for network idle (the app long-polls) - wait for concrete page state. Do NOT confirm the quotation. Report: (a) the first line's product and its new quantity, (b) the second line's product and quantity (should be unchanged), and (c) the new Untaxed Amount shown in the totals section.",
+      "skill": "s_331b42",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{03-create.product}}",
+        "v3": "{{03-create.quantity}}",
+        "v4": "{{04-open.second_line_product}}",
+        "v5": "{{04-open.second_line_qty}}"
+      },
+      "outputs": [
+        "first_line_product",
+        "first_line_qty",
+        "first_line_subtotal",
+        "second_line_product",
+        "second_line_qty",
+        "second_line_subtotal",
+        "taxes",
+        "total",
+        "untaxed_amount",
+        "button",
+        "button_2"
+      ],
+      "recorded": {
+        "first_line_product": "[FURN_7800] Desk Combination",
+        "first_line_qty": "5.00",
+        "first_line_subtotal": "£ 2,250.00",
+        "second_line_product": "Conference Chair",
+        "second_line_qty": "2.00",
+        "second_line_subtotal": "£ 66.00",
+        "taxes": "TAX 20%: £ 463.20",
+        "total": "£ 2,779.20",
+        "untaxed_amount": "£ 2,316.00",
+        "button": "New",
+        "button_2": "Quotation"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In this Odoo 17 instance, open the existing quotation {{03-create.quotation_reference}} (id 21) from Sales > Quotations. It has two order lines: '{{03-create.product}}' qty {{05-open.first_line_qty}} and '{{04-open.second_line_product}}' qty {{04-open.second_line_qty}}, Untaxed Amount £2,316.00. Confirm the quotation by clicking the 'Confirm' button (or 'Confirm Order' / 'Confirm Sale' - whatever the primary confirm button is labelled). This turns it into a sales order. Do NOT wait for network idle (the app long-polls) - wait for concrete page state. Report: (a) the order reference/name shown in the breadcrumb or title (e.g. {{03-create.quotation_reference}}), and (b) the exact status the app now shows for the order (look for the status bar / status label, e.g. 'Sales Order', 'In Progress', '{{05-open.button_2}} Sent' etc. - report exactly what text you see).",
+      "skill": "s_6ec41d",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v3": "{{03-create.product}}",
+        "v4": "{{05-open.first_line_qty}}",
+        "v5": "{{04-open.second_line_product}}",
+        "v6": "{{04-open.second_line_qty}}",
+        "v2": "{{05-open.button_2}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status",
+        "status_bar"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order",
+        "status_bar": "Sales Order (checked), Quotation Sent, Quotation"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "In this Odoo 17 instance, the sales order {{03-create.quotation_reference}} (id 21) is open and a 'Cancel order' wizard modal dialog is currently displayed on top of it. The goal is to complete the cancellation of this order. First take a snapshot of the modal to see its current contents (any error message, required fields, and the exact footer button labels). Then complete the cancellation: if there is a required field, fill it; click the button that confirms the cancellation (e.g. 'Send and cancel' or 'Cancel' - NOT 'Discard'). If clicking the button does not dismiss the modal, try pressing Escape to close it and then check whether the order status already changed to Cancelled - if it did, the goal is already met. Do NOT wait for network idle. Report: (a) the exact status text the order shows now (from the status bar), and (b) whether the modal is still open.",
+      "skill": "s_cdd66c",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "modal_open",
+        "status",
+        "chatter_entries",
+        "button_badge",
+        "button_badge_2"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "modal_open": "false",
+        "status": "Sales Order (checked/active) - QuotationCancelled(Status) logged in chatter",
+        "chatter_entries": "QuotationCancelled(Status) logged, Quotation confirmed logged, Sales Order created logged",
+        "button_badge": "Cancel",
+        "button_badge_2": "Sales Order"
+      }
+    },
+    {
+      "id": "08-report",
+      "instruction": "In this Odoo 17 instance, reload the page (hard reload) so the sales order {{03-create.quotation_reference}} (id 21) is freshly loaded from the server, then read the CURRENT status of this order. Look at: (1) the status bar widget at the top of the form (the row of status labels like '{{05-open.button_2}}', '{{05-open.button_2}} Sent', '{{06-open.status}}' - report which one is highlighted/active, and whether there is any additional state shown such as 'Cancelled' in a different colour), (2) the state field value, and (3) the most recent message in the chatter/message thread at the bottom right. Report exactly what status text is displayed for this order right now, and whether the order is cancelled.",
+      "skill": "s_a80ce1",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{05-open.button_2}}",
+        "v3": "{{06-open.status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status_bar",
+        "state_field_value",
+        "chatter_notifications",
+        "cancelled_badge_in_chatter",
+        "is_cancelled",
+        "active_buttons",
+        "value",
+        "value_2"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status_bar": "Sales Order (checked/active) / Quotation Sent / Quotation",
+        "state_field_value": "Not directly readable from DOM",
+        "chatter_notifications": "QuotationCancelled(Status) logged 16 min ago, Quotation confirmed -> Sales Order (Status) logged 13 min ago, Sales Order created logged 24 min ago",
+        "cancelled_badge_in_chatter": "Cancelled (text-info badge found via eval)",
+        "is_cancelled": "true",
+        "active_buttons": "Cancel, Create Invoice, Send by Email, Preview",
+        "value": "Cancel",
+        "value_2": "Create Invoice"
+      }
+    },
+    {
+      "id": "09-find",
+      "instruction": "In this Odoo 17 instance, go to Sales > Orders (the list of sales orders / quotations). Find the row for order {{03-create.quotation_reference}} (customer '{{runid}} Bench Customer'). Report the exact value shown in the 'Status' column for that row in the list view (e.g. '{{05-open.button_2}}', '{{05-open.button_2}} Sent', '{{06-open.status}}', 'Cancelled'). If the list is grouped or filtered such that {{03-create.quotation_reference}} is not visible, remove filters or search for '{{03-create.quotation_reference}}' so it shows. Report the Status column value exactly as displayed.",
+      "skill": "s_4943ba",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{05-open.button_2}}",
+        "v5": "{{06-open.status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "customer",
+        "status_column_value",
+        "total"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "customer": "fwod18-n1 Bench Customer",
+        "status_column_value": "Sales Order",
+        "total": "£ 2,779.20"
+      }
+    },
+    {
+      "id": "10-report",
+      "instruction": "In this Odoo 17 browser session (already logged in as admin), run this exact JavaScript in the page via your eval tool and report the raw JSON output it returns: fetch('/web/dataset/call_kw/sale.order/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',params:{args:[[21],['name','state']]}})}).then(r=>r.json()).then(d=>JSON.stringify(d.result)).catch(e=>'ERR '+e) — Run it on the currently open Odoo page (http://127.0.0.1:8069/web#...). Report the exact string returned, especially the 'state' value for record 21.",
+      "skill": "s_20135b",
+      "params": {},
+      "outputs": [
+        "api_response",
+        "state_value",
+        "name"
+      ],
+      "recorded": {
+        "api_response": "[object Object]",
+        "state_value": "sale",
+        "name": "S00021"
+      }
+    },
+    {
+      "id": "11-open",
+      "instruction": "In this Odoo 17 instance, the sales order {{03-create.quotation_reference}} (id 21) is open but its state is still '{{10-report.state_value}}' (confirmed) - a previous cancel attempt did not take effect. Your job: actually cancel it now, and PROVE it. Steps: (1) Reload the page so order 21 is freshly loaded. (2) Click the '{{07-open.button_badge}}' button in the order's header button bar. A '{{07-open.button_badge}} {{06-open.status}}' wizard modal should open. (3) In that modal, click the primary confirm button (labelled something like 'Send and cancel'). If the modal does not close after clicking, try pressing the Enter key while the modal is focused, or click the button via JavaScript (document.querySelectorAll('.modal button') and find the one whose text is not 'Discard'). (4) Once the modal is gone, verify the result by running this in your eval tool on the page: fetch('/web/dataset/call_kw/{{10-report.state_value}}.order/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',params:{args:[[21],['name','state']]}})}).then(r=>r.json()).then(d=>JSON.stringify(d.result)) and report the exact 'state' value returned. The goal is met only if state is 'cancel'. Do NOT wait for network idle. Report the final state value and the status text the form displays.",
+      "skill": "s_7966f2",
+      "params": {
+        "v2": "{{03-create.quotation_reference}}",
+        "v1": "{{10-report.state_value}}",
+        "v3": "{{07-open.button_badge}}",
+        "v4": "{{06-open.status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "api_state",
+        "status_bar"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "api_state": "cancel",
+        "status_bar": "Cancelled (checked), Sales Order, Quotation Sent, Quotation"
+      }
+    },
+    {
+      "id": "12-open",
+      "instruction": "In this Odoo 17 browser session, run a final verification. On the currently open Odoo page, use your eval tool to run this fetch and report the exact JSON string result: fetch('/web/dataset/call_kw/{{10-report.state_value}}.order/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',params:{args:[[21],['name','state','amount_untaxed']]}})}).then(r=>r.json()).then(d=>JSON.stringify(d.result)). Then also run: fetch('/web/dataset/call_kw/res.partner/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',params:{args:[[44],['name','city']]}})}).then(r=>r.json()).then(d=>JSON.stringify(d.result)). Report both raw JSON strings exactly as returned.",
+      "skill": "s_76c880",
+      "params": {
+        "v1": "{{10-report.state_value}}"
+      },
+      "outputs": [
+        "sale_order_api_response_1_id",
+        "sale_order_api_response_1_name",
+        "sale_order_api_response_1_state",
+        "sale_order_api_response_1_amount_untaxed",
+        "partner_api_response_1_id",
+        "partner_api_response_1_name",
+        "partner_api_response_1_city"
+      ],
+      "recorded": {
+        "sale_order_api_response_1_id": "21",
+        "sale_order_api_response_1_name": "S00021",
+        "sale_order_api_response_1_state": "cancel",
+        "sale_order_api_response_1_amount_untaxed": "2316",
+        "partner_api_response_1_id": "44",
+        "partner_api_response_1_name": "fwod18-n1 Bench Customer",
+        "partner_api_response_1_city": "Benchville"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod18-n1",
+    "created": "2026-08-29T22:49:52.302Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

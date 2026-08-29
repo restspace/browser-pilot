@@ -1,0 +1,104 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "7487e6e"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod18-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 15,
+  "wallMs": 2998352,
+  "orchestrator": {
+    "input": 104421,
+    "cacheWrite": 0,
+    "cacheRead": 37184,
+    "output": 9867
+  },
+  "inner": {
+    "promptTokens": 9429470,
+    "cachedTokens": 7962240,
+    "completionTokens": 60422,
+    "instructions": 18,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 7925051,
+        "completionTokens": 50413,
+        "cachedTokens": 6639616,
+        "instructions": 14
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1504419,
+        "completionTokens": 10009,
+        "cachedTokens": 1322624,
+        "instructions": 4
+      }
+    },
+    "skills": {
+      "instructions": 14,
+      "offered": 8,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 155,
+      "compiled": 12,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 14,
+  "subcommands": {
+    "do": 14
+  },
+  "invocationCount": 14,
+  "commandMs": 2576368,
+  "commandBytes": 32753,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod18-skills",
+    "instructions": 14,
+    "offered": 8,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 155,
+    "compiled": 12,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Cloudflare",
+    "Io Net",
+    "DeepInfra"
+  ],
+  "orReportedCostUsd": 0.1805,
+  "maxUsd": 2,
+  "spendUsd": 0.9899,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**1. DONE** — Customer `fwod18-n1 Bench Customer` created (partner id 44) with City = `Benchville`. Verified both on the saved form and via the ORM API (`name=\"fwod18-n1 Bench Customer\"`, `city=\"Benchville\"`).\n\n**2. DONE** — Quotation `S00021` created for that customer with one order line:\n- Product: `[FURN_7800] Desk Combination`\n- Quantity: 3.00\n- Unit price (auto-filled by the app): £450.00\n- Untaxed amount: £1,350.00 (TAX 20% £270.00, Total £1,620.00)\n\n**3. DONE** — Second order line added:\n- Product: `Conference Chair` ([E-COM12] Conference Chair (Steel))\n- Quantity: 2.00, unit price £33.00\n- New untaxed amount: £1,416.00 (first line unchanged at Desk Combination qty 3)\n\n**4. DONE** — First line's quantity changed from 3 to 5:\n- Line 1: Desk Combination, qty 5.00, subtotal £2,250.00\n- Line 2: Conference Chair, qty 2.00, subtotal £66.00\n- Untaxed amount afterwards: £2,316.00 (TAX 20% £463.20, Total £2,779.20)\n\n**5. DONE** — Quotation confirmed via the Confirm button:\n- Order reference: `S00021`\n- Status shown: `Sales Order` (status bar: Quotation → Quotation Sent → **Sales Order** active)\n\n**6. DONE** — Sales order cancelled:\n- Status shown after cancelling: `Cancelled` (status bar shows Cancelled as the active state)\n- Verified at the data level via the ORM API: `state=\"cancel\"` for order 21, with `amount_untaxed=2316` and name `S00021` intact.\n\nNote on objective 6: the first cancel attempt appeared to succeed (chatter logged a cancellation) but the record's state remained `sale`; I detected this by querying the record state directly, re-ran the cancel flow (Cancel button → confirm dialog → \"Send and cancel\" in the wizard), and confirmed the state actually transitioned to `cancel`. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod18-n1-browser-pilot-transcript.jsonl"
+}

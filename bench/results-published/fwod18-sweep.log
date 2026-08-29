@@ -1,0 +1,136 @@
+
+[sweep] run 1/3: fwod18-n1 (store: /home/user/browser-pilot/bench/results/fwod18-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[harness] odoo: no rollback — writes are runid-scoped, verified by name over JSON-RPC
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod18-n1 stop=completed
+turns=15 wall=2998.4s
+commands=14 cmdTime=2576.4s cmdBytes=32753 timeouts=0
+orchestrator in=104421 cw=0 cr=37184 out=9867
+inner prompt=9429470 cached=7962240 completion=60422
+spend=$0.9899 maxUsd=2
+learn: A_n=0 replayed=0/14 full=0 repaired=0 compiled=12 variants=0
+-> /home/user/browser-pilot/bench/results/fwod18-n1-browser-pilot-result.json
+
+fwod18-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod18-n2 (replay flow fwod18, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+
+fwod18-n2: objectives passed 2/6
+  obj 1: FAIL — city=false
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: FAIL — quantities: 3, 2
+  obj 5: FAIL — no confirmation in state tracking
+  obj 6: FAIL — final state=draft, ref=S00022
+
+[sweep] run 3/3: fwod18-n3 (replay flow fwod18, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwod18-n3: 7 drift ticket(s) → fwod18-n3-drift.json
+
+fwod18-n3: objectives passed 5/6
+  obj 1: FAIL — city=false
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod18 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬────────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed       │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼────────────────┼────────┤
+│ 0       │ 1 │ 'fwod18-n1' │ '6/6'    │ 'completed' │ 15    │ 14   │ 0.9899    │ 0   │ '0/14'         │ 2998   │
+│ 1       │ 2 │ 'fwod18-n2' │ '2/6'    │ 'halted'    │ 78    │ 12   │ 0.0267    │ 1   │ '4/12 (flow)'  │ 651    │
+│ 2       │ 3 │ 'fwod18-n3' │ '5/6'    │ 'success'   │ 91    │ 12   │ 0.0888    │ 1   │ '12/12 (flow)' │ 441    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴────────────────┴────────┘
+http://127.0.0.1:8069
+  s_0e5ce2  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin'. If a database selector appears, pick the o…
+  s_d9dcdd  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin'. If a database selector appears, pick the o…
+  s_0d8e33  validated    1 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin'. If a database selector appears, pick the o…
+  s_4ef29f  validated    5 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin'. If a database selector appears, pick the o…
+  s_aeb663  validated    1 steps  3/3 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_20135b  validated    1 steps  3/3 (100%)
+           In this Odoo 17 browser session (already logged in as admin), run this exact JavaScript in the page via your e…
+  s_7f9fbb  validated    3 steps  2/2 (100%)
+           A contact record is currently open in Odoo at URL {{v1}}. Read the Name field and the City field values shown …
+  s_90bd47  validated    1 steps  2/2 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_9e07bd  validated    2 steps  2/2 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_3f736b  validated   11 steps  2/2 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_55d2f8  validated    9 steps  2/2 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}} Bench Customer') from Sa…
+  s_6ec41d  validated    2 steps  2/2 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21) from Sales > Quotations. It has two order…
+  s_76c880  validated    2 steps  2/2 (100%)
+           In this Odoo 17 browser session, run a final verification. On the currently open Odoo page, use your eval tool…
+  s_879886  provisional  2 steps  1/1 (100%)
+           A contact record is currently open in Odoo at URL http://127.0.0.1:8069/web#id=44&cids=1&menu_id=186&action=28…
+  s_cc7201  provisional  9 steps  1/1 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_6dd826  provisional  7 steps  1/1 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_94199f  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}}') from Sales > Quotation…
+  s_8829fb  provisional  3 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}}') from Sales > Quotation…
+  s_4943ba  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, go to Sales > Orders (the list of sales orders / quotations). Find the row for order…
+  s_532ab8  provisional  4 steps  1/1 (100%)
+           In this Odoo 17 instance, go to Sales > Orders (the list of sales orders / quotations). Find the row for order…
+  s_7966f2  provisional  1 steps  1/1 (100%)
+           In this Odoo 17 instance, the sales order {{v2}} (id 21) is open but its state is still '{{v1}}' (confirmed) -…
+  s_f63bd2  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_f33b2c  provisional 10 steps  1/1 (100%)
+           In this Odoo 17 instance, go to the Sales app > Quotations and create a NEW quotation. Set the Customer to '{{…
+  s_58b007  provisional  1 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}}') from Sales > Quotation…
+  s_a1a6b1  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}}') from Sales > Quotation…
+  s_db1261  provisional 17 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}}') from Sales > Quotation…
+  s_331b42  provisional  1 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21) from Sales > Quotations. It has two order…
+  s_faaf52  provisional  3 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21) from Sales > Quotations. It has two order…
+  s_380d32  provisional 15 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21) from Sales > Quotations. It has two order…
+  s_cdd66c  provisional  6 steps  1/1 (100%)
+           In this Odoo 17 instance, the sales order {{v1}} (id 21) is open and a 'Cancel order' wizard modal dialog is c…
+  s_a80ce1  provisional  4 steps  1/1 (100%)
+           In this Odoo 17 instance, reload the page (hard reload) so the sales order {{v1}} (id 21) is freshly loaded fr…
+  s_0223d5  provisional  9 steps  1/1 (100%)
+           In this Odoo 17 instance, the sales order {{v2}} (id 21) is open but its state is still '{{v1}}' (confirmed) -…
+  s_4e88c2  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation {{v1}} (id 21, customer '{{v2}} Bench Customer') from Sa…
+  s_433a88  provisional  9 steps  1/1 (100%)
+           In this Odoo 17 instance, open the existing quotation (id 21) from Sales > Quotations. It has two order lines:…
+  s_39c3cc  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, the sales order (id 21) is open and a 'Cancel order' wizard modal dialog is currentl…
+  s_68d606  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, reload the page (hard reload) so the sales order (id 21) is freshly loaded from the …
+  s_e7cf41  provisional  2 steps  1/1 (100%)
+           In this Odoo 17 instance, go to Sales > Orders (the list of sales orders / quotations). Find the row for order…
+  s_b99d8f  provisional  1 steps  1/1 (100%)
+           In this Odoo 17 instance, go to Sales > Orders (the list of sales orders / quotations). Find the row for order…
+store: /home/user/browser-pilot/bench/results/fwod18-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod18-sweep.json
+SWEEP_EXIT=0

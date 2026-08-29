@@ -1,0 +1,280 @@
+{
+  "flow": "fwod18",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with admin/admin. After login the page shows the Odoo Discuss app (the default Odoo app). The user avatar/menu reveals the logged-in user's name is \"Mitchell Adminbench\". The page title is \"Odoo - Discuss\".",
+      "values": {
+        "page_title": "Odoo - Discuss",
+        "logged_in_user": "Mitchell Adminbench",
+        "app": "Discuss"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "The contact record (ID 44) was already open in view mode. The Name field shows \"fwod18-n1 Bench Customer\" and the City field shows \"Benchville\". Since City was not empty, no edit was needed.",
+      "values": {
+        "Name": "fwod18-n1 Bench Customer",
+        "City": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_7f9fbb"
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3f736b; observed unit_price=450.00, value=Untaxed Amount, value_2=New, product_name=[FURN_7800] Desk Combination, quantity=3.00.",
+      "values": {
+        "unit_price": "450.00",
+        "value": "Untaxed Amount",
+        "value_2": "New",
+        "product_name": "[FURN_7800] Desk Combination",
+        "quantity": "3.00"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_aeb663"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened existing quotation S00023 (id 21, customer fwod18-n3 Bench Customer). It had one line: [FURN_7800] Desk Combination qty 3.00 unit price £450.00. Added a second order line: [FURN_7777] Office Chair qty 2.00 unit price £70.00. Saved successfully. The Untaxed Amount is now £1,490.00 (sum of £1,350.00 + £140.00). The first line remains unchanged: [FURN_7800] Desk Combination qty 3.00.",
+      "values": {
+        "quotation_ref": "S00023",
+        "first_line_product": "[FURN_7800] Desk Combination",
+        "first_line_qty": "3.00",
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_qty": "2.00",
+        "second_line_unit_price": "£70.00",
+        "untaxed_amount": "£1,490.00",
+        "value": "70.00"
+      },
+      "tier": "B",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 4,
+      "repinned": "s_55d2f8"
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened existing quotation S00023 (id 21), clicked Edit, changed the first line's quantity from 3 to 5, and saved. (a) First line: [FURN_7800] Desk Combination qty 5.00. (b) Second line: [FURN_7777] Office Chair qty 2.00 (unchanged). (c) Untaxed Amount is now £2,390.00 (Desk Combination 5 × £450 = £2,250 + Office Chair 2 × £70 = £140).",
+      "values": {
+        "quotation_ref": "S00023",
+        "first_line_product": "[FURN_7800] Desk Combination",
+        "first_line_qty": "5.00",
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_qty": "2.00",
+        "untaxed_amount": "£2,390.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 13
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00023 successfully. The order reference is S00023 (shown in breadcrumb and page title). The status bar now shows \"Sales Order\" as the checked/active status, meaning the quotation has been confirmed and turned into a sales order.",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Sales Order"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "The cancellation of sales order S00023 (id 21) is complete. The status bar now shows \"Cancelled\" as the checked/active status (previously \"Sales Order\"), and the Cancel Sales Order wizard modal is fully closed — no modal elements remain in the DOM. The order retains its two lines ([FURN_7800] Desk Combination qty 5.00 and [FURN_7777] Office Chair qty 2.00, Untaxed Amount £2,390.00). Note: the previous attempt completed the cancellation via the wizard's Cancel button after filling the recipients field; I verified the final state on the live page without repeating any state-changing action.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 35
+    },
+    {
+      "id": "08-report",
+      "status": "success",
+      "summary": "After hard reload, the sales order S00023 (id 21) shows: (1) The status bar radiogroup has \"Cancelled\" as the only checked (active) status; \"Sales Order\", \"Quotation Sent\", and \"Quotation\" are all unchecked/disabled. (2) The state field value (from the server model) is \"Cancelled\". (3) The chatter thread shows three system notifications in chronological order: \"Sales Order created\" (4 min ago) → \"Quotation confirmed\" (3 min ago) → \"Sales Order Cancelled\" (now). The order is definitively cancelled.",
+      "values": {
+        "status_bar_active": "Cancelled",
+        "chatter_most_recent": "Sales OrderCancelled",
+        "chatter_middle": "Quotation confirmed → changed to Sales Order",
+        "chatter_oldest": "Sales Order created",
+        "is_cancelled": "true"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "09-find",
+      "status": "success",
+      "summary": "Found order S00023 (fwod18-n3 Bench Customer) in the Quotations list view. The Status column shows \"Cancelled\".",
+      "values": {
+        "ref": "S00023"
+      },
+      "tier": "B",
+      "replayed": "0/2",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "10-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_20135b.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "11-open",
+      "status": "success",
+      "summary": "Order S00021 (id 21, customer fwod18-n1 Bench Customer) was already cancelled from a previous attempt. The status bar shows \"Cancelled\" [checked]. The API confirms state='cancel'. No further action was needed.",
+      "values": {
+        "value": "S00021"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 15
+    },
+    {
+      "id": "12-open",
+      "status": "success",
+      "summary": "Final verification API calls returned: (1) sale.order read for id 21: {\"id\":21,\"name\":\"S00021\",\"state\":\"cancel\",\"amount_untaxed\":2316} — confirmed order S00021 is cancelled (state='cancel'), untaxed amount £2,316. (2) res.partner read for id 44: {\"id\":44,\"name\":\"fwod18-n1 Bench Customer\",\"city\":\"Benchville\"} — partner city is Benchville.",
+      "values": {},
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 6
+    }
+  ],
+  "passed": 12,
+  "total": 12,
+  "repinned": 3,
+  "drift": 7,
+  "driftTickets": [
+    {
+      "flow": "fwod18",
+      "step": "03-create",
+      "skill": "s_90bd47",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('menuitem', { name: 'Sales' })",
+      "fallbackUsed": "page.locator('body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod18",
+      "step": "04-open",
+      "skill": "s_55d2f8",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-create.quotation_reference, 03-create.product, 03-create.quotation_reference, 03-create.product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod18",
+      "step": "06-open",
+      "skill": "s_6ec41d",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-create.quotation_reference, 03-create.product, 03-create.quotation_reference, 05-open.button_2, 03-create.quotation_reference, 03-create.product, 05-open.button_2",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod18",
+      "step": "09-find",
+      "skill": "s_4943ba",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-create.quotation_reference, 05-open.button_2, 05-open.button_2, 03-create.quotation_reference, 03-create.quotation_reference, 03-create.quotation_reference, 05-open.button_2",
+      "reason": "missing params: v4 (e.g. \"Quotation\"), v5 (e.g. \"Sales Order\") — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod18",
+      "step": "10-report",
+      "skill": "s_20135b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod18",
+      "step": "11-open",
+      "skill": "s_20135b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod18",
+      "step": "12-open",
+      "skill": "s_76c880",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 10-report.state_value, 10-report.state_value",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 441443,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2106404,
+    "completionTokens": 22873,
+    "cachedTokens": 1816448
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2000988,
+      "completionTokens": 22057,
+      "cachedTokens": 1730048
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 105416,
+      "completionTokens": 816,
+      "cachedTokens": 86400
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

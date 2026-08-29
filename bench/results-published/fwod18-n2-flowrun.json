@@ -1,0 +1,106 @@
+{
+  "flow": "fwod18",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with admin/admin. After login the page shows the Odoo Discuss app (the default Odoo app). The user avatar/menu reveals the logged-in user's name is \"Mitchell Adminbench\". The page title is \"Odoo - Discuss\".",
+      "values": {
+        "page_title": "Odoo - Discuss",
+        "logged_in_user": "Mitchell Adminbench",
+        "app": "Discuss"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "The contact record (ID 44) was already open in view mode. The Name field shows \"fwod18-n1 Bench Customer\" and the City field shows \"Benchville\". Since City was not empty, no edit was needed.",
+      "values": {
+        "Name": "fwod18-n1 Bench Customer",
+        "City": "Benchville",
+        "name": "fwod18-n1 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Created a new quotation for 'fwod18-n2 Bench Customer' with one order line. The product selected is \"[FURN_7800] Desk Combination\" with Unit Price 450.00 and Quantity 3. The Untaxed Amount in the totals is £1,350.00. The quotation has not been saved/confirmed yet and shows as \"New\" (no reference number assigned yet).",
+      "values": {
+        "product_name": "[FURN_7800] Desk Combination",
+        "unit_price": "450.00",
+        "quantity": "3.00",
+        "untaxed_amount": "£1,350.00",
+        "quotation_reference": "New (unsaved)",
+        "value": "Untaxed Amount",
+        "value_2": "New"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Edited the quotation (S00022) for fwod18-n2 Bench Customer and added a second order line. (a) Second line product: [FURN_7777] Office Chair. (b) Its unit price: 70.00. (c) New Untaxed Amount: £1,490.00 (3×450 + 2×70 = 1,350 + 140). (d) The first line is still [FURN_7800] Desk Combination qty 3.00. The quotation was saved and remains unconfirmed (status: Quotation).",
+      "values": {
+        "quotation_reference": "S00022",
+        "first_line_product": "[FURN_7800] Desk Combination",
+        "first_line_qty": "3.00",
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_unit_price": "70.00",
+        "second_line_qty": "2.00",
+        "untaxed_amount": "£1,490.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 14
+    },
+    {
+      "id": "05-open",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 35
+    }
+  ],
+  "passed": 4,
+  "total": 12,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 651159,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1070463,
+    "completionTokens": 16841,
+    "cachedTokens": 870208
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1054163,
+      "completionTokens": 16789,
+      "cachedTokens": 854016
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 16300,
+      "completionTokens": 52,
+      "cachedTokens": 16192
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
