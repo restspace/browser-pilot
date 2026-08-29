@@ -1,0 +1,74 @@
+[
+  {
+    "flow": "fwgr10",
+    "step": "01-open",
+    "skill": "s_622df3",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_622df3 stopped at step 1 — fill failed: secret {{env:APP_PASSWORD}} cannot be resolved — the environment variable APP_PASSWORD is not set where the daemon runs. Set it and restart the session (browser-pilot stop, then re-run with APP_PASSWORD exported).",
+    "reason": "fill failed: secret {{env:APP_PASSWORD}} cannot be resolved — the environment variable APP_PASSWORD is not set where the daemon runs. Set it and restart the session (browser-pilot stop, then re-run with APP_PASSWORD exported).",
+    "pageUrlPattern": "http://127.0.0.1:3000/login"
+  },
+  {
+    "flow": "fwgr10",
+    "step": "03-report",
+    "skill": "s_f19ab1",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.984,
+    "missedLocator": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwo9xafprw1se/:id"
+  },
+  {
+    "flow": "fwgr10",
+    "step": "03-report",
+    "skill": "s_f19ab1",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.984,
+    "missedLocator": "page.locator('[id=\"_rgc_\"]')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwo9xafprw1se/:id"
+  },
+  {
+    "flow": "fwgr10",
+    "step": "03-report",
+    "skill": "s_f19ab1",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 0.984,
+    "missedLocator": "page.locator('section > div:nth-of-type(3) > div > div:nth-of-type(1) > div > p')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwo9xafprw1se/:id"
+  },
+  {
+    "flow": "fwgr10",
+    "step": "04-edit",
+    "skill": "s_dc683a",
+    "similarity": 0.984,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 03-report.e5322, 03-report.e5322, 03-report.e5322",
+    "reason": "the page at http://127.0.0.1:3000/d/afwo9xafprw1se/:id does not show \"Save dashboard\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwo9xafprw1se/:id"
+  },
+  {
+    "flow": "fwgr10",
+    "step": "05-open",
+    "skill": "s_ce72da",
+    "similarity": 0.984,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 03-report.e5322, 03-report.e5322",
+    "reason": "the page at http://127.0.0.1:3000/d/afwo9xafprw1se/:id does not show \"Save dashboard\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afwo9xafprw1se/:id"
+  }
+]

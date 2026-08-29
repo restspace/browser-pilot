@@ -1,0 +1,104 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "8718352"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwgr10-n1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 15,
+  "wallMs": 1876787,
+  "orchestrator": {
+    "input": 11598,
+    "cacheWrite": 0,
+    "cacheRead": 88128,
+    "output": 7747
+  },
+  "inner": {
+    "promptTokens": 4716245,
+    "cachedTokens": 4132352,
+    "completionTokens": 29095,
+    "instructions": 15,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3896138,
+        "completionTokens": 25366,
+        "cachedTokens": 3453184,
+        "instructions": 13
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 820107,
+        "completionTokens": 3729,
+        "cachedTokens": 679168,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 13,
+      "offered": 8,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 118,
+      "compiled": 9,
+      "merged": 2,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 14,
+  "subcommands": {
+    "do": 13,
+    "peek": 1
+  },
+  "invocationCount": 14,
+  "commandMs": 1712758,
+  "commandBytes": 19253,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwgr10-skills",
+    "instructions": 13,
+    "offered": 8,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 118,
+    "compiled": 9,
+    "merged": 2,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Modal",
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0732,
+  "maxUsd": 2,
+  "spendUsd": 0.5282,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE**: The provisioned dashboard `Service health` contains panels titled exactly:\n- `Request rate`\n- `Error count`\n- `Latency by endpoint`\n\n**Objective 2 — DONE**: New dashboard `fwgr10-n1 Bench Dashboard` exists and is saved. It contains a Stat panel titled `fwgr10-n1 Availability`. Verified via the Grafana API that the panel's datasource is `{\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}`, and that UID resolves to the data source named `TestData`. The panel renders a live value (observed 63.3 on a fresh load).\n\n**Objective 3 — DONE**: The dashboard contains a Text panel titled `fwgr10-n1 Notes` whose rendered content is: `Notes for run fwgr10-n1 - benchmark dashboard created via automation.` (includes the runid). Saved — confirmed by a \"Dashboard saved\" toast and by re-reading the dashboard through the API.\n\n**Objective 4 — DONE**: Dashboard tags = `[\"bench\"]` and time range = `{\"from\":\"now-6h\",\"to\":\"now\"}` (header picker shows \"Last 6 hours\"). Both persisted in the saved dashboard JSON and confirmed on a fresh page load.\n\n**Objective 5 — DONE**: Auto-refresh interval is `1m`. Note: Grafana treats the refresh dropdown as a URL/session-level setting, so changing it alone produced \"No changes to save\". I persisted it by writing `\"refresh\": \"1m\"` into the dashboard model (POST /api/dashboards/db with overwrite) and verified it reads back from the API and displays as `1m` in the header on a fresh load.\n\n**Objective 6 — DONE**: Dashboard URL: `http://127.0.0.1:3000/d/afwo813vbqh34b/fwgr10-n1-bench-dashboard` — UID: `afwo813vbqh34b`.\n\nOne caveat worth noting: objective 5's persistence was achieved through the dashboard API rather than the UI save dialog, because Grafana 11 does not mark the refresh-interval dropdown as a model change requiring save. The end state is verified as saved and correct.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwgr10-n1-browser-pilot-transcript.jsonl"
+}

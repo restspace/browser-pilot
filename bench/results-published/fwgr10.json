@@ -1,0 +1,218 @@
+{
+  "name": "fwgr10",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ in the browser. If a login page appears, sign in with username admin and password admin (if prompted to change your password, skip/cancel that). Then navigate to the provisioned dashboard named 'Service health' (use search if needed) and report the titles of all panels on that dashboard, exactly as shown on the page, one per line.",
+      "skill": "s_6e65a2",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "panel_titles"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint"
+      }
+    },
+    {
+      "id": "02-set",
+      "instruction": "We are in the Grafana panel editor for a new dashboard (URL /dashboard/new?...&editPanel=1). The panel is already a Stat visualization using the TestData data source. Do the following: 1) In the right-hand options pane, scroll to the 'Panel options' section and set the panel Title field to exactly: {{runid}} Availability. 2) Set the dashboard title: click the gear/dashboard-settings icon (or the dashboard name in the header) to open dashboard settings, go to General, and set the dashboard Name to exactly: {{runid}} Bench Dashboard, then save/apply that. 3) Back in the panel editor, click 'Save dashboard' and confirm the save so the dashboard persists. Report the resulting dashboard URL/UID and confirm the save succeeded.",
+      "skill": "s_b7ad9a",
+      "params": {
+        "v2": "{{runid}} Availability",
+        "v3": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "dashboard_uid",
+        "dashboard_title",
+        "panel_title"
+      ],
+      "recorded": {
+        "dashboard_uid": "afwo813vbqh34b",
+        "dashboard_title": "fwgr10-n1 Bench Dashboard",
+        "panel_title": "fwgr10-n1 Availability"
+      }
+    },
+    {
+      "id": "03-report",
+      "instruction": "We are on the Grafana dashboard at http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard. Report: (a) the exact titles of every panel visible on this dashboard, (b) whether a Text panel titled '{{runid}} Notes' exists and, if so, what its rendered text content says, (c) whether there is any unsaved-changes indicator (e.g. a 'Save dashboard' button enabled or a 'Discard changes' prompt) in the header. Do not modify anything.",
+      "skill": "s_f19ab1",
+      "params": {
+        "v1": "{{02-set.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "panel_titles",
+        "text_panel_title",
+        "text_panel_content",
+        "save_button_enabled",
+        "edit_mode_active",
+        "e5322"
+      ],
+      "recorded": {
+        "panel_titles": "fwgr10-n1 Notes, fwgr10-n1 Availability",
+        "text_panel_title": "fwgr10-n1 Notes",
+        "text_panel_content": "Notes for run fwgr10-n1 - benchmark dashboard created via automation.",
+        "save_button_enabled": "true",
+        "edit_mode_active": "true",
+        "e5322": "Save dashboard"
+      }
+    },
+    {
+      "id": "04-edit",
+      "instruction": "We are on the Grafana dashboard '{{runid}} Bench Dashboard' (UID {{02-set.url.p1}}) which is currently in edit mode with unsaved changes (the '{{03-report.e5322}}' button in the header is enabled). Click '{{03-report.e5322}}' and confirm the save dialog so the changes persist. Then verify the save succeeded (e.g. a 'Dashboard saved' toast appears, or the Save button becomes disabled / the dashboard exits edit mode). Report whether the save succeeded.",
+      "skill": "s_dc683a",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-set.url.p1}}",
+        "v4": "{{03-report.e5322}}"
+      },
+      "outputs": [
+        "save_confirmed",
+        "toast_message"
+      ],
+      "recorded": {
+        "save_confirmed": "true",
+        "toast_message": "Dashboard saved"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "We are on the Grafana dashboard '{{runid}} Bench Dashboard' (UID {{02-set.url.p1}}). Do two things and then save: 1) Open the dashboard settings (gear icon in the top-right), go to the General settings section, and add the tag 'bench' to the dashboard's Tags field (type 'bench' and press Enter or click the suggestion so it becomes a tag chip). Apply/save the settings. 2) Set the dashboard's time range to 'Last 6 hours' using the time range picker in the top-right of the dashboard. 3) Then SAVE the dashboard (click {{03-report.e5322}} and confirm) so both changes persist. Report the tags shown in dashboard settings and the time range shown in the picker after saving.",
+      "skill": "s_ce72da",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-set.url.p1}}",
+        "v4": "{{03-report.e5322}}"
+      },
+      "outputs": [
+        "tags",
+        "time_range",
+        "save_succeeded",
+        "toast"
+      ],
+      "recorded": {
+        "tags": "bench",
+        "time_range": "Last 6 hours",
+        "save_succeeded": "true",
+        "toast": "Dashboard saved"
+      }
+    },
+    {
+      "id": "06-set",
+      "instruction": "We are on the Grafana dashboard '{{runid}} Bench Dashboard' (UID {{02-set.url.p1}}). Set the dashboard's auto-refresh interval to '1m': click the refresh-interval dropdown button next to the Refresh button in the top-right (it may currently say 'Auto refresh turned off. Choose refresh time interval' or show an interval), select '1m' from the list. Then SAVE the dashboard (click {{03-report.e5322}} and confirm, checking 'Update default time range' if offered) so the refresh interval persists. Report the refresh interval shown in the header after saving and confirm the save succeeded.",
+      "skill": "s_21c635",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-set.url.p1}}",
+        "v4": "{{03-report.e5322}}"
+      },
+      "outputs": [
+        "refresh_interval",
+        "save_attempted",
+        "save_dialog_message",
+        "refresh_in_url"
+      ],
+      "recorded": {
+        "refresh_interval": "1m",
+        "save_attempted": "true",
+        "save_dialog_message": "No changes to save",
+        "refresh_in_url": "true"
+      }
+    },
+    {
+      "id": "07-report",
+      "instruction": "On the current Grafana page, run this in the browser console/eval: fetch('/api/dashboards/uid/{{02-set.url.p1}}', {headers:{'Accept':'application/json'}}).then(r=>r.json()).then(j=>JSON.stringify({title:j.dashboard.title, tags:j.dashboard.tags, refresh:j.dashboard.refresh, time:j.dashboard.time, panels:j.dashboard.panels.map(p=>({type:p.type,title:p.title}))})). Report the exact JSON result. Do not modify anything.",
+      "skill": "s_123691",
+      "params": {
+        "v1": "{{02-set.url.p1}}"
+      },
+      "outputs": [
+        "api_response",
+        "refresh_in_model"
+      ],
+      "recorded": {
+        "api_response": "{\"title\":\"fwgr10-n1 Bench Dashboard\",\"tags\":[\"bench\"],\"time\":{\"from\":\"now-6h\",\"to\":\"now\"},\"panels\":[{\"type\":\"text\",\"title\":\"fwgr10-n1 Notes\"},{\"type\":\"stat\",\"title\":\"fwgr10-n1 Availability\"}]}",
+        "refresh_in_model": "null"
+      }
+    },
+    {
+      "id": "08-set",
+      "instruction": "We are on the Grafana dashboard '{{runid}} Bench Dashboard' (UID {{02-set.url.p1}}). The dashboard's auto-refresh interval currently shows {{06-set.refresh_interval}} in the header but the 'refresh' field is NOT persisted in the saved dashboard JSON. Persist it: First try changing the refresh interval via the time picker dropdown (set it to 5m, then back to {{06-set.refresh_interval}}) and check whether the '{{03-report.e5322}}' header button becomes enabled; if so, save the dashboard. If the save dialog reports '{{06-set.save_dialog_message}}' or the refresh still isn't persisted, then instead open the dashboard Settings (gear icon, top-right), click 'JSON Model' in the left nav, and edit the JSON to add a top-level field \"refresh\": \"{{06-set.refresh_interval}}\" (place it right after the \"tags\" field), then click 'Save changes' and confirm. Finally verify by fetching /api/dashboards/uid/{{02-set.url.p1}} in the page and report the exact value of the 'refresh' field, plus title, tags, and time.",
+      "skill": "s_8dd0a3",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-set.url.p1}}",
+        "v4": "{{03-report.e5322}}",
+        "v5": "{{06-set.save_dialog_message}}"
+      },
+      "outputs": [
+        "final_api_result"
+      ],
+      "recorded": {
+        "final_api_result": "{\"title\":\"fwgr10-n1 Bench Dashboard\",\"tags\":[\"bench\"],\"refresh\":\"1m\",\"time\":{\"from\":\"now-6h\",\"to\":\"now\"},\"panels\":[{\"type\":\"text\",\"title\":\"fwgr10-n1 Notes\"},{\"type\":\"stat\",\"title\":\"fwgr10-n1 Availability\"}]}"
+      }
+    },
+    {
+      "id": "09-report",
+      "instruction": "Navigate to http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard (a fresh load of this Grafana dashboard). Then report: (a) the dashboard title shown in the header, (b) the exact titles of all panels visible, (c) the time range shown in the time picker button, (d) the auto-refresh interval shown in the refresh dropdown button (e.g. '{{06-set.refresh_interval}}'), (e) whether the Stat panel '{{runid}} Availability' renders a value, and (f) the text content of the '{{runid}} Notes' panel. Do not modify anything.",
+      "skill": "s_7399a3",
+      "params": {
+        "v7": "http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard",
+        "v5": "{{runid}} Availability",
+        "v6": "{{runid}} Notes",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "time_range",
+        "refresh_interval",
+        "stat_panel_value",
+        "text_panel_content"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr10-n1 Bench Dashboard",
+        "panel_titles": "fwgr10-n1 Notes, fwgr10-n1 Availability",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "stat_panel_value": "63.3",
+        "text_panel_content": "Notes for run fwgr10-n1 - benchmark dashboard created via automation."
+      }
+    },
+    {
+      "id": "10-report",
+      "instruction": "On the current Grafana page, run in eval: fetch('/api/dashboards/uid/{{02-set.url.p1}}').then(r=>r.json()).then(j=>JSON.stringify(j.dashboard.panels.map(p=>({type:p.type,title:p.title,datasource:p.datasource,content:p.content})))) and report the exact JSON result. Do not modify anything.",
+      "skill": "s_123691",
+      "outputs": [
+        "panels_from_api"
+      ],
+      "recorded": {
+        "panels_from_api": "[object Object], [object Object]"
+      }
+    },
+    {
+      "id": "11-report",
+      "instruction": "On the current Grafana page, run in eval: fetch('/api/datasources/uid/benchtestdata').then(r=>r.json()).then(j=>JSON.stringify({name:j.name,type:j.type,uid:j.uid})) and report the exact JSON result. Do not modify anything.",
+      "skill": "s_123691",
+      "outputs": [
+        "datasource_info"
+      ],
+      "recorded": {
+        "datasource_info": "{\"name\":\"TestData\",\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr10-n1",
+    "created": "2026-08-29T19:43:30.335Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
