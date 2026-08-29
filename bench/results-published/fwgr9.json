@@ -1,0 +1,112 @@
+{
+  "name": "fwgr9",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ and sign in to Grafana with username admin and password admin (if prompted to set a new password, skip that step). Then navigate to the provisioned dashboard named 'Service health' (use the dashboard search/browse if needed) and report the titles of all panels on that dashboard exactly as displayed, in order from top to bottom.",
+      "skill": "s_328811",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "panel_titles",
+        "h2",
+        "h2_2",
+        "h2_3"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Grafana, create a NEW dashboard. Set the dashboard title to exactly '{{runid}} Bench Dashboard'. Add a Stat visualization panel, set its panel title to exactly '{{runid}} Availability', and set its query data source to 'TestData' (the test data source, may be named 'grafana-testdata-datasource' or 'TestData' - pick the test data one). Configure the query with a sensible default scenario (e.g. 'Random Walk' or classic query) so the panel has data. Apply the panel and then SAVE the dashboard (confirm the save dialog, no folder needed). Verify the dashboard is saved with that title and the Stat panel exists with that title, and report what you observed including the dashboard URL.",
+      "skill": "s_c0c75d",
+      "params": {
+        "v2": "{{runid}} Bench Dashboard",
+        "v3": "{{runid}} Availability"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_title",
+        "panel_type",
+        "data_source",
+        "scenario"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr9-n1 Bench Dashboard",
+        "panel_title": "fwgr9-n1 Availability",
+        "panel_type": "Stat",
+        "data_source": "TestData",
+        "scenario": "Random Walk"
+      }
+    },
+    {
+      "id": "03-add",
+      "instruction": "On the existing dashboard '{{runid}} Bench Dashboard' (navigate to it if needed), add a NEW Text visualization panel. Set the panel title to exactly '{{runid}} Notes' and set the text content to include the runid '{{runid}}' (e.g. markdown text like 'Notes for run {{runid}}'). Apply the panel and then SAVE the dashboard explicitly (confirm the save dialog). Verify the Text panel exists with that title and its rendered content includes '{{runid}}', and report what you observed.",
+      "skill": "s_348bac",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{runid}} Notes",
+        "v2": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-add",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (navigate to it if needed), do two things and then SAVE the dashboard explicitly: (1) Add the tag 'bench' to the dashboard (via dashboard settings > General > tags, add tag 'bench'), and (2) set the dashboard's time range to the last 6 hours (use the time range picker in the top right and choose 'Last 6 hours'). After saving, verify the tag 'bench' is present on the dashboard and the time range picker shows 6 hours, and report what you observed.",
+      "skill": "s_71e8c3",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-set",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (navigate to it if needed), set the dashboard's auto-refresh interval to '1m' (one minute). You can do this via the refresh picker dropdown in the top right (click the refresh interval selector and choose '1m' or 'Set interval' -> 1m), or via dashboard Settings > General > Auto refresh field. Then SAVE the dashboard explicitly (confirm the save dialog, and if offered 'Update default time range/refresh' check it). After saving, verify the auto-refresh interval is 1m (e.g. the refresh picker shows 1m, or Settings > General > Auto refresh shows 1m) and report what you observed.",
+      "skill": "s_4a7cb8",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-report",
+      "instruction": "Navigate to the dashboard '{{runid}} Bench Dashboard' (use search if needed) and perform a final verification. Report: (1) the full URL of the dashboard page and its UID (visible in the URL, e.g. /d/<UID>/...), (2) the dashboard title shown in the breadcrumb, (3) the titles of all panels on the dashboard, (4) the current time range shown in the time picker, (5) the current auto-refresh interval shown in the refresh picker, and (6) whether the tag 'bench' is listed on the dashboard (check Settings > General > tags, then go back to the dashboard). Do not change anything.",
+      "skill": "s_8a4f57",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-report",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (UID {{02-create.url.p1}}), report the exact full URL currently in the browser address bar. Then open the panel editor for the panel titled '{{runid}} Availability' (click its title > Edit) and report which data source its query uses (the name shown in the query data source picker), then press Back/Exit the editor WITHOUT changing or saving anything. Do not modify the dashboard.",
+      "skill": "s_65da2b",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-create.url.p1}}",
+        "v4": "{{runid}} Availability"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwgr9-n1",
+    "created": "2026-08-29T10:41:54.352Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

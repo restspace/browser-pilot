@@ -1,0 +1,134 @@
+{
+  "flow": "fwgr9",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with the default admin/admin credentials, skipped the password change prompt, navigated to the provisioned \"Service health\" dashboard, and found 3 panels in order from top to bottom: \"Request rate\" (top), \"Error count\" (middle), and \"Latency by endpoint\" (bottom).",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e204f4; observed dashboard_title=fwgr9-n2 Bench Dashboard, panel_title=fwgr9-n2 Availability.",
+      "values": {
+        "dashboard_title": "fwgr9-n2 Bench Dashboard",
+        "panel_title": "fwgr9-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text visualization panel titled 'fwgr9-n2 Notes' to the 'fwgr9-n2 Bench Dashboard' with markdown content '## Notes for run fwgr9-n2' plus a second line mentioning fwgr9-n2, applied the panel, and saved the dashboard (save dialog confirmed, \"Dashboard saved\" alert appeared). Verified on the saved dashboard: the Text panel renders with heading 'fwgr9-n2 Notes' and its content includes 'fwgr9-n2' (rendered as 'Notes for run fwgr9-n2' and 'This dashboard tracks availability and error metrics for the fwgr9-n2 run.'). The existing 'fwgr9-n2 Availability' Stat panel is also intact.",
+      "values": {},
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added the tag 'bench' to the dashboard via Settings > General > Tags, confirmed it shows with a \"Remove 'bench' tag\" button. The time range was already set to 'Last 6 hours' (shown in the top-right time picker as \"Last 6 hours\" and the URL confirms from=now-6h). Saved the dashboard explicitly with \"Update default time range\" checked — \"Dashboard saved\" alert confirmed. After saving, verified both: the tag 'bench' persists in Settings, and the time range picker still shows \"Last 6 hours\". Both panels ({{v2}} Notes Text panel and {{v2}} Availability Stat panel) remain intact.",
+      "values": {},
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to '1m' via the refresh picker dropdown in the top right. Saved the dashboard explicitly via Ctrl+S, checked \"Update default refresh value\" in the save dialog, and confirmed \"Dashboard saved\" alert. After saving, verified the refresh picker shows \"1m\" (the button text reads \"Choose refresh time interval with current interval 1 minute selected\" with label \"1m\"). The time range \"Last 6 hours\", tag \"bench\", and both panels remain intact.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Final verification of 'fwgr9-n2 Bench Dashboard' completed. Dashboard UID is ffwmvnlul1c00c, title 'fwgr9-n2 Bench Dashboard' shown in breadcrumb, 2 panels present: '{{v2}} Notes' (Text) and '{{v2}} Availability' (Stat). Time range is 'Last 6 hours', auto-refresh interval is '1m'. Tag 'bench' confirmed present in Settings > General > Tags (has a \"Remove 'bench' tag\" button).",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Verified the full dashboard URL is http://127.0.0.1:3000/d/cfwmx5kdce4u8f/fwgr9-n2-bench-dashboard?from=now-6h&to=now&timezone=browser. Opened the panel editor for the 'fwgr9-n2 Availability' panel — the query data source is 'TestData' (confirmed by the TestData logo and the query row title showing 'A (TestData)'). Exited the editor via 'Back to dashboard' without saving changes. Dashboard unchanged.",
+      "values": {
+        "data_source": "TestData",
+        "e142": "fwgr9-n2 Availability",
+        "e425": "(TestData)"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 18
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr9",
+      "step": "03-add",
+      "skill": "s_348bac",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.996,
+      "missedLocator": "page.locator('[role=\"menuitem\"] >> nth=0')",
+      "fallbackUsed": "page.getByTestId('data-testid Add new visualization menu item')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwmx5kdce4u8f/:id"
+    },
+    {
+      "flow": "fwgr9",
+      "step": "07-report",
+      "skill": "s_07da83",
+      "similarity": 0.997,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_07da83 stopped at step 4 — after step 4 the page did not show \"- heading \\\"{{v2}} Notes\\\"\" / \"- button \\\"Menu for panel with title {{v2}} Notes\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 4 the page did not show \"- heading \\\"{{v2}} Notes\\\"\" / \"- button \\\"Menu for panel with title {{v2}} Notes\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfwmx5kdce4u8f/:id"
+    }
+  ],
+  "wallMs": 115213,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 216741,
+    "completionTokens": 3896,
+    "cachedTokens": 168448
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 216741,
+      "completionTokens": 3896,
+      "cachedTokens": 168448
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

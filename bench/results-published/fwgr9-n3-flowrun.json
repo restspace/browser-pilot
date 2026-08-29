@@ -1,0 +1,116 @@
+{
+  "flow": "fwgr9",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with the default admin/admin credentials, skipped the password change prompt, navigated to the provisioned \"Service health\" dashboard, and found 3 panels in order from top to bottom: \"Request rate\" (top), \"Error count\" (middle), and \"Latency by endpoint\" (bottom).",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e204f4; observed dashboard_title=fwgr9-n3 Bench Dashboard, panel_title=fwgr9-n3 Availability.",
+      "values": {
+        "dashboard_title": "fwgr9-n3 Bench Dashboard",
+        "panel_title": "fwgr9-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text visualization panel titled 'fwgr9-n3 Notes' to the 'fwgr9-n3 Bench Dashboard' with markdown content '## Notes for run fwgr9-n3' plus a second line mentioning fwgr9-n3, applied the panel, and saved the dashboard (save dialog confirmed, \"Dashboard saved\" alert appeared). Verified on the saved dashboard: the Text panel renders with heading 'fwgr9-n3 Notes' and its content includes 'fwgr9-n3' (rendered as 'Notes for run fwgr9-n3' and 'This dashboard tracks availability and error metrics for the fwgr9-n3 run.'). The existing 'fwgr9-n3 Availability' Stat panel is also intact.",
+      "values": {},
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added the tag 'bench' to the dashboard via Settings > General > Tags, confirmed it shows with a \"Remove 'bench' tag\" button. The time range was already set to 'Last 6 hours' (shown in the top-right time picker as \"Last 6 hours\" and the URL confirms from=now-6h). Saved the dashboard explicitly with \"Update default time range\" checked — \"Dashboard saved\" alert confirmed. After saving, verified both: the tag 'bench' persists in Settings, and the time range picker still shows \"Last 6 hours\". Both panels ({{v2}} Notes Text panel and {{v2}} Availability Stat panel) remain intact.",
+      "values": {},
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to '1m' via the refresh picker dropdown in the top right. Saved the dashboard explicitly via Ctrl+S, checked \"Update default refresh value\" in the save dialog, and confirmed \"Dashboard saved\" alert. After saving, verified the refresh picker shows \"1m\" (the button text reads \"Choose refresh time interval with current interval 1 minute selected\" with label \"1m\"). The time range \"Last 6 hours\", tag \"bench\", and both panels remain intact.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Final verification of 'fwgr9-n3 Bench Dashboard' completed. Dashboard UID is ffwmvnlul1c00c, title 'fwgr9-n3 Bench Dashboard' shown in breadcrumb, 2 panels present: '{{v2}} Notes' (Text) and '{{v2}} Availability' (Stat). Time range is 'Last 6 hours', auto-refresh interval is '1m'. Tag 'bench' confirmed present in Settings > General > Tags (has a \"Remove 'bench' tag\" button).",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Replayed stored procedure s_65da2b; observed e142=fwgr9-n3 Availability, e425=(TestData).",
+      "values": {
+        "e142": "fwgr9-n3 Availability",
+        "e425": "(TestData)"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_65da2b"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr9",
+      "step": "03-add",
+      "skill": "s_348bac",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.996,
+      "missedLocator": "page.locator('[role=\"menuitem\"] >> nth=0')",
+      "fallbackUsed": "page.getByTestId('data-testid Add new visualization menu item')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffwmxbtpkmvb4a/:id"
+    }
+  ],
+  "wallMs": 68029,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
