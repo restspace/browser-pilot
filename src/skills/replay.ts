@@ -187,18 +187,29 @@ export async function replaySkill(
   // this template, so neither can tell ticket t15 from ticket t14. A segment
   // that started on a page showing caller-vouched values must find them
   // again, or it is about to do this run's work on someone else's record.
-  // Skipped for a self-navigating procedure: step 1 decides the page.
-  if (!navigatesItself && skill.preconditions.requireText?.length) {
-    for (const marker of skill.preconditions.requireText) {
+  //
+  // A self-navigating procedure is checked AFTER its goto, not skipped. The
+  // old rule was "step 1 decides the page", which is true and beside the
+  // point: the recorded goto carries the RECORDING run's record id, so it
+  // decides the page to be the wrong one. fwod10 replayed
+  //   goto .../web#id=44&...&model=res.partner
+  // and steps 03-07 did this run's work on n1's records at tier A, published
+  // no values, reported success, and verified 1/6. The guard designed to stop
+  // exactly that was disabled precisely for the procedures most likely to
+  // need it.
+  const checkIdentity = async (): Promise<boolean> => {
+    for (const marker of skill.preconditions.requireText ?? []) {
       const want = fillParams(marker, params);
       if (!want || /\{\{/.test(want)) continue; // unbound marker proves nothing
       if (await presentOnPage(page, [want])) continue;
       res.refused = true;
       res.wrongRecord = `the page at ${urlPattern(page.url())} does not show ${JSON.stringify(clip(want, 60))} — it matches this procedure's page template but is a different record — nothing was run`;
       res.reason = res.wrongRecord;
-      return res;
+      return false;
     }
-  }
+    return true;
+  };
+  if (!navigatesItself && skill.preconditions.requireText?.length && !(await checkIdentity())) return res;
 
   // One step against the live page. Mutates `res` (lines/warnings/values/
   // stepsRun) and returns how it went; a 'stop' has already set failedAt/reason.
@@ -535,6 +546,14 @@ export async function replaySkill(
     const status = await runOneStep(step, String(n), n);
     if (status === 'stop') break;
     res.stepsRun++;
+    // The identity check a self-navigating procedure deferred: its goto has
+    // now run, so ask whether it landed on THIS run's record before doing any
+    // work on it. Refusing here costs a recovery; not refusing costs the work
+    // being done to the wrong record and reported as success.
+    if (navigatesItself && n === 1 && skill.preconditions.requireText?.length && !(await checkIdentity())) {
+      res.stepsRun = 0; // a goto changed the page but touched no record
+      return res;
+    }
   }
 
   res.ok = res.stepsRun === skill.steps.length && res.failedAt === undefined;

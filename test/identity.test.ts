@@ -328,3 +328,42 @@ describe('prose-cited record identifiers', () => {
     expect(r.evidence.values[name]).toBe('S00021');
   });
 });
+
+describe('a self-navigating procedure is checked AFTER its goto', () => {
+  it('refuses when the recorded url lands on another record', async () => {
+    const { replaySkill } = await import('../src/skills/replay.js');
+    // fwod10: the goto carries the RECORDING run's record id, so "step 1
+    // decides the page" decided it to be the wrong one. Steps 03-07 did this
+    // run's work on n1's records at tier A and reported success; 1/6 verified.
+    const skill = {
+      id: 's_nav', origin: 'http://x.test', template: 't',
+      params: { v1: { example: 'n1 Bench Customer', usedIn: [], known: true as const } },
+      preconditions: { urlPattern: 'http://x.test/rec/:id', requireText: ['{{v1}}'] },
+      steps: [
+        { tool: 'goto', args: { url: 'http://x.test/rec/44' }, locators: {} },
+        { tool: 'click', args: { target: '@e1' }, locators: { target: [{ kind: 'role', role: 'button', name: 'Edit' }] } },
+      ],
+      stats: { uses: 1, successes: 1, partial: 0, created: '', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated', provenance: { session: 's', instruction: 't', created: '' },
+    } as unknown as Skill;
+    const ran: string[] = [];
+    const page = {
+      url: () => 'http://x.test/rec/44',
+      async goto() {},
+      // The landed page shows n1's record, never n2's.
+      locator: () => ({ count: async () => 0, first: () => ({ textContent: async () => '' }) }),
+      async content() { return '<html>n1 Bench Customer</html>'; },
+      async evaluate() { return 'n1 Bench Customer'; },
+      async waitForLoadState() {},
+    } as unknown as import('playwright-core').Page;
+    const out = await replaySkill(skill, { v1: 'n2 Bench Customer' }, {
+      page,
+      exec: async (tool) => { ran.push(tool); return { result: 'ok' }; },
+    });
+    expect(out.refused).toBe(true);
+    expect(out.wrongRecord).toMatch(/different record/);
+    // The goto ran — that is how we learn where it lands. Nothing after it did.
+    expect(ran).toEqual(['goto']);
+    expect(out.stepsRun).toBe(0);
+  });
+});
