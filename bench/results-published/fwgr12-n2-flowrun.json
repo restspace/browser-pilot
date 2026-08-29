@@ -1,0 +1,65 @@
+{
+  "flow": "fwgr12",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin, skipped the change-password prompt, navigated to the \"Service health\" dashboard (under the Bench folder), and verified all panels via the live DOM.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "On the \"Service Health\" dashboard (breadcrumb: Home > Dashboards > Bench > Service Health), three panels are displayed: (1) \"Request rate\", (2) \"Error count\", and (3) \"Latency by endpoint\". There are no unsaved changes — no Save/Discard button is present, and no unsaved-changes indicator was found anywhere on the page.",
+      "values": {
+        "data_testid_data_testid_": "Request rate",
+        "data_testid_data_testid__2": "Error count",
+        "data_testid_data_testid__3": "Latency by endpoint"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "03-edit",
+      "status": "blocked",
+      "summary": "Turn cap (45) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 75
+    }
+  ],
+  "passed": 2,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 649084,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1272876,
+    "completionTokens": 15398,
+    "cachedTokens": 1077952
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 482854,
+      "completionTokens": 7764,
+      "cachedTokens": 408320
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 790022,
+      "completionTokens": 7634,
+      "cachedTokens": 669632
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
