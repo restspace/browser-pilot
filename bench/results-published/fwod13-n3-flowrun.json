@@ -1,0 +1,141 @@
+{
+  "flow": "fwod13",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Verified the saved customer contact 'fwod13-n3 Bench Customer' (Odoo record id 45). The form displays the heading \"fwod13-n3 Bench Customer\", the Name field contains \"fwod13-n3 Bench Customer\", and the City field shows \"Benchville\" in the address section. A system notification \"Contact created\" confirms it was saved.",
+      "values": {
+        "customer_name": "fwod13-n3 Bench Customer",
+        "city": "Benchville",
+        "odoo_record_id": "45"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 26
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created and saved quotation S00026 for customer 'fwod13-n3 Bench Customer' with exactly one order line: Customizable Desk [FURN_0096] at quantity 3.00. The app auto-filled the unit price at 750.00 and computed an Untaxed Amount of £2,250.00 (TAX 20% £450.00, Total £2,700.00). The form is in read-only/saved state with status \"Quotation\".",
+      "values": {
+        "quotation_reference": "S00026",
+        "product": "Customizable Desk [FURN_0096]",
+        "quantity": "3.00",
+        "unit_price": "750.00",
+        "untaxed_amount": "£ 2,250.00",
+        "tax_20pct": "£ 450.00",
+        "total": "£ 2,700.00",
+        "customer": "fwod13-n3 Bench Customer",
+        "status": "Quotation"
+      },
+      "tier": "A",
+      "replayed": "0/1",
+      "repaired": false,
+      "turns": 33
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_18cbe1.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e3f210.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_7ff03e.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_1f9347.",
+      "values": {},
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_80fe0d.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod13",
+      "step": "01-open",
+      "skill": "s_a7437f",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('textbox', { name: 'Email' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod13",
+      "step": "02-create",
+      "skill": "s_f648d2",
+      "similarity": 0.151,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_f648d2 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+    }
+  ],
+  "wallMs": 790365,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1320216,
+    "completionTokens": 12411,
+    "cachedTokens": 1134720
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1238961,
+      "completionTokens": 7517,
+      "cachedTokens": 1096960
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 81255,
+      "completionTokens": 4894,
+      "cachedTokens": 37760
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

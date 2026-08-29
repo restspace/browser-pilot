@@ -1,0 +1,128 @@
+{
+  "flow": "fwod13",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Odoo at http://127.0.0.1:8069/ as admin (session was already authenticated from the replayed procedure's navigation). The Contacts app is not installed, so I created the contact via Sales > Orders > Customers (same res.partner model): clicked New, filled Name = \"fwod13-n2 Bench Customer\", set City = \"Benchville\" in the Address section, and saved. The saved record (id=46) displays name \"fwod13-n2 Bench Customer\" and City \"Benchville\", with a \"Contact created\" system notification confirming the save.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 53
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created quotation S00025 for customer 'fwod13-n2 Bench Customer'. Selected product [FURN_1118] Corner Desk Left Sit from the product catalogue. The app auto-filled Unit Price at £85.00. Set Quantity to 3, and the computed Untaxed Amount is £255.00 (3 × £85.00, 20% VAT = £51.00, Total £306.00). Record is saved and confirmed.",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/1",
+      "repaired": false,
+      "turns": 30
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_18cbe1.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e3f210.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_7ff03e.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_1f9347.",
+      "values": {},
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_80fe0d.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod13",
+      "step": "01-open",
+      "skill": "s_a7437f",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('textbox', { name: 'Email' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod13",
+      "step": "02-create",
+      "skill": "s_7b5e7b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.151,
+      "missedLocator": "page.locator('\"fwod13-n2 Bench Customer\"')",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+    }
+  ],
+  "wallMs": 704490,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1043753,
+    "completionTokens": 15388,
+    "cachedTokens": 805696
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 791336,
+      "completionTokens": 9329,
+      "cachedTokens": 639232
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 252417,
+      "completionTokens": 6059,
+      "cachedTokens": 166464
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

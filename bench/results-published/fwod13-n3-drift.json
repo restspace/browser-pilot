@@ -1,0 +1,26 @@
+[
+  {
+    "flow": "fwod13",
+    "step": "01-open",
+    "skill": "s_a7437f",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('textbox', { name: 'Email' })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+  },
+  {
+    "flow": "fwod13",
+    "step": "02-create",
+    "skill": "s_f648d2",
+    "similarity": 0.151,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_f648d2 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+    "reason": "not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+  }
+]

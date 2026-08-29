@@ -1,0 +1,27 @@
+[
+  {
+    "flow": "fwod13",
+    "step": "01-open",
+    "skill": "s_a7437f",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('textbox', { name: 'Email' })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+  },
+  {
+    "flow": "fwod13",
+    "step": "02-create",
+    "skill": "s_7b5e7b",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.151,
+    "missedLocator": "page.locator('\"fwod13-n2 Bench Customer\"')",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 2,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+  }
+]

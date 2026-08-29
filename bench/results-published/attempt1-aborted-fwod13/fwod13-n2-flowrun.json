@@ -1,0 +1,147 @@
+{
+  "flow": "fwod13",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Created a new customer contact named 'fwod13-n2 Bench Customer' with City 'Benchville'. Navigated to the Customers module in Odoo (Invoicing app), opened the New contact form, filled in the name and city, and saved. The saved record shows the name as \"fwod13-n2 Bench Customer\" and the city as \"Benchville\" on the contact's form view.",
+      "values": {
+        "name": "fwod13-n2 Bench Customer",
+        "city": "Benchville",
+        "record_id": "44",
+        "url": "http://127.0.0.1:8069/web#cids=1&menu_id=126&action=287&model=res.partner&view_type=form&id=44"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new quotation for 'fwod13-n2 Bench Customer' (with city 'Benchville' shown on the customer line). Added one order line: product \"Conference Chair\" [E-COM12] Conference Chair (Steel), quantity 3, unit price £33.00 (auto-filled by the system). The Untaxed Amount computed is £99.00. The quotation was saved with reference S00021.",
+      "values": {
+        "quotation_ref": "S00021",
+        "customer": "fwod13-n2 Bench Customer",
+        "product": "Conference Chair ([E-COM12] Conference Chair (Steel))",
+        "quantity": "3",
+        "unit_price": "£33.00",
+        "untaxed_amount": "£99.00"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 26
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_18cbe1.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e3f210.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_7ff03e.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_1f9347.",
+      "values": {},
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_80fe0d.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod13",
+      "step": "01-open",
+      "skill": "s_c20df2",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c20df2 stopped at step 4 — after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod13",
+      "step": "02-create",
+      "skill": "s_7f6ee3",
+      "similarity": 0.972,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_7f6ee3 stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Remove\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Remove\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    },
+    {
+      "flow": "fwod13",
+      "step": "03-open",
+      "skill": "s_18cbe1",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('tr.o_data_row', { hasText: 'Conference Chair' }).locator('td:nth-of-type(4)')",
+      "fallbackUsed": "page.getByText('1.00', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 411757,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 578350,
+    "completionTokens": 6969,
+    "cachedTokens": 408320
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 578350,
+      "completionTokens": 6969,
+      "cachedTokens": 408320
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

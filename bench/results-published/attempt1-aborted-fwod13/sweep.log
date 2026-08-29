@@ -1,0 +1,16 @@
+[sweep] reusing fwod10's recording: 7 step(s), store from /home/user/browser-pilot/bench/results/fwod10-skills
+
+[sweep] run 2/3: fwod13-n2 (replay flow fwod13, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwod13-n2: 3 drift ticket(s) → fwod13-n2-drift.json
+
+fwod13-n2: objectives passed 4/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: FAIL — 2 lines, 1 distinct products
+  obj 4: FAIL — quantities: 5, 1
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 3/3: fwod13-n3 (replay flow fwod13, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
