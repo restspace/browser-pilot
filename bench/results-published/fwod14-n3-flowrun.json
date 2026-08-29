@@ -1,0 +1,159 @@
+{
+  "flow": "fwod14",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Created a new customer contact 'fwod14-n3 Bench Customer' with city 'Benchville' and saved successfully. The record page confirms the name as \"fwod14-n3 Bench Customer\" and the city as \"Benchville\" in the address section. ID 45 was assigned.",
+      "values": {
+        "contact_name": "fwod14-n3 Bench Customer",
+        "city": "Benchville",
+        "record_id": "45"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created quotation S00023 for 'fwod14-n3 Bench Customer' with one order line: product 'Chair floor protection' (unit price £12.00 auto-filled), quantity 3.00, untaxed amount £36.00. All values confirmed on the saved record.",
+      "values": {
+        "quotation_ref": "S00023",
+        "customer": "fwod14-n3 Bench Customer",
+        "product": "Chair floor protection",
+        "quantity": "3",
+        "unit_price": "12",
+        "untaxed_amount": "£36.00",
+        "e1985": "12.00",
+        "e1984": "3.00"
+      },
+      "tier": "A",
+      "replayed": "0/1",
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_18cbe1.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e3f210.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_7ff03e.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_1f9347.",
+      "values": {},
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Verified both records without changing anything. (1) Contact 'fwod14-n3 Bench Customer' shows Name \"fwod14-n3 Bench Customer\" and City \"Benchville\" — note it is actually id 45 (id 44 is 'fwod14-n2 Bench Customer'). (2) Sales order S00021 shows reference \"S00021\", statusbar status \"Cancelled\" (checked), and Untaxed Amount \"£ 383.00\". Both read from the live form pages.",
+      "values": {
+        "contact_name": "fwod14-n3 Bench Customer",
+        "contact_city": "Benchville",
+        "contact_id_note": "fwod14-n3 Bench Customer is id 45, not id 44 as stated in the instruction; id 44 is 'fwod14-n2 Bench Customer'",
+        "order_reference": "S00021",
+        "order_status": "Cancelled",
+        "untaxed_amount": "£ 383.00"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 37
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod14",
+      "step": "01-open",
+      "skill": "s_c20df2",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c20df2 stopped at step 4 — after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Discuss\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod14",
+      "step": "02-create",
+      "skill": "s_f648d2",
+      "similarity": 0.151,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_f648d2 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+    },
+    {
+      "flow": "fwod14",
+      "step": "07-verify",
+      "skill": "s_80fe0d",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_80fe0d stopped at step 1 — the page at http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form does not show \"fwod14-n3 Bench Customer\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form does not show \"fwod14-n3 Bench Customer\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 734134,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1058047,
+    "completionTokens": 18110,
+    "cachedTokens": 854912
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 927002,
+      "completionTokens": 12032,
+      "cachedTokens": 762624
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 131045,
+      "completionTokens": 6078,
+      "cachedTokens": 92288
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
