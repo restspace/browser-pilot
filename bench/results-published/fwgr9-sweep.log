@@ -1,0 +1,87 @@
+
+[sweep] run 1/3: fwgr9-n1 (store: /home/user/browser-pilot/bench/results/fwgr9-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[harness] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwgr9-n1 stop=completed
+turns=8 wall=1254.8s
+commands=7 cmdTime=1174.9s cmdBytes=4424 timeouts=0
+orchestrator in=11738 cw=0 cr=15218 out=4376
+inner prompt=2381367 cached=2032960 completion=17425
+spend=$0.1362 maxUsd=2
+learn: A_n=0 replayed=0/7 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwgr9-n1-browser-pilot-result.json
+
+fwgr9-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid ffwmvnlul1c00c reported
+
+[sweep] run 2/3: fwgr9-n2 (replay flow fwgr9, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwgr9-n2: 2 drift ticket(s) → fwgr9-n2-drift.json
+
+fwgr9-n2: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid cfwmx5kdce4u8f reported
+
+[sweep] run 3/3: fwgr9-n3 (replay flow fwgr9, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwgr9-n3: 1 drift ticket(s) → fwgr9-n3-drift.json
+
+fwgr9-n3: objectives passed 5/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: FAIL — uid ffwmxbtpkmvb4a NOT in finalText
+
+Learning sweep fwgr9 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr9-n1' │ '6/6'    │ 'completed' │ 8     │ 7    │ 0.1362    │ 0   │ '0/7'        │ 1255   │
+│ 1       │ 2 │ 'fwgr9-n2' │ '6/6'    │ 'success'   │ 18    │ 7    │ 0.0049    │ 1   │ '7/7 (flow)' │ 115    │
+│ 2       │ 3 │ 'fwgr9-n3' │ '5/6'    │ 'success'   │ 0     │ 7    │ 0         │ 1   │ '7/7 (flow)' │ 68     │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_328811  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in to Grafana with username admin and password admin (if prompted to set a new password, …
+  s_c0c75d  validated    2 steps  5/5 (100%)
+           In Grafana, create a NEW dashboard. Set the dashboard title to exactly '{{v2}}'. Add a Stat visualization pane…
+  s_77316c  validated    3 steps  3/3 (100%)
+           Open {{v1}} and sign in to Grafana with username admin and password admin (if prompted to set a new password, …
+  s_e3f893  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in to Grafana with username admin and password admin (if prompted to set a new password, …
+  s_429dbd  validated    7 steps  3/3 (100%)
+           Open {{v1}} and sign in to Grafana with username admin and password admin (if prompted to set a new password, …
+  s_b015d1  validated   14 steps  3/3 (100%)
+           In Grafana, create a NEW dashboard. Set the dashboard title to exactly '{{v2}}'. Add a Stat visualization pane…
+  s_e204f4  validated    2 steps  3/3 (100%)
+           In Grafana, create a NEW dashboard. Set the dashboard title to exactly '{{v2}}'. Add a Stat visualization pane…
+  s_348bac  validated   16 steps  3/3 (100%)
+           On the existing dashboard '{{v1}}' (navigate to it if needed), add a NEW Text visualization panel. Set the pan…
+  s_71e8c3  validated   13 steps  3/3 (100%)
+           On the dashboard '{{v1}}' (navigate to it if needed), do two things and then SAVE the dashboard explicitly: (1…
+  s_4a7cb8  validated    7 steps  3/3 (100%)
+           On the dashboard '{{v1}}' (navigate to it if needed), set the dashboard's auto-refresh interval to '1m' (one m…
+  s_8a4f57  validated    2 steps  3/3 (100%)
+           Navigate to the dashboard '{{v1}}' (use search if needed) and perform a final verification. Report: (1) the fu…
+  s_65da2b  validated   10 steps  2/2 (100%)  variant of s_07da83
+           On the dashboard '{{v1}} Bench Dashboard' (UID {{v2}}), report the exact full URL currently in the browser add…
+  s_07da83  demoted      4 steps  1/2 (50%)
+           On the dashboard '{{v1}}' (UID {{v3}}), report the exact full URL currently in the browser address bar. Then o…
+store: /home/user/browser-pilot/bench/results/fwgr9-skills
+
+summary: /home/user/browser-pilot/bench/results/fwgr9-sweep.json
+SWEEP_EXIT=0
