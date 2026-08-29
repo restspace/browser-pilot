@@ -152,3 +152,21 @@ describe('backfillReadValues', () => {
     expect(report.evidence?.values).toEqual({ row: 'existing', row_2: 'Alpha One', row_3: 'Beta Two' });
   });
 });
+describe('a snapshot ref is not a value name', () => {
+  it('names a ref-targeted read `value`, not after the handle', () => {
+    // fwgr10: a read on @e5322 was promoted as `e5322`, buildFlow minted
+    // {{03-report.e5322}} into three later flow steps, and no replay resolved
+    // it — the handle expires with the snapshot that issued it.
+    const report = { status: 'success' as const, summary: 'The dashboard is named fwgr10-n2 Bench Dashboard.' };
+    const added = backfillReadValues(report, [{ target: '@e5322', values: ['fwgr10-n2 Bench Dashboard'] }]);
+    expect(added).toEqual(['value']);
+    expect(report.evidence!.values!.value).toBe('fwgr10-n2 Bench Dashboard');
+  });
+
+  it('keeps a selector-derived name, which does mean something', () => {
+    const report = { status: 'success' as const, summary: 'Total is 437.50 on the page.' };
+    const added = backfillReadValues(report, [{ target: '.parts_total', values: ['437.50'] }]);
+    expect(added).toEqual(['parts_total']);
+  });
+});
+

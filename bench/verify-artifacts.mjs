@@ -188,7 +188,30 @@ for (const f of fs.readdirSync(dir).filter((n) => n.startsWith(`${tag}-n`) && n.
 if (positionalHits) fail(`${positionalHits} step(s) resolved by POSITION, which can act on the wrong record`);
 else pass('no step resolved positionally');
 
-// 4. How much of each replay ran without the model at all. Reported, not
+// 4. Is the flow SELF-CONTAINED — does its first step establish the page it
+//    works on, or does it assume one?
+//
+//    fwod16 recorded six steps that each began "You are on the Odoo quotation
+//    S00021 form…", with no step that creates anything. Replayed against a
+//    fresh database, step 1 verified a contact that did not exist and step 2
+//    spent 600s looking for a quotation nobody had made. The flow was unusable
+//    and it took a 25-minute sweep to find out, when the instruction text says
+//    so plainly.
+//
+//    A first step that asserts its starting position is the signature: the
+//    orchestrator decomposed the task into position-dependent instructions,
+//    each of which only makes sense after the previous one.
+const first = flow.steps[0];
+if (!hasFlow) {
+  console.log('skip  self-containment (no flow was exported)');
+} else if (first && /^\s*(you are|the browser is|assuming|currently) (on|at|in)\b/i.test(first.instruction)) {
+  fail(`the flow is not self-contained — step ${first.id} assumes a starting page instead of reaching it`);
+  console.log(`      ${first.instruction.slice(0, 140)}`);
+} else {
+  pass('the flow establishes its own starting page');
+}
+
+// 5. How much of each replay ran without the model at all. Reported, not
 //    asserted: the right number depends on the procedure the run recorded, and
 //    a threshold here would just be another way of comparing two sweeps.
 for (const f of fs.readdirSync(dir).filter((n) => /^\Q\E/.test(n) === false && n.startsWith(`${tag}-n`) && n.endsWith('-flowrun.json'))) {

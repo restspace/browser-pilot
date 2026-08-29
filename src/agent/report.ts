@@ -225,7 +225,17 @@ export function backfillReadValues(report: Report, reads: ObservedRead[]): strin
 
 function slug(target: string): string {
   const s = target.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24);
-  return s || 'read';
+  // A target that is a SNAPSHOT REF names nothing. `@e5322` slugged to
+  // `e5322`, buildFlow minted {{03-report.e5322}} into three later steps of
+  // fwgr10's flow, and no replay ever resolved it — a reference no human or
+  // model would write, pointing at a handle that expires with the snapshot.
+  // Same defect as the prose-identifier path, second site; fixing one and not
+  // looking for the other is why this survived.
+  //
+  // A selector-derived slug (`dashboard_title`, `price_cell`) is meaningful
+  // and is kept.
+  if (!s || /^e\d+$/.test(s)) return 'value';
+  return s;
 }
 
 function uniqueName(base: string, taken: Record<string, unknown>): string {

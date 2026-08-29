@@ -20,6 +20,7 @@
  * into the table.
  */
 import { spawnSync } from 'node:child_process';
+import { APP_DEFAULTS } from './app-defaults.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,6 +40,12 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--verify-cmd') own.verifyCmd = argv[++i] ?? '';
   else if (a === '--reset-cmd') own.resetCmd = argv[++i] ?? '';
   else if (a === '--from') own.from = argv[++i] ?? '';
+  else if (a === '--target') {
+    // Captured AND passed on: the harness needs it for run 1, and the sweep
+    // needs it to give replays the target's app credentials.
+    own.target = argv[++i] ?? '';
+    pass.push('--target', own.target);
+  }
   else if (a === '--out') {
     own.out = argv[++i];
     pass.push('--out', own.out);
@@ -103,7 +110,21 @@ for (let n = own.from ? 2 : 1; n <= own.k; n++) {
     }
     if (own.resetCmd) spawnSync(own.resetCmd, { stdio: 'inherit', env: process.env, shell: true });
     else spawnSync(process.execPath, [path.join(here, 'reset-app.mjs')], { stdio: 'inherit', env: process.env });
-    const env = { ...process.env, BROWSER_PILOT_SKILLS: '1', ...(learnDir ? { BROWSER_PILOT_SKILLS_DIR: learnDir } : {}), ...(flowsDir ? { BROWSER_PILOT_FLOWS_DIR: flowsDir } : {}) };
+    // The replay needs the SAME app credentials the recording had. The harness
+    // defaults them per target for run 1; the sweep drives replays itself and
+    // was passing only process.env, so a flow whose sign-in step fills
+    // {{env:APP_PASSWORD}} failed at step 1 on every replay:
+    //   fwgr10: "fill failed: secret {{env:APP_PASSWORD}} cannot be resolved"
+    // Two of three grafana runs were scored against that. Anything already in
+    // the environment still wins, so an explicit override is unaffected.
+    const appDefaults = APP_DEFAULTS[own.target] ?? {};
+    const env = {
+      ...appDefaults,
+      ...process.env,
+      BROWSER_PILOT_SKILLS: '1',
+      ...(learnDir ? { BROWSER_PILOT_SKILLS_DIR: learnDir } : {}),
+      ...(flowsDir ? { BROWSER_PILOT_FLOWS_DIR: flowsDir } : {}),
+    };
     const fr = spawnSync(armBin, ['--session', runid, 'run', own.flow, '--var', `runid=${runid}`, '--json'], { stdio: ['inherit', 'pipe', 'inherit'], env, shell: process.platform === 'win32' });
     if (fr.stdout && fr.stdout.length) fs.writeFileSync(path.join(outDir, `${runid}-flowrun.json`), fr.stdout);
     // Drift tickets are the post-session repair work-list; split them out so

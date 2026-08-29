@@ -36,6 +36,7 @@ import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
 import { loadRates, priceRun } from './pricing.mjs';
+import { APP_DEFAULTS } from './app-defaults.mjs';
 
 /**
  * Three arm SHAPES, because the incumbents are not the same kind of thing:
@@ -89,7 +90,7 @@ const ARMS = {
 const TARGETS = {
   atelyr: {
     task: 'tasks/atelyr-project-flow.md',
-    defaults: {},
+    defaults: APP_DEFAULTS.atelyr,
     reset() {
       console.log('[harness] restoring datastore baseline');
       execFileSync(process.execPath, [path.join(here, 'reset.mjs'), '--restore'], {
@@ -100,11 +101,7 @@ const TARGETS = {
   },
   repairdesk: {
     task: 'tasks/repairdesk-ticket-flow.md',
-    defaults: {
-      APP_URL: 'http://127.0.0.1:4180/',
-      APP_EMAIL: 'bench@example.com',
-      APP_PASSWORD: 'bench-pass-1234',
-    },
+    defaults: APP_DEFAULTS.repairdesk,
     async reset() {
       const url = new URL('/__reset', process.env.APP_URL);
       const res = await fetch(url, { method: 'POST' });
@@ -127,11 +124,7 @@ const TARGETS = {
   // and buy nothing that runid-scoping does not already give.
   odoo: {
     task: 'tasks/odoo-sale-flow.md',
-    defaults: {
-      APP_URL: 'http://127.0.0.1:8069/',
-      APP_EMAIL: 'admin',
-      APP_PASSWORD: 'admin',
-    },
+    defaults: APP_DEFAULTS.odoo,
     reset() {
       console.log('[harness] odoo: no rollback — writes are runid-scoped, verified by name over JSON-RPC');
     },
@@ -140,11 +133,7 @@ const TARGETS = {
   },
   grafana: {
     task: 'tasks/grafana-dashboard-flow.md',
-    defaults: {
-      APP_URL: 'http://127.0.0.1:3000/',
-      APP_EMAIL: 'admin',
-      APP_PASSWORD: 'admin',
-    },
+    defaults: APP_DEFAULTS.grafana,
     // Clear leftovers from earlier runs: everything the task creates carries
     // the `bench` tag, and provisioned dashboards (Service health) refuse API
     // deletion, so this can only ever remove benchmark debris.
