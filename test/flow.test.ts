@@ -511,3 +511,35 @@ describe('coincidental substring references', () => {
     expect(flow.steps[1].instruction).not.toContain('afw8m1pqwk5c0a');
   });
 });
+
+describe('a replay that observed nothing cannot narrate', () => {
+  const stepless = (summary: string, params: Record<string, { example: string; usedIn: number[]; known?: true }> = {}) =>
+    ({ id: 's_q', steps: [{ tool: 'click', args: {}, locators: {} }], params, reportTemplate: { summary, values: {} } }) as unknown as Skill;
+
+  it('drops recorded prose naming an identifier no parameter supplied', () => {
+    // fwod12 steps 03-06: no labelled reads, no matching param example, so
+    // both existing rules had nothing to compare against and the recording's
+    // own narrative was republished as this run's finding — while the steps
+    // published {} as their values. The run had created S00023.
+    const r = synthesizeReport(stepless('Added a second order line to S00021 and saved.'), {}, {});
+    expect(r.summary).not.toContain('S00021');
+    expect(r.summary).toMatch(/Replayed stored procedure/);
+  });
+
+  it('keeps prose whose specifics all came from the run own parameters', () => {
+    const skill = stepless("Renamed the record to '{{v1}}'.", { v1: { example: 'n1 Widget', usedIn: [1] } });
+    const r = synthesizeReport(skill, { v1: 'n2 Widget' }, {});
+    expect(r.summary).toBe("Renamed the record to 'n2 Widget'.");
+  });
+
+  it('keeps prose that names nothing specific at all', () => {
+    const r = synthesizeReport(stepless('Saved the form and closed the dialog.'), {}, {});
+    expect(r.summary).toBe('Saved the form and closed the dialog.');
+  });
+
+  it('still narrates when the replay DID observe something', () => {
+    const skill = stepless('The order total is £141.00.');
+    const r = synthesizeReport(skill, {}, { total: '£207.00' });
+    expect(r.summary).toContain('141.00'); // a live read was made; the older rules govern
+  });
+});

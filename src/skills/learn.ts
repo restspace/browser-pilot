@@ -3,6 +3,7 @@ import type { Report } from '../agent/report.js';
 import type { RecordedEntry, RecordedInstruction } from '../daemon/recorder.js';
 import { compileSkills, escapeRe, fillParams, sameProcedure, urlMatches } from './compile.js';
 import { ComponentStore, learnRecipes } from './components.js';
+import { identifierLike } from './ledger.js';
 import { successRate, type Skill, type SkillStore } from './store.js';
 
 export interface LearnedRecord {
@@ -261,6 +262,7 @@ export function synthesizeReport(skill: Skill, params: Record<string, string>, l
   // run's part names as this run's finding.
   const loose = (t: string): string => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const hay = loose(summary);
+  const fromParams = Object.values(params).map(loose).join(' ');
   const dropped =
     stale.some((v) => loose(v).length >= MIN_STALE_LEN && hay.includes(loose(v))) ||
     // A param's `example` IS the recording run's value. If one survives in the
@@ -269,7 +271,20 @@ export function synthesizeReport(skill: Skill, params: Record<string, string>, l
     Object.entries(skill.params).some(([n, p]) => {
       const example = String(p.example ?? '');
       return example.length >= MIN_STALE_LEN && params[n] !== example && hay.includes(loose(example));
-    });
+    }) ||
+    // A replay that re-observed NOTHING cannot vouch for a sentence naming
+    // specifics. Both rules above need something to compare against — a stale
+    // template value, or a param whose example survived — and fwod12's steps
+    // 03-06 had neither: no labelled reads, no matching param. So they
+    // republished the recording's own narrative verbatim,
+    //   "Added a second order line to S00021 and saved."
+    // as this run's finding, while publishing {} as their values. The run had
+    // created S00023.
+    //
+    // An identifier the prose names that no parameter supplied is a claim
+    // about the world made by a replay that looked at nothing.
+    (!Object.keys(liveValues).length &&
+      (summary.match(/[A-Za-z0-9][A-Za-z0-9._-]*/g) ?? []).some((tok) => identifierLike(tok) && !fromParams.includes(loose(tok))));
   const clean = dropped
     ? `Replayed stored procedure ${skill.id}${Object.keys(values).length ? `; observed ${Object.entries(values).map(([k, v]) => `${k}=${v}`).join(', ')}` : ''}.`
     : summary;
