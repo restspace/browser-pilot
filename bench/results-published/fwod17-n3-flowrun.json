@@ -1,0 +1,68 @@
+{
+  "flow": "fwod17",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Opened the Sales app from the hamburger menu, navigated to Orders → Customers, verified no existing 'fwod17-n3 Bench Customer' (kanban showed only Acme Corporation, Azure Interior, fwod17-n1 and fwod17-n2 Bench Customers), then clicked New and created the contact with Name 'fwod17-n3 Bench Customer' and City 'Benchville', leaving all other fields default. Saved successfully (record id=46). Read back from the saved form: Name = \"fwod17-n3 Bench Customer\", City = \"Benchville\".",
+      "values": {
+        "value": "fwod17-n3 Bench Customer",
+        "value_2": "Benchville"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 46
+    },
+    {
+      "id": "02-open",
+      "status": "blocked",
+      "summary": "Agent could not produce a schema-valid report (last error: arguments were not valid JSON).",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/1",
+      "repaired": false,
+      "turns": 38
+    }
+  ],
+  "passed": 1,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwod17",
+      "step": "02-open",
+      "skill": "s_8e32c2",
+      "similarity": 0.974,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_8e32c2 stopped at step 1 — after step 1 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 1 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+  ],
+  "wallMs": 1359115,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1021254,
+    "completionTokens": 12373,
+    "cachedTokens": 835072
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 786761,
+      "completionTokens": 9871,
+      "cachedTokens": 661504
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 234493,
+      "completionTokens": 2502,
+      "cachedTokens": 173568
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

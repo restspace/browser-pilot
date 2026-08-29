@@ -1,0 +1,106 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "27c5f0d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod17-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 1716965,
+  "orchestrator": {
+    "input": 51142,
+    "cacheWrite": 0,
+    "cacheRead": 17984,
+    "output": 5218
+  },
+  "inner": {
+    "promptTokens": 4316349,
+    "cachedTokens": 3821696,
+    "completionTokens": 29430,
+    "instructions": 11,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 4000459,
+        "completionTokens": 24088,
+        "cachedTokens": 3547136,
+        "instructions": 9
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 315890,
+        "completionTokens": 5342,
+        "cachedTokens": 274560,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 9,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 103,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "do": 9,
+    "peek": 1
+  },
+  "invocationCount": 10,
+  "commandMs": 1468874,
+  "commandBytes": 16226,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod17-skills",
+    "instructions": 9,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 103,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Friendli",
+    "DeepInfra",
+    "Cloudflare",
+    "AkashML"
+  ],
+  "orReportedCostUsd": 0.0946,
+  "maxUsd": 2,
+  "spendUsd": 0.3181,
+  "finalText": "All six objectives are complete and verified. Final report:\n\n**Objective 1 — DONE:** Customer `fwod17-n1 Bench Customer` created with City = `Benchville`. Verified on the saved contact form (Name: \"fwod17-n1 Bench Customer\", City: \"Benchville\").\n\n**Objective 2 — DONE:** Quotation `S00021` created for that customer with one order line: product **Customizable Desk**, quantity 3. The app auto-filled **Unit Price 750.00** and computed **Untaxed Amount £2,250.00**.\n\n**Objective 3 — DONE:** Second order line added: product **Conference Chair**, quantity 2 (unit price 33.00, line subtotal £66.00). New **Untaxed Amount £2,316.00**.\n\n**Objective 4 — DONE:** First line's quantity changed from 3 to 5 (Customizable Desk subtotal became £3,750.00; Conference Chair line unchanged). New **Untaxed Amount £3,816.00**.\n\n**Objective 5 — DONE:** Quotation confirmed and became a sales order. Order reference **S00021**, status shown: **\"Sales Order\"** (the Sales Order step active in the status bar).\n\n**Objective 6 — DONE:** Sales order cancelled. Status shown after cancelling: **\"Cancelled\"** (the Cancelled step active in the status bar; Sales Order / Quotation Sent / Quotation unchecked). Order reference remained S00021, Untaxed Amount £3,816.00.\n\nNotes: currency displayed throughout was GBP (£). One intermediate command (objective 3) reported a tooling failure after completing the work, so I re-read the form to verify the second line had in fact been added before proceeding — it had (Conference Chair, qty 2). Nothing created by this run remains active: S00021 is cancelled.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod17-n1-browser-pilot-transcript.jsonl"
+}

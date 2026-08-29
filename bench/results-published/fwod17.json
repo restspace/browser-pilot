@@ -1,0 +1,158 @@
+{
+  "name": "fwod17",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "We are already logged into Odoo 17 at http://127.0.0.1:8069 as admin (currently on the Apps page). Open the 'Sales' app from the left hamburger menu. In Sales, find the 'Customers' menu (it is under the 'Orders' section of the Sales app menu) and open it. Then click New to create a contact: set Name to '{{runid}} Bench Customer' and set the City field (in the address block) to 'Benchville'. Leave everything else default. Save the record. Report back the exact Name and City values displayed on the saved contact form. Important: this app long-polls so never wait for network idle; wait for concrete elements. Do not create duplicate contacts if one already exists.",
+      "skill": "s_e6ed20",
+      "params": {
+        "v2": "{{runid}} Bench Customer",
+        "v3": "Benchville"
+      },
+      "outputs": [
+        "name",
+        "city"
+      ],
+      "recorded": {
+        "name": "fwod17-n1 Bench Customer",
+        "city": "Benchville"
+      }
+    },
+    {
+      "id": "02-open",
+      "instruction": "In Odoo 17 Sales app (already open, logged in as admin), go to the 'Quotations' menu (under Orders) and click New to create a quotation. In the Customer field, type '{{runid}} Bench Customer' and select the matching option from the autocomplete dropdown (it must actually be chosen from the dropdown, not just typed). Then in the Order Lines tab, add ONE order line: click into the Product cell of the first empty line, type any product name (e.g. try 'Desk' or another product), and select a real product from the autocomplete dropdown that appears. Set the Quantity to 3. Do NOT click Confirm. Save the quotation (or let it autosave) and report: (1) the exact product name you chose, (2) the Unit Price the app filled in for that line, (3) the Untaxed Amount shown in the totals section, and (4) the quotation reference/name (e.g. S00042). Important: this app long-polls so never wait for network idle; wait for concrete elements instead.",
+      "skill": "s_fc83ed",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "Desk"
+      },
+      "outputs": [
+        "product_name",
+        "unit_price",
+        "untaxed_amount",
+        "quotation_ref"
+      ],
+      "recorded": {
+        "product_name": "Customizable Desk",
+        "unit_price": "750.00",
+        "untaxed_amount": "£ 2,250.00",
+        "quotation_ref": "S00021"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "On the currently open Odoo quotation form {{02-open.quotation_ref}} (customer '{{runid}} Bench Customer'), read the Order Lines list and report ONLY this: for each order line, the product name, quantity, unit price, and the Untaxed Amount from the totals section. Do not change anything, do not click any buttons, just read and report the current values.",
+      "skill": "s_ac0071",
+      "params": {
+        "v1": "{{02-open.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "line_1",
+        "line_2",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "line_1": "{\"product\":\"Customizable Desk\",\"qty\":\"3.00\",\"unit_price\":\"750.00\",\"subtotal\":\"£ 2,250.00\"}",
+        "line_2": "{\"product\":\"Conference Chair\",\"qty\":\"2.00\",\"unit_price\":\"33.00\",\"subtotal\":\"£ 66.00\"}",
+        "untaxed_amount": "£ 2,316.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "On the currently open Odoo quotation form {{02-open.quotation_ref}} (customer '{{runid}} Bench Customer'), which has two order lines (line 1: '{{02-open.product_name}}' qty {{03-open.line_1#qty}} unit price {{02-open.unit_price}}; line 2: 'Conference Chair' qty {{03-open.line_2#qty}} unit price {{03-open.line_2#unit_price}}; current Untaxed Amount £2,316.00), change ONLY the first line's Quantity from 3 to 5. Leave the second line untouched. Do NOT confirm the quotation. Save the change and report the new Untaxed Amount shown in the totals section, plus the first line's new subtotal. Important: this app long-polls so never wait for network idle; wait for concrete elements instead.",
+      "skill": "s_a94c90",
+      "params": {
+        "v1": "{{02-open.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-open.product_name}}",
+        "v6": "{{03-open.line_1#qty}}",
+        "v5": "{{02-open.unit_price}}"
+      },
+      "outputs": [
+        "line_1_subtotal",
+        "line_1_qty",
+        "line_2_unchanged_subtotal",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "line_1_subtotal": "£ 3,750.00",
+        "line_1_qty": "5.00",
+        "line_2_unchanged_subtotal": "£ 66.00",
+        "untaxed_amount": "£ 3,816.00"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "On the currently open Odoo quotation form {{02-open.quotation_ref}} (customer '{{runid}} Bench Customer', two order lines: '{{02-open.product_name}}' qty 5 @ {{02-open.unit_price}} and 'Conference Chair' qty 2 @ {{03-open.line_2#unit_price}}, Untaxed Amount £3,816.00, currently in Quotation/draft state), click the 'Confirm' button (it may be labeled 'Confirm' or 'Confirm Order') to confirm the quotation so it becomes a sales order. If a confirmation dialog appears, accept it. Then report: (1) the order reference/name shown (e.g. {{02-open.quotation_ref}}), and (2) the exact status the form now shows (look for the status bar / status label, e.g. 'Sales Order' or 'Confirmed' or similar). Important: this app long-polls so never wait for network idle; wait for concrete elements instead.",
+      "skill": "s_f3d406",
+      "params": {
+        "v1": "{{02-open.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-open.product_name}}",
+        "v5": "{{02-open.unit_price}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "On the currently open Odoo sales order form {{02-open.quotation_ref}} (customer '{{runid}} Bench Customer', status '{{05-open.status}}'), cancel this order: open the top-right action menu (the gear/cog icon labeled 'Action' or the dropdown next to the status bar) and choose 'Cancel' or 'Cancel Order'. If a confirmation dialog appears, confirm it. Then report the exact status the form shows after cancelling (look at the status bar / status label, e.g. 'Cancelled'). Also confirm the order reference is still {{02-open.quotation_ref}}. Important: this app long-polls so never wait for network idle; wait for concrete elements instead.",
+      "skill": "s_c68707",
+      "params": {
+        "v1": "{{02-open.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{05-open.status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Cancelled"
+      }
+    },
+    {
+      "id": "07-change",
+      "instruction": "Verification only, do not change anything. In Odoo 17 (logged in as admin): (1) Go to Sales > Orders > Customers, search for '{{runid}} Bench Customer', open it and report its Name and City values. (2) Then go to Sales > Orders > Quotations (or Orders), search for '{{02-open.quotation_ref}}', open it and report its reference, customer, the status shown in the status bar, and the Untaxed Amount. Report exactly what you see on the pages.",
+      "skill": "s_206762",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "{{02-open.quotation_ref}}"
+      },
+      "outputs": [
+        "customer_name",
+        "customer_city",
+        "order_reference",
+        "order_customer",
+        "order_status",
+        "order_untaxed_amount"
+      ],
+      "recorded": {
+        "customer_name": "fwod17-n1 Bench Customer",
+        "customer_city": "Benchville",
+        "order_reference": "S00021",
+        "order_customer": "fwod17-n1 Bench Customer",
+        "order_status": "Cancelled",
+        "order_untaxed_amount": "£ 3,816.00"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod17-n1",
+    "created": "2026-08-29T20:59:02.893Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
