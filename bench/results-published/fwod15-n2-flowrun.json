@@ -1,0 +1,160 @@
+{
+  "flow": "fwod15",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "The Contacts app is already installed. On the Apps page, the app card showed only \"Module Info\" (not \"Activate\"), and on the detail page the available buttons are \"Upgrade\" and \"Uninstall\" — both indicate the module is already installed. No activation was needed.",
+      "values": {
+        "e945": "Module Info"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 28
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new contact 'fwod15-n2 Bench Customer' with City 'Benchville'. After saving, the form shows Name = 'fwod15-n2 Bench Customer' and City = 'Benchville' as confirmed by reading both values from the live page.",
+      "values": {
+        "Name": "fwod15-n2 Bench Customer",
+        "City": "Benchville",
+        "Record ID": "45",
+        "URL": "http://127.0.0.1:8069/web#menu_id=219&cids=1&action=334&model=res.partner&view_type=form&id=45"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 13
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Created Quotation S00021 for 'fwod15-n2 Bench Customer'. Added one order line: Product '[E-COM11] Cabinet with Doors' (selected from autocomplete dropdown), Quantity set to 3, Unit Price auto-filled as '140.00', and the Untaxed Amount computed automatically as '£ 420.00' (3 × 140.00 = 420.00). The quotation was saved successfully and the form shows the confirmed values.",
+      "values": {
+        "e2714": "[E-COM11] Cabinet with Doors",
+        "e2720": "140.00"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added a second order line to Quotation S00021 for 'fwod15-n2 Bench Customer'. The second product is '[E-COM06] Corner Desk Right Sit' (autocomplete dropdown), Quantity set to 2, Unit Price auto-filled as '147.00', line subtotal £294.00. The app recomputed the totals: Untaxed Amount is now '£ 714.00' (420.00 + 294.00 = 714.00). The quotation was saved successfully and all values verified from the live DOM.",
+      "values": {
+        "e2864": "[E-COM06] Corner Desk Right Sit",
+        "e2870": "147.00"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Updated Quotation S00021: changed the first line's quantity from 3 to 5. After recomputation, line 1 '[E-COM11] Cabinet with Doors' shows Quantity 5.00, Unit Price 140.00, subtotal £700.00. The app recomputed the total: Untaxed Amount is now £994.00 (5×140 + 2×147 = 700 + 294 = 994). The quotation was saved successfully and all values verified from the live DOM.",
+      "values": {
+        "e2942": "5.00"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Confirmed Quotation S00022 for customer 'fwod15-n2 Bench Customer'. Clicked the 'Confirm' button, which changed the document from a Quotation to a Sales Order. The statusbar now shows 'Sales Order' as the active checked stage (with 'Quotation Sent' and 'Quotation' as past/inactive stages). The order reference/name remains S00022. The two order lines (Cabinet with Doors qty 5, Corner Desk Right Sit qty 2, Untaxed Amount £994.00) are preserved.",
+      "values": {
+        "e2709": "S00022"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Cancelled Sales Order S00022. After clicking the 'Cancel' button in the \"Cancel Sales Order\" confirmation dialog, the statusbar now shows 'Cancelled' as the active checked stage, confirming the order was cancelled without sending the email.",
+      "values": {
+        "order": "S00022",
+        "status": "Cancelled",
+        "modal_footer_button_role": "Cancel"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 28
+    },
+    {
+      "id": "08-verify",
+      "status": "success",
+      "summary": "Verified sales order S00022 from the live page. (1) Order reference: S00022 (shown in the form heading and breadcrumb). (2) Status: 'Cancelled' (checked/active radio in the statusbar; past stages: Sales Order, Quotation Sent, Quotation). (3) Customer: 'fwod15-n1 Bench Customer' (with 'Benchville' city inline). (4) Two order lines: Line 1 — '[E-COM11] Cabinet with Doors', qty 5.00, subtotal £ 700.00; Line 2 — '[E-COM06] Corner Desk Right Sit', qty 2.00, subtotal £ 294.00. (5) Untaxed Amount total: £ 994.00. Tax 20%: £ 198.80, Total: £ 1,192.80.",
+      "values": {
+        "e2709": "S00022",
+        "e3453": "[E-COM11] Cabinet with Doors",
+        "e3458": "5.00",
+        "e3469": "[E-COM06] Corner Desk Right Sit",
+        "e3474": "2.00"
+      },
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod15",
+      "step": "01-open",
+      "skill": "s_63bd69",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.131,
+      "missedLocator": "page.getByRole('searchbox', { name: 'Search...' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web/login#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    },
+    {
+      "flow": "fwod15",
+      "step": "03-create",
+      "skill": "s_b25c7c",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('[role=\"option\"] >> text=\"fwod15-n2 Bench Customer\"')",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 388608,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 956026,
+    "completionTokens": 13665,
+    "cachedTokens": 758272
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 956026,
+      "completionTokens": 13665,
+      "cachedTokens": 758272
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

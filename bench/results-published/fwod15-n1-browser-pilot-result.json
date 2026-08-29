@@ -1,0 +1,107 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "b38f327"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod15-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 19,
+  "wallMs": 2735406,
+  "orchestrator": {
+    "input": 65130,
+    "cacheWrite": 0,
+    "cacheRead": 86080,
+    "output": 4643
+  },
+  "inner": {
+    "promptTokens": 5620714,
+    "cachedTokens": 4732416,
+    "completionTokens": 38445,
+    "instructions": 16,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 4955086,
+        "completionTokens": 31252,
+        "cachedTokens": 4153088,
+        "instructions": 12
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 665628,
+        "completionTokens": 7193,
+        "cachedTokens": 579328,
+        "instructions": 4
+      }
+    },
+    "skills": {
+      "instructions": 12,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 97,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 18,
+  "subcommands": {
+    "do": 12,
+    "peek": 5,
+    "open": 1
+  },
+  "invocationCount": 18,
+  "commandMs": 2548936,
+  "commandBytes": 29990,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod15-skills",
+    "instructions": 12,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 97,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "DeepInfra",
+    "Io Net",
+    "AkashML",
+    "Cloudflare"
+  ],
+  "orReportedCostUsd": 0.1214,
+  "maxUsd": 2,
+  "spendUsd": 0.5296,
+  "finalText": "All objectives are complete and verified. Here is my final report:\n\n## Report\n\n**Objective 1 — DONE:** Customer `fwod15-n1 Bench Customer` created in Contacts with City set to `Benchville`. (Note: the Contacts app was not initially installed on this instance; I installed it from the Apps page first, then created the contact. Verified on the saved record: Name = `fwod15-n1 Bench Customer`, City = `Benchville`.)\n\n**Objective 2 — DONE:** Quotation `S00021` created for that customer with one order line:\n- Product: `[E-COM11] Cabinet with Doors`\n- Quantity: 3\n- Unit price (auto-filled by the app): `140.00`\n- Untaxed amount: `£ 420.00`\n\n**Objective 3 — DONE:** Second order line added:\n- Product: `[E-COM06] Corner Desk Right Sit`\n- Quantity: 2, unit price `147.00` (line subtotal `£ 294.00`)\n- New untaxed amount: `£ 714.00`\n\n**Objective 4 — DONE:** First line's quantity changed from 3 to 5:\n- Line 1 subtotal became `£ 700.00` (5 × 140.00)\n- Untaxed amount afterwards: `£ 994.00`\n\n**Objective 5 — DONE:** Quotation confirmed. Order reference: `S00021`. Status shown after confirming: `Sales Order` (the statusbar's checked stage, with \"Quotation Sent\" and \"Quotation\" as earlier stages).\n\n**Objective 6 — DONE:** Sales order cancelled. Status shown after cancelling: `Cancelled` (the statusbar's checked stage). Final verified state: reference `S00021`, customer `fwod15-n1 Bench Customer`, lines `[E-COM11] Cabinet with Doors` qty 5 (£ 700.00) and `[E-COM06] Corner Desk Right Sit` qty 2 (£ 294.00), Untaxed Amount `£ 994.00`. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod15-n1-browser-pilot-transcript.jsonl"
+}

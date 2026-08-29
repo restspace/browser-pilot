@@ -1,0 +1,27 @@
+[
+  {
+    "flow": "fwod15",
+    "step": "01-open",
+    "skill": "s_b8707d",
+    "similarity": 0.137,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_b8707d stopped at step 4 — after step 4 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban but browser is at http://127.0.0.1:8069/web#active_id=:id&cids=:id&id=:id&menu_id=:id&model=ir.module.module&view_type=form",
+    "reason": "after step 4 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban but browser is at http://127.0.0.1:8069/web#active_id=:id&cids=:id&id=:id&menu_id=:id&model=ir.module.module&view_type=form",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#active_id=:id&cids=:id&id=:id&menu_id=:id&model=ir.module.module&view_type=form"
+  },
+  {
+    "flow": "fwod15",
+    "step": "03-create",
+    "skill": "s_b25c7c",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.999,
+    "missedLocator": "page.locator('[role=\"option\"] >> text=\"fwod15-n3 Bench Customer\"')",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 2,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  }
+]

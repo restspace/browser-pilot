@@ -1,0 +1,27 @@
+[
+  {
+    "flow": "fwod15",
+    "step": "01-open",
+    "skill": "s_63bd69",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.131,
+    "missedLocator": "page.getByRole('searchbox', { name: 'Search...' })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web/login#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+  },
+  {
+    "flow": "fwod15",
+    "step": "03-create",
+    "skill": "s_b25c7c",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.999,
+    "missedLocator": "page.locator('[role=\"option\"] >> text=\"fwod15-n2 Bench Customer\"')",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 2,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  }
+]

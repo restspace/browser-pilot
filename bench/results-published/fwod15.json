@@ -1,0 +1,136 @@
+{
+  "name": "fwod15",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Go to the Odoo Apps page (click the 'Apps' menu item in the top navigation, or open http://127.0.0.1:8069/web#action=38). In the Apps search box, search for 'Contacts'. Find the app named 'Contacts' in the results and click its 'Activate' button to install it. Wait for the installation to finish (the app card should no longer show an Activate button, or the page should navigate away / show a loading progress that completes). Report whether the Contacts app is now installed. Do not wait for network idle.",
+      "skill": "s_63bd69",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "You are in the Odoo Contacts app (kanban view of contacts). Click the 'New' button to create a new contact. In the form that opens, set the Name field to exactly '{{runid}} Bench Customer' and set the City field to exactly 'Benchville' (City is in the Address section; if the City field is not visible, click the address block to expand it). Then click 'Save'. After saving, verify the record shows the name '{{runid}} Bench Customer' and City 'Benchville', and report exactly what the page shows for Name and City. Do not wait for network idle.",
+      "skill": "s_1e3b36",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "e1879",
+        "e1892"
+      ],
+      "recorded": {
+        "e1879": "fwod15-n1 Bench Customer",
+        "e1892": "Benchville"
+      }
+    },
+    {
+      "id": "03-create",
+      "instruction": "Go to the Odoo Sales app (click the 'Sales' menu item in the top navigation). In the Sales app, click 'New' to create a new quotation. In the quotation form, in the Customer field, type '{{runid}} Bench Customer' and select the matching option from the autocomplete dropdown (the value only counts if chosen from the dropdown). Then in the Order Lines table, add ONE order line: click into the Product cell of the first empty row, type a product name (pick any product from the catalogue, e.g. type a letter to see suggestions), and select a product from the dropdown. Set the Quantity to 3. Let the app fill in the Unit Price and compute the untaxed amount. Then click 'Save' (or let it autosave) and report: the product name you chose, the unit price the app filled in, and the Untaxed Amount the app computed. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_8ed517",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "e2714",
+        "e2720"
+      ],
+      "recorded": {
+        "e2714": "[E-COM11] Cabinet with Doors",
+        "e2720": "140.00"
+      }
+    },
+    {
+      "id": "04-add",
+      "instruction": "You are on the Odoo Sales quotation form for quotation S00021 for customer '{{runid}} Bench Customer'. It currently has ONE order line: '{{03-create.e2714}}', quantity 3, unit price {{03-create.e2720}}, untaxed amount 420.00. Add a SECOND order line: click into the Product cell of the next empty row in the Order Lines table, type a product name, and select a DIFFERENT product (not Cabinet with Doors) from the autocomplete dropdown. Set that line's Quantity to 2. Let the app fill in the unit price and recompute the totals. Then save and report: the product name of the second line, its unit price, and the new total Untaxed Amount the app computes. Do not wait for network idle.",
+      "skill": "s_a62e3a",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "{{03-create.e2714}}",
+        "v4": "{{03-create.e2720}}"
+      },
+      "outputs": [
+        "e2864",
+        "e2870"
+      ],
+      "recorded": {
+        "e2864": "[E-COM06] Corner Desk Right Sit",
+        "e2870": "147.00"
+      }
+    },
+    {
+      "id": "05-change",
+      "instruction": "You are on the Odoo Sales quotation form for quotation S00021. It has two order lines: line 1 is '{{03-create.e2714}}' with Quantity 3 and unit price {{03-create.e2720}}; line 2 is '{{04-add.e2864}}' with Quantity 2 and unit price {{04-add.e2870}}. Current Untaxed Amount is 714.00. Change the FIRST line's Quantity from 3 to 5 (click into the Quantity cell of the first line, clear it, type 5, and press Tab or click elsewhere so the app recomputes). Then save and report the new Untaxed Amount the app computes, plus the first line's new subtotal. Do not wait for network idle.",
+      "skill": "s_37dcd2",
+      "params": {
+        "v1": "{{03-create.e2714}}",
+        "v2": "{{03-create.e2720}}",
+        "v3": "{{04-add.e2864}}",
+        "v4": "{{04-add.e2870}}"
+      },
+      "outputs": [
+        "e2942"
+      ],
+      "recorded": {
+        "e2942": "5.00"
+      }
+    },
+    {
+      "id": "06-report",
+      "instruction": "You are on the Odoo Sales quotation form for quotation S00021 for customer '{{runid}} Bench Customer', with two order lines (Cabinet with Doors qty 5, Corner Desk Right Sit qty 2) and Untaxed Amount 994.00. Confirm this quotation so it becomes a sales order: click the 'Confirm' button (or 'Confirm Order' / 'Confirm Sale' — whatever the button is labelled). If a confirmation dialog appears, accept it. After confirming, report: the order reference/name shown on the form (e.g. S00021), and the status the form now shows (look for the status bar / status label, e.g. 'Sales Order' or 'Quotation' stage). Do not wait for network idle.",
+      "skill": "s_08b854",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "e2709"
+      ],
+      "recorded": {
+        "e2709": "S00021"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "A modal dialog titled 'Cancel Sales Order' is open on the Odoo sales order form for {{06-report.e2709}}. It asks 'Are you sure you want to cancel this order?' and has three footer buttons: 'Send and cancel', 'Cancel', and 'Discard'. Click the 'Cancel' button (the middle one, which cancels the order without sending the email — NOT 'Discard'). After the dialog closes, report the status shown in the statusbar at the top of the sales order form (it should say 'Cancelled'). Do not wait for network idle.",
+      "skill": "s_be1538",
+      "params": {
+        "v1": "{{06-report.e2709}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "08-verify",
+      "instruction": "You are on the Odoo sales order form for {{06-report.e2709}}. Verify and report ONLY these facts from the live page: (1) the order reference/name shown in the form title and breadcrumb, (2) the current status shown in the statusbar (which radio/stage is checked), (3) the customer name, (4) the two order line products with their quantities and subtotals, and (5) the Untaxed Amount total. Do not change anything.",
+      "skill": "s_048015",
+      "params": {
+        "v1": "{{06-report.e2709}}"
+      },
+      "outputs": [
+        "e2709",
+        "e3453",
+        "e3458",
+        "e3469",
+        "e3474"
+      ],
+      "recorded": {
+        "e2709": "S00021",
+        "e3453": "[E-COM11] Cabinet with Doors",
+        "e3458": "5.00",
+        "e3469": "[E-COM06] Corner Desk Right Sit",
+        "e3474": "2.00"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod15-n1",
+    "created": "2026-08-29T18:16:43.154Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
