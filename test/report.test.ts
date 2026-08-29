@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backfillReadValues, validateReport, type Report } from '../src/agent/report.js';
+import { backfillReadValues, flattenComposedValues, validateReport, type Report } from '../src/agent/report.js';
 
 describe('report validation', () => {
   it('accepts a minimal valid report', () => {
@@ -170,3 +170,48 @@ describe('a snapshot ref is not a value name', () => {
   });
 });
 
+
+describe('composed report values', () => {
+  const of = (values: Record<string, string>): Report => ({
+    status: 'success',
+    summary: 'read the order lines',
+    evidence: { values },
+  });
+
+  it('splits a JSON blob into the page values it was built from', () => {
+    // fwod17's 03-open, verbatim. Nothing could pin that string on the page,
+    // so six real reads were recorded unlabelled and four later steps lost
+    // {{03-open.line_1#qty}} on every zero-model replay.
+    const report = of({
+      line_1: '{"product":"Customizable Desk","qty":"3.00","unit_price":"750.00"}',
+      untaxed_amount: '2316.00',
+    });
+    const added = flattenComposedValues(report);
+    expect(added).toEqual(['line_1_product', 'line_1_qty', 'line_1_unit_price']);
+    expect(report.evidence?.values).toEqual({
+      untaxed_amount: '2316.00',
+      line_1_product: 'Customizable Desk',
+      line_1_qty: '3.00',
+      line_1_unit_price: '750.00',
+    });
+    // The composite is GONE: leaving it would leave the unreferencable form
+    // available to reference.
+    expect('line_1' in (report.evidence?.values ?? {})).toBe(false);
+  });
+
+  it('leaves a table alone, and leaves prose alone', () => {
+    const rows = of({ rows: JSON.stringify(Array.from({ length: 12 }, (_, i) => ({ n: String(i) }))) });
+    expect(flattenComposedValues(rows)).toEqual([]);
+    expect(rows.evidence?.values?.rows).toBeTypeOf('string');
+
+    const prose = of({ note: '[see the totals section] the amount was 2316.00' });
+    expect(flattenComposedValues(prose)).toEqual([]);
+    expect(prose.evidence?.values?.note).toBe('[see the totals section] the amount was 2316.00');
+  });
+
+  it('names array elements by position and keeps existing names', () => {
+    const report = of({ line_1_qty: 'taken', lines: '["A","B"]' });
+    expect(flattenComposedValues(report)).toEqual(['lines_1', 'lines_2']);
+    expect(report.evidence?.values).toEqual({ line_1_qty: 'taken', lines_1: 'A', lines_2: 'B' });
+  });
+});

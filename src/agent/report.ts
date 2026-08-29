@@ -247,6 +247,68 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/** Most scalars taken out of one composed value. A read_all dumped as JSON is a table, not evidence. */
+const MAX_LEAVES = 8;
+
+/**
+ * Split a report value the model COMPOSED out of several page values into the
+ * values it was made of.
+ *
+ * fwod17's 03-open reported two order lines as JSON blobs:
+ *
+ *   line_1: {"product":"Customizable Desk","qty":"3.00","unit_price":"750.00",…}
+ *
+ * Nothing downstream can use that. `captureReadBack` pins evidence values on
+ * the page, and no element shows that string, so the six reads the run really
+ * did were recorded with no label; `publishedOutputs` keeps a report value
+ * only when it is a pure slot fill, and this one is a hand-built literal. So a
+ * tier-A replay correctly dropped it — and took `{{03-open.line_1#qty}}` with
+ * it, sending four steps of the flow to recovery for values sitting on screen.
+ *
+ * A composite is really several values, so make it several. Each leaf is a
+ * string a real element shows, which means read-back can pin it, the read gets
+ * a label, and the flow references `{{03-open.line_1_qty}}` — an output every
+ * zero-model replay republishes from its OWN page.
+ *
+ * The composite itself is dropped: keeping it would leave the unreferencable
+ * form available to reference. Mutates the report; returns the names added.
+ */
+export function flattenComposedValues(report: Report): string[] {
+  const values = report.evidence?.values;
+  if (!values) return [];
+  const added: string[] = [];
+  for (const [key, raw] of Object.entries(values)) {
+    if (typeof raw !== 'string' || !/^\s*[[{]/.test(raw)) continue;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      continue; // prose that merely opens with a bracket
+    }
+    const leaves = leavesOf(parsed);
+    // Nothing to split, or a table rather than a record: leave it whole.
+    if (!leaves.length || leaves.length > MAX_LEAVES) continue;
+    delete values[key];
+    for (const [path, value] of leaves) {
+      const name = uniqueName(`${key}_${slug(path)}`, values);
+      values[name] = value;
+      added.push(name);
+    }
+  }
+  return added;
+}
+
+/** Scalar leaves of a parsed value, two levels deep, as [path, text] pairs. */
+function leavesOf(node: unknown, prefix = '', depth = 0): [string, string][] {
+  if (node === null || typeof node !== 'object') {
+    const text = String(node ?? '').trim();
+    return prefix && text ? [[prefix, text]] : [];
+  }
+  if (depth >= 2) return [];
+  const entries = Array.isArray(node) ? node.map((v, i) => [String(i + 1), v] as const) : Object.entries(node);
+  return entries.flatMap(([k, v]) => leavesOf(v, prefix ? `${prefix}_${k}` : k, depth + 1));
+}
+
 /** Record identifiers cited in prose per report, and their shape. */
 const MAX_PROSE_IDS = 3;
 const MIN_PROSE_ID_LEN = 4;

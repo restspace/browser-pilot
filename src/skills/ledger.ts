@@ -292,5 +292,13 @@ export function fatal(leak: Leak): boolean {
   // either way the step falls to recovery and says so. Grafana's dashboards
   // put a minted uid in almost every precondition, so treating those as fatal
   // refused whole recordings for a defect that announces itself.
-  return /(^|\.)locators(\.|\[)/.test(leak.where);
+  //
+  // A NAVIGATION TARGET is the same silent case as a locator, and was missed
+  // because it does not look like one. fwgr11's 02-verify and 03-open went to
+  // `/d/cfwoeaxjxu1hca/{{runid}}-bench-dashboard`: the slug carried the run's
+  // own id, the uid beside it was run 1's. The replay navigated to run 1's
+  // dashboard, found everything it expected there, and only the identity
+  // precondition stood between that and a silently wrong pass. A url is a
+  // locator for a page.
+  return /(^|\.)locators(\.|\[)/.test(leak.where) || /(^|\.)args\.url$/.test(leak.where);
 }

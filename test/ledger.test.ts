@@ -209,4 +209,14 @@ describe('fatal leaks', () => {
     expect(fatal(at('s.reportTemplate.summary', 'identifier'))).toBe(false);
     expect(fatal(at('s.steps[0].expect.urlPattern', 'identifier'))).toBe(false);
   });
+
+  it('is also an identifier in a NAVIGATION TARGET, which is a locator for a page', () => {
+    // fwgr11 went to /d/<run-1-uid>/{{runid}}-bench-dashboard: the slug named
+    // this run, the uid beside it named the last one, and the replay found
+    // everything it expected on the wrong dashboard.
+    expect(fatal(at('s.steps[0].args.url', 'identifier'))).toBe(true);
+    // Not every arg — a typed value is what the step is FOR.
+    expect(fatal(at('s.steps[0].args.value', 'identifier'))).toBe(false);
+    expect(fatal(at('s.steps[0].args.url', 'text'))).toBe(false);
+  });
 });

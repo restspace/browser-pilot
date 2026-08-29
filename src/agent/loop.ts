@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { addEvidenceValue, backfillReadValues, proseIdentifiers, validateReport, type Report } from './report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, proseIdentifiers, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
@@ -237,6 +237,12 @@ export async function runInstruction(
     // leave the step with no skill. Runs before the facts line and before
     // read-back synthesis so both see the promoted values.
     if (report.status === 'success' && browser.script) {
+      // A value the model composed out of several page values (a JSON blob per
+      // order line) is unpinnable and unrepublishable as one string. Split it
+      // first, so everything below — backfill, read-back synthesis, compile —
+      // sees the scalars a real element actually shows.
+      const split = flattenComposedValues(report);
+      if (split.length) opts.onProgress?.(`[report] split composed value(s) into ${split.join(', ')}`);
       const promoted = backfillReadValues(report, browser.script.readsThisInstruction());
       if (promoted.length) opts.onProgress?.(`[report] promoted ${promoted.length} prose-cited read value(s) into evidence: ${promoted.join(', ')}`);
       // Second source, for the identifiers no read observed at all: a record
