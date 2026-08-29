@@ -474,3 +474,40 @@ describe('a refused export keeps the recording', () => {
     }
   });
 });
+
+describe('coincidental substring references', () => {
+  it('does not referencize a common word matched inside a hyphenated compound', () => {
+    // fwgr8: 04-open reported tags="bench" and the dashboard slug was
+    // "fwgr8-n1-bench-dashboard", so FOUR later steps had their url rewritten
+    // to {{runid}}-{{04-open.tags}}-dashboard. That "bench" is the dashboard's
+    // NAME, not its tags; they agreed by coincidence on one run and would not
+    // on any other. Every ref then failed to resolve and cost a zero-model step.
+    const slug = 'http://g.test/d/abc123/fr1-bench-dashboard';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Open the dashboard settings and read its tags.', url: 'http://g.test/d/abc123/fr1-bench-dashboard' },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'Settings' }] } } },
+      { k: 'report', status: 'success', summary: 'tags read', values: { tags: 'bench' }, skill: 's_a' },
+      { k: 'instruction', text: `Go to ${slug} and set the refresh interval.`, url: slug },
+      { k: 'step', tool: 'click', args: { target: '@e2' }, locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'role', role: 'button', name: 'Refresh' }] } } },
+      { k: 'report', status: 'success', summary: 'set', values: {}, skill: 's_b' },
+    ];
+    const flow = buildFlow(entries, { name: 'f', origin: 'http://g.test', startUrl: 'http://g.test/', vars: {}, session: 's' })!;
+    expect(flow.steps[1].instruction).toContain('fr1-bench-dashboard');
+    expect(flow.steps[1].instruction).not.toContain('.tags}}');
+  });
+
+  it('still threads a minted identifier that sits inside a compound', () => {
+    // The rule turns on WHAT the value is: a minted id matching inside a slug
+    // is evidence, a common word is coincidence.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create it.', url: 'http://g.test/' },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'role', role: 'button', name: 'Save' }] } } },
+      { k: 'report', status: 'success', summary: 'made', values: { uid: 'afw8m1pqwk5c0a' }, skill: 's_a' },
+      { k: 'instruction', text: 'Open http://g.test/d/afw8m1pqwk5c0a/my-dashboard and edit it.', url: 'http://g.test/d/afw8m1pqwk5c0a/my-dashboard' },
+      { k: 'step', tool: 'click', args: { target: '@e2' }, locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'role', role: 'button', name: 'Edit' }] } } },
+      { k: 'report', status: 'success', summary: 'edited', values: {}, skill: 's_b' },
+    ];
+    const flow = buildFlow(entries, { name: 'f', origin: 'http://g.test', startUrl: 'http://g.test/', vars: {}, session: 's' })!;
+    expect(flow.steps[1].instruction).not.toContain('afw8m1pqwk5c0a');
+  });
+});

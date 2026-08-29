@@ -137,7 +137,7 @@ export function buildFlow(
     for (const [name, value] of varEntries) text = replaceToken(text, value, `{{${name}}}`);
     // Reference earlier outputs (longest values first so nested ids resolve).
     for (const p of [...produced].sort((a, b) => b.value.length - a.value.length)) {
-      if (p.value.length >= 2) text = replaceToken(text, p.value, `{{${p.stepId}.${p.output}}}`);
+      if (p.value.length >= 2 && !coincidental(text, p.value)) text = replaceToken(text, p.value, `{{${p.stepId}.${p.output}}}`);
     }
     const outputs = Object.keys(g.report?.values ?? {});
     // Capture the skill's slot bindings, referencized like the instruction, so
@@ -151,7 +151,7 @@ export function buildFlow(
           let rv = v;
           for (const [name, value] of varEntries) rv = replaceToken(rv, value, `{{${name}}}`);
           for (const pr of [...produced].sort((a, b) => b.value.length - a.value.length)) {
-            if (pr.value.length >= 2) rv = replaceToken(rv, pr.value, `{{${pr.stepId}.${pr.output}}}`);
+            if (pr.value.length >= 2 && !coincidental(rv, pr.value)) rv = replaceToken(rv, pr.value, `{{${pr.stepId}.${pr.output}}}`);
           }
           params[k] = rv;
         }
@@ -273,6 +273,28 @@ function stepId(text: string, i: number): string {
 }
 
 /** Replace a value on token boundaries, leaving substrings of longer words alone. */
+/**
+ * The value only LOOKS like this reference: a common word matching inside a
+ * hyphenated compound that means something else.
+ *
+ * fwgr8 reported `tags: "bench"` and its dashboard slug was
+ * `fwgr8-n1-bench-dashboard`, so four later steps had their url rewritten to
+ * `{{runid}}-{{04-open.tags}}-dashboard`. The "bench" in that slug comes from
+ * the dashboard's NAME, not from its tags; the two agreed by coincidence on
+ * the recording run and would not on any other. Every one of those refs then
+ * failed to resolve and cost its step the zero-model path.
+ *
+ * Hyphens deliberately do not bind in replaceToken, because a runid prefix in
+ * `x7-bench-dashboard` IS worth threading. The distinction is what the value
+ * is: a minted identifier is specific enough that matching inside a compound
+ * is evidence, while a common word is not. So a non-identifier must stand
+ * alone to be referencized.
+ */
+function coincidental(text: string, value: string): boolean {
+  if (identifierLike(value)) return false;
+  return new RegExp(`(?<![A-Za-z0-9_-])${escapeRe(value)}(?![A-Za-z0-9_-])`).test(text) === false;
+}
+
 function replaceToken(text: string, value: string, marker: string): string {
   if (!value) return text;
   // Underscores bind: `o_form_view_group` is ONE identifier, so a var whose
