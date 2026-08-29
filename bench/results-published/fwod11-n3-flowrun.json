@@ -1,0 +1,67 @@
+{
+  "flow": "fwod11",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin, navigated to Sales app → Orders → Customers, created a new customer with name 'fwod11-n3 Bench Customer' and City 'Benchville' (no other fields were required), and saved it. The saved record (id=44, page title \"Odoo - fwod11-n3 Bench Customer\") shows Name \"fwod11-n3 Bench Customer\" and City \"Benchville\", verified by reading the form field values on the saved record.",
+      "values": {
+        "input_name_name_o_field_": "fwod11-n3 Bench Customer",
+        "input_name_city_o_field_": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "33/33",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Inspected the new Sale Order form (unsaved). Customer field: empty. Order lines: none. Untaxed Amount: £ 0.00. Attempted to save as instructed but the form rejected saving due to \"Invalid fields: Customer\" — the Customer field is required and empty. Since the instruction strictly says \"Do not add or remove any order lines\", no lines were added. No record to report order line details from.",
+      "values": {
+        "untaxedAmount": "£ 0.00"
+      },
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_d0a543"
+    },
+    {
+      "id": "03-open",
+      "status": "blocked",
+      "summary": "Opened quotation S00022 (found via the Quotations list after discarding the empty draft the previous attempt left behind). The instruction cannot be carried out as written: it assumes a single existing order line with quantity 1 and an unnamed product, but S00022 has two order lines — \"Customizable Desk\" (qty 5.00, unit price 750.00) and \"Conference Chair\" (qty 2.00, unit price 33.00) — neither with quantity 1, and the quotation is in Cancelled state. No quantity was changed and nothing was saved, since picking either line would be a guess that alters the record against the instruction's own premise.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    }
+  ],
+  "passed": 2,
+  "total": 8,
+  "repinned": 1,
+  "drift": 0,
+  "wallMs": 395802,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 88671,
+    "completionTokens": 5831,
+    "cachedTokens": 71360
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 16862,
+      "completionTokens": 1501,
+      "cachedTokens": 8192
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 71809,
+      "completionTokens": 4330,
+      "cachedTokens": 63168
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

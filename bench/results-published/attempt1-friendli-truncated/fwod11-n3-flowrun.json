@@ -1,0 +1,78 @@
+{
+  "flow": "fwod11",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Odoo 17 as admin (session was already established from the replayed chain), navigated Sales → Orders → Customers, clicked New, set Company Type to Individual, filled Name \"fwod11-n3 Bench Customer\" and City \"Benchville\", and saved. The record persisted as res.partner id=46; after a full page reload the form still shows name \"fwod11-n3 Bench Customer\", city \"Benchville\", type \"Individual\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 50
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created and saved quotation S00021 (sale.order id=21) under Sales → Orders → Quotations → New. Customer was set by typing into the autocomplete and selecting the matching option \"fwod11-n3 Bench Customer\" (Benchville shown beside it). Exactly one order line was added by selecting \"[FURN_6666] Acoustic Bloc Screens\" from the product autocomplete dropdown, with Quantity 3.00; the app auto-filled the Unit Price at £ 295.00 and computed the Untaxed Amount as £ 885.00 (TAX 20% £ 177.00, Total £ 1062.00). The record persisted — the URL shows id=21, the form is in read mode with breadcrumb S00021, and the saved form displays all these values.",
+      "values": {},
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 2,
+  "total": 2,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod11",
+      "step": "01-open",
+      "skill": "s_cf261b",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_cf261b stopped at step 4 — after step 4 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id",
+      "reason": "after step 4 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod11",
+      "step": "02-create",
+      "skill": "s_5a959a",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('text=\"fwod11-n3 Bench Customer\" >> nth=0')",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 631240,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 525013,
+    "completionTokens": 7775,
+    "cachedTokens": 450880
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 300119,
+      "completionTokens": 4778,
+      "cachedTokens": 242944
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 224894,
+      "completionTokens": 2997,
+      "cachedTokens": 207936
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

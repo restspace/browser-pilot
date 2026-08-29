@@ -1,0 +1,126 @@
+{
+  "name": "fwod11",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then go to the Sales app, open the Customers list, and create a new customer with name exactly '{{runid}} Bench Customer' and City 'Benchville' (fill any other required fields minimally), save it, and verify the record shows the name and city. Report the customer name and city as shown on the saved record. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+      "skill": "s_9d0762",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [
+        "input_name_name_o_field_",
+        "input_name_city_o_field_"
+      ],
+      "recorded": {
+        "input_name_name_o_field_": "fwod11-n1 Bench Customer",
+        "input_name_city_o_field_": "Benchville"
+      }
+    },
+    {
+      "id": "02-report",
+      "instruction": "You are on an Odoo sale.order form (URL http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form). First inspect the current state of this form WITHOUT changing anything: report the customer field value, the order line(s) shown (product name, quantity, unit price), and the Untaxed Amount in the totals. If the form is still unsaved (title 'Odoo - New'), save it. Then report: customer name, product name of the single order line, quantity, unit price, and Untaxed Amount. Do not add or remove any order lines. Do not wait for network idle.",
+      "skill": "s_d0a543",
+      "params": {},
+      "outputs": [
+        "e2199",
+        "e2420",
+        "e2527",
+        "e2528"
+      ],
+      "recorded": {
+        "e2199": "fwod11-n1 Bench Customer",
+        "e2420": "Customizable Desk",
+        "e2527": "1.00",
+        "e2528": "750.00"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "On the currently open Odoo quotation S00022, change the quantity of the existing order line (product '{{02-report.e2420}}') from 1 to 3. Click into the Quantity cell, clear it, type 3, and press Tab or click elsewhere so the value is committed and the totals recompute. Then save the quotation. Report the quantity shown and the Untaxed Amount shown in the totals after saving. Do not add any new order lines and do not change the product or unit price. Do not wait for network idle.",
+      "skill": "s_19e520",
+      "params": {
+        "v1": "{{02-report.e2420}}"
+      },
+      "outputs": [
+        "e2612"
+      ],
+      "recorded": {
+        "e2612": "3.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "On the currently open Odoo quotation S00022, add a SECOND order line below the existing '{{02-report.e2420}}' line. Pick a DIFFERENT product from the product catalogue by selecting it from the product autocomplete dropdown (type a product name, wait for the dropdown, and click an actual option from the list). Set its quantity to 2. Save the quotation. Then report: (a) the name of the second product you chose, (b) its unit price, and (c) the new Untaxed Amount shown in the totals after saving. Do not modify the first line. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_471f45",
+      "params": {
+        "v1": "{{02-report.e2420}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "On the currently open Odoo quotation S00022, change the quantity of the FIRST order line (product '{{02-report.e2420}}') from 3 to 5. Click into that line's Quantity cell, clear it, type 5, press Tab so the value commits and totals recompute. Do not change the second line ('Conference Chair', qty 2). Save the quotation. Then report the quantity shown for the first line and the new Untaxed Amount shown in the totals after saving. Do not wait for network idle.",
+      "skill": "s_942c33",
+      "params": {
+        "v1": "{{02-report.e2420}}"
+      },
+      "outputs": [
+        "e2854"
+      ],
+      "recorded": {
+        "e2854": "5.00"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "On the currently open Odoo quotation S00022, confirm it so it becomes a sales order: click the Confirm button in the status bar (handle any confirmation dialog that appears). Then report: (a) the order reference/name shown (e.g. S00022) and (b) the status the app now shows in the status bar (e.g. 'Sales Order'). Read these from the page after confirming. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_c4f8fe",
+      "params": {},
+      "outputs": [
+        "e2551"
+      ],
+      "recorded": {
+        "e2551": "S00022"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "On the currently open Odoo sales order {{06-open.e2551}}, cancel it: click the Cancel button in the status bar (handle any confirmation dialog that appears by confirming the cancellation). Then report the status the app shows in the status bar after cancelling (e.g. 'Cancelled'). Read it from the page. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_3c34bb",
+      "params": {
+        "v1": "{{06-open.e2551}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "08-verify",
+      "instruction": "Verify the following in Odoo without changing anything: (1) Open the sales order {{06-open.e2551}} and report its current status from the status bar, its customer, and the two order lines with quantities and the Untaxed Amount. (2) Then open the customer record '{{runid}} Bench Customer' and report its City. Read-only verification — do not edit, save, confirm, or cancel anything. Do not wait for network idle.",
+      "skill": "s_e536ab",
+      "params": {
+        "v1": "{{06-open.e2551}}",
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "e3276"
+      ],
+      "recorded": {
+        "e3276": "Benchville"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod11-n1",
+    "created": "2026-08-29T13:35:48.850Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

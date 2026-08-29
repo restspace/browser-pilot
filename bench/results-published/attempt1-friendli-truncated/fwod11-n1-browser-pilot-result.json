@@ -1,0 +1,103 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "057e31c"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod11-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 959745,
+  "orchestrator": {
+    "input": 12919,
+    "cacheWrite": 0,
+    "cacheRead": 17536,
+    "output": 2193
+  },
+  "inner": {
+    "promptTokens": 1822724,
+    "cachedTokens": 1593920,
+    "completionTokens": 18029,
+    "instructions": 6,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1401173,
+        "completionTokens": 12891,
+        "cachedTokens": 1206528,
+        "instructions": 3
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 421551,
+        "completionTokens": 5138,
+        "cachedTokens": 387392,
+        "instructions": 3
+      }
+    },
+    "skills": {
+      "instructions": 3,
+      "offered": 0,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 21,
+      "compiled": 2,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 3,
+    "peek": 3
+  },
+  "invocationCount": 6,
+  "commandMs": 944704,
+  "commandBytes": 12756,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod11-skills",
+    "instructions": 3,
+    "offered": 0,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 21,
+    "compiled": 2,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Friendli"
+  ],
+  "orReportedCostUsd": 0.0229,
+  "maxUsd": 2,
+  "spendUsd": 0.2287,
+  "finalText": "",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod11-n1-browser-pilot-transcript.jsonl"
+}

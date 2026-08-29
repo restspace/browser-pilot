@@ -1,0 +1,37 @@
+{
+  "name": "fwod11",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in to Odoo 17 with login 'admin' and password 'admin'. Then create a new contact of type Individual named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (in Odoo 17 the contact form is under the Contacts or Sales app; use New to create it). Save the record and verify it persisted. Report the exact name and city shown on the saved record. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+      "skill": "s_b3dad3",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo 17 (already signed in as admin), create a new Quotation under Sales -> Orders -> Quotations -> New. Set the Customer field to '{{runid}} Bench Customer' — it is an autocomplete dropdown, so type the name and actually select the matching option from the dropdown list. Then add exactly ONE order line: in the product column of the order lines table, pick any product from the catalogue by selecting an option from the product autocomplete dropdown (do not just type text), and set the Quantity to 3. Let the app fill in the unit price automatically. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in, and (c) the Untaxed Amount the app computes (shown in the totals section). Do not wait for network idle — the app long-polls; wait for concrete page state instead.",
+      "skill": "s_facb5d",
+      "params": {
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod11-n1",
+    "created": "2026-08-29T12:33:15.528Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

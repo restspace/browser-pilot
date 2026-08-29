@@ -1,0 +1,69 @@
+{
+  "flow": "fwod11",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin, navigated to Sales app → Orders → Customers, created a new customer with name 'fwod11-n2 Bench Customer' and City 'Benchville' (no other fields were required), and saved it. The saved record (id=44, page title \"Odoo - fwod11-n2 Bench Customer\") shows Name \"fwod11-n2 Bench Customer\" and City \"Benchville\", verified by reading the form field values on the saved record.",
+      "values": {
+        "input_name_name_o_field_": "fwod11-n2 Bench Customer",
+        "input_name_city_o_field_": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "33/33",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-report",
+      "status": "success",
+      "summary": "Inspected the new Sale Order form (unsaved). Customer field: empty. Order lines: none. Untaxed Amount: £ 0.00. Attempted to save as instructed but the form rejected saving due to \"Invalid fields: Customer\" — the Customer field is required and empty. Since the instruction strictly says \"Do not add or remove any order lines\", no lines were added. No record to report order line details from.",
+      "values": {
+        "customer": "",
+        "orderLines": "",
+        "untaxedAmount": "£ 0.00",
+        "formStatus": "unsaved - 'Odoo - New'"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "03-open",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 15
+    }
+  ],
+  "passed": 2,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 607343,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 241891,
+    "completionTokens": 14237,
+    "cachedTokens": 178240
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 129345,
+      "completionTokens": 5568,
+      "cachedTokens": 85248
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 112546,
+      "completionTokens": 8669,
+      "cachedTokens": 92992
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
