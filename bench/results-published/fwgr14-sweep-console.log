@@ -1,0 +1,85 @@
+
+[sweep] run 1/3: fwgr14-n1 (store: /home/user/browser-pilot/bench/results/fwgr14-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwgr14-n1 stop=completed
+turns=11 wall=1727.4s
+commands=10 cmdTime=1627.2s cmdBytes=15829 timeouts=0
+orchestrator in=10375 cw=0 cr=49728 out=7468
+inner prompt=5345651 cached=4787136 completion=35404
+spend=$0.6369 maxUsd=2
+learn: A_n=0 replayed=0/10 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwgr14-n1-browser-pilot-result.json
+
+fwgr14-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid ffwqqxueqwgzkb reported
+
+[sweep] run 2/3: fwgr14-n2 (replay flow fwgr14, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr14-n1 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+
+fwgr14-n2: objectives passed 1/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: FAIL — dashboard not found (or not saved)
+  obj 3: FAIL — text panel not found
+  obj 4: FAIL — no dashboard
+  obj 5: FAIL — no dashboard
+  obj 6: FAIL — no dashboard to report
+
+[sweep] run 3/3: fwgr14-n3 (replay flow fwgr14, no orchestrator)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+
+fwgr14-n3: objectives passed 1/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: FAIL — dashboard not found (or not saved)
+  obj 3: FAIL — text panel not found
+  obj 4: FAIL — no dashboard
+  obj 5: FAIL — no dashboard
+  obj 6: FAIL — no dashboard to report
+
+Learning sweep fwgr14 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr14-n1' │ '6/6'    │ 'completed' │ 11    │ 10   │ 0.6369    │ 0   │ '0/10'       │ 1727   │
+│ 1       │ 2 │ 'fwgr14-n2' │ '1/6'    │ 'halted'    │ 35    │ 8    │ 0.0083    │ 1   │ '2/8 (flow)' │ 136    │
+│ 2       │ 3 │ 'fwgr14-n3' │ '1/6'    │ 'halted'    │ 38    │ 8    │ 0.1096    │ 1   │ '2/8 (flow)' │ 595    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_cb2124  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip any password-change prompt if it appears)…
+  s_7e9feb  validated    3 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip any password-change prompt if it appears)…
+  s_df04c8  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip any password-change prompt if it appears)…
+  s_460876  validated    1 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip any password-change prompt if it appears)…
+  s_8679a5  validated    1 steps  2/2 (100%)
+           Navigate the browser to {{v2}} (you are already signed in, so the JSON will render). From the JSON shown, repo…
+  s_0a50f8  validated    8 steps  2/2 (100%)
+           The browser is on an unsaved new Grafana dashboard at http://127.0.0.1:3000/dashboard/new with a Stat panel ti…
+  s_98dfff  provisional  7 steps  1/1 (100%)
+           The browser is on an unsaved new Grafana dashboard at http://127.0.0.1:3000/dashboard/new with a {{v1}} panel …
+  s_7e1996  provisional  3 steps  1/1 (100%)
+           The browser is on an unsaved new Grafana dashboard at http://127.0.0.1:3000/dashboard/new with a {{v1}} panel …
+  s_8051ee  provisional  2 steps  1/1 (100%)
+           On the Grafana dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}} there are unsaved changes: a Text panel titl…
+  s_184e2d  provisional  5 steps  1/1 (100%)
+           On the Grafana dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}, open Dashboard settings (gear icon) > Gener…
+  s_d75346  provisional  5 steps  1/1 (100%)
+           On the Grafana dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}, set the dashboard time range to 'Last 6 hou…
+  s_40af49  provisional  2 steps  1/1 (100%)
+           On the Grafana dashboard at {{v4}}, open Dashboard settings (gear icon in the breadcrumb) > General. In the 'T…
+  s_dabe19  provisional 13 steps  1/1 (100%)
+           On the Grafana dashboard at {{v4}}, open Dashboard settings (gear icon in the breadcrumb) > General. In the 'T…
+store: /home/user/browser-pilot/bench/results/fwgr14-skills
+
+summary: /home/user/browser-pilot/bench/results/fwgr14-sweep.json

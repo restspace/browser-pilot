@@ -1,0 +1,66 @@
+{
+  "flow": "fwgr14",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_460876; observed folder=Bench.",
+      "values": {
+        "folder": "Bench"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-set",
+      "status": "success",
+      "summary": "On the 'Service Health' dashboard (under folder Bench), the panels shown have the following exact titles: **Request rate**, **Error count**, and **Latency by endpoint**. These three panels are displayed on the dashboard.",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "03-verify",
+      "status": "failure",
+      "summary": "Could not complete the instruction. The browser started on the Service Health dashboard. I navigated to /dashboard/new (a blank new dashboard) but the expected Stat panel 'fwgr14-n2 Availability' was not pre-applied. I opened the Add panel menu and selected 'Visualization' to get to the edit panel screen, then opened the visualization picker to switch from Time series to Text, but ran out of turns before I could select 'Text', set the title 'fwgr14-n2 Notes', set content 'Notes for run fwgr14-n2', and save the dashboard. The instruction's prerequisite state (a dashboard with a Text panel already applied) was not present.",
+      "values": {
+        "current_state": "edit panel screen with Time series visualization",
+        "expected_panel_not_present": "true"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 2,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 135540,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 395761,
+    "completionTokens": 11068,
+    "cachedTokens": 332544
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 395761,
+      "completionTokens": 11068,
+      "cachedTokens": 332544
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

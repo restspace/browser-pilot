@@ -1,0 +1,67 @@
+{
+  "flow": "fwgr14",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_460876; observed folder=Bench.",
+      "values": {
+        "folder": "Bench"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-set",
+      "status": "success",
+      "summary": "On the 'Service Health' dashboard (under folder Bench), the panels shown have the following exact titles: **Request rate**, **Error count**, and **Latency by endpoint**. These three panels are displayed on the dashboard.",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-verify",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 38
+    }
+  ],
+  "passed": 2,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 595465,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 340710,
+    "completionTokens": 27117,
+    "cachedTokens": 300288
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 276848,
+      "completionTokens": 9111,
+      "cachedTokens": 243712
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 63862,
+      "completionTokens": 18006,
+      "cachedTokens": 56576
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,103 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "ddb7d78"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwgr14-n1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 1727406,
+  "orchestrator": {
+    "input": 10375,
+    "cacheWrite": 0,
+    "cacheRead": 49728,
+    "output": 7468
+  },
+  "inner": {
+    "promptTokens": 5345651,
+    "cachedTokens": 4787136,
+    "completionTokens": 35404,
+    "instructions": 12,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3976311,
+        "completionTokens": 25575,
+        "cachedTokens": 3515136,
+        "instructions": 10
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1369340,
+        "completionTokens": 9829,
+        "cachedTokens": 1272000,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 10,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 134,
+      "compiled": 7,
+      "merged": 1,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "do": 10
+  },
+  "invocationCount": 10,
+  "commandMs": 1627219,
+  "commandBytes": 15829,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwgr14-skills",
+    "instructions": 10,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 134,
+    "compiled": 7,
+    "merged": 1,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Modal",
+    "Z.AI"
+  ],
+  "orReportedCostUsd": 0.0603,
+  "maxUsd": 2,
+  "spendUsd": 0.6369,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE.** The provisioned dashboard `Service health` (URL: http://127.0.0.1:3000/d/bench-service-health/service-health, folder \"Bench\") contains exactly 3 panels, titled as shown: **Request rate**, **Error count**, **Latency by endpoint**.\n\n**Objective 2 — DONE.** New dashboard created and saved, titled **`fwgr14-n1 Bench Dashboard`**, containing a **Stat** panel titled **`fwgr14-n1 Availability`** whose query uses the TestData data source (verified in the saved dashboard JSON: panel type `stat`, datasource `{\"type\":\"grafana-testdata-datasource\",\"uid\":\"benchtestdata\"}`). The panel renders a live A-series value.\n\n**Objective 3 — DONE.** The same dashboard contains a **Text** panel titled **`fwgr14-n1 Notes`** (panel type `text`) whose rendered content is \"Notes for run fwgr14-n1\" — it includes the runid. Saved.\n\n**Objective 4 — DONE.** The dashboard's saved tags array is `[\"bench\"]`, and its saved time range is `{\"from\":\"now-6h\",\"to\":\"now\"}` (the top-right picker shows \"Last 6 hours\"). Persisted by checking \"Update default time range\" in the save dialog.\n\n**Objective 5 — DONE.** The dashboard's saved `refresh` value is **`1m`**, shown next to the time picker on the dashboard page. Persisted by checking \"Update default refresh value\" in the save dialog.\n\n**Objective 6 — DONE.** Dashboard URL: **http://127.0.0.1:3000/d/ffwqqxueqwgzkb/fwgr14-n1-bench-dashboard** — UID: **`ffwqqxueqwgzkb`**.\n\nAll values above were read back from the saved dashboard via the Grafana API (`/api/dashboards/uid/ffwqqxueqwgzkb`) and from the rendered dashboard page, so they reflect persisted state rather than unsaved editor changes.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwgr14-n1-browser-pilot-transcript.jsonl"
+}

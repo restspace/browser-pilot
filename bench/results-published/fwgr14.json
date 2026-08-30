@@ -1,0 +1,125 @@
+{
+  "name": "fwgr14",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip any password-change prompt if it appears). Then navigate to the provisioned dashboard named 'Service health' (e.g. via Dashboards browse or search) and report the exact titles of all panels shown on that dashboard, exactly as displayed.",
+      "skill": "s_cb2124",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "panel_titles",
+        "dashboard_name",
+        "folder"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "dashboard_name": "Service health",
+        "folder": "Bench"
+      },
+      "outputEvidence": {
+        "folder": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-set",
+      "instruction": "The browser is on an unsaved new Grafana dashboard at http://127.0.0.1:3000/dashboard/new with a Stat panel titled '{{runid}} Availability' already applied. Now: set the dashboard title to exactly '{{runid}} {{01-open.folder}} Dashboard' (click the 'New dashboard' title in the top breadcrumb/header to edit it, type the new name, confirm), then click Save dashboard and confirm the save dialog (use default folder if asked). Verify the dashboard is saved (URL changes to /d/<uid>/...) and report the resulting dashboard URL and UID.",
+      "skill": "s_98dfff",
+      "params": {
+        "v1": "Stat",
+        "v2": "{{runid}} Availability",
+        "v5": "{{runid}} {{01-open.folder}} Dashboard"
+      },
+      "outputs": [
+        "dashboard_title",
+        "dashboard_uid",
+        "panel_title",
+        "panel_viz",
+        "panel_shows_value"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr14-n1 Bench Dashboard",
+        "dashboard_uid": "ffwqqxueqwgzkb",
+        "panel_title": "fwgr14-n1 Availability",
+        "panel_viz": "Stat",
+        "panel_shows_value": "true"
+      }
+    },
+    {
+      "id": "03-verify",
+      "instruction": "On the Grafana dashboard at http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard there are unsaved changes: a Text panel titled '{{runid}} Notes' with content 'Notes for run {{runid}}' has been applied. Click 'Save dashboard' in the top bar and confirm the save dialog. Then verify the dashboard is saved and that the Text panel titled '{{runid}} Notes' is visible with rendered content containing '{{runid}}'. Report what you observed.",
+      "skill": "s_8051ee",
+      "params": {
+        "v1": "{{02-set.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard",
+        "v3": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "On the Grafana dashboard at http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard, open Dashboard settings (gear icon) > General, and add the tag 'bench' to the dashboard tags (type 'bench' in the Tags field and press Enter so it becomes a tag chip). Save the dashboard settings and confirm any save dialog. Then verify the tag 'bench' is applied to the dashboard (e.g. re-open settings or check the dashboard) and report what you observed.",
+      "skill": "s_184e2d",
+      "params": {
+        "v1": "{{02-set.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-set",
+      "instruction": "On the Grafana dashboard at http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard, set the dashboard time range to 'Last 6 hours' (click the time range picker in the top right, choose the 'Last 6 hours' absolute/relative option, click Apply). Then SAVE the dashboard (click Save dashboard and confirm the save dialog) so the time range is persisted. Verify after saving that the time range picker in the top right shows 'Last 6 hours' and report what you observed.",
+      "skill": "s_d75346",
+      "params": {
+        "v1": "{{02-set.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-report",
+      "instruction": "Navigate the browser to http://127.0.0.1:3000/api/dashboards/uid/{{02-set.url.p1}} (you are already signed in, so the JSON will render). From the JSON shown, report exactly: the dashboard 'title', the 'uid', the 'tags' array, the 'time' object, the 'refresh' value, and for each panel in 'panels' its 'type' and 'title'.",
+      "skill": "s_8679a5",
+      "params": {
+        "v2": "http://127.0.0.1:3000/api/dashboards/uid/{{02-set.url.p1}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-open",
+      "instruction": "On the Grafana dashboard at http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard, open Dashboard settings (gear icon in the breadcrumb) > General. In the 'Time options' section of that settings page, set 'Time range' to 'Last 6 hours' and set 'Auto refresh' to '1m'. Then save (click Save dashboard in the top bar and confirm the save dialog). After saving, navigate the browser to http://127.0.0.1:3000/api/dashboards/uid/{{02-set.url.p1}} and report the exact values of the 'time' object and the 'refresh' field from the JSON.",
+      "skill": "s_40af49",
+      "params": {
+        "v4": "http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard",
+        "v5": "http://127.0.0.1:3000/api/dashboards/uid/{{02-set.url.p1}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "08-report",
+      "instruction": "Final verification. Navigate the browser to http://127.0.0.1:3000/api/dashboards/uid/{{02-set.url.p1}} and report from the JSON: dashboard 'title', 'uid', 'tags', 'time', 'refresh', and for each panel its 'type', 'title', and its data source (the 'datasource' field, e.g. its type and uid/name). Then navigate to the dashboard page http://127.0.0.1:3000/d/{{02-set.url.p1}}/{{runid}}-bench-dashboard and report: the dashboard title shown, the panel titles visible, the time range shown in the top-right picker, and the auto-refresh interval shown next to it.",
+      "skill": "s_8679a5",
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwgr14-n1",
+    "created": "2026-08-30T12:44:34.369Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
