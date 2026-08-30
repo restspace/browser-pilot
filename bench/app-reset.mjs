@@ -89,22 +89,27 @@ async function resetOdoo() {
   }
   const orders = await kw('sale.order', 'search', [[['partner_id', 'in', partners]]]);
   if (orders.length) {
-    // A CONFIRMED order refuses deletion. Cancel first, then delete; if the
-    // delete is still refused, archive it — out of every default list view,
-    // which is what a later run actually needs.
+    // A CONFIRMED order refuses deletion, so cancel first and delete after.
+    //
+    // There is no archive fallback: `sale.order` has NO `active` field in Odoo
+    // 17. Reaching for one cost set 6 both odoo replays —
+    //   [reset-app] odoo reset FAILED: Invalid field 'active' on model 'sale.order'
+    // — and the error the operator saw was the fallback's, not the reason the
+    // delete was refused, which is the more useful fact. So: cancel, delete,
+    // and if that still fails, say why and let it fail. A dirty baseline is
+    // exactly what this reset exists to prevent, and guessing at a workaround
+    // is how the real reason gets hidden.
     try {
       await kw('sale.order', 'action_cancel', [orders]);
     } catch {
-      /* already cancelled, or the button is not available in this state */
+      /* already cancelled, or not available in this state */
     }
-    try {
-      await kw('sale.order', 'unlink', [orders]);
-      log(`odoo: deleted ${orders.length} leftover bench order(s)`);
-    } catch (err) {
-      await kw('sale.order', 'write', [orders, { active: false }]);
-      log(`odoo: archived ${orders.length} leftover bench order(s) (delete refused: ${err.message})`);
-    }
+    await kw('sale.order', 'unlink', [orders]);
+    log(`odoo: deleted ${orders.length} leftover bench order(s)`);
   }
+  // res.partner DOES have `active`, and a partner referenced by anything the
+  // reset could not remove legitimately refuses deletion. Archiving takes it
+  // out of every default view, which is what a later run needs.
   try {
     await kw('res.partner', 'unlink', [partners]);
     log(`odoo: deleted ${partners.length} leftover bench customer(s)`);
