@@ -68,9 +68,50 @@ function sessionReports() {
   return out;
 }
 
+/** Post-navigation urls the recording run actually landed on, in order. */
+function sessionUrls() {
+  const home = process.env.BROWSER_PILOT_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.browser-pilot');
+  const candidates = [
+    path.join(dir, `${tag}-n1-script.jsonl`), // published alongside the results
+    path.join(home, 'sessions', `${tag}-n1`, 'script.jsonl'),
+  ];
+  const file = candidates.find(exists);
+  if (!file) return [];
+  const out = [];
+  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      const e = JSON.parse(line);
+      const url = e.k === 'step' ? e.diff?.url : e.k === 'instruction' ? e.url : undefined;
+      if (url) out.push(url);
+    } catch {
+      /* a truncated last line is normal */
+    }
+  }
+  return out;
+}
+
 function recordingLedger() {
   const l = new RunLedger();
   l.add(`${tag}-n1`, { from: 'var', name: 'runid' });
+  // Ids from the urls the run LANDED on. This is the daemon's own source, and
+  // without it the navigation-target check below is decorative: seeding the
+  // ledger from the compiled `args.url` it then scans would make every url id
+  // match itself. Only available when the sweep published the session log.
+  for (const url of sessionUrls()) {
+    try {
+      const u = new URL(url);
+      const parts = [];
+      u.pathname.split('/').filter(Boolean).forEach((v, i) => parts.push({ label: `p${i}`, value: decodeURIComponent(v) }));
+      u.hash.replace(/^#\/?/, '').split(/[/&]/).filter(Boolean).forEach((seg, i) => {
+        const [k, v] = seg.includes('=') ? seg.split('=') : [`h${i}`, seg];
+        parts.push({ label: k, value: decodeURIComponent(v ?? '') });
+      });
+      l.addUrlIds(url, 'recorded', parts);
+    } catch {
+      continue;
+    }
+  }
   // Prefer the flow's `recorded` values; without a flow (a refused export) fall
   // back to the session recording, which holds the same report entries. A
   // ledger seeded from the runid alone finds nothing and reads as a pass.
@@ -162,6 +203,28 @@ if (!hasFlow) {
   for (const f of [...fragile].slice(0, 10)) console.log(`      ${f}`);
 } else {
   pass('every cross-step reference is provenance-backed or re-observed');
+}
+
+// 2b. A run value left literal in a NAVIGATION TARGET. fwgr11 went to
+//     `/d/<run-1-uid>/{{runid}}-bench-dashboard`: the slug named this run, the
+//     uid beside it named the last one, and the replay found everything it
+//     expected on the wrong dashboard. A url is a locator for a page.
+//
+//     This lives HERE and not in the product's `fatal()`, where it spent one
+//     release cycle. As a gate it refused fwod19 -- a clean 6/6 recording --
+//     over `action=123` in `#action=123&cids=1&menu_id=81`, which is Odoo's
+//     Discuss MENU id: identical on every run, present in the first
+//     post-login navigation, and `identifierLike("123")` is true. Telling
+//     that apart from a minted uid needs a second run (PLAN-evidence-over-
+//     shape.md), so as a gate it costs a whole sweep when wrong, while here it
+//     costs a look. Report, do not enforce, what one run cannot establish.
+const navLeaks = leaks.filter((l) => l.kind === 'identifier' && /(^|\.)args\.url$/.test(l.where));
+if (navLeaks.length) {
+  fail(`${navLeaks.length} navigation target(s) carry a value this run made`);
+  console.log(describeLeaks(navLeaks.slice(0, 8)));
+  console.log('      (check each: a minted record id here is a wrong-record bug; an app constant is a ledger false positive)');
+} else {
+  pass('no navigation target carries a run value');
 }
 
 // 3. Did any step resolve POSITIONALLY — by where an element sat rather than

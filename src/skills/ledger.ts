@@ -293,12 +293,25 @@ export function fatal(leak: Leak): boolean {
   // put a minted uid in almost every precondition, so treating those as fatal
   // refused whole recordings for a defect that announces itself.
   //
-  // A NAVIGATION TARGET is the same silent case as a locator, and was missed
-  // because it does not look like one. fwgr11's 02-verify and 03-open went to
-  // `/d/cfwoeaxjxu1hca/{{runid}}-bench-dashboard`: the slug carried the run's
-  // own id, the uid beside it was run 1's. The replay navigated to run 1's
-  // dashboard, found everything it expected there, and only the identity
-  // precondition stood between that and a silently wrong pass. A url is a
-  // locator for a page.
-  return /(^|\.)locators(\.|\[)/.test(leak.where) || /(^|\.)args\.url$/.test(leak.where);
+  // A NAVIGATION TARGET was fatal here for one release cycle and is not any
+  // more. The reasoning was sound -- fwgr11 went to
+  // `/d/<run-1-uid>/{{runid}}-bench-dashboard` and a url is a locator for a
+  // page -- but deciding it needs a judgement that cannot be made from one
+  // run. fwod19 refused a clean 6/6 recording over
+  //
+  //   args.url: "123" in "http://127.0.0.1:8069/web#action=123&cids=1&menu_id=81"
+  //
+  // where 123 is Odoo's Discuss MENU id, present in the first post-login
+  // navigation and identical on every run. identifierLike("123") is true, so
+  // the ledger banked a permanent app constant as a record this run made, and
+  // the whole export died. No record-time discriminator survives contact with
+  // it: the navigation that reveals 123 is a click, and the step before it is
+  // the login fill, so neither "before the first mutation" nor "before the
+  // run typed anything" separates it from a real minted uid.
+  //
+  // So the rule moved to bench/verify-artifacts.mjs, where a false positive
+  // costs a look instead of a run. A gate may only enforce what a single run
+  // can actually establish; see PLAN-evidence-over-shape.md, which makes the
+  // deferred version -- run 1 proposes, run 2 decides -- stage 1.
+  return /(^|\.)locators(\.|\[)/.test(leak.where);
 }

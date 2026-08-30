@@ -210,13 +210,17 @@ describe('fatal leaks', () => {
     expect(fatal(at('s.steps[0].expect.urlPattern', 'identifier'))).toBe(false);
   });
 
-  it('is also an identifier in a NAVIGATION TARGET, which is a locator for a page', () => {
-    // fwgr11 went to /d/<run-1-uid>/{{runid}}-bench-dashboard: the slug named
-    // this run, the uid beside it named the last one, and the replay found
-    // everything it expected on the wrong dashboard.
-    expect(fatal(at('s.steps[0].args.url', 'identifier'))).toBe(true);
-    // Not every arg — a typed value is what the step is FOR.
-    expect(fatal(at('s.steps[0].args.value', 'identifier'))).toBe(false);
-    expect(fatal(at('s.steps[0].args.url', 'text'))).toBe(false);
+  it('is NOT a navigation target, which one run cannot judge', () => {
+    // This was fatal for one release cycle, on sound reasoning: fwgr11 went to
+    // /d/<run-1-uid>/{{runid}}-bench-dashboard and a url is a locator for a
+    // page. As a gate it then refused fwod19, a clean 6/6 recording, over
+    // `action=123` in `#action=123&cids=1&menu_id=81` — Odoo's Discuss MENU
+    // id, identical every run, and identifierLike("123") is true.
+    //
+    // Telling an app constant from a minted uid needs a SECOND run. A gate may
+    // only enforce what one run can establish, so the check moved to
+    // bench/verify-artifacts.mjs where being wrong costs a look, not a sweep.
+    // See PLAN-evidence-over-shape.md.
+    expect(fatal(at('s.steps[0].args.url', 'identifier'))).toBe(false);
   });
 });
