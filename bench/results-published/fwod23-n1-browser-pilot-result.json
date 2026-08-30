@@ -1,0 +1,104 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "1a204c3"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod23-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 1871481,
+  "orchestrator": {
+    "input": 22128,
+    "cacheWrite": 0,
+    "cacheRead": 13568,
+    "output": 3192
+  },
+  "inner": {
+    "promptTokens": 5067688,
+    "cachedTokens": 4439360,
+    "completionTokens": 38241,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 4698731,
+        "completionTokens": 34646,
+        "cachedTokens": 4154880,
+        "instructions": 9
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 368957,
+        "completionTokens": 3595,
+        "cachedTokens": 284480,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 9,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 114,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "do": 9
+  },
+  "invocationCount": 9,
+  "commandMs": 1651778,
+  "commandBytes": 3743,
+  "timeouts": 1,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod23-skills",
+    "instructions": 9,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 114,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "DeepInfra",
+    "Io Net",
+    "Cloudflare"
+  ],
+  "orReportedCostUsd": 0.0435,
+  "maxUsd": 2,
+  "spendUsd": 0.3355,
+  "finalText": "All six objectives are complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE**: Customer `fwod23-n1 Bench Customer` created (contact id 44), with City set to `Benchville`. Verified on the saved record: Name = \"fwod23-n1 Bench Customer\", City = \"Benchville\". The record is flagged as a customer (customer_rank = 1).\n\n**Objective 2 — DONE**: Quotation `S00021` created for that customer with one order line:\n- Product chosen: **[E-COM11] Cabinet with Doors**\n- Unit price filled in by the app: **£140.00**\n- Untaxed amount computed: **£420.00** (3 × £140.00)\n\n**Objective 3 — DONE**: Second order line added to the same quotation:\n- Product: **[E-COM10] Pedal Bin** (unit price £47.00, qty 2, subtotal £94.00)\n- New untaxed amount: **£514.00** (£420.00 + £94.00)\n\n**Objective 4 — DONE**: First line's quantity changed from 3 to 5 (subtotal £700.00 = 5 × £140.00; second line unchanged at qty 2, £94.00):\n- Untaxed amount afterwards: **£794.00**\n\n**Objective 5 — DONE**: Quotation confirmed via the Confirm button:\n- Order reference: **S00021**\n- Status shown: **Sales Order** (status bar shows \"Sales Order\" as the active/checked state)\n\n**Objective 6 — DONE**: Sales order cancelled via the Cancel button (confirmation alert accepted):\n- Status shown after cancelling: **Cancelled** (active/checked state in the status bar; reference remains S00021)\n\nFinal verification pass confirmed the contact (name/city) and the order (S00021, Cancelled, untaxed amount £794.00) — nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod23-n1-browser-pilot-transcript.jsonl"
+}

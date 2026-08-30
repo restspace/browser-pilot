@@ -1,0 +1,41 @@
+{
+  "flow": "fwod23",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "blocked",
+      "summary": "Instruction timed out after 600s (41 turns, 38 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 71
+    }
+  ],
+  "passed": 0,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 788749,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 680984,
+    "completionTokens": 11287,
+    "cachedTokens": 592576
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 261446,
+      "completionTokens": 3529,
+      "cachedTokens": 223488
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 419538,
+      "completionTokens": 7758,
+      "cachedTokens": 369088
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

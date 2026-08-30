@@ -1,0 +1,60 @@
+{
+  "flow": "fwod23",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin and searched the contact database for 'fwod23-n3 Bench Customer'. The contact does not exist: searches for \"fwod23-n3 Bench Customer\", \"fwod23\", and \"Bench\" all returned zero results, and the unfiltered list of all 39 contacts contains no such name. Therefore there is no City field value to report.",
+      "values": {
+        "o_kanban_record_title": "Acme Corporation",
+        "o_kanban_record_title_2": "Azure Interior",
+        "o_kanban_record_title_3": "Gemini Furniture",
+        "o_kanban_record_title_4": "Lumber Inc",
+        "o_kanban_record_title_5": "Ready Mat",
+        "o_kanban_record_title_6": "SmartMode LTD",
+        "o_kanban_record_title_7": "The Jackson Group",
+        "o_kanban_record_title_8": "UK Company"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 63
+    },
+    {
+      "id": "02-open",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 13
+    }
+  ],
+  "passed": 1,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 1063168,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 780271,
+    "completionTokens": 33533,
+    "cachedTokens": 616960
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 350103,
+      "completionTokens": 4961,
+      "cachedTokens": 259840
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 430168,
+      "completionTokens": 28572,
+      "cachedTokens": 357120
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
