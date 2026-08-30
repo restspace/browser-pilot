@@ -1,0 +1,97 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "379379b"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd35-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd35-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 589573,
+  "orchestrator": {
+    "input": 9235,
+    "cacheWrite": 0,
+    "cacheRead": 37312,
+    "output": 2521
+  },
+  "inner": {
+    "promptTokens": 1768306,
+    "cachedTokens": 1443072,
+    "completionTokens": 19009,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1768306,
+        "completionTokens": 19009,
+        "cachedTokens": 1443072,
+        "instructions": 10
+      }
+    },
+    "skills": {
+      "instructions": 10,
+      "offered": 7,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 83,
+      "compiled": 10,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "do": 10
+  },
+  "invocationCount": 10,
+  "commandMs": 536309,
+  "commandBytes": 8935,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd35-skills",
+    "instructions": 10,
+    "offered": 7,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 83,
+    "compiled": 10,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Z.AI",
+    "Modal"
+  ],
+  "orReportedCostUsd": 0.0337,
+  "maxUsd": 2,
+  "spendUsd": 0.0693,
+  "finalText": "All objectives are complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE.** Ticket created with title `fwrd35-n1 RD Bench Ticket`, Ref **RD-1015**, customer Marlow Bakery, initial status Draft. Only the Title field was required on the New ticket form (Customer was optional).\n\n**Objective 2 — DONE.** Part `fwrd35-n1 RD Part A` added with cost 100, markup 25%, qty 1. Computed price: **$125.00** ($100 × 1.25).\n\n**Objective 3 — DONE.** Part `fwrd35-n1 RD Part B` added with cost 200, markup 25%, qty 1. Computed price: **$250.00** ($200 × 1.25). Ticket total at that point: $375.00.\n\n**Objective 4 — DONE.** Part A's cost edited from 100 to 150 (markup still 25%, qty 1) via the part row's Edit button → \"Edit part\" dialog. Computed price afterwards: **$187.50** ($150 × 1.25). Ticket total became $437.50.\n\n**Objective 5 — DONE.** Ticket ended in status **Ready**. Precondition discovered: **every part on the ticket must have a supplier assigned.** The first attempt at \"Mark Ready\" was blocked by an alert reading verbatim:\n> \"Ticket is not ready\n> Part \"fwrd35-n1 RD Part A\" has no supplier\n> Part \"fwrd35-n1 RD Part B\" has no supplier\"\n\nI satisfied it by editing both parts to set Supplier = \"Bench Supply Co\" (all other values unchanged). \"Mark Ready\" then showed a \"Ready?\" confirmation dialog, which I accepted, and the status displayed as **Ready** (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n**Objective 6 — DONE.** Both parts removed (each via its Delete button, confirming a \"Confirm\" dialog with \"Delete part\"). Parts table then showed \"No parts on this ticket yet.\" with 0 parts. Ticket archived via the \"Archive ticket\" button (no confirmation dialog; button changed to \"Unarchive ticket\"). Verified: RD-1015 does **not** appear in the default active list (13 tickets, RD-1004–RD-1014), and appears only with \"Show archived\" checked, with an \"Archived\" badge, status Ready, parts count 0. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd35-n1-browser-pilot-transcript.jsonl"
+}

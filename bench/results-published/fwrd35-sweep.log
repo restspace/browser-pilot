@@ -1,0 +1,114 @@
+
+[sweep] run 1/3: fwrd35-n1 (store: /home/user/browser-pilot/bench/results/fwrd35-skills)
+[harness] repairdesk: defaulting APP_URL
+[harness] repairdesk: defaulting APP_EMAIL
+[harness] repairdesk: defaulting APP_PASSWORD
+[reset] repairdesk: reloaded seed via http://127.0.0.1:4180/__reset
+[harness] repairdesk responded 200 at http://127.0.0.1:4180/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwrd35-n1 stop=completed
+turns=11 wall=589.6s
+commands=10 cmdTime=536.3s cmdBytes=8935 timeouts=0
+orchestrator in=9235 cw=0 cr=37312 out=2521
+inner prompt=1768306 cached=1443072 completion=19009
+spend=$0.0693 maxUsd=2
+learn: A_n=0 replayed=0/10 full=0 repaired=0 compiled=10 variants=0
+-> /home/user/browser-pilot/bench/results/fwrd35-n1-browser-pilot-result.json
+
+=== fwrd35-n1 === (run self-reported: completed)
+  obj 1  PASS  seq 1: ticket t15 (RD-1015) "fwrd35-n1 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  ok — run reported 125.00, app recorded 125.00
+  claim 3  ok — run reported 250.00, app recorded 250.00
+  claim 4  ok — run reported 187.50, app recorded 187.50
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
+
+[sweep] run 2/3: fwrd35-n2 (replay flow fwrd35, no orchestrator)
+[reset] repairdesk: reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwrd35-n2: 8 drift ticket(s) → fwrd35-n2-drift.json
+
+=== fwrd35-n2 === (run self-reported: no result file)
+  note: no result file in /home/user/browser-pilot/bench/results — objectives are still scored from the log,
+        but the run's claimed prices cannot be cross-checked.
+  obj 1  PASS  seq 1: ticket t15 (RD-1015) "fwrd35-n2 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  no claim parsed from the run's final report
+  claim 3  no claim parsed from the run's final report
+  claim 4  no claim parsed from the run's final report
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
+
+[sweep] run 3/3: fwrd35-n3 (replay flow fwrd35, no orchestrator)
+[reset] repairdesk: reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwrd35-n3: 10 drift ticket(s) → fwrd35-n3-drift.json
+
+=== fwrd35-n3 === (run self-reported: no result file)
+  note: no result file in /home/user/browser-pilot/bench/results — objectives are still scored from the log,
+        but the run's claimed prices cannot be cross-checked.
+  obj 1  PASS  seq 1: ticket t15 (RD-1015) "fwrd35-n3 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  no claim parsed from the run's final report
+  claim 3  no claim parsed from the run's final report
+  claim 4  no claim parsed from the run's final report
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
+
+Learning sweep fwrd35 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬────────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed       │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼────────────────┼────────┤
+│ 0       │ 1 │ 'fwrd35-n1' │ '6/6'    │ 'completed' │ 11    │ 10   │ 0.0693    │ 0   │ '0/10'         │ 590    │
+│ 1       │ 2 │ 'fwrd35-n2' │ '6/6'    │ 'success'   │ 15    │ 10   │ 0.0045    │ 1   │ '10/10 (flow)' │ 156    │
+│ 2       │ 3 │ 'fwrd35-n3' │ '6/6'    │ 'success'   │ 0     │ 10   │ 0         │ 1   │ '10/10 (flow)' │ 42     │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴────────────────┴────────┘
+http://127.0.0.1:4180
+  s_55bb1a  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in with email {{v2}} and password {{v3}}. Then report what the main page shows after logi…
+  s_5afab6  validated    1 steps  5/5 (100%)
+           Open the ticket detail page for ticket {{v1}} (title '{{v2}}'). On that page, add a part named exactly '{{v4}}…
+  s_9c993a  validated    4 steps  5/5 (100%)
+           On the ticket detail page for ticket {{v1}}, archive the ticket using the 'Archive ticket' button, accepting a…
+  s_7d1cc3  validated    3 steps  5/5 (100%)
+           Final verification check. Go to the tickets list at the app's main page (default view, 'Show archived' uncheck…
+  s_df9cea  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with email {{v2}} and password {{v3}}. Then report what the main page shows after logi…
+  s_9f446c  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with email {{v2}} and password {{v3}}. Then report what the main page shows after logi…
+  s_14c9c7  validated   11 steps  3/3 (100%)
+           Create a new repair ticket with the title exactly '{{v2}}'. Open the New ticket form, discover which fields ar…
+  s_023af6  validated   10 steps  3/3 (100%)
+           Open the ticket detail page for ticket {{v1}} (title '{{v2}}'). On that page, add a part named exactly '{{v4}}…
+  s_601ba4  validated   11 steps  3/3 (100%)
+           On the ticket detail page for ticket {{v1}}, add a second part named exactly '{{v3}}' with cost {{v4}} and mar…
+  s_a0f16b  validated   10 steps  3/3 (100%)
+           On the ticket detail page for ticket {{v1}}, edit the part named '{{v2}}' so its cost changes from 100 to {{v4…
+  s_5845cc  validated    3 steps  3/3 (100%)
+           On the ticket detail page for ticket {{v1}}, attempt to change the ticket's status to 'Ready'. The app enforce…
+  s_312e24  validated    8 steps  3/3 (100%)
+           On the ticket detail page for ticket {{v1}}, remove BOTH parts: '{{v2}}' and '{{v4}}'. Use each part row's del…
+  s_3badf9  validated    6 steps  3/3 (100%)
+           On the ticket detail page for ticket {{v1}}, archive the ticket using the 'Archive ticket' button, accepting a…
+  s_f0cf8b  validated    3 steps  3/3 (100%)
+           Final verification check. Go to the tickets list at the app's main page (default view, 'Show archived' uncheck…
+  s_e1db81  validated   19 steps  2/2 (100%)  variant of s_7c5a90
+           On the ticket detail page for ticket {{v1}}, both parts currently show 'No supplier'. Edit each part ('{{v4}}'…
+  s_7c5a90  demoted      9 steps  1/2 (50%)
+           On the ticket detail page for ticket {{v1}}, both parts currently show 'No supplier'. Edit each part ('{{v2}}'…
+store: /home/user/browser-pilot/bench/results/fwrd35-skills
+
+summary: /home/user/browser-pilot/bench/results/fwrd35-sweep.json

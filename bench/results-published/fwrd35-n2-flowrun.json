@@ -1,0 +1,285 @@
+{
+  "flow": "fwrd35",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_9f446c; observed appTitle=Repair Desk, navigationSections=Tickets.",
+      "values": {
+        "appTitle": "Repair Desk",
+        "navigationSections": "Tickets"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_14c9c7; observed requiredFields=TITLE, newTicketRef=RD-1015, newTicketTitle=fwrd35-n2 RD Bench Ticket, newTicketCustomer=Marlow Bakery, newTicketStatus=Draft, totalTickets=Showing 1–10 of 14.",
+      "values": {
+        "requiredFields": "TITLE",
+        "newTicketRef": "RD-1015",
+        "newTicketTitle": "fwrd35-n2 RD Bench Ticket",
+        "newTicketCustomer": "Marlow Bakery",
+        "newTicketStatus": "Draft",
+        "totalTickets": "Showing 1–10 of 14"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_023af6; observed partName=fwrd35-n2 RD Part A, partCost=$100.00, partMarkup=25%, partPrice=$125.00.",
+      "values": {
+        "partName": "fwrd35-n2 RD Part A",
+        "partCost": "$100.00",
+        "partMarkup": "25%",
+        "partPrice": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added part \"fwrd35-n2 RD Part B\" to ticket RD-1015 successfully. The part's details from the parts table: Name=\"fwrd35-n2 RD Part B\", Cost=\"$200.00\", Markup=\"25%\", Qty=\"1\", Supplier=\"No supplier\", Price=\"$250.00\" ($200 cost × 1.25 markup = $250). The ticket's total row shows \"Total (price × quantity) $375.00\", which is the sum of Part A ($125.00) + Part B ($250.00).",
+      "values": {
+        "partName": "fwrd35-n2 RD Part B",
+        "partCost": "$200.00",
+        "partMarkup": "25%",
+        "partPrice": "$250.00",
+        "ticketTotal": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-edit",
+      "status": "success",
+      "summary": "Edited Part A on ticket RD-1015 successfully. The edit UI is triggered by clicking the \"Edit\" button on each part row, which opens an \"Edit part\" dialog pre-filled with the existing values (name, cost, markup, quantity, supplier). I changed Cost from 100 to 150, left Markup at 25% and Qty at 1, and clicked \"Save part\". The parts table now shows: **Part A** — Cost=\"$150.00\", Markup=\"25%\", Qty=\"1\", Price=\"$187.50\" ($150 × 1.25). **Part B** — Cost=\"$200.00\", Markup=\"25%\", Qty=\"1\", Price=\"$250.00\". The ticket's **total is $437.50** ($187.50 + $250.00).",
+      "values": {
+        "newCost": "$150.00",
+        "newPrice": "$187.50",
+        "ticketTotal": "$437.50",
+        "partName": "fwrd35-n2 RD Part A",
+        "markup": "25%",
+        "partBPrice": "$250.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Attempted to change ticket RD-1015 status to \"Ready\" by clicking the \"Mark Ready\" button. The app blocked it with a native alert dialog showing the EXACT error message: **\"Ticket is not ready\\nPart \\\"fwrd35-n1 RD Part A\\\" has no supplier\\nPart \\\"fwrd35-n1 RD Part B\\\" has no supplier\"**. The alert was titled \"Ready?\" on the button itself — clicking it triggers validation before committing. The ticket remains in **Draft** status. The page provides a hint: the Parts table has a \"Supplier\" column showing \"No supplier\" for both parts, and the \"Mark Ready\" button text suggests the app expects each part to have a supplier assigned before the ticket can proceed to \"Ready\" status.",
+      "values": {
+        "ticketStatus": "Draft",
+        "buttonLabel": "Mark Ready"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-edit",
+      "status": "success",
+      "summary": "Edited Part B (\"fwrd35-n2 RD Part B\") to assign supplier \"Bench Supply Co\" by clicking Edit, filling the supplier field, and saving. Both parts now show supplier \"Bench Supply Co\". Then clicked \"Mark Ready\" and accepted the confirmation dialog. The ticket status changed to \"Ready\". Part A: cost $150.00, markup 25%, qty 1, price $187.50, supplier \"Bench Supply Co\". Part B: cost $200.00, markup 25%, qty 1, price $250.00, supplier \"Bench Supply Co\". Ticket total: $437.50. Status: Ready.",
+      "values": {
+        "partASupplier": "Bench Supply Co",
+        "partB": "fwrd35-n2 RD Part B",
+        "partBSupplier": "Bench Supply Co",
+        "partBPrice": "$250.00",
+        "partAPrice": "$187.50",
+        "ticketTotal": "$437.50",
+        "ticketStatus": "Ready",
+        "ticketRef": "RD-1015",
+        "ticketTitle": "fwrd35-n2 RD Bench Ticket"
+      },
+      "tier": "A",
+      "replayed": "2/9",
+      "repaired": false,
+      "turns": 15
+    },
+    {
+      "id": "08-remove",
+      "status": "success",
+      "summary": "Replayed stored procedure s_312e24; observed partsTableStatus=No parts on this ticket yet., ticketStatus=Ready.",
+      "values": {
+        "partsTableStatus": "No parts on this ticket yet.",
+        "ticketStatus": "Ready"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "09-archive",
+      "status": "success",
+      "summary": "Archived ticket RD-10Showing 1–10 of 15 successfully. Clicking \"Archive ticket\" on the detail page did NOT show any confirmation dialog — the button immediately changed to \"Unarchive ticket\". On the ticket list with \"Show archived\" unchecked, RD-10Showing 1–10 of 15 does NOT appear (confirmed by count of 0). With \"Show archived\" checked, RD-10Showing 1–10 of 15 appears in the table showing: Ref=\"RD-10Showing 1–10 of 15\", Title=\"fwrd35-n2 RD Bench Ticket Archived\" with an **\"Archived\" badge** displayed next to the title, Customer=\"Marlow Bakery\", Status=\"Ready\", Parts=\"0\", Created=\"2026-08-30\". The page shows Showing 1–10 of 15 total tickets (was 14 before archiving, confirming the archived ticket is counted).",
+      "values": {
+        "archivedRef": "RD-1015",
+        "archivedCustomer": "Marlow Bakery",
+        "archivedCreated": "2026-08-30",
+        "archivedTitle": "fwrd35-n2 RD Bench Ticket Archived",
+        "archivedStatus": "Ready",
+        "totalTicketsWithArchived": "Showing 1–10 of 15"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "10-open",
+      "status": "success",
+      "summary": "Final verification passed. With \"Show archived\" unchecked, the tickets list shows 13 tickets (RD-1004 to RD-1014) — RD-1015 \"fwrd35-n2 RD Bench Ticket\" does NOT appear. With \"Show archived\" checked, RD-1015 appears in the list with an \"Archived\" badge. On the ticket detail page: Title=\"fwrd35-n2 RD Bench Ticket\", Status=\"Ready\", an **\"Archived\"** badge is displayed next to the status line, Parts table shows **\"No parts on this ticket yet.\"** (0 parts, no part rows). The ticket is correctly archived and empty.",
+      "values": {
+        "detailTitle": "fwrd35-n2 RD Bench Ticket",
+        "detailStatus": "Ready",
+        "detailPartsTableContents": "No parts on this ticket yet."
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "repinned": 0,
+  "drift": 8,
+  "driftTickets": [
+    {
+      "flow": "fwrd35",
+      "step": "02-create",
+      "skill": "s_14c9c7",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('\"fwrd35-n2 RD Bench Ticket\"')",
+      "fallbackUsed": "page.locator('#ticket-rows tr', { hasText: 'fwrd35-n2 RD Bench Ticket' }).locator('td:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "03-open",
+      "skill": "s_5afab6",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1.004,
+      "missedLocator": "page.locator('\"RD-1015\"')",
+      "fallbackUsed": "page.locator('#ticket-rows tr', { hasText: 'fwrd35-n2 RD Bench Ticket' }).locator('td:nth-of-type(1) > a')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "03-open",
+      "skill": "s_023af6",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1.004,
+      "missedLocator": "page.locator('\"fwrd35-n2 RD Part A\"')",
+      "fallbackUsed": "page.locator('tr', { hasText: 'fwrd35-n2 RD Part A' }).locator('td:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "04-add",
+      "skill": "s_601ba4",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('\"fwrd35-n2 RD Part B\"')",
+      "fallbackUsed": "page.locator('tr', { hasText: 'fwrd35-n2 RD Part B' }).locator('td:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "05-edit",
+      "skill": "s_a0f16b",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1.002,
+      "missedLocator": "page.locator('\"$150.00\"')",
+      "fallbackUsed": "page.locator('tr', { hasText: 'fwrd35-n2 RD Part A' }).locator('td:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "07-edit",
+      "skill": "s_7c5a90",
+      "similarity": 0.998,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_7c5a90 stopped at step 3 — step 3 raised an alert the recording never saw: Ticket is not ready Part \"fwrd35-n2 RD Part B\" has no supplier",
+      "reason": "step 3 raised an alert the recording never saw: Ticket is not ready Part \"fwrd35-n2 RD Part B\" has no supplier",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "09-archive",
+      "skill": "s_9c993a",
+      "atStep": "3",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('\"RD-1015\"')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    },
+    {
+      "flow": "fwrd35",
+      "step": "10-open",
+      "skill": "s_7d1cc3",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('\"RD-1015\"')",
+      "fallbackUsed": "page.locator('#ticket-rows tr', { hasText: 'fwrd35-n2 RD Bench Ticket Archived' }).locator('td:nth-of-type(1) > a')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 156006,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 177561,
+    "completionTokens": 3256,
+    "cachedTokens": 126208
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 177561,
+      "completionTokens": 3256,
+      "cachedTokens": 126208
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
