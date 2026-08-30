@@ -63,24 +63,38 @@ already calls *demonstrated volatility* — applied to values.
 1. **Record.** Run 1 makes no kind judgement. Every reported value becomes a
    reference. That is the safe default: an unresolved reference sends its step
    to recovery, which is correct, merely not free.
-2. **First replay.** When a reference cannot be resolved because the producer
-   did not republish it, ask the page one question: *is the recorded literal
-   still there?*
-   - **Present** → the app puts it there every run. Demonstrated **stable**;
-     rewrite the reference back to the literal.
-   - **Absent** → this run has something different in its place. Demonstrated
-     **volatile**; keep the reference.
+2. **First replay.** After a step runs, compare **what it reported for each
+   output** against what the recording run reported for the same output name.
+   - **Same** → the app produced this again. Demonstrated **stable**; the
+     recorded literal resolves from now on.
+   - **Different** → this run has its own value there. Demonstrated
+     **volatile**; the reference stays.
 3. **Persist** the verdict on the flow step, the same way a retired candidate
    and a generalised url pattern are persisted today.
 
+A first draft of this searched the PAGE for the recorded literal, and the
+worked example below was written against that. It does not survive contact
+with the case: `"New (unsaved)"` is prose the MODEL composed — Odoo's
+breadcrumb says `"New"` — so a page search finds nothing and calls it volatile,
+the wrong answer. Comparing the two runs' reports for the same output name
+needs no page search, no string matching, and no view about how a value is
+worded; it asks the app the question directly.
+
 Against the two values that motivated the plan:
 
-| value | on replay n2's page | verdict | outcome |
+| value | what run 2's own report says | verdict | outcome |
 | --- | --- | --- | --- |
-| `"New (unsaved)"` | present — Odoo shows "New" for *this* run's unsaved record too | stable | literal, step reaches tier A |
-| `"S00021"` | absent — this run's order is S00023 | volatile | reference kept, stays on its own record |
+| `"New (unsaved)"` | `"New (unsaved)"` — the same, for ITS unsaved record | stable | literal, step reaches tier A |
+| `"S00021"` | `"S00023"` — this run's own order | volatile | reference kept, stays on its own record |
 
 Both correct, neither derived from the characters in the string.
+
+Two asymmetries fall out and both are deliberate. **Silence is not agreement**:
+a tier-A replay that honestly drops a value it could not re-observe votes
+neither way. And **one demonstration of difference is a permanent veto**: a
+value that changed once names a record, and no amount of later agreement makes
+it safe to inline — an app reset could make run 3 agree with run 1 by
+coincidence.
 
 The cost curve is the one this project already has — run 1 pays recovery, run 2
 measures, run 3 is cheap; the same 8→4→0 convergence the flows already show —
