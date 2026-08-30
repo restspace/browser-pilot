@@ -1,0 +1,88 @@
+{
+  "rejected": "1 value(s) this run made survived into a locator, where they would silently move a step onto another record:\n  s_3630a4.steps[0].args.url: \"123\" (url) in \"http://127.0.0.{{d1}}:8069/web#action=123&cids=1&menu_id=81\"",
+  "flow": {
+    "name": "fwod19",
+    "origin": "http://127.0.0.1:8069",
+    "startUrl": "http://127.0.0.1:8069/",
+    "vars": [
+      "runid"
+    ],
+    "steps": [
+      {
+        "id": "01-open",
+        "instruction": "Open http://127.0.0.1:8069/ and sign in with username 'admin' and password 'admin'. Then create a new customer (contact) named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (use the Sales app's Customers menu or the Contacts app, whichever is available). Save it and verify the record is saved by reopening it and confirming both the name and City values. Report the name and city you see on the saved record. Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_9bad82",
+        "params": {
+          "v2": "http://127.0.0.1:8069/",
+          "v3": "{{runid}} Bench Customer",
+          "v4": "Benchville"
+        },
+        "outputs": [],
+        "recorded": {}
+      },
+      {
+        "id": "02-create",
+        "instruction": "In Odoo at http://127.0.0.1:8069/ (already signed in as admin), go to Sales > Orders > Quotations and create a new quotation for the customer '{{runid}} Bench Customer' (must be selected from the autocomplete dropdown, not just typed). Add exactly ONE order line: pick any product from the product catalogue via the product autocomplete dropdown, and set the quantity to 3. Let the app fill in the unit price automatically. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app filled in on that line, and (c) the Untaxed Amount shown in the totals section. Also report the quotation's reference/name (e.g. S00042). Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_00f67c",
+        "params": {
+          "v2": "{{runid}} Bench Customer"
+        },
+        "outputs": [],
+        "recorded": {}
+      },
+      {
+        "id": "03-open",
+        "instruction": "In Odoo at http://127.0.0.1:8069/ (already signed in as admin), open the existing quotation S00021 for customer '{{runid}} Bench Customer' (Sales > Orders > Quotations). It currently has one order line: product '[FURN_6741] Large Meeting Table', quantity 3, unit price 4,000.00, Untaxed Amount 12,000.00. Add a SECOND order line with a DIFFERENT product (choose any other product from the catalogue via the product autocomplete dropdown) and set its quantity to 2. Let the app fill in the unit price automatically. Save the quotation. Then report: (a) the product name of the new second line, (b) its unit price, and (c) the new Untaxed Amount shown in the totals section. Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_f7ece8",
+        "params": {
+          "v1": "{{runid}}"
+        },
+        "outputs": [],
+        "recorded": {}
+      },
+      {
+        "id": "04-open",
+        "instruction": "In Odoo at http://127.0.0.1:8069/ (already signed in as admin), open the existing quotation S00021 (Sales > Orders > Quotations). It has two order lines: line 1 = product '[FURN_6741] Large Meeting Table' quantity 3 unit price 4,000.00; line 2 = product '[FURN_7777] Office Chair' quantity 2 unit price 70.00; Untaxed Amount currently 12,140.00. Change ONLY the first line's quantity from 3 to 5 (leave the second line untouched). Save the quotation. Then report the new Untaxed Amount shown in the totals section, and confirm the first line now shows quantity 5. Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_aae11e",
+        "params": {},
+        "outputs": [],
+        "recorded": {}
+      },
+      {
+        "id": "05-open",
+        "instruction": "In Odoo at http://127.0.0.1:8069/ (already signed in as admin), open the existing quotation S00021 (Sales > Orders > Quotations) and confirm it so it becomes a sales order (use the Confirm button / Confirm Order action; accept any confirmation dialog if one appears). After confirming, report: (a) the order reference/name shown (e.g. S00021), and (b) the status the app now shows for the order (e.g. 'Sales Order' in the status bar / breadcrumb). Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_e59099",
+        "params": {},
+        "outputs": [],
+        "recorded": {}
+      },
+      {
+        "id": "06-open",
+        "instruction": "In Odoo at http://127.0.0.1:8069/ (already signed in as admin), open the sales order S00021 (Sales > Orders > Orders, or Sales > Orders > Quotations if it still appears there) and cancel it using the Cancel button (accept/confirm any confirmation dialog that appears, e.g. a 'Cancel' or 'OK' button in a modal). After cancelling, report the status the app now shows for the order (e.g. 'Cancelled' in the status bar). Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_4291dd",
+        "params": {},
+        "outputs": [],
+        "recorded": {}
+      },
+      {
+        "id": "07-report",
+        "instruction": "In Odoo at http://127.0.0.1:8069/ (already signed in as admin), do a read-only verification of two things and report them: (1) Open the customer record '{{runid}} Bench Customer' (Sales > Orders > Customers, search for it, open it) and report the Name and City shown on the form. (2) Open the sales order S00021 (Sales > Orders > Orders) and report its reference/name and the status shown in the status bar. Do not modify anything - this is read-only verification. Do not wait for network idle - the app long-polls; wait for concrete page state instead.",
+        "skill": "s_b13b6a",
+        "params": {
+          "v1": "{{runid}}"
+        },
+        "outputs": [
+          "ref"
+        ],
+        "recorded": {
+          "ref": "S00021"
+        }
+      }
+    ],
+    "provenance": {
+      "session": "fwod19-n1",
+      "created": "2026-08-30T09:04:56.556Z",
+      "model": "deepseek/deepseek-v4-flash"
+    }
+  }
+}
