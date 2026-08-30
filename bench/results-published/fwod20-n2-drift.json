@@ -1,0 +1,71 @@
+[
+  {
+    "flow": "fwod20",
+    "step": "01-open",
+    "skill": "s_c6bea2",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Activate' })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+  },
+  {
+    "flow": "fwod20",
+    "step": "03-open",
+    "skill": "s_5c34b8",
+    "similarity": 1.002,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 02-verify.product_name, 02-verify.quotation_reference, 02-verify.product_name",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod20",
+    "step": "04-open",
+    "skill": "s_7d5e51",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product, 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod20",
+    "step": "05-open",
+    "skill": "s_e2fc2d",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product, 02-verify.quotation_reference, 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod20",
+    "step": "06-open",
+    "skill": "s_20f8c4",
+    "similarity": 0.976,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 05-open.order_status, 05-open.order_status, 05-open.order_status, 05-open.order_status",
+    "reason": "step 1 raised an alert the recording never saw: Are you sure you want to cancel this order?",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod20",
+    "step": "07-open",
+    "skill": "s_be7ea5",
+    "similarity": 0.985,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_be7ea5 stopped at step 1 — after step 1 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form but browser is at http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+    "reason": "after step 1 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form but browser is at http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+  }
+]

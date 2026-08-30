@@ -1,0 +1,172 @@
+{
+  "flow": "fwod20",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin, opened the Contacts app, searched first to confirm no existing record (search returned empty), then created a new contact named \"fwod20-n2 Bench Customer\" with City set to \"Benchville\" (all other fields left default) and saved it. The saved record (id=45) was verified in read mode: the H1 heading and Name field both show \"fwod20-n2 Bench Customer\", the City field shows \"Benchville\", Company Type is \"Company\" (default), and a system notification confirms \"Contact created\" by Mitchell Admin. A screenshot was captured as evidence.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/4",
+      "repaired": false,
+      "turns": 45
+    },
+    {
+      "id": "02-verify",
+      "status": "success",
+      "summary": "The sale order form was unsaved (title \"New\") with the customer field empty and the product line uncommitted (unit price £0.00). I set the customer to \"fwod20-n2 Bench Customer\" via the combobox, committed the product \"Customizable Desk\" (confirming the default variant configuration dialog), leaving quantity at 3.00, then saved. The saved record is quotation S00022 (id=22), still in draft \"Quotation\" status (not confirmed). Verified from the saved form: customer \"fwod20-n2 Bench Customer\" (Benchville), one order line with product \"Customizable Desk\" [FURN_0096] (Steel, White variant), quantity 3.00, unit price 750.00, tax 20%, line total £2,250.00, and Untaxed Amount £2,250.00 (Total £2,700.00). Screenshot captured as evidence.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 47
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line to the draft quotation S00022 (customer 'fwod20-n2 Bench Customer'). Chose 'Conference Chair' [E-COM12] from the product catalogue autocomplete dropdown, set quantity to 2, left the existing first line (Customizable Desk, qty 3) unchanged, and saved. Verified from the saved page: (a) second line product name = \"Conference Chair\", (b) unit price = 33.00, (c) Untaxed Amount = £ 2,316.00 (£2,250.00 from first line + £66.00 from second line). Screenshot captured.",
+      "values": {},
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first order line's quantity from 3 to 5 (Customizable Desk, unit price £750.00). Second line (Conference Chair, qty 2, £33.00) left unchanged. Saved the draft quotation S00022. Verified from the saved form: first line quantity = 5.00 ✓, Untaxed Amount = £3,816.00 (computed as 5×750 + 2×33 = 3,750 + 66 = 3,816).",
+      "values": {},
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed the draft quotation S00022 (customer fwod20-n2 Bench Customer, two lines: Customizable Desk qty 5, Conference Chair qty 2) using the Confirm action. After confirmation: (a) the order reference/name shown is S00022 (unchanged), and (b) the status bar now shows \"Sales Order\" as the active (checked/disabled) status. The order is no longer a draft quotation.",
+      "values": {},
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Handled two stacked dialogs. (1) Closed the Edit: fwod20-n2 Bench Customer dialog by clicking Discard (no changes saved). Verified the dialog disappeared. (2) Clicked 'Cancel' on the Cancel Sales Order dialog (the Cancel button, not Send and cancel) to cancel the order without sending email. Dialog closed. (3) The sales order's status bar now shows 'Cancelled' as the checked/active status, with Sales Order, Quotation Sent, and Quotation as disabled options. Order S00022 is now cancelled.",
+      "values": {},
+      "tier": "B",
+      "replayed": "0/4",
+      "repaired": true,
+      "turns": 16
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Opened the Contacts app and found the record for fwod20-n2 Bench Customer (already shown on page). The saved record displays: Name = \"fwod20-n2 Bench Customer\" (in the H1 heading and the Name field), City = \"Benchville\". Company Type is \"Company\" (default). No changes were made to the record.",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/10",
+      "repaired": false,
+      "turns": 3
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwod20",
+      "step": "01-open",
+      "skill": "s_c6bea2",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Activate' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    },
+    {
+      "flow": "fwod20",
+      "step": "03-open",
+      "skill": "s_5c34b8",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 02-verify.product_name, 02-verify.quotation_reference, 02-verify.product_name",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "04-open",
+      "skill": "s_7d5e51",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product, 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "05-open",
+      "skill": "s_e2fc2d",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product, 02-verify.quotation_reference, 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "06-open",
+      "skill": "s_20f8c4",
+      "similarity": 0.976,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 05-open.order_status, 05-open.order_status, 05-open.order_status, 05-open.order_status",
+      "reason": "step 1 raised an alert the recording never saw: Are you sure you want to cancel this order?",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "07-open",
+      "skill": "s_be7ea5",
+      "similarity": 0.985,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_be7ea5 stopped at step 1 — after step 1 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form but browser is at http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+      "reason": "after step 1 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form but browser is at http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 667143,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2032516,
+    "completionTokens": 23534,
+    "cachedTokens": 1745920
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1602703,
+      "completionTokens": 18735,
+      "cachedTokens": 1379328
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 429813,
+      "completionTokens": 4799,
+      "cachedTokens": 366592
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

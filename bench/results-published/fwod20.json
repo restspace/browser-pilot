@@ -1,0 +1,145 @@
+{
+  "name": "fwod20",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in the Contacts app, create a new customer (individual/company contact) named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (leave other fields default), save it, and verify the saved record shows that name and City. Report what you see on the saved record.",
+      "skill": "s_b0ee8e",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "Contacts",
+        "v4": "{{runid}} Bench Customer",
+        "v5": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-verify",
+      "instruction": "You are on an Odoo sale order form (possibly a draft quotation for customer '{{runid}} Bench Customer' with one line for product 'Customizable Desk', quantity 3). First verify the current state of the page: if the record is still unsaved (title shows 'New'), save it. Then read and report from the saved form: (a) the quotation reference/name (e.g. S00042), (b) the customer shown, (c) the product name on the first order line, (d) the quantity on that line, (e) the unit price on that line, and (f) the Untaxed Amount shown in the totals. If the customer or product is missing or wrong, fix it so the form has customer '{{runid}} Bench Customer' and exactly one line: product 'Customizable Desk' (or any catalogue product) with quantity 3, then save and report. Do not confirm the quotation. Do not add extra lines.",
+      "skill": "s_b2d60c",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "quotation_reference",
+        "customer",
+        "product_name",
+        "quantity",
+        "unit_price",
+        "untaxed_amount",
+        "tax_20%",
+        "total"
+      ],
+      "recorded": {
+        "quotation_reference": "S00021",
+        "customer": "fwod20-n1 Bench Customer",
+        "product_name": "Customizable Desk",
+        "quantity": "3.00",
+        "unit_price": "£750.00",
+        "untaxed_amount": "£2,250.00",
+        "tax_20%": "£450.00",
+        "total": "£2,700.00"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "On the currently open Odoo draft quotation {{02-verify.quotation_reference}} (customer '{{runid}} Bench Customer'), add a SECOND order line: pick a DIFFERENT product from the product catalogue via the product dropdown (must be an actual option chosen from the autocomplete dropdown, not just typed — do not use '{{02-verify.product_name}}'), and set its quantity to 2. Keep the existing first line ({{02-verify.product_name}}, qty 3) unchanged. Save the quotation (do NOT confirm it). Then report: (a) the product name you chose for the second line, (b) its unit price, and (c) the new Untaxed Amount shown in the totals after saving. Read the values from the saved page.",
+      "skill": "s_5c34b8",
+      "params": {
+        "v1": "{{02-verify.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-verify.product_name}}"
+      },
+      "outputs": [
+        "second_line_product",
+        "second_line_unit_price",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "second_line_product": "Conference Chair",
+        "second_line_unit_price": "£33.00",
+        "untaxed_amount": "£2,316.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "On the currently open Odoo draft quotation {{02-verify.quotation_reference}} (customer '{{runid}} Bench Customer'), change the FIRST order line's quantity from 3 to 5 (the line for product '{{02-verify.product_name}}'). Leave the second line ({{03-open.second_line_product}}, qty 2) unchanged. Save the quotation (do NOT confirm it). Then report the Untaxed Amount shown in the totals after saving, and also confirm the first line now shows quantity 5. Read the values from the saved page.",
+      "skill": "s_7d5e51",
+      "params": {
+        "v1": "{{02-verify.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-verify.product_name}}",
+        "v5": "{{03-open.second_line_product}}"
+      },
+      "outputs": [
+        "first_line_quantity",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "first_line_quantity": "5.00",
+        "untaxed_amount": "£3,816.00"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "On the currently open Odoo draft quotation {{02-verify.quotation_reference}} (customer '{{runid}} Bench Customer', two lines: {{02-verify.product_name}} qty 5, {{03-open.second_line_product}} qty 2), confirm the quotation so it becomes a sales order (use the Confirm button / Confirm Sale action). After confirmation, report: (a) the order reference/name shown (e.g. {{02-verify.quotation_reference}}), and (b) the status the app now shows for the order (e.g. 'Sales Order' in the status bar / breadcrumb). Read these from the page after confirming.",
+      "skill": "s_e2fc2d",
+      "params": {
+        "v1": "{{02-verify.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-verify.product_name}}",
+        "v5": "{{03-open.second_line_product}}"
+      },
+      "outputs": [
+        "order_reference",
+        "order_status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "order_status": "Sales Order"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "There are TWO stacked Odoo modal dialogs open. The TOP one (active) is an 'Edit: {{runid}} Bench Customer' contact edit dialog that was opened accidentally from an autocomplete 'Create and edit...' option. Below it is a 'Cancel {{05-open.order_status}}' dialog. Do this: (1) Take a fresh snapshot of the TOP/active dialog (the Edit contact one) and click its 'Discard' button (or 'X'/Close) to close it WITHOUT saving any changes. (2) Verify it is gone. (3) Then take a fresh snapshot of the remaining 'Cancel {{05-open.order_status}}' dialog and click its 'Cancel' footer button (the one that cancels the order without sending email). (4) Wait for that dialog to become hidden (do not wait for network idle). (5) Report the status shown in the sales order's status bar (the radiogroup with options like {{05-open.order_status}} / Quotation Sent / Quotation / Cancelled). If the Cancel button does nothing because Recipients is required, report that clearly.",
+      "skill": "s_20f8c4",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "{{05-open.order_status}}"
+      },
+      "outputs": [
+        "order_status"
+      ],
+      "recorded": {
+        "order_status": "Cancelled"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "In Odoo, open the Contacts app and find the contact named '{{runid}} Bench Customer'. Open its record and report the Name and the City field values shown on the saved record. Do not modify anything.",
+      "skill": "s_6ee02e",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "customer_name",
+        "city"
+      ],
+      "recorded": {
+        "customer_name": "fwod20-n1 Bench Customer",
+        "city": "Benchville"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod20-n1",
+    "created": "2026-08-30T10:28:28.652Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

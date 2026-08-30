@@ -1,0 +1,190 @@
+{
+  "flow": "fwod20",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin at http://127.0.0.1:8069/, navigated to the Contacts app, searched first to confirm no existing 'fwod20-n3 Bench Customer' record (search returned the empty state, so no duplicate was created), then created a new contact with Name 'fwod20-n3 Bench Customer' and City 'Benchville' (all other fields left default, Company Type = Company) and saved it. The saved record (id=46) shows the heading and Name field 'fwod20-n3 Bench Customer', City 'Benchville', a \"Contact created\" system notification, and the browser title \"Odoo - fwod20-n3 Bench Customer\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/4",
+      "repaired": false,
+      "turns": 49
+    },
+    {
+      "id": "02-verify",
+      "status": "success",
+      "summary": "The quotation form was still unsaved (title 'New') with customer 'fwod20-n3 Bench Customer' and one line for 'Customizable Desk' at quantity 1.00. I set the quantity to 3 and saved. The saved record S00023 (id=23) shows: customer 'fwod20-n3 Bench Customer'; one order line with product 'Customizable Desk' [FURN_0096], quantity 3.00, unit price 750.00, tax 20%, tax-excl. £ 2,250.00; and Untaxed Amount £ 2,250.00 (TAX 20% £ 450.00, Total £ 2,700.00). Status remains 'Quotation' — not confirmed, and no extra lines were added.",
+      "values": {},
+      "tier": "A",
+      "replayed": "10/12",
+      "repaired": false,
+      "turns": 35
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line to draft quotation S00023 (customer 'fwod20-n3 Bench Customer'). The new line is product 'Conference Chair' [E-COM12] at quantity 2.00, unit price £ 33.00. The first line (Customizable Desk, qty 3) was kept unchanged. After saving, the Untaxed Amount is £ 2,316.00 (2,250 + 66). Quotation status remains 'Quotation' — not confirmed.",
+      "values": {
+        "td_nth_child_7_o_field_m": "2.00",
+        "td_nth_child_7_o_field_m_2": "33.00"
+      },
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 5
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first order line's quantity from 3 to 5 (product Customizable Desk) on draft quotation S00023. The second line (Conference Chair, qty 2) was left unchanged. After saving: first line quantity confirmed as 5.00, and the Untaxed Amount is £ 3,816.00 (5 × £750 + 2 × £33 = £3,750 + £66). Quotation remains unconfirmed.",
+      "values": {},
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed the draft quotation S00023 for customer 'fwod20-n3 Bench Customer' (2 lines: Customizable Desk qty 5, Conference Chair qty 2). After confirmation: the order reference remains S00023, and the status bar now shows 'Sales Order' (checked, disabled) — the quotation has been converted to a confirmed sales order.",
+      "values": {},
+      "tier": "B",
+      "replayed": "0/2",
+      "repaired": true,
+      "turns": 5
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Closed the 'Edit: fwod20-n3 Bench Customer' dialog by Discarding it (no changes saved). Then clicked Cancel on the Cancel dialog, which showed a confirmation alert \"Are you sure you want to cancel this order?\" which was accepted. The sales order S00023 is now cancelled — the Statusbar radiogroup shows Cancelled (checked/disabled), with Sales Order and Quotation options disabled. No Recipients issue occurred.",
+      "values": {},
+      "tier": "B",
+      "replayed": "3/6",
+      "repaired": true,
+      "turns": 8
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Opened the Contacts app and found the record for fwod20-n3 Bench Customer (already shown on page). The saved record displays: Name = \"fwod20-n3 Bench Customer\" (in the H1 heading and the Name field), City = \"Benchville\". Company Type is \"Company\" (default). No changes were made to the record.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_6ee02e"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 7,
+  "driftTickets": [
+    {
+      "flow": "fwod20",
+      "step": "01-open",
+      "skill": "s_c6bea2",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Activate' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    },
+    {
+      "flow": "fwod20",
+      "step": "02-verify",
+      "skill": "s_96b52d",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_96b52d stopped at step 11 — after step 11 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+      "reason": "after step 11 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod20",
+      "step": "03-open",
+      "skill": "s_5c34b8",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 02-verify.product_name, 02-verify.quotation_reference, 02-verify.product_name",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "04-open",
+      "skill": "s_7d5e51",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product, 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "05-open",
+      "skill": "s_e2fc2d",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product, 02-verify.quotation_reference, 02-verify.quotation_reference, 02-verify.product_name, 03-open.second_line_product",
+      "reason": "after step 1 the page did not show \"- link \\\"fwod20-n3 Bench Customer Benchville\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "06-open",
+      "skill": "s_2f278a",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('heading:text(\"Edit: fwod20-n3 Bench Customer\")')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod20",
+      "step": "07-open",
+      "skill": "s_6ee02e",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('link', { name: 'fwod20-n3 Bench Customer Benchville' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 990166,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1624921,
+    "completionTokens": 16735,
+    "cachedTokens": 1343232
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1341221,
+      "completionTokens": 13470,
+      "cachedTokens": 1137920
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 283700,
+      "completionTokens": 3265,
+      "cachedTokens": 205312
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

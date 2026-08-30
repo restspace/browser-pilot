@@ -1,0 +1,105 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "6786193"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod20-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 20,
+  "wallMs": 3218018,
+  "orchestrator": {
+    "input": 35540,
+    "cacheWrite": 0,
+    "cacheRead": 165248,
+    "output": 15570
+  },
+  "inner": {
+    "promptTokens": 9589202,
+    "cachedTokens": 8376256,
+    "completionTokens": 45332,
+    "instructions": 16,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 7458466,
+        "completionTokens": 32149,
+        "cachedTokens": 6448128,
+        "instructions": 11
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 2130736,
+        "completionTokens": 13183,
+        "cachedTokens": 1928128,
+        "instructions": 5
+      }
+    },
+    "skills": {
+      "instructions": 11,
+      "offered": 8,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 131,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 19,
+  "subcommands": {
+    "do": 11,
+    "peek": 8
+  },
+  "invocationCount": 19,
+  "commandMs": 2987935,
+  "commandBytes": 35051,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod20-skills",
+    "instructions": 11,
+    "offered": 8,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 131,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Io Net",
+    "DeepInfra",
+    "AkashML"
+  ],
+  "orReportedCostUsd": 0.1555,
+  "maxUsd": 2,
+  "spendUsd": 1.1333,
+  "finalText": "All objectives are complete and verified. Here is my final report:\n\n---\n\n**Objective 1 — DONE**: Customer `fwod20-n1 Bench Customer` created (record id 44) with City set to `Benchville`. Verified on the saved record: Name \"fwod20-n1 Bench Customer\", City \"Benchville\". Re-verified at the end of the run — the customer link on the order still reads \"fwod20-n1 Bench Customer Benchville\" (an accidental edit dialog that was opened mid-run was discarded without saving, so the record was untouched).\n\n**Objective 2 — DONE**: Quotation `S00021` created for that customer with one order line:\n- Product chosen: **Customizable Desk**\n- Unit price the app filled in: **£750.00**\n- Untaxed amount: **£2,250.00** (3 × £750.00; tax 20% £450.00, total £2,700.00)\n\n**Objective 3 — DONE**: Second order line added:\n- Product: **Conference Chair** (unit price £33.00, qty 2)\n- New untaxed amount: **£3,816.00** (£2,250.00 + £66.00; tax £463.20, total £2,779.20)\n\n**Objective 4 — DONE**: First line quantity changed from 3 to 5 (verified as 5.00 on the saved form):\n- Untaxed amount afterwards: **£3,816.00** (5 × £750.00 = £3,750.00 + £66.00; tax £763.20, total £4,579.20)\n\n**Objective 5 — DONE**: Quotation confirmed. Order reference: **S00021**. Status shown: **\"Sales Order\"** (checked in the status bar, with Quotation Sent and Quotation disabled).\n\n**Objective 6 — DONE**: Sales order cancelled. Status shown afterwards: **\"Cancelled\"** (checked in the status bar; Sales Order / Quotation Sent / Quotation all disabled, and a \"Set to Quotation\" button appeared). Note: cancelling required filling the wizard's required Recipients field (set to \"YourCompany, Mitchell Admin <«redacted»@yourcompany.example.com>\") before the \"Send and cancel\" button would close the dialog. An \"Odoo Client Error\" notification appeared on the page after the cancel action, but the cancellation itself was processed and the status bar confirms Cancelled.\n\n**Notes on the run**: The Contacts and Sales apps had to be installed first. Two intermediate instructions hit turn/time caps and were resumed with follow-up instructions; in one case a stray \"Edit contact\" dialog got stacked on top of the cancel dialog, which I cleared by discarding it before completing the cancellation.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod20-n1-browser-pilot-transcript.jsonl"
+}

@@ -1,0 +1,133 @@
+
+[sweep] run 1/3: fwod20-n1 (store: /home/user/browser-pilot/bench/results/fwod20-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[harness] odoo: no rollback — writes are runid-scoped, verified by name over JSON-RPC
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod20-n1 stop=completed
+turns=20 wall=3218.0s
+commands=19 cmdTime=2987.9s cmdBytes=35051 timeouts=0
+orchestrator in=35540 cw=0 cr=165248 out=15570
+inner prompt=9589202 cached=8376256 completion=45332
+spend=$1.1333 maxUsd=2
+learn: A_n=0 replayed=0/11 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwod20-n1-browser-pilot-result.json
+
+fwod20-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod20-n2 (replay flow fwod20, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwod20-n2: 6 drift ticket(s) → fwod20-n2-drift.json
+
+fwod20-n2: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00022
+
+[sweep] run 3/3: fwod20-n3 (replay flow fwod20, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwod20-n3: 7 drift ticket(s) → fwod20-n3-drift.json
+
+fwod20-n3: objectives passed 5/6
+  obj 1: FAIL — city=false
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod20 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod20-n1' │ '6/6'    │ 'completed' │ 20    │ 19   │ 1.1333    │ 0   │ '0/11'       │ 3218   │
+│ 1       │ 2 │ 'fwod20-n2' │ '6/6'    │ 'success'   │ 123   │ 7    │ 0.2342    │ 1   │ '7/7 (flow)' │ 667    │
+│ 2       │ 3 │ 'fwod20-n3' │ '5/6'    │ 'success'   │ 105   │ 7    │ 0.2025    │ 1   │ '7/7 (flow)' │ 990    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_b0ee8e  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_b51747  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_3c9b3c  validated    1 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_9dddc9  validated   10 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_1a15df  validated    1 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_c6bea2  demoted      4 steps  1/3 (33%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_5c34b8  validated   10 steps  3/3 (100%)
+           On the currently open Odoo draft quotation {{v1}} (customer '{{v2}}'), add a SECOND order line: pick a DIFFERE…
+  s_7d5e51  validated    5 steps  3/3 (100%)
+           On the currently open Odoo draft quotation {{v1}} (customer '{{v2}}'), change the FIRST order line's quantity …
+  s_e2fc2d  validated    2 steps  2/3 (67%)
+           On the currently open Odoo draft quotation {{v1}} (customer '{{v2}}', two lines: {{v4}} qty 5, {{v5}} qty 2), …
+  s_20f8c4  provisional  4 steps  1/2 (50%)
+           There are TWO stacked Odoo modal dialogs open. The TOP one (active) is an 'Edit: {{v1}}' contact edit dialog t…
+  s_96b52d  provisional 12 steps  1/2 (50%)
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_2f278a  provisional  6 steps  1/2 (50%)  variant of s_20f8c4
+           There are TWO stacked Odoo modal dialogs open. The TOP one (active) is an 'Edit: {{v1}} Bench Customer' contac…
+  s_6ee02e  validated    1 steps  2/2 (100%)  variant of s_be7ea5
+           In Odoo, open the Contacts app and find the contact named '{{v1}} Bench Customer'. Open its record and report …
+  s_be7ea5  demoted     10 steps  1/2 (50%)
+           In Odoo, open the Contacts app and find the contact named '{{v1}}'. Open its record and report the Name and th…
+  s_7bb2e7  provisional  2 steps  1/1 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_598217  provisional  3 steps  1/1 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_b2d60c  provisional  5 steps  1/1 (100%)
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_430d9b  provisional  3 steps  1/1 (100%)
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_7221fe  provisional  1 steps  1/1 (100%)  variant of s_c6bea2
+           Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in the {{v3}} app, create…
+  s_72aabb  provisional 14 steps  1/1 (100%)  variant of s_c6bea2
+           Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in the {{v3}} app, create…
+  s_cf93bf  provisional  2 steps  1/1 (100%)  variant of s_c6bea2
+           Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in the {{v3}} app, create…
+  s_c0fb3b  provisional  3 steps  1/1 (100%)  variant of s_c6bea2
+           Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in the {{v3}} app, create…
+  s_26c5ed  provisional  1 steps  1/1 (100%)
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_cbd874  provisional 13 steps  1/1 (100%)
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_964058  provisional  1 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_3aa0a0  provisional 11 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_a28f7c  provisional  2 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_7f207a  provisional  2 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_5fecd3  provisional  6 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_8450d8  provisional  2 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_8bd9b5  provisional  3 steps  1/1 (100%)  variant of s_c6bea2
+           Open {{v2}} and sign in with username admin and password admin. Then in the {{v3}} app, create a new customer …
+  s_9d7d3c  provisional 12 steps  1/1 (100%)  variant of s_96b52d
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_9da594  provisional  3 steps  1/1 (100%)  variant of s_96b52d
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_4d31ff  provisional 15 steps  1/1 (100%)  variant of s_96b52d
+           You are on an Odoo sale order form (possibly a draft quotation for customer '{{v1}} Bench Customer' with one l…
+  s_89ea3c  provisional  1 steps  1/1 (100%)  variant of s_e2fc2d
+           On the currently open Odoo draft quotation (customer '{{v1}} Bench Customer', two lines: qty 5, qty 2), confir…
+  s_d915c5  provisional  4 steps  1/1 (100%)  variant of s_2f278a
+           There are TWO stacked Odoo modal dialogs open. The TOP one (active) is an 'Edit: {{v1}} Bench Customer' contac…
+store: /home/user/browser-pilot/bench/results/fwod20-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod20-sweep.json
+SWEEP_EXIT=0
