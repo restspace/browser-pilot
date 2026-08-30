@@ -1,0 +1,97 @@
+{
+  "name": "fwod21",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contact) named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save it and verify the record is saved showing that name and city. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+      "skill": "s_8f457d",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo 17 (already signed in as admin), go to Sales > Orders > Quotations and create a NEW quotation for the customer '{{runid}} Bench Customer' (choose the customer from the autocomplete dropdown options, not just typing). Add exactly ONE order line: pick any product from the product catalogue (must be selected from the dropdown options), with quantity 3. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app filled in for that line, (c) the Untaxed Amount the app computes in the totals, and (d) the quotation's reference name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_32dc67",
+      "params": {
+        "v2": "{{runid}} Bench Customer",
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the quotation S00021 (sale.order id=21) and report its CURRENT state WITHOUT changing anything: how many order lines it has, and for each line the product name, quantity, unit price, and subtotal. Also report the Untaxed Amount and Total shown in the totals section, and whether the form shows any unsaved changes indicator. Do not modify or save anything. Do not wait for network idle.",
+      "skill": "s_026cdb",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo 17 (already signed in as admin), the quotation S00021 (sale.order id=21) is open with unsaved changes: a second order line whose product is uncommitted (price 0.00). First DISCARD the changes so the form returns to its saved state with only ONE line ('Chair floor protection', qty 3). Then add a SECOND order line properly: click 'Add a line', click in the Product cell of the new row, type a product name (e.g. 'Desk' or 'Table'), WAIT for the autocomplete dropdown options to appear, then CLICK one of the dropdown option entries with the mouse so the product is genuinely committed (the cell must show the product name and the app must auto-fill a non-zero unit price). Set quantity 2. Then SAVE the quotation. Report: (a) the second product's name, (b) its unit price, (c) the Untaxed Amount in the totals after saving, and (d) the Total. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_757eaf",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the quotation S00021 (sale.order id=21). It has two order lines: line 1 'Chair floor protection' qty 3.00 @ £12.00, line 2 'Customizable Desk' qty 2.00 @ £750.00. Change the QUANTITY of the FIRST line ('Chair floor protection') from 3 to 5. Save the quotation. Then report the new Untaxed Amount and Total shown in the totals section, plus line 1's new subtotal. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_8a093f",
+      "params": {
+        "v1": "S00021",
+        "v2": "3.00"
+      },
+      "outputs": [
+        "td_has_text_untaxed_amou",
+        "td_has_text_untaxed_amou_2"
+      ],
+      "recorded": {
+        "td_has_text_untaxed_amou": "Untaxed Amount",
+        "td_has_text_untaxed_amou_2": "Total"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo 17 (already signed in as admin), open the quotation S00021 (sale.order id=21) and CONFIRM it by clicking the 'Confirm' button (or 'Confirm Order' / 'Confirm' in the confirmation dialog if one appears) so it becomes a sales order. Then report: (a) the order reference/name shown (e.g. S00021), (b) the status the app now shows (e.g. 'Sales Order' or 'Locked' or similar status label in the status bar / breadcrumb), and (c) whether the 'Confirm' button is gone. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_462d5f",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-open",
+      "instruction": "In Odoo 17 (already signed in as admin), the sales order S00021 (sale.order id=21) is open and confirmed. CANCEL it: click the 'Cancel' button, and if a confirmation dialog appears, confirm the cancellation (e.g. click 'OK' or 'Confirm'). Then report: (a) the status the app now shows in the status bar (e.g. 'Cancelled'), and (b) the order reference/name still shown. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_99f312",
+      "params": {},
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "08-open",
+      "instruction": "In Odoo 17 (already signed in as admin), do a final verification WITHOUT changing anything: (1) Open the customer record res.partner id=44 and report its Name and City fields exactly as shown. (2) Open sale.order id=21 and report its reference name, the status shown in the status bar, and the {{05-open.td_has_text_untaxed_amou}} in the totals. Do not modify or save anything. Do not wait for network idle.",
+      "skill": "s_441be0",
+      "params": {
+        "v1": "{{05-open.td_has_text_untaxed_amou}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod21-n1",
+    "created": "2026-08-30T12:56:38.760Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

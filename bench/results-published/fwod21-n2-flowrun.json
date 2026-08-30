@@ -1,0 +1,165 @@
+{
+  "flow": "fwod21",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Odoo 17 at http://127.0.0.1:8069 as admin, navigated via Sales > Orders > Customers (no standalone Contacts app installed), created a new customer record with Name \"fwod21-n2 Bench Customer\" and City \"Benchville\" (all other fields left at defaults), and saved it. The record was persisted as res.partner id=44 (URL: /web#...model=res.partner&view_type=form&id=44), and the saved form was read back from the live DOM showing exactly the name \"fwod21-n2 Bench Customer\" and city \"Benchville\". Screenshot saved at /tmp/odoo_customer_saved.png.",
+      "values": {},
+      "tier": "A",
+      "replayed": "26/26",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_7e8f48.",
+      "values": {},
+      "tier": "A",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Quotation S00021 is open on the form view. It has 2 order lines. **Line 1**: \"Chair floor protection\", quantity 3.00, unit price £12.00, subtotal £36.00 (tax 20%). **Line 2**: \"[FURN_1118] Corner Desk Left Sit\", quantity 2.00, but unit price £0.00 and subtotal £0.00 — the product combobox is still marked [active] (uncommitted from dropdown), indicating the product selection was typed but not confirmed by choosing from the dropdown options. The totals section shows: **Untaxed Amount: £36.00** (from line 1 only), **TAX 20%: £7.20**, **Total: £43.20**. The form has **unsaved changes**: the \"Discard changes\" button is present and active, while the \"Save manually\" button is disabled. The unsaved second line contributes £0.00 because its product wasn't committed from the autocomplete and the unit price stayed at 0.00.",
+      "values": {
+        "read3": "",
+        "read5": "null",
+        "read8": "£ 36.00",
+        "read9": "£ 7.20"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "blocked",
+      "summary": "Agent stalled: 3 consecutive turns produced no tool call — it reasoned without driving the browser. Work may be partially complete — check the actions log and verify current state before resuming. Re-run with one concrete artifact per instruction. Raise --turn-timeout if the model legitimately needs longer per step.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/15",
+      "repaired": false,
+      "turns": 34
+    }
+  ],
+  "passed": 3,
+  "total": 8,
+  "repinned": 0,
+  "drift": 7,
+  "driftTickets": [
+    {
+      "flow": "fwod21",
+      "step": "03-open",
+      "skill": "s_026cdb",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('.o_totals_section tr, tbody[aria-ref=e1390] tr')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod21",
+      "step": "03-open",
+      "skill": "s_026cdb",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('button', { name: 'Discard changes' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod21",
+      "step": "03-open",
+      "skill": "s_026cdb",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('button:has-text(\"Save manually\"):not([disabled])')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod21",
+      "step": "03-open",
+      "skill": "s_026cdb",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('button', { name: 'Discard changes' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod21",
+      "step": "03-open",
+      "skill": "s_026cdb",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > span > i')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod21",
+      "step": "04-open",
+      "skill": "s_757eaf",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('button', { name: 'Discard changes' })",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod21",
+      "step": "04-open",
+      "skill": "s_757eaf",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('button', { name: 'Close' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 525562,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 389224,
+    "completionTokens": 7382,
+    "cachedTokens": 311360
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 376387,
+      "completionTokens": 7181,
+      "cachedTokens": 305408
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 12837,
+      "completionTokens": 201,
+      "cachedTokens": 5952
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

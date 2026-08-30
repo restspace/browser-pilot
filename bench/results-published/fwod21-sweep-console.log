@@ -1,0 +1,101 @@
+
+[sweep] run 1/3: fwod21-n1 (store: /home/user/browser-pilot/bench/results/fwod21-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod21-n1 stop=completed
+turns=10 wall=2352.9s
+commands=9 cmdTime=2219.4s cmdBytes=17681 timeouts=0
+orchestrator in=48236 cw=0 cr=13312 out=3500
+inner prompt=5749556 cached=5150976 completion=43700
+spend=$0.6694 maxUsd=2
+learn: A_n=0 replayed=0/9 full=0 repaired=0 compiled=8 variants=0
+-> /home/user/browser-pilot/bench/results/fwod21-n1-browser-pilot-result.json
+
+fwod21-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod21-n2 (replay flow fwod21, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod21-n2: 7 drift ticket(s) → fwod21-n2-drift.json
+
+fwod21-n2: objectives passed 2/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 1
+  obj 3: FAIL — 1 lines, 1 distinct products
+  obj 4: FAIL — quantities: 3
+  obj 5: FAIL — no confirmation in state tracking
+  obj 6: FAIL — final state=draft, ref=S00022
+
+[sweep] run 3/3: fwod21-n3 (replay flow fwod21, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod21-n3: 7 drift ticket(s) → fwod21-n3-drift.json
+
+fwod21-n3: objectives passed 2/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 1
+  obj 3: FAIL — 1 lines, 1 distinct products
+  obj 4: FAIL — quantities: 3
+  obj 5: FAIL — no confirmation in state tracking
+  obj 6: FAIL — final state=draft, ref=S00023
+
+Learning sweep fwod21 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod21-n1' │ '6/6'    │ 'completed' │ 10    │ 9    │ 0.6694    │ 0   │ '0/9'        │ 2353   │
+│ 1       │ 2 │ 'fwod21-n2' │ '2/6'    │ 'halted'    │ 34    │ 8    │ 0.0201    │ 1   │ '3/8 (flow)' │ 526    │
+│ 2       │ 3 │ 'fwod21-n3' │ '2/6'    │ 'halted'    │ 35    │ 8    │ 0.0187    │ 1   │ '3/8 (flow)' │ 687    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_8f457d  validated    2 steps  5/5 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_32dc67  validated    8 steps  5/5 (100%)
+           In Odoo 17 (already signed in as admin), go to Sales > Orders > Quotations and create a NEW quotation for the …
+  s_65e724  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_a8f272  validated    1 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_cb5543  validated   15 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_f94822  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_0256af  validated    4 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_f94e14  validated    2 steps  3/3 (100%)
+           In Odoo 17 (already signed in as admin), go to Sales > Orders > Quotations and create a NEW quotation for the …
+  s_7e8f48  validated    7 steps  3/3 (100%)
+           In Odoo 17 (already signed in as admin), go to Sales > Orders > Quotations and create a NEW quotation for the …
+  s_026cdb  validated    9 steps  3/3 (100%)
+           In Odoo 17 (already signed in as admin), open the quotation S00021 (sale.order id=21) and report its CURRENT s…
+  s_757eaf  demoted     15 steps  1/3 (33%)
+           In Odoo 17 (already signed in as admin), the quotation S00021 (sale.order id=21) is open with unsaved changes:…
+  s_8a093f  provisional  1 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), open the quotation {{v1}} (sale.order id=21). It has two order lines:…
+  s_be5984  provisional  1 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), open the quotation {{v1}} (sale.order id=21). It has two order lines:…
+  s_bd6018  provisional  1 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), open the quotation {{v1}} (sale.order id=21). It has two order lines:…
+  s_80b19e  provisional  7 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), open the quotation {{v1}} (sale.order id=21). It has two order lines:…
+  s_462d5f  provisional  1 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), open the quotation S00021 (sale.order id=21) and CONFIRM it by clicki…
+  s_99f312  provisional  5 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), the sales order S00021 (sale.order id=21) is open and confirmed. CANC…
+  s_441be0  provisional  1 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), do a final verification WITHOUT changing anything: (1) Open the custo…
+  s_cbdaa8  provisional  1 steps  1/1 (100%)
+           In Odoo 17 (already signed in as admin), do a final verification WITHOUT changing anything: (1) Open the custo…
+store: /home/user/browser-pilot/bench/results/fwod21-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod21-sweep.json
+SWEEP_EXIT=0

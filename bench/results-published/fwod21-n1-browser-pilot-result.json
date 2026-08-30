@@ -1,0 +1,105 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "ddb7d78"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod21-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 2352924,
+  "orchestrator": {
+    "input": 48236,
+    "cacheWrite": 0,
+    "cacheRead": 13312,
+    "output": 3500
+  },
+  "inner": {
+    "promptTokens": 5749556,
+    "cachedTokens": 5150976,
+    "completionTokens": 43700,
+    "instructions": 13,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 4669604,
+        "completionTokens": 27579,
+        "cachedTokens": 4208896,
+        "instructions": 9
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1079952,
+        "completionTokens": 16121,
+        "cachedTokens": 942080,
+        "instructions": 4
+      }
+    },
+    "skills": {
+      "instructions": 9,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 93,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "do": 9
+  },
+  "invocationCount": 9,
+  "commandMs": 2219377,
+  "commandBytes": 17681,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod21-skills",
+    "instructions": 9,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 93,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "DeepInfra",
+    "AkashML",
+    "Io Net",
+    "Cloudflare"
+  ],
+  "orReportedCostUsd": 0.0799,
+  "maxUsd": 2,
+  "spendUsd": 0.6694,
+  "finalText": "All objectives verified. Final report:\n\n**1. Customer created — DONE**\nName: `fwod21-n1 Bench Customer`, City: `Benchville` (res.partner id=44, verified by reading back the saved form).\n\n**2. Quotation with one order line — DONE**\nQuotation `S00021` created for that customer. Product chosen: **Chair floor protection**, quantity 3. Unit price auto-filled by the app: **£12.00**. Untaxed amount computed: **£36.00** (tax 20% £7.20, total £43.20).\n\n**3. Second order line added — DONE**\nSecond product: **Customizable Desk** ([FURN_0096, (Steel, White) 160x80cm, with large legs]), quantity 2, unit price £750.00, line subtotal £1,500.00. New untaxed amount: **£1,536.00** (tax £307.20, total £1,843.20).\n\n**4. First line quantity changed 3 → 5 — DONE**\nLine 1 became qty 5.00 @ £12.00 = £60.00. Untaxed amount afterwards: **£1,560.00** (tax £312.00, total £1,872.00).\n\n**5. Quotation confirmed — DONE**\nOrder reference: **S00021**. Status shown after confirming: **\"Sales Order\"** (active in the status bar; \"Quotation\"/\"Quotation Sent\" disabled, Confirm button replaced by Create Invoice / Send by Email / Preview / Cancel).\n\n**6. Sales order cancelled — DONE**\nStatus shown after cancelling: **\"Cancelled\"** (active in the status bar; \"Sales Order\", \"Quotation Sent\" and \"Quotation\" all disabled). Reference still S00021, untaxed amount £1,560.00. Nothing created by this run remains active.\n\nNotes: one intermediate attempt to add the second line left an uncommitted product (price £0.00); I discarded those changes and re-added the line properly by selecting from the autocomplete dropdown (a \"Configure your product\" dialog appeared for the Customizable Desk and was confirmed with defaults). All amounts were read back from the saved forms.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod21-n1-browser-pilot-transcript.jsonl"
+}
