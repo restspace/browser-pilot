@@ -369,7 +369,15 @@ export const TOOL_DEFS: ToolDef[] = [
           properties: {
             url: { type: 'string' },
             capturedDialogs: { type: 'array', items: { type: 'string' } },
-            values: { type: 'object', description: 'Key facts the caller may need (ids, names, counts).' },
+            values: {
+              type: 'object',
+              description:
+                'Every concrete value you read off the page, as name -> value. ' +
+                'ALWAYS include any reference the APP assigned to a record you created or opened ' +
+                '(an order number, ticket ref, uid, generated id) — later work addresses that record by it, ' +
+                'and a value left only in the summary prose cannot be used. Names should be ones a person would ' +
+                'write (order_reference, unit_price), not selector fragments.',
+            },
           },
         },
       },
