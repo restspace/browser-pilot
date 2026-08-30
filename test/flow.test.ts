@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, lintFlowRefs, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, stableOutputs, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
+import { buildFlow, lintFlowRefs, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, stableOutputs, unbankedMutations, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, publishedOutputs, synthesizeReport } from '../src/skills/learn.js';
 import type { Skill } from '../src/skills/store.js';
 import { compileSkill } from '../src/skills/compile.js';
@@ -635,5 +635,54 @@ describe('run 1 proposes, run 2 decides', () => {
     const bound = resolveStepParams(step, {}, {}, { '01-create.quotation_reference': 'New (unsaved)' })!;
     expect(bound.params.v1).toBe('New (unsaved)');
     expect(bound.missing).toEqual(['01-create.order_ref']);
+  });
+});
+
+describe('work the recording did that the flow does not contain', () => {
+  it('names an instruction that mutated the app but did not report success', () => {
+    // fwgr13 and fwgr14 both lost the same instruction: "create a NEW
+    // dashboard. Add a Stat panel..." ran out of budget and reported blocked,
+    // then failure. Both attempts HAD created the dashboard and the panel.
+    // Neither became a step, so the exported flow opened with "The browser is
+    // on an unsaved new Grafana dashboard..." and nothing to put it there —
+    // and scored 1/6 on both replays once the app was reset properly.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create a NEW dashboard and add a Stat panel titled "x7 Availability".', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {} },
+      { k: 'step', tool: 'fill', args: { target: '@e2', value: 'x7 Availability' }, locators: {} },
+      { k: 'report', status: 'blocked', summary: 'Turn cap (30) reached without a final report.', values: {} },
+      { k: 'instruction', text: 'Read the panel titles.', url: `${ORIGIN}/d/abc` },
+      { k: 'step', tool: 'read', args: { target: '@e3' }, locators: {}, result: 'x7 Availability' },
+      { k: 'report', status: 'blocked', summary: 'timed out', values: {} },
+    ];
+    const warnings = unbankedMutations(entries);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('Create a NEW dashboard');
+    expect(warnings[0]).toContain('2 state-changing step(s)');
+    // The read-only instruction is not reported: nothing was lost by dropping it.
+    expect(warnings[0]).not.toContain('Read the panel titles');
+  });
+
+  it('says nothing about a successful instruction, or one that only looked', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create it.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {} },
+      { k: 'report', status: 'success', summary: 'created', values: {} },
+      { k: 'instruction', text: 'Look at it.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'read', args: { target: '@e2' }, locators: {}, result: 'x' },
+      { k: 'report', status: 'failure', summary: 'could not read', values: {} },
+    ];
+    expect(unbankedMutations(entries)).toEqual([]);
+  });
+
+  it('reports an instruction whose report never arrived at all', () => {
+    // A truncated recording: the daemon died mid-instruction. The work is just
+    // as absent from the flow as a blocked one's.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Archive the ticket.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {} },
+    ];
+    expect(unbankedMutations(entries)).toHaveLength(1);
+    expect(unbankedMutations(entries)[0]).toContain('reported nothing');
   });
 });

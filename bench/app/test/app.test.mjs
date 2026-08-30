@@ -677,14 +677,31 @@ describe('test affordances', () => {
     expect(clean.body.parts.find((p) => p.id === 'p1').cost).toBe(100)
     expect((await request('GET', '/__log')).body).toEqual([])
 
-    // The id counter comes back with the data, so the next ticket is t15 again.
+    // The record id comes back with the data — restoring a snapshot restores
+    // its primary keys. The REF counter does not rewind: it carries its high
+    // water mark across the reset, so no two runs mint the same ref.
+    //
+    // This is about not manufacturing false evidence, not about realism. A
+    // reset that reissued RD-1015 every run made fwrd35 judge that ref STABLE
+    // (same 2, differed 0) and it would have been inlined as app furniture —
+    // a record identity, treated as a constant, because our own rig produced
+    // it three times. Odoo's sequence advances and gives the correct verdict.
+    // See PLAN-evidence-over-shape.md.
     const cookie = await login()
     const again = await request('POST', '/api/tickets', {
       body: { title: 'After reset' },
       cookie,
     })
     expect(again.body.id).toBe('t15')
-    expect(again.body.ref).toBe('RD-1015')
+    expect(again.body.ref).not.toBe('RD-1015')
+
+    const third = await request('POST', '/__reset')
+    expect(third.status).toBe(204)
+    const afterSecondReset = await request('POST', '/api/tickets', {
+      body: { title: 'After a second reset' },
+      cookie: await login(),
+    })
+    expect(afterSecondReset.body.ref).not.toBe(again.body.ref)
   })
 
   it('drops sessions on reset', async () => {

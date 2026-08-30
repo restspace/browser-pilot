@@ -203,10 +203,32 @@ export function createStore({ dataDir, fresh = false } = {}) {
       record('delete', 'part', part.id, before, null)
     },
 
-    /** POST /__reset: back to seed, log cleared, data/ rewritten. */
+    /**
+     * POST /__reset: back to seed, log cleared, data/ rewritten.
+     *
+     * The ref counter ADVANCES past the previous run instead of rewinding with
+     * the data. The record ID still comes back with the seed — restoring a
+     * snapshot restores its primary keys — but a MINTED sequence number must
+     * not be reissued.
+     *
+     * This is about not manufacturing false evidence rather than about
+     * realism: a reset is not something a real app does at all, so neither
+     * choice is faithful. What matters is that our own rig must not make a
+     * record identity look like a constant.
+     *
+     * fwrd35 judged `newTicketRef` = "RD-1015" STABLE (same 2, differed 0) and
+     * would have inlined a record identity as though it were app furniture,
+     * because three runs in a row really did produce RD-1015. The verdict was
+     * an artifact of this reset. Odoo, whose sequence genuinely advances
+     * (S00021, S00022, S00023), makes the same value come out volatile — which
+     * is the correct answer, and the one a real target gives. See
+     * PLAN-evidence-over-shape.md.
+     */
     reset() {
+      const highWater = counters.ref
       loadSeed()
       syncCounters()
+      counters.ref = Math.max(counters.ref, highWater)
       log.length = 0
       seq = 0
       dump()

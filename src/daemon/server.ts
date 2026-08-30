@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, urlOutputs } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
@@ -643,6 +643,10 @@ the flow was written to ${kept} for inspection (it will not be replayed)`);
       warnings.unshift(`warning: ${leaks.length} run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
 ${describeLeaks(leaks.slice(0, 10))}`);
     }
+    // Work the recording did that the flow does not contain. Loud, because a
+    // flow missing its create step is unusable and looks fine until a replay
+    // runs against a clean app.
+    for (const m of unbankedMutations(entries).reverse()) warnings.unshift(`warning: ${m}`);
     if (stripped) warnings.unshift(`note: dropped ${stripped} locator candidate(s) carrying a value this run minted (known only by export time)`);
     if (prior) warnings.unshift(`warning: ignored ${prior} entr${prior === 1 ? 'y' : 'ies'} from an earlier take in session '${this.opts.session}' — this flow covers only what this daemon recorded`);
     return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars, ...(warnings.length ? { warnings } : {}) };

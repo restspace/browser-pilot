@@ -337,6 +337,58 @@ function groupByInstruction(entries: RecordedEntry[]): Group[] {
   return groups.filter((g) => g.report?.status === 'success');
 }
 
+/** Tools that CHANGE the app, as opposed to observing it. */
+const MUTATING_TOOLS = new Set(['click', 'dblclick', 'right_click', 'modifier_click', 'fill', 'type', 'press', 'select', 'check', 'drag', 'upload']);
+
+/**
+ * Instructions that CHANGED the app but did not report success, and so
+ * contributed nothing to the flow.
+ *
+ * groupByInstruction keeps only successful groups, which is right — a blocked
+ * instruction the caller worked around is not part of the resolved path. What
+ * is wrong is that the drop is silent, and the work is not always worked
+ * around:
+ *
+ *   fwgr13/fwgr14  "create a NEW dashboard. Add a Stat panel..." ran out of
+ *                  budget and reported blocked, then failure. Both attempts
+ *                  HAD created the dashboard and the panel; neither became a
+ *                  step. The exported flow began "The browser is on an unsaved
+ *                  new Grafana dashboard..." with nothing to put it there, and
+ *                  scored 1/6 on both replays once the app was reset properly.
+ *
+ * A flow missing its create step is unusable, and it took two sweeps and a
+ * reset fix to notice. The recording knows: the instruction ran mutating
+ * tools. Say so at export, while the recording is still in front of someone.
+ */
+export function unbankedMutations(entries: RecordedEntry[]): string[] {
+  const out: string[] = [];
+  let current: RecordedInstruction | null = null;
+  let mutated = 0;
+  const flush = (report?: RecordedReport): void => {
+    if (current && mutated && report?.status !== 'success') {
+      out.push(
+        `instruction "${current.text.slice(0, 70)}${current.text.length > 70 ? '…' : ''}" ran ${mutated} state-changing step(s) ` +
+          `but reported ${report ? report.status : 'nothing'} — its work is NOT in the flow`,
+      );
+    }
+  };
+  for (const e of entries) {
+    if (e.k === 'instruction') {
+      flush(undefined);
+      current = e;
+      mutated = 0;
+    } else if (e.k === 'report') {
+      flush(e);
+      current = null;
+      mutated = 0;
+    } else if (e.k === 'step' && MUTATING_TOOLS.has(e.tool)) {
+      mutated += 1;
+    }
+  }
+  flush(undefined);
+  return out;
+}
+
 function stepId(text: string, i: number): string {
   const verb = (/\b(sign in|log ?in|create|add|edit|change|set|delete|remove|archive|open|verify|find|report)\b/i.exec(text)?.[1] ?? 'step')
     .toLowerCase()
