@@ -187,7 +187,15 @@ mechanism above. Findings 9 and 10 are independent and cheap.
 
 ## Order of work
 
-**Stage 1 — make the policy enforceable.** Add the run-2 stability check and
+**Stage 1 — DONE (5c9cfc1 + this).** `buildFlow` no longer judges: every
+reported value becomes a reference. `noteOutputEvidence` records, per output,
+how often a later run produced the same value there; `stableOutputs` exposes
+the ones no run has ever contradicted; the resolvers substitute those literals
+instead of sending the step to recovery. One demonstration of difference is a
+permanent veto. `verify-artifacts` reports three states — stable, volatile
+(a cost, not a defect), and not-yet-judged — instead of one.
+
+**Stage 1 (original text) — make the policy enforceable.** Add the run-2 stability check and
 persist its verdict. Change `flow.ts:246` to use it. This alone removes the
 dangerous site and proves the mechanism on the case that motivated it.
 

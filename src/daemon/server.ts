@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, urlOutputs } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, urlOutputs } from '../skills/flow.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
@@ -598,7 +598,7 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         const sk = store.get(id);
         return sk ? bindSkill(sk, instr, this.knownValues()) : null;
       },
-      publishes: (id) => publishedOutputsOf(id),
+
     });
     if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
     // Before anything is written. The first cut of this ran after saveFlow,
@@ -699,6 +699,18 @@ ${describeLeaks(leaks.slice(0, 10))}`);
     let halted = false;
     /** Adoptions decided this run, before the write-back — see the repin gate. */
     const pendingPins = new Map<string, string>();
+    /**
+     * Outputs an earlier run demonstrated are the app's, not this run's, so
+     * their recorded literal resolves instead of sending the step to recovery.
+     * Read once: a verdict reached mid-run applies from the NEXT run, so every
+     * step of one run sees the same evidence.
+     */
+    const stable = stableOutputs(flow);
+    if (Object.keys(stable).length) {
+      opts.progress(`[flow ${flow.name}] ${Object.keys(stable).length} output(s) demonstrated stable by an earlier run: ${Object.keys(stable).join(', ')}`);
+    }
+    /** Steps whose output evidence this run changed, for the write-back below. */
+    let evidenceChanged = 0;
 
     for (const step of flow.steps) {
       if (opts.signal.aborted) {
@@ -706,15 +718,15 @@ ${describeLeaks(leaks.slice(0, 10))}`);
         halted = true;
         break;
       }
-      const { text, missing } = resolveInstruction(step, varsIn, outputs);
-      const bound = resolveStepParams(step, varsIn, outputs);
+      const { text, missing } = resolveInstruction(step, varsIn, outputs, stable);
+      const bound = resolveStepParams(step, varsIn, outputs, stable);
       // A reference that could not be threaded (an output an earlier step did
       // not read back live) does NOT halt the flow: the zero-model replay is
       // skipped and the step goes to recovery on the strong model, built from
       // what IS known (softResolve keeps the resolved title even when the id is
       // missing). Only a genuine failure there halts.
       const unresolved = missing.length > 0 || Boolean(bound && bound.missing.length);
-      const recoveryText = unresolved ? softResolveInstruction(step, varsIn, outputs) : text;
+      const recoveryText = unresolved ? softResolveInstruction(step, varsIn, outputs, stable) : text;
       opts.progress(`[flow ${flow.name}] ${step.id}: ${(unresolved ? recoveryText : text).slice(0, 80)}`);
       const mark = this.browser.script?.mark() ?? 0;
       // Zero-model first: replay the step's pinned skill directly, binding its
@@ -898,6 +910,22 @@ ${direct.prelude}` : recoveryText) + resetNote,
           });
         }
       }
+      // Cross-run evidence: did this run produce the same values here? That is
+      // what decides whether a reference to one of them is a record pointer or
+      // app furniture — the question run 1 could not answer. Only on success:
+      // a blocked step's values describe how far it got, not what the app
+      // shows.
+      if (result.report.status === 'success') {
+        const changed = noteOutputEvidence(step, values);
+        if (changed.length) {
+          evidenceChanged += changed.length;
+          const verdict = (n: string) => {
+            const ev = step.outputEvidence?.[n];
+            return ev && ev.differed === 0 ? 'stable' : 'volatile';
+          };
+          opts.progress(`[flow ${flow.name}] ${step.id}: ${changed.map((n) => `${n}=${verdict(n)}`).join(', ')}`);
+        }
+      }
       stepResults.push({
         id: step.id,
         status: result.report.status,
@@ -926,7 +954,9 @@ ${direct.prelude}` : recoveryText) + resetNote,
         }
       }
     }
-    if (updated) saveFlow(flow);
+    // Evidence is written back even when nothing was re-pinned: it is the
+    // whole point of this run for a flow whose references cannot resolve yet.
+    if (updated || evidenceChanged) saveFlow(flow);
 
     const passed = stepResults.filter((r) => r.status === 'success').length;
     return {

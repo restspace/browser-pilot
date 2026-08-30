@@ -41,6 +41,63 @@ export interface FlowStep {
   outputs: string[];
   /** Values observed at record time, kept for reference and as soft assertions. */
   recorded: Record<string, string>;
+  /**
+   * Cross-run evidence about this step's outputs: for each output name, how
+   * often a later run produced the SAME value here and how often it differed.
+   *
+   * This is what replaces reading a value's characters to decide whether it
+   * names a record. Run 1 cannot know: "New (unsaved)" and "S00021" are both
+   * just strings a step reported. Run 2 settles it by producing its own value
+   * for the same output — Odoo says "New (unsaved)" again (app furniture) and
+   * "S00023" (this run's record). Same mechanism as a locator candidate's
+   * `seen: {hit, miss}`; see PLAN-evidence-over-shape.md.
+   */
+  outputEvidence?: Record<string, { same: number; differed: number }>;
+}
+
+/**
+ * Outputs a later run may substitute as a LITERAL when the producing step did
+ * not republish them: `{{sid.out}}` → the recorded value.
+ *
+ * One demonstration of difference is permanent. A value that changed once
+ * names a record, and being wrong in that direction is the silent failure —
+ * a step acting on the recording run's record while reporting success —
+ * whereas being wrong the other way costs a recovery turn. So `differed` is a
+ * veto no amount of later agreement lifts.
+ */
+export function stableOutputs(flow: Flow): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const step of flow.steps) {
+    for (const [name, ev] of Object.entries(step.outputEvidence ?? {})) {
+      if (ev.differed > 0 || ev.same < 1) continue;
+      const value = step.recorded?.[name];
+      if (typeof value === 'string' && value) out[`${step.id}.${name}`] = value;
+    }
+  }
+  return out;
+}
+
+/**
+ * Record what a replay of `step` produced, against what the recording run saw.
+ * Only outputs BOTH runs reported can be compared — a tier-A replay honestly
+ * drops what it could not re-observe, and silence is not disagreement.
+ * Returns the names whose verdict changed, for progress reporting.
+ */
+export function noteOutputEvidence(step: FlowStep, reported: Record<string, string>): string[] {
+  const changed: string[] = [];
+  for (const [name, recorded] of Object.entries(step.recorded ?? {})) {
+    const seen = reported[name];
+    if (typeof seen !== 'string' || !seen || typeof recorded !== 'string' || !recorded) continue;
+    const ev = (step.outputEvidence ??= {})[name] ?? { same: 0, differed: 0 };
+    const agrees = seen.trim() === recorded.trim();
+    const wasStable = ev.differed === 0 && ev.same >= 1;
+    if (agrees) ev.same += 1;
+    else ev.differed += 1;
+    step.outputEvidence[name] = ev;
+    if (wasStable !== (ev.differed === 0 && ev.same >= 1)) changed.push(name);
+    else if (ev.same + ev.differed === 1) changed.push(name);
+  }
+  return changed;
 }
 
 export function flowsDir(): string {
@@ -121,14 +178,6 @@ export function buildFlow(
     now?: string;
     /** Given a skill id and the raw recorded instruction, return the slot bindings. */
     bind?: (skillId: string, instruction: string) => Record<string, string> | null;
-    /**
-     * What a ZERO-MODEL replay of this skill republishes, or null when that
-     * cannot be known (no skill, or the caller does not supply it). Same
-     * callback shape and same null convention as `lintFlowRefs`, deliberately:
-     * the producer and the checker must agree, and two copies of that rule
-     * disagreeing is the shape of most of the bugs found in this work.
-     */
-    publishes?: (skillId: string) => string[] | null;
   },
 ): Flow | null {
   const groups = groupByInstruction(entries);
@@ -138,12 +187,6 @@ export function buildFlow(
   const produced: { stepId: string; output: string; value: string }[] = [];
   const seenUrl = new Set(urlParts(opts.startUrl).map((p) => p.value));
   const varEntries = Object.entries(opts.vars).filter(([, v]) => v.length >= 2).sort((a, b) => b[1].length - a[1].length);
-  /** Unknown counts as published: an unknowable gate must not silently drop references. */
-  const publishes = (skillId: string | undefined, output: string): boolean => {
-    if (!skillId || !opts.publishes) return true;
-    const pubs = opts.publishes(skillId);
-    return pubs === null || pubs.includes(output);
-  };
 
   groups.forEach((g, i) => {
     const id = stepId(g.instruction.text, i);
@@ -226,24 +269,21 @@ export function buildFlow(
     for (const [output, value] of Object.entries(g.report?.values ?? {})) {
       if (typeof value !== 'string' || !value) continue;
       if (minted.some((m) => m.value === value)) continue;
-      // A DESCRIPTIVE value a tier-A replay will not republish must not become
-      // a reference. fwod18's 03-create reported the quotation's reference as
-      // "New (unsaved)" — Odoo's breadcrumb until the record is saved, so the
-      // model named the record BEFORE it existed. Seven later steps then
-      // referenced a value that never was one, and each dropped out of the
-      // zero-model path to re-derive it. Fifteen such references in one flow.
+      // EVERY reported value becomes a reference. Run 1 makes no judgement
+      // about which of them name a record, because it cannot: "New (unsaved)"
+      // and "S00021" are both just strings a step reported, and the question
+      // — does the app produce this again, or was it specific to this run? —
+      // is about behaviour ACROSS runs.
       //
-      // Only a NON-IDENTIFIER is gated, and the asymmetry is the whole point.
-      // Leaving "New (unsaved)", a product name or a status word literal is
-      // harmless: it describes, it does not point at a record. Leaving an
-      // IDENTIFIER literal is the silent wrong-record failure this system
-      // exists to stop — so an identifier keeps its reference even when only
-      // recovery can resolve it. Paying a model turn beats acting on run 1's
-      // order.
+      // A previous cut of this gated on identifierLike, which reads the
+      // characters. That is the failure this plan exists to remove: a record
+      // id that does not look like one would be left literal and every replay
+      // would act on run 1's record while reporting success.
       //
-      // lintFlowRefs still warns about what survives; this makes the common
-      // case unable to arise, rather than reported after the fact.
-      if (!publishes(g.report?.skill, output) && !identifierLike(value)) continue;
+      // So reference everything, which is the safe default (an unresolved
+      // reference costs a recovery turn, never a wrong record), and let run 2
+      // demote the ones it demonstrates are app furniture — see
+      // noteOutputEvidence/stableOutputs and PLAN-evidence-over-shape.md.
       produced.push({ stepId: id, output, value });
       // An id can be minted where no url ever carries it: an app that saves
       // over its own API answers with JSON, and the run reads that answer
@@ -447,7 +487,12 @@ export function lookupOutput(outputs: Record<string, Record<string, string>>, si
 }
 
 /** Fill {{var}} and {{step.output}} references from run vars and prior outputs. */
-export function resolveInstruction(step: FlowStep, vars: Record<string, string>, outputs: Record<string, Record<string, string>>): { text: string; missing: string[] } {
+export function resolveInstruction(
+  step: FlowStep,
+  vars: Record<string, string>,
+  outputs: Record<string, Record<string, string>>,
+  stable: Record<string, string> = {},
+): { text: string; missing: string[] } {
   const missing: string[] = [];
   const text = step.instruction.replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
     if (ref.includes('.')) {
@@ -455,6 +500,10 @@ export function resolveInstruction(step: FlowStep, vars: Record<string, string>,
       const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
       const v = lookupOutput(outputs, sid, out);
       if (v === undefined) {
+        // Demonstrated stable by an earlier run: the app produced this exact
+        // value again, so it is furniture and the recorded literal is right.
+        // Anything not demonstrated stays missing and goes to recovery.
+        if (ref in stable) return stable[ref];
         missing.push(ref);
         return m;
       }
@@ -473,13 +522,18 @@ export function resolveInstruction(step: FlowStep, vars: Record<string, string>,
  * so the strong model gets a readable instruction built from what IS known —
  * e.g. the ticket title even when its id could not be threaded.
  */
-export function softResolveInstruction(step: FlowStep, vars: Record<string, string>, outputs: Record<string, Record<string, string>>): string {
+export function softResolveInstruction(
+  step: FlowStep,
+  vars: Record<string, string>,
+  outputs: Record<string, Record<string, string>>,
+  stable: Record<string, string> = {},
+): string {
   return step.instruction
     .replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
       if (ref.includes('.')) {
         const dot = ref.indexOf('.');
         const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-        return lookupOutput(outputs, sid, out) ?? '';
+        return lookupOutput(outputs, sid, out) ?? stable[ref] ?? '';
       }
       return ref in vars ? vars[ref] : '';
     })
@@ -492,6 +546,7 @@ export function resolveStepParams(
   step: FlowStep,
   vars: Record<string, string>,
   outputs: Record<string, Record<string, string>>,
+  stable: Record<string, string> = {},
 ): { params: Record<string, string>; missing: string[] } | null {
   if (!step.params) return null;
   const params: Record<string, string> = {};
@@ -502,8 +557,10 @@ export function resolveStepParams(
         const dot = ref.indexOf('.');
         const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
         const v = lookupOutput(outputs, sid, out);
-        if (v === undefined) { missing.push(ref); return m; }
-        return v;
+        if (v !== undefined) return v;
+        if (ref in stable) return stable[ref];
+        missing.push(ref);
+        return m;
       }
       if (ref in vars) return vars[ref];
       missing.push(ref);

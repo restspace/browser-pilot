@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, lintFlowRefs, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
+import { buildFlow, lintFlowRefs, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, stableOutputs, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, publishedOutputs, synthesizeReport } from '../src/skills/learn.js';
 import type { Skill } from '../src/skills/store.js';
 import { compileSkill } from '../src/skills/compile.js';
@@ -544,8 +544,8 @@ describe('a replay that observed nothing cannot narrate', () => {
   });
 });
 
-describe('a reference must be one a zero-model replay can republish', () => {
-  /** fwod18's shape: a create step reports a placeholder, and later steps cite it. */
+describe('run 1 proposes, run 2 decides', () => {
+  /** fwod18's shape: a create step reports a placeholder and a real reference. */
   const entries = (): RecordedEntry[] => [
     { k: 'step', tool: 'goto', args: { url: `${ORIGIN}/` }, locators: {} },
     { k: 'instruction', text: 'Create a quotation for the bench customer.', url: `${ORIGIN}/` },
@@ -554,51 +554,86 @@ describe('a reference must be one a zero-model replay can republish', () => {
       status: 'success',
       summary: 'Created a quotation.',
       // Odoo shows "New" in the breadcrumb until the record is saved, so the
-      // model named the reference BEFORE it existed. `product` is a plain
-      // description; `order_ref` is a real minted identifier.
-      values: { quotation_reference: 'New (unsaved)', product: 'Office Combination', order_ref: 'S00021' },
+      // model named the reference BEFORE it existed. Nothing about either
+      // string says which is which.
+      values: { quotation_reference: 'New (unsaved)', order_ref: 'S00021' },
       skill: 's_create',
     },
     {
       k: 'instruction',
-      text: 'On quotation New (unsaved) for product Office Combination (order S00021), set the quantity to 5.',
+      text: 'On quotation New (unsaved) (order S00021), set the quantity to 5.',
       url: `${ORIGIN}/`,
     },
     { k: 'report', status: 'success', summary: 'Set quantity.', values: { qty: '5' }, skill: 's_edit' },
   ];
 
-  const build = (publishes?: (id: string) => string[] | null): Flow =>
-    buildFlow(entries(), { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's', publishes })!;
+  const build = (): Flow =>
+    buildFlow(entries(), { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
 
-  it('does not reference a DESCRIPTIVE value the producing step will not republish', () => {
-    // s_create republishes only `qty`-style reads; nothing here.
-    const text = build(() => []).steps[1].instruction;
-    expect(text).not.toContain('{{01-create.quotation_reference}}');
-    expect(text).not.toContain('{{01-create.product}}');
-    // Left literal, which is harmless: these describe, they do not point at a
-    // record. fwod18 minted fifteen such references and each one dropped its
-    // step out of the zero-model path to re-derive a value that never existed.
-    expect(text).toContain('New (unsaved)');
-    expect(text).toContain('Office Combination');
-  });
-
-  it('STILL references an unpublished identifier, because the literal is the dangerous option', () => {
-    // The asymmetry is the point: leaving S00021 literal would send every
-    // replay to run 1's order silently. A reference only recovery can resolve
-    // costs a model turn and stays on this run's record.
-    expect(build(() => []).steps[1].instruction).toContain('{{01-create.order_ref}}');
-  });
-
-  it('references everything when the step does republish it', () => {
-    const text = build(() => ['quotation_reference', 'product', 'order_ref']).steps[1].instruction;
+  it('run 1 references EVERY reported value, judging none of them', () => {
+    // The safe default. An unresolved reference costs a recovery turn; a
+    // literal left where a reference was needed acts on run 1's record and
+    // reports success.
+    const text = build().steps[1].instruction;
     expect(text).toContain('{{01-create.quotation_reference}}');
-    expect(text).toContain('{{01-create.product}}');
+    expect(text).toContain('{{01-create.order_ref}}');
   });
 
-  it('references everything when publication cannot be known', () => {
-    // An unknowable gate must not silently drop references — same null
-    // convention as lintFlowRefs.
-    expect(build(() => null).steps[1].instruction).toContain('{{01-create.product}}');
-    expect(build().steps[1].instruction).toContain('{{01-create.product}}');
+  it('run 2 settles both by producing its own values', () => {
+    const flow = build();
+    const create = flow.steps[0];
+    // The replay's own report: Odoo says "New (unsaved)" again for ITS unsaved
+    // record, and S00023 for the order it just made.
+    noteOutputEvidence(create, { quotation_reference: 'New (unsaved)', order_ref: 'S00023' });
+    expect(create.outputEvidence).toEqual({
+      quotation_reference: { same: 1, differed: 0 },
+      order_ref: { same: 0, differed: 1 },
+    });
+    // Only the one the app reproduced becomes substitutable.
+    expect(stableOutputs(flow)).toEqual({ '01-create.quotation_reference': 'New (unsaved)' });
+  });
+
+  it('run 3 resolves the stable one and still sends the record id to recovery', () => {
+    const flow = build();
+    noteOutputEvidence(flow.steps[0], { quotation_reference: 'New (unsaved)', order_ref: 'S00023' });
+    const stable = stableOutputs(flow);
+    // No outputs republished at all — the tier-A case that used to strand
+    // every reference on this step.
+    const { text, missing } = resolveInstruction(flow.steps[1], {}, {}, stable);
+    expect(text).toContain('New (unsaved)');
+    expect(missing).toEqual(['01-create.order_ref']);
+    // ...and the recovery text keeps what IS known, blanking only the id.
+    expect(softResolveInstruction(flow.steps[1], {}, {}, stable)).toContain('New (unsaved)');
+  });
+
+  it('one demonstration of difference is permanent', () => {
+    const flow = build();
+    const create = flow.steps[0];
+    noteOutputEvidence(create, { order_ref: 'S00023' }); // differed
+    noteOutputEvidence(create, { order_ref: 'S00021' }); // agrees, by coincidence of a reset app
+    expect(create.outputEvidence!.order_ref).toEqual({ same: 1, differed: 1 });
+    // Still never substituted: a value that changed once names a record, and
+    // being wrong that way is silent.
+    expect(stableOutputs(flow)['01-create.order_ref']).toBeUndefined();
+  });
+
+  it('silence is not agreement — a tier-A replay that drops a value votes neither way', () => {
+    const flow = build();
+    noteOutputEvidence(flow.steps[0], {}); // republished nothing
+    expect(flow.steps[0].outputEvidence).toBeUndefined();
+    expect(stableOutputs(flow)).toEqual({});
+  });
+
+  it('a param binding resolves from evidence too, not just the instruction', () => {
+    const step: FlowStep = {
+      id: '02-edit',
+      instruction: 'x',
+      outputs: [],
+      recorded: {},
+      params: { v1: '{{01-create.quotation_reference}}', v2: '{{01-create.order_ref}}' },
+    };
+    const bound = resolveStepParams(step, {}, {}, { '01-create.quotation_reference': 'New (unsaved)' })!;
+    expect(bound.params.v1).toBe('New (unsaved)');
+    expect(bound.missing).toEqual(['01-create.order_ref']);
   });
 });

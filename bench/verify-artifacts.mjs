@@ -185,6 +185,18 @@ const publishes = new Map(
     return [s.id, new Set(chain.flatMap(publishedOutputs))];
   }),
 );
+// Outputs an earlier run demonstrated are the app's own, so their recorded
+// literal resolves and the reference is not fragile at all. Run 1 references
+// everything on purpose (PLAN-evidence-over-shape.md), so without this the
+// check would fail every freshly recorded flow by design.
+const stable = new Set(
+  flow.steps.flatMap((s) =>
+    Object.entries(s.outputEvidence ?? {})
+      .filter(([, ev]) => ev.differed === 0 && ev.same >= 1)
+      .map(([name]) => `${s.id}.${name}`),
+  ),
+);
+const unjudged = new Set();
 const fragile = new Set();
 for (const step of flow.steps) {
   for (const text of [step.instruction, ...Object.values(step.params ?? {})]) {
@@ -192,17 +204,32 @@ for (const step of flow.steps) {
       if (out === 'url' || out.startsWith('url.')) continue; // provenance: republished every run
       const can = publishes.get(sid);
       if (!can || can.has(out) || can.has(out.split('#')[0])) continue;
-      fragile.add(`${step.id} needs {{${sid}.${out}}}, which a tier-A replay of ${sid} does not republish`);
+      if (stable.has(`${sid}.${out}`)) continue; // demonstrated app furniture
+      const producer = flow.steps.find((s) => s.id === sid);
+      const ev = producer?.outputEvidence?.[out.split('#')[0]];
+      if (!ev) {
+        unjudged.add(`${step.id} needs {{${sid}.${out}}} — no run has judged it yet`);
+        continue;
+      }
+      fragile.add(`${step.id} needs {{${sid}.${out}}}, demonstrated volatile (${ev.differed}×) — recovery every run`);
     }
   }
 }
 if (!hasFlow) {
   console.log('skip  cross-step references (no flow was exported)');
 } else if (fragile.size) {
-  fail(`${fragile.size} reference(s) depend on a value a zero-model replay will not republish`);
+  // Volatile is not a defect: it means the reference names a record and MUST
+  // stay a reference. It is a COST — that step pays recovery on every run —
+  // so it is reported as a finding, not as correctness.
+  fail(`${fragile.size} reference(s) are demonstrated volatile: their steps pay recovery on every run`);
   for (const f of [...fragile].slice(0, 10)) console.log(`      ${f}`);
+} else if (unjudged.size) {
+  // Expected for a flow only one run has seen. It becomes a finding only if a
+  // replay ran and still did not settle it.
+  console.log(`note  ${unjudged.size} reference(s) not yet judged — run 2 decides them`);
+  for (const f of [...unjudged].slice(0, 6)) console.log(`      ${f}`);
 } else {
-  pass('every cross-step reference is provenance-backed or re-observed');
+  pass('every cross-step reference is provenance-backed, re-observed, or demonstrated stable');
 }
 
 // 2b. A run value left literal in a NAVIGATION TARGET. fwgr11 went to
