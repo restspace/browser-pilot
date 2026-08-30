@@ -36,6 +36,32 @@ for the agent-browser arm, but it is harmless either way.
 Record anything you had to fix. This script is young and its Linux paths are
 lightly exercised; a correction is a useful result in its own right.
 
+### One box, several sweeps
+
+`--with-target` is repeatable, so bring up everything the session will need in
+one go and run the sweeps back to back:
+
+```sh
+bench/cloud-setup.sh --with-target odoo --with-target grafana
+```
+
+Provisioning is the expensive part: pulling images and seeding Odoo costs
+minutes per target, and doing it three times to run three sweeps was pure
+waste. Setup is idempotent - it skips an image already cached and skips the
+Odoo seed when the `bench` database exists - so a re-run costs seconds.
+
+This is only safe because **every target now has a real per-run reset**
+(`bench/app-reset.mjs`), applied before each replay. Until that landed the
+sweep's reset was hardcoded to repairdesk's endpoint and silently 404'd on the
+others, so state accumulated across runs and a fresh box was the only way to
+get a clean baseline. Two results were scored against that and neither meant
+what it appeared to: fwgr13's replays renamed run 1's dashboard, and fwod20
+left three orders in the list at once.
+
+So: reuse the box, never reuse the state. If a reset fails the sweep now halts
+that run rather than replaying against a dirty app - treat a `reset-failed`
+row as a stop, not a blip.
+
 ## 2. Run
 
 Substitute `<ARM>` (`browser-pilot`, `agent-browser`, `playwright-mcp` or
