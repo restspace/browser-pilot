@@ -1,0 +1,99 @@
+
+[sweep] run 1/3: fwgr13-n1 (store: /home/user/browser-pilot/bench/results/fwgr13-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[harness] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwgr13-n1 stop=completed
+turns=9 wall=1658.6s
+commands=8 cmdTime=1631.2s cmdBytes=7520 timeouts=0
+orchestrator in=13972 cw=0 cr=19840 out=3519
+inner prompt=4235448 cached=3655936 completion=34732
+spend=$0.5951 maxUsd=2
+learn: A_n=0 replayed=0/8 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwgr13-n1-browser-pilot-result.json
+
+fwgr13-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid dfwq7fnd2d81sa reported
+
+[sweep] run 2/3: fwgr13-n2 (replay flow fwgr13, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwgr13-n2: 3 drift ticket(s) → fwgr13-n2-drift.json
+
+fwgr13-n2: objectives passed 5/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: FAIL — stat panel not found
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid dfwq7fnd2d81sa reported
+
+[sweep] run 3/3: fwgr13-n3 (replay flow fwgr13, no orchestrator)
+[reset-app] reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwgr13-n3: 1 drift ticket(s) → fwgr13-n3-drift.json
+
+fwgr13-n3: objectives passed 5/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: FAIL — stat panel not found
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid dfwq7fnd2d81sa reported
+
+Learning sweep fwgr13 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr13-n1' │ '6/6'    │ 'completed' │ 9     │ 8    │ 0.5951    │ 0   │ '0/8'        │ 1659   │
+│ 1       │ 2 │ 'fwgr13-n2' │ '5/6'    │ 'halted'    │ 113   │ 7    │ 0.2651    │ 1   │ '6/7 (flow)' │ 1105   │
+│ 2       │ 3 │ 'fwgr13-n3' │ '5/6'    │ 'success'   │ 35    │ 7    │ 0.1572    │ 1   │ '7/7 (flow)' │ 414    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_25397c  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (if a 'change password' prompt appears, ski…
+  s_b8c759  validated    3 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (if a 'change password' prompt appears, ski…
+  s_12659e  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (if a 'change password' prompt appears, ski…
+  s_976059  validated    7 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (if a 'change password' prompt appears, ski…
+  s_682356  validated    5 steps  3/3 (100%)
+           The browser is currently on a Grafana dashboard's Settings > General page (dashboard UID {{v2}}, currently tit…
+  s_597b2c  validated    8 steps  3/3 (100%)
+           On the Grafana dashboard '{{v1}}' (UID {{v3}}), do two things and save: (1) Add the tag '{{v4}}' to the dashbo…
+  s_d71601  provisional 18 steps  1/2 (50%)
+           On the Grafana dashboard '{{v1}}' (UID {{v3}}), add a new '{{v4}}' panel. Set its title to exactly '{{v5}}' an…
+  s_5d5b21  validated    4 steps  2/2 (100%)
+           The browser is currently on a Grafana dashboard's Settings > General page (dashboard UID {{v2}}, currently tit…
+  s_3e521b  validated    2 steps  2/2 (100%)
+           The browser is currently on a Grafana dashboard's Settings > General page (dashboard UID {{v2}}, currently tit…
+  s_f16681  provisional 17 steps  1/2 (50%)  variant of s_d71601
+           On the Grafana dashboard '{{v1}} Bench Dashboard' (UID {{v2}}), add a new '{{v3}}' panel. Set its title to exa…
+  s_db68cc  validated   12 steps  2/2 (100%)  variant of s_c679ca
+           On the Grafana dashboard '{{v1}} Bench Dashboard' (UID {{v2}}), set the dashboard's auto-refresh interval to '…
+  s_c679ca  demoted     22 steps  1/2 (50%)
+           On the Grafana dashboard '{{v1}}' (UID {{v3}}), set the dashboard's auto-refresh interval to '1m'. Use the ref…
+  s_ee9e15  validated   16 steps  2/2 (100%)  variant of s_d33121
+           Open the Grafana dashboard at {{v5}} in a fresh page load (no URL query params for time or refresh). Verify an…
+  s_d33121  demoted      5 steps  1/2 (50%)
+           Open the Grafana dashboard at {{v5}} in a fresh page load (no URL query params for time or refresh). Verify an…
+  s_c36b6e  provisional  3 steps  1/1 (100%)
+           The browser is currently on a Grafana dashboard's Settings > General page (dashboard UID {{v1}}, currently tit…
+  s_2f2b74  provisional  1 steps  1/1 (100%)
+           The browser is currently on a Grafana dashboard's Settings > General page (dashboard UID {{v1}}, currently tit…
+  s_b49138  provisional  6 steps  1/1 (100%)
+           On the Grafana dashboard '{{v1}}' (UID {{v3}}), open the panel '{{v4}}' in edit mode (click its title menu > E…
+  s_6be035  provisional 20 steps  1/1 (100%)  variant of s_f16681
+           On the Grafana dashboard '{{v1}} Bench Dashboard' (UID {{v2}}), add a new '{{v3}}' panel. Set its title to exa…
+  s_adb8ab  provisional 11 steps  1/1 (100%)
+           On the Grafana dashboard '{{v1}} Bench Dashboard' (UID {{v2}}), open the panel '{{v1}} Availability' in edit m…
+store: /home/user/browser-pilot/bench/results/fwgr13-skills
+
+summary: /home/user/browser-pilot/bench/results/fwgr13-sweep.json
+SWEEP_EXIT=0

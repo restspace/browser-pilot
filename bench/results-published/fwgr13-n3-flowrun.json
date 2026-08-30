@@ -1,0 +1,151 @@
+{
+  "flow": "fwgr13",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with admin/admin, skipped the change password prompt, used the search bar to navigate to the \"Service health\" dashboard, and found 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-verify",
+      "status": "success",
+      "summary": "Changed the dashboard title from 'fwgr13-n1 Bench Dashboard' to 'fwgr13-n3 Bench Dashboard', saved successfully (confirmed by the 'Dashboard saved' alert). The breadcrumb, page title, and Settings > General field all show the new title. The dashboard URL is http://127.0.0.1:3000/d/dfwq7fnd2d81sa/{{v1}}-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m .",
+      "values": {
+        "dashboard_title": "fwgr13-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_682356"
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new 'Text' panel titled 'fwgr13-n3 Notes' with content 'Notes for run fwgr13-n3' to the dashboard. Saved the dashboard explicitly (confirmed the \"Dashboard saved\" alert). The dashboard now has 4 panels: \"fwgr13-n3 Notes\", \"fwgr13-n2 Notes\", \"fwgr13-n1 Notes\", and \"fwgr13-n1 Availability\". The text panel content reads: \"Notes for run fwgr13-n3\". Dashboard title in breadcrumb reads \"fwgr13-n3 Bench Dashboard\".",
+      "values": {
+        "panel_titles": "fwgr13-n3 Notes, fwgr13-n2 Notes, fwgr13-n1 Notes, fwgr13-n1 Availability",
+        "text_panel_content": "Notes for run fwgr13-n3",
+        "dashboard_title": "fwgr13-n3 Bench Dashboard",
+        "h2": "fwgr13-n3 Notes",
+        "h2_2": "fwgr13-n2 Notes",
+        "h2_3": "fwgr13-n1 Notes",
+        "h2_4": "fwgr13-n1 Availability"
+      },
+      "tier": "A",
+      "replayed": "9/17",
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_597b2c; observed tags=bench.",
+      "values": {
+        "tags": "bench"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set auto-refresh to '1m' and saved the dashboard. After reloading the dashboard, the refresh picker shows '1m' and the time range shows 'Last 6 hours'.",
+      "values": {
+        "refresh_picker": "1m",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_db68cc"
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Loaded the dashboard with a clean URL (no query params). Observed: (1) Dashboard title in breadcrumb: 'fwgr13-n3 Bench Dashboard'. (2) Panel titles: 'fwgr13-n3 Notes', 'fwgr13-n1 Notes', 'fwgr13-n1 Availability'. (3) Time range in top-right picker: 'Last 6 hours'. (4) Refresh interval in top-right picker: '1m'. (5) Tag 'bench' verified in Settings > General Tags field (listitem showing 'bench' visible). Closed Settings without saving.",
+      "values": {
+        "panel_titles": "fwgr13-n3 Notes, fwgr13-n1 Notes, fwgr13-n1 Availability",
+        "tag": "bench",
+        "dashboard_title": "fwgr13-n3 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_ee9e15"
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "No panel named 'fwgr13-n3 Availability' exists on the dashboard (verified via full DOM scan — the only Availability panel is 'fwgr13-n1 Availability', created in an earlier run). I opened that Availability panel in edit mode and read its properties: visualization type 'Stat', panel title 'fwgr13-n1 Availability', data source 'TestData' (shown in the data source picker and query row 'A (TestData)'). I changed nothing (Discard button stayed disabled) and exited edit mode via 'Back to dashboard' without saving; the dashboard still shows all 4 panels.",
+      "values": {
+        "panel_title": "fwgr13-n1 Availability",
+        "visualization_type": "Stat",
+        "data_source": "TestData",
+        "requested_panel": "fwgr13-n3 Availability",
+        "requested_panel_exists": "false",
+        "all_panel_titles": "fwgr13-n3 Notes, fwgr13-n2 Notes, fwgr13-n1 Notes, fwgr13-n1 Availability",
+        "dashboard_url": "http://127.0.0.1:3000/d/dfwq7fnd2d81sa/fwgr13-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 25
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 3,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr13",
+      "step": "03-add",
+      "skill": "s_f16681",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_f16681 stopped at step 10 — after step 10 the page did not show \"- dialog \\\"Save dashboard fwgr13-n3 Bench Dashboard Details Changes25 Message Cancel Save\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 10 the page did not show \"- dialog \\\"Save dashboard fwgr13-n3 Bench Dashboard Details Changes25 Message Cancel Save\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id"
+    }
+  ],
+  "wallMs": 414454,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 456159,
+    "completionTokens": 15818,
+    "cachedTokens": 387648
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 190876,
+      "completionTokens": 4431,
+      "cachedTokens": 152064
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 265283,
+      "completionTokens": 11387,
+      "cachedTokens": 235584
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

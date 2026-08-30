@@ -1,0 +1,168 @@
+{
+  "flow": "fwgr13",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with admin/admin, skipped the change password prompt, used the search bar to navigate to the \"Service health\" dashboard, and found 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-verify",
+      "status": "success",
+      "summary": "Changed the dashboard title from 'fwgr13-n1 Bench Dashboard' to 'fwgr13-n2 Bench Dashboard', saved successfully (confirmed by the 'Dashboard saved' alert). The breadcrumb, page title, and Settings > General field all show the new title. The dashboard URL is http://127.0.0.1:3000/d/dfwq7fnd2d81sa/fwgr13-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m .",
+      "values": {
+        "dashboard_title": "fwgr13-n2 Bench Dashboard"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text panel titled 'fwgr13-n2 Notes' with content 'Notes for run fwgr13-n2' to the 'fwgr13-n2 Bench Dashboard' dashboard. Saved the dashboard (confirmed by 'Dashboard saved' toast). After saving and exiting edit mode, verified the dashboard shows all three panels: 'fwgr13-n2 Notes' (content: \"Notes for run fwgr13-n2\"), 'fwgr13-n1 Notes', and 'fwgr13-n1 Availability'.",
+      "values": {
+        "panel_titles": "fwgr13-n2 Notes, fwgr13-n1 Notes, fwgr13-n1 Availability",
+        "text_panel_content": "Notes for run fwgr13-n2",
+        "class_panel_h2_section_a": "fwgr13-n2 Notes",
+        "class_panel_h2_section_a_2": "fwgr13-n1 Notes",
+        "class_panel_h2_section_a_3": "fwgr13-n1 Availability"
+      },
+      "tier": "A",
+      "replayed": "1/18",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_597b2c; observed tags=bench.",
+      "values": {
+        "tags": "bench"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set auto-refresh to '1m' and saved the dashboard. After reloading the dashboard, the refresh picker shows '1m' and the time range shows 'Last 6 hours'.",
+      "values": {
+        "refresh_picker": "1m",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "8/22",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Loaded the dashboard with a clean URL (no query params). Observed: (1) Dashboard title in breadcrumb: 'fwgr13-n2 Bench Dashboard'. (2) Panel titles: 'fwgr13-n2 Notes', 'fwgr13-n1 Notes', 'fwgr13-n1 Availability'. (3) Time range in top-right picker: 'Last 6 hours'. (4) Refresh interval in top-right picker: '1m'. (5) Tag 'bench' verified in Settings > General Tags field (listitem showing 'bench' visible). Closed Settings without saving.",
+      "values": {
+        "dashboard_title": "fwgr13-n2 Bench Dashboard",
+        "panel_titles": "fwgr13-n2 Notes, fwgr13-n1 Notes, fwgr13-n1 Availability",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "tag": "bench"
+      },
+      "tier": "A",
+      "replayed": "1/5",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "07-open",
+      "status": "failure",
+      "summary": "The requested panel 'fwgr13-n2 Availability' does not exist on the 'fwgr13-n2 Bench Dashboard' (UID dfwq7fnd2d81sa) — verified via full DOM inspection (all h1-h5 headings, section labels, and body text). The dashboard contains exactly three panels: 'fwgr13-n2 Notes', 'fwgr13-n1 Notes', and 'fwgr13-n1 Availability'. As the closest match, I opened the 'fwgr13-n1 Availability' panel in edit mode (read-only, no changes, no save) and read its properties: visualization type 'Stat', panel title 'fwgr13-n1 Availability', data source 'TestData' (shown as '(TestData)' in the query row with the TestData logo in the data source picker). Exited edit mode without saving.",
+      "values": {
+        "data_source": "TestData",
+        "exact_panel_requested": "fwgr13-n2 Availability (NOT FOUND)",
+        "panel_title": "fwgr13-n1 Availability",
+        "panels_on_dashboard": "fwgr13-n2 Notes, fwgr13-n1 Notes, fwgr13-n1 Availability",
+        "visualization_type": "Stat"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 28
+    }
+  ],
+  "passed": 6,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr13",
+      "step": "03-add",
+      "skill": "s_d71601",
+      "similarity": 0.896,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_d71601 stopped at step 1 — the page at http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id does not show \"fwgr13-n2 Bench Dashboard\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id does not show \"fwgr13-n2 Bench Dashboard\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id"
+    },
+    {
+      "flow": "fwgr13",
+      "step": "05-set",
+      "skill": "s_c679ca",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByTestId('Dashboard settings Save Dashboard Modal Save timerange checkbox')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id"
+    },
+    {
+      "flow": "fwgr13",
+      "step": "06-open",
+      "skill": "s_d33121",
+      "similarity": 0.994,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_d33121 stopped at step 1 — the page at http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id does not show \"fwgr13-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id does not show \"fwgr13-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfwq7fnd2d81sa/:id"
+    }
+  ],
+  "wallMs": 1104919,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2014671,
+    "completionTokens": 21192,
+    "cachedTokens": 1713216
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1472099,
+      "completionTokens": 13837,
+      "cachedTokens": 1226240
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 542572,
+      "completionTokens": 7355,
+      "cachedTokens": 486976
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
