@@ -159,6 +159,21 @@ export interface RecordedStep {
   via?: { skill: string; step: number };
   /** The recognized component the target sits inside, for recipe compilation. */
   component?: { family: string; rel: string };
+  /**
+   * For a synthesized read-back: the evidence key whose value this read
+   * observes, carried from the report rather than re-derived.
+   *
+   * compile's `readLabel` used to recover this by comparing the read's result
+   * against every reported value for an EXACT match, and a read whose result
+   * differs by a currency symbol or a stray space matched nothing and was
+   * stored unlabelled. An unlabelled read publishes nothing, so a zero-model
+   * replay of that step republishes nothing, so every later step referencing
+   * one of its outputs falls to recovery for ever — fwod20's 02-verify
+   * recorded eight values and republished none of them on either replay.
+   * The caller already knows the name; passing it is exact where matching is
+   * a guess.
+   */
+  label?: string;
 }
 
 export interface RecordedInstruction {
@@ -585,7 +600,7 @@ function candidateIdentity(c: LocatorCandidate): string | null {
  * only a value-based (circular) locator would resolve — in which case the
  * value stays un-threadable and the caller falls back to recovery.
  */
-export async function captureReadBack(page: Page, value: string): Promise<RecordedStep | null> {
+export async function captureReadBack(page: Page, value: string, label?: string): Promise<RecordedStep | null> {
   const v = value.trim();
   if (v.length < 2 || v.length > 80) return null; // too short to be distinctive, or prose
   const loc = page.getByText(v, { exact: true });
@@ -608,7 +623,7 @@ export async function captureReadBack(page: Page, value: string): Promise<Record
       try {
         const step = await readBackFromHandle(page, handle, v);
         const winner = step?.locators.target.chain?.[0];
-        if (step && (count === 1 || winner?.kind === 'scoped')) return step;
+        if (step && (count === 1 || winner?.kind === 'scoped')) return label ? { ...step, label } : step;
       } finally {
         await handle.dispose().catch(() => {});
       }
@@ -620,7 +635,8 @@ export async function captureReadBack(page: Page, value: string): Promise<Record
   // them, so every later step referencing one lost its zero-model path. The
   // read is stored with what:'value' so the replay re-reads the control
   // rather than its label.
-  return await captureFormValue(page, v);
+  const form = await captureFormValue(page, v);
+  return form && label ? { ...form, label } : form;
 }
 
 /**

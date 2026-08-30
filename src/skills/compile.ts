@@ -934,7 +934,10 @@ function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExp
 
 /** If a read's result equals one of the report's evidence values, label it with that key. */
 function readLabel(step: RecordedStep, values: Record<string, unknown>): string | undefined {
-  if ((step.tool !== 'read' && step.tool !== 'read_all') || step.result === undefined) return undefined;
+  if (step.tool !== 'read' && step.tool !== 'read_all') return undefined;
+  // Carried from the report, where the name came from. Exact beats matching.
+  if (step.label && step.label in values) return step.label;
+  if (step.result === undefined) return undefined;
   let observed: unknown;
   try {
     observed = JSON.parse(step.result);

@@ -11,7 +11,7 @@ import { SkillStore } from '../src/skills/store.js';
 import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
-import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
+import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
 import { candidatesFor, renderCandidates } from '../src/skills/replay.js';
 import { SkillStore, originOf, originSlug, type Skill } from '../src/skills/store.js';
 
@@ -1043,5 +1043,49 @@ describe('provenance that arrives late', () => {
     expect(stranded(chain[1], ['t15'])).toBe(true);
     // ...and with nothing banked, compile could not have known.
     expect(stranded(chain[1], [])).toBe(false);
+  });
+});
+
+describe('a read-back carries the name it was captured for', () => {
+  const readBack = (label?: string): RecordedEntry[] => [
+    { k: 'step', tool: 'goto', args: { url: `${ORIGIN}/#/tickets/t15` }, locators: {} },
+    {
+      k: 'step',
+      tool: 'read',
+      args: { target: '(read-back)', what: 'text' },
+      locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'label', label: 'Unit Price' }] } },
+      result: '750.00',
+      ...(label ? { label } : {}),
+    },
+  ];
+
+  it('labels from the evidence key, not by matching the result text', () => {
+    // fwod20's 02-verify recorded eight values and republished NONE on either
+    // replay: readLabel recovered the name by comparing the read's result
+    // against every reported value for an EXACT hit, and "£750.00" in the
+    // report does not equal "750.00" off the page. The read was stored
+    // unlabelled, an unlabelled read publishes nothing, and every later step
+    // referencing that output fell to recovery for ever.
+    const report = { status: 'success' as const, summary: 'read it', evidence: { values: { unit_price: '£750.00' } } };
+    const s = compileSkill({ entries: readBack('unit_price'), instruction: 'Read the unit price', report, session: 's' })!;
+    const read = s.steps.find((st) => st.tool === 'read');
+    expect(read?.label).toBe('unit_price');
+    expect(publishedOutputs(s)).toContain('unit_price');
+  });
+
+  it('still recovers the name by matching when none was carried', () => {
+    // Note the value: "750.00" would NOT recover, because the fallback parses
+    // the read result as JSON and 750 !== "750.00". That is the fragility the
+    // carried label removes, demonstrated by its own test.
+    const entries = readBack().map((e) => (e.k === 'step' && e.tool === 'read' ? { ...e, result: 'Sales Order' } : e));
+    const report = { status: 'success' as const, summary: 'read it', evidence: { values: { order_status: 'Sales Order' } } };
+    const s = compileSkill({ entries, instruction: 'Read the status', report, session: 's' })!;
+    expect(s.steps.find((st) => st.tool === 'read')?.label).toBe('order_status');
+  });
+
+  it('ignores a carried label the report does not name', () => {
+    const report = { status: 'success' as const, summary: 'read it', evidence: { values: { total: '999.00' } } };
+    const s = compileSkill({ entries: readBack('unit_price'), instruction: 'Read the unit price', report, session: 's' })!;
+    expect(s.steps.find((st) => st.tool === 'read')?.label).toBeUndefined();
   });
 });

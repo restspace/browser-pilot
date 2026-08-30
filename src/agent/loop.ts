@@ -303,9 +303,16 @@ export async function runInstruction(
           const page = await browser.getPage();
           const alreadyRead = browser.script.readResultsThisInstruction();
           const stragglers: string[] = [];
-          for (const value of new Set(Object.values(values))) {
-            if (!value || alreadyRead.has(value)) continue;
-            const step = await captureReadBack(page, value);
+          const seenValue = new Set<string>();
+          // Keyed, not just valued. The evidence KEY is the output name a later
+          // flow step references, and compile used to recover it by matching
+          // the read's result against every reported value for an exact hit —
+          // so a read differing by a currency symbol was stored unlabelled,
+          // published nothing, and stranded every reference to it.
+          for (const [name, value] of Object.entries(values)) {
+            if (!value || alreadyRead.has(value) || seenValue.has(value)) continue;
+            seenValue.add(value);
+            const step = await captureReadBack(page, value, name);
             if (step) browser.script.addStep(step);
             else stragglers.push(value); // not pinnable by text — try the model next
           }
