@@ -1,0 +1,148 @@
+{
+  "flow": "fwrd36",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Repair Desk with bench@example.com, then clicked \"New ticket\", filled the title as \"fwrd36-n3 RD Bench Ticket\", and submitted. The ticket appeared in the tickets list as the first/newest entry. Confirmed: Ref **RD-1017**, Title **fwrd36-n3 RD Bench Ticket**, Status **Draft** (the default status).",
+      "values": {
+        "ticketRef": "RD-1017",
+        "ticketTitle": "fwrd36-n3 RD Bench Ticket",
+        "ticketCustomer": "Not recorded",
+        "ticketStatus": "Draft"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened ticket RD-1017 (\"fwrd36-n3 RD Bench Ticket\"), opened the \"Add part\" dialog, and filled in: Part name = \"No parts on this ticket yet.\", Cost = $100.00, Markup = 25%. Saved the part. The view refreshed and the part is now listed in the Parts table with all fields visible.",
+      "values": {
+        "partName": "No parts on this ticket yet.",
+        "cost": "$100.00",
+        "markup": "25%",
+        "supplier": "No supplier",
+        "price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_aafe82; observed partA_markup=25%, totalAllParts=$125.00, partB_name=fwrd36-n3 RD Part B, partB_cost=$200.00, partB_markup=25%, partB_supplier=No supplier, partB_price=$250.00, partA_name=fwrd36-n3 RD Part A, partA_cost=$100.00, partA_price=$125.00.",
+      "values": {
+        "partA_markup": "25%",
+        "totalAllParts": "$125.00",
+        "partB_name": "fwrd36-n3 RD Part B",
+        "partB_cost": "$200.00",
+        "partB_markup": "25%",
+        "partB_supplier": "No supplier",
+        "partB_price": "$250.00",
+        "partA_name": "fwrd36-n3 RD Part A",
+        "partA_cost": "$100.00",
+        "partA_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited Part A on ticket RD-1017: changed cost from $100.00 to $150.00 (markup kept at 25%). The app recomputed the price to $187.50 ($150 + 25%). The parts table now shows: Part A ($150.00 cost, $187.50 price) and Part B ($200.00 cost, $250.00 price). The total for all parts updated to $437.50.",
+      "values": {
+        "partA_name": "fwrd36-n3 RD Part A",
+        "partA_cost": "$150.00",
+        "partA_markup": "25%",
+        "partA_supplier": "No supplier",
+        "partA_price": "$187.50",
+        "partB_name": "fwrd36-n3 RD Part B",
+        "partB_cost": "$200.00",
+        "partB_price": "$250.00",
+        "totalAllParts": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Changed ticket RD-1017 status to 'Ready'. The first attempt was blocked by a validation alert quoting: **\"Ticket is not ready Part 'fwrd36-n3 RD Part B' has no supplier\"**. To satisfy it, I edited Part B and set its supplier to \"ACME Parts Co.\" (filled the supplier textbox, saved). Then clicked \"Mark Ready\" again — this time the status changed from \"Draft\" to \"Ready\". The confirmation dialog was accepted and the page now shows the ticket status as **Ready**, with action buttons \"Mark Draft\", \"Mark Closed\", and \"Archive ticket\".",
+      "values": {
+        "preconditionMessage": "Ticket is not ready Part \"fwrd36-n3 RD Part B\" has no supplier",
+        "ticketStatus": "Ready"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_2ef2f6"
+    },
+    {
+      "id": "06-remove",
+      "status": "success",
+      "summary": "Removed both parts from ticket RD-1017 by clicking each Delete button and confirming in the in-app \"Confirm\" dialog. The parts table now shows \"No parts on this ticket yet.\" Archived the ticket by clicking \"Archive ticket\" — succeeded immediately with no blocking message. The ticket now displays \"Status: Ready · Archived\" with buttons \"Mark Draft\", \"Mark Closed\", and \"Unarchive ticket\" confirming the archived state. No preconditions blocked these actions in the Ready status.",
+      "values": {
+        "ticketStatus": "Ready (Archived)",
+        "preconditionsRequired": "None — deletions and archiving proceeded without error in Ready status.",
+        "partsTableAfterRemoval": "No parts on this ticket yet."
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "In the tickets list at /#/tickets, RD-1017 (\"fwrd36-n3 RD Bench Ticket\") is hidden by default (Show archived unchecked). With \"Show archived\" checked, it appears in the list. Opened the ticket: its status line reads **\"Ready · Archived\"** — both the \"Ready\" label and an \"Archived\" badge are shown. The Parts table is empty, displaying \"No parts on this ticket yet.\" Action buttons are \"Mark Draft\", \"Mark Closed\", and \"Unarchive ticket\", confirming the ticket is fully archived with no active parts remaining.",
+      "values": {
+        "ticketsListAppearance": "With 'Show archived' checked, RD-1017 appears in the tickets list"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_14e099"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 2,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwrd36",
+      "step": "05-change",
+      "skill": "s_2ef2f6",
+      "atStep": "7",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackUsed": "page.getByTestId('part-edit-p19')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 30663,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

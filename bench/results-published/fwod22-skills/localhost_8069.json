@@ -1,0 +1,1194 @@
+[
+ {
+  "id": "s_6aa98e",
+  "origin": "http://localhost:8069",
+  "template": "In Odoo (already signed in as {{v1}}), open the quotation with reference {{v2}} for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+  "params": {
+   "v1": {
+    "example": "admin",
+    "usedIn": [
+     3
+    ]
+   },
+   "v2": {
+    "example": "S00021",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://localhost:8069/"
+  },
+  "steps": [
+   {
+    "tool": "tabs",
+    "args": {},
+    "locators": {}
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://localhost:8069"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e12",
+     "value": "{{v1}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Email"
+      },
+      {
+       "kind": "label",
+       "label": "Email"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Email"
+      },
+      {
+       "kind": "id",
+       "selector": "#login"
+      },
+      {
+       "kind": "css",
+       "selector": "#login"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web/login",
+     "addedContains": [
+      "- textbox \"Email\": {{v1}}"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:55:51.712Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_67dd56",
+   "index": 0,
+   "of": 6
+  },
+  "provenance": {
+   "session": "fwo",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:55:51.712Z"
+  }
+ },
+ {
+  "id": "s_0d2866",
+  "origin": "http://localhost:8069",
+  "template": "In Odoo (already signed in as {{v1}}), open the quotation with reference {{v2}} for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+  "params": {
+   "v1": {
+    "example": "admin",
+    "usedIn": [
+     1
+    ]
+   },
+   "v2": {
+    "example": "S00021",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://localhost:8069/web/login"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e15",
+     "value": "{{v1}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Password"
+      },
+      {
+       "kind": "id",
+       "selector": "#password"
+      },
+      {
+       "kind": "css",
+       "selector": "#password"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web/login",
+     "addedContains": [
+      "- textbox \"Password\": {{v1}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e17"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Log in"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > form > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.cids"
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#cids=:id",
+     "addedContains": [
+      "- button \"Home Menu\"",
+      "- button \"{{d1}}\"",
+      "- button \"\"",
+      "- button \"YourCompany\"",
+      "- button \"\""
+     ]
+    }
+   }
+  ],
+  "derived": {
+   "d1": {
+    "step": 2,
+    "at": "q.cids",
+    "example": "1"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:55:51.712Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_67dd56",
+   "index": 1,
+   "of": 6
+  },
+  "provenance": {
+   "session": "fwo",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:55:51.712Z"
+  }
+ },
+ {
+  "id": "s_ca7db9",
+  "origin": "http://localhost:8069",
+  "template": "In Odoo (already signed in as {{v1}}), open the quotation with reference {{v2}} for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+  "params": {
+   "v1": {
+    "example": "admin",
+    "usedIn": []
+   },
+   "v2": {
+    "example": "S00021",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://localhost:8069/web#cids={{d1}}",
+   "fingerprint": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.367,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0.092,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.092,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0.642,
+    0,
+    0.184,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e8"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(2)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"YourCompany\"",
+      "- button \"Switch to YourCompany\"",
+      "- menuitem \"UK Company\"",
+      "- button \"Switch to UK Company\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:55:51.712Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_67dd56",
+   "index": 2,
+   "of": 6
+  },
+  "provenance": {
+   "session": "fwo",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:55:51.712Z"
+  }
+ },
+ {
+  "id": "s_4d8e02",
+  "origin": "http://localhost:8069",
+  "template": "In Odoo (already signed in as {{v1}}), open the quotation with reference {{v2}} for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+  "params": {
+   "v1": {
+    "example": "admin",
+    "usedIn": []
+   },
+   "v2": {
+    "example": "S00021",
+    "usedIn": [
+     3
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://localhost:8069/web#action={{d2}}&cids={{d1}}&menu_id={{d3}}"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Contacts\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e77"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(3)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- button \"Orders\"",
+      "- button \"To Invoice\"",
+      "- button \"Products\"",
+      "- button \"Reporting\"",
+      "- button \"Configuration\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e253"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:55:51.712Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_67dd56",
+   "index": 3,
+   "of": 6
+  },
+  "provenance": {
+   "session": "fwo",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:55:51.712Z"
+  }
+ },
+ {
+  "id": "s_21467a",
+  "origin": "http://localhost:8069",
+  "template": "In Odoo (already signed in as {{v1}}), open the quotation with reference {{v2}} for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+  "params": {
+   "v1": {
+    "example": "admin",
+    "usedIn": []
+   },
+   "v2": {
+    "example": "S00021",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://localhost:8069/web#action={{d4}}&cids={{d1}}&menu_id={{d5}}&model=sale.order&view_type=list"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e621"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "3.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.id"
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 2,250.00\"",
+      "- combobox \"Type to find a product...\": Customizable Desk",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.",
+      "- textbox \"\": 3.00"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:55:51.712Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_67dd56",
+   "index": 4,
+   "of": 6
+  },
+  "provenance": {
+   "session": "fwo",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:55:51.712Z"
+  }
+ },
+ {
+  "id": "s_24057c",
+  "origin": "http://localhost:8069",
+  "template": "In Odoo (already signed in as {{v1}}), open the quotation with reference {{v2}} for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+  "params": {
+   "v1": {
+    "example": "admin",
+    "usedIn": []
+   },
+   "v2": {
+    "example": "S00021",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://localhost:8069/web#action={{d4}}&cids={{d1}}&id={{d6}}&menu_id={{d5}}&model=sale.order&view_type=form"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e753",
+     "value": "5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 3,750.00\"",
+      "- textbox \"\": 5.00",
+      "- cell \"£ 3,750.00\"",
+      "- row \"Untaxed Amount £ 3,816.00\"",
+      "- cell \"£ 3,816.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e766"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://localhost:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- cell \"Customizable Desk\"",
+      "- cell \"[FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.\"",
+      "- cell \"5.00\"",
+      "- cell \"750.00\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a customer..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a customer..."
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input",
+       "nth": 0
+      }
+     ]
+    },
+    "label": "customer"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "tbody > tr:nth-of-type(1) > td:nth-of-type(2) > div > span > span"
+      }
+     ]
+    },
+    "label": "product"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "label": "quantity_updated"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "untaxed_amount"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "total"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "quotation"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Opened quotation {{v2}} for 'fwod22-n1 Bench Customer', changed the first order-line 'Customizable Desk' quantity from 3.00 to 5.00, and saved. The page now confirms quantity 5.00, with updated totals (Untaxed Amount £3,816.00, Total £4,579.20). No unsaved changes indicator remains.",
+   "values": {
+    "quotation": "{{v2}}",
+    "customer": "fwod22-n1 Bench Customer",
+    "product": "Customizable Desk",
+    "quantity_updated": "5.00",
+    "previous_quantity": "3.00",
+    "untaxed_amount": "£ 3,816.00",
+    "total": "£ 4,579.20"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:55:51.712Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_67dd56",
+   "index": 5,
+   "of": 6
+  },
+  "provenance": {
+   "session": "fwo",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Change ONLY its FIRST order-line's quantity (the 'Customizable Desk' product) — set it so that quantity becomes exactly '5' instead of a blank/3 value, and leave all other lines and fields unchanged; then save if needed by clicking away or via Save button until Odoe shows no unsaved changes indicator on that field anymore.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:55:51.712Z"
+  }
+ }
+]

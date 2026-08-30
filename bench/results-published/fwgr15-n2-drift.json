@@ -1,0 +1,75 @@
+[
+  {
+    "flow": "fwgr15",
+    "step": "01-open",
+    "skill": "s_851aac",
+    "atStep": "5",
+    "key": "target",
+    "similarity": 0.731,
+    "missedLocator": "page.getByRole('cell', { name: 'Down' }).nth(9)",
+    "fallbackUsed": "page.locator('div > div:nth-of-type(1) > div > div > div:nth-of-type(8) > div:nth-of-type(6)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  },
+  {
+    "flow": "fwgr15",
+    "step": "01-open",
+    "skill": "s_851aac",
+    "atStep": "8",
+    "key": "target",
+    "similarity": 0.731,
+    "missedLocator": "page.locator('[id=\"_r1f_\"]')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  },
+  {
+    "flow": "fwgr15",
+    "step": "01-open",
+    "skill": "s_851aac",
+    "atStep": "9",
+    "key": "target",
+    "similarity": 0.731,
+    "missedLocator": "page.locator('[id=\"_r1i_\"]')",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  },
+  {
+    "flow": "fwgr15",
+    "step": "06-open",
+    "skill": "s_fc11b0",
+    "similarity": 0.987,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.data_source, 02-create.data_source",
+    "reason": "the page at http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id does not show \"fwgr15-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id"
+  },
+  {
+    "flow": "fwgr15",
+    "step": "07-report",
+    "skill": "s_fc11b0",
+    "similarity": 0.983,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_fc11b0 stopped at step 1 — the page at http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id does not show \"fwgr15-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id does not show \"fwgr15-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id"
+  },
+  {
+    "flow": "fwgr15",
+    "step": "10-report",
+    "skill": "s_fcb474",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_fcb474 stopped at step 1 — the page at http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id does not show \"fwgr15-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id does not show \"fwgr15-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/cfwrkk3k114w0a/:id"
+  }
+]

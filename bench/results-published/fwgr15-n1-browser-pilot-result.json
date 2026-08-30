@@ -1,0 +1,103 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "aa72f73"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwgr15-n1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 2238479,
+  "orchestrator": {
+    "input": 30127,
+    "cacheWrite": 0,
+    "cacheRead": 16320,
+    "output": 6133
+  },
+  "inner": {
+    "promptTokens": 6832716,
+    "cachedTokens": 5737856,
+    "completionTokens": 46391,
+    "instructions": 11,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 5740686,
+        "completionTokens": 33604,
+        "cachedTokens": 4857856,
+        "instructions": 10
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1092030,
+        "completionTokens": 12787,
+        "cachedTokens": 880000,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 10,
+      "offered": 7,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 162,
+      "compiled": 10,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "do": 10
+  },
+  "invocationCount": 10,
+  "commandMs": 2197337,
+  "commandBytes": 5319,
+  "timeouts": 1,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwgr15-skills",
+    "instructions": 10,
+    "offered": 7,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 162,
+    "compiled": 10,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Together",
+    "Modal"
+  ],
+  "orReportedCostUsd": 0.0734,
+  "maxUsd": 2,
+  "spendUsd": 0.7602,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE.** The provisioned dashboard `Service health` (at http://127.0.0.1:3000/d/bench-service-health/service-health) contains 3 panels, in order: **Request rate**, **Error count**, **Latency by endpoint**.\n\n**Objective 2 — DONE.** A new dashboard titled **fwgr15-n1 Bench Dashboard** was created and saved. It contains a **Stat** panel titled **fwgr15-n1 Availability**. Verified by opening the panel's editor: visualization type = \"Stat\", panel title = \"fwgr15-n1 Availability\", query data source = **TestData** (query row A shows \"(TestData)\", Scenario: Random Walk). The panel renders TestData output (\"A-series\", value 18.5).\n\n**Objective 3 — DONE.** The dashboard also contains a **Text** panel titled **fwgr15-n1 Notes** whose rendered content is exactly **\"Notes for run fwgr15-n1\"** — confirmed to contain the runid `fwgr15-n1`. Dashboard saved (\"Dashboard saved\" alert observed).\n\n**Objective 4 — DONE.** Dashboard settings show Tags = **[\"bench\"]** (verified in the General settings page after a fresh load). The time range picker shows **\"Last 6 hours\"**, and the loaded URL carries `from=now-6h&to=now`. Saved with the \"Update default time range\" option checked.\n\n**Objective 5 — DONE.** The auto-refresh interval is **1m** — the refresh control next to the time picker displays \"1m\", and the loaded URL carries `refresh=1m`. Saved with the \"Update default refresh value\" option checked.\n\n**Objective 6 — DONE.** Dashboard URL: **http://127.0.0.1:3000/d/ffwrhph5lc8owc/fwgr15-n1-bench-dashboard** (full URL with state: `http://127.0.0.1:3000/d/ffwrhph5lc8owc/fwgr15-n1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m`). Dashboard UID: **ffwrhph5lc8owc**. It lives in the \"Dashboards\" folder.\n\nAll six objectives succeeded; every value above was read back from the page after a fresh navigation, not assumed.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwgr15-n1-browser-pilot-transcript.jsonl"
+}

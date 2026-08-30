@@ -1,0 +1,58 @@
+{
+  "name": "fwod22",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+      "skill": "s_865a33",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-open",
+      "instruction": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose '{{runid}} Bench Customer' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_df0668",
+      "params": {
+        "v2": "{{runid}} Bench Customer",
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer '{{runid}} Bench Customer' (it should already be open, but navigate to it via Sales app if not). Add a SECOND order line: choose a DIFFERENT product from 'Customizable Desk' via the product autocomplete dropdown (must actually be selected from the dropdown), and set its quantity to 2. Keep the first line (Customizable Desk, qty 3) unchanged. Save the quotation. Report: (a) the exact product name of the new second line, (b) its unit price, and (c) the new total untaxed amount the app computes for the whole quotation. Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_cde3ef",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer '{{runid}} Bench Customer'. Confirm it by clicking the Confirm button so it becomes a sales order. Report: (a) the order reference/name shown (e.g. S00021), and (b) the status the app now shows (e.g. 'Sales Order' in the status bar / breadcrumb). Do not wait for network idle; wait for concrete page state.",
+      "skill": "s_335dec",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod22-n1",
+    "created": "2026-08-30T17:13:05.661Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

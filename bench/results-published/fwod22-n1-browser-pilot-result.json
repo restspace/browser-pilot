@@ -1,0 +1,104 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "aa72f73"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod22-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 3121467,
+  "orchestrator": {
+    "input": 22034,
+    "cacheWrite": 0,
+    "cacheRead": 11776,
+    "output": 16229
+  },
+  "inner": {
+    "promptTokens": 3750324,
+    "cachedTokens": 3328576,
+    "completionTokens": 24157,
+    "instructions": 5,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3351544,
+        "completionTokens": 21151,
+        "cachedTokens": 2973184,
+        "instructions": 4
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 398780,
+        "completionTokens": 3006,
+        "cachedTokens": 355392,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 4,
+      "offered": 1,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 118,
+      "compiled": 4,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1980567,
+  "commandBytes": 4203,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod22-skills",
+    "instructions": 4,
+    "offered": 1,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 118,
+    "compiled": 4,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Io Net",
+    "AkashML",
+    "AtlasCloud"
+  ],
+  "orReportedCostUsd": 0.1037,
+  "maxUsd": 2,
+  "spendUsd": 0.3271,
+  "finalText": "",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod22-n1-browser-pilot-transcript.jsonl"
+}

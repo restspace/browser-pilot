@@ -1,0 +1,225 @@
+{
+  "flow": "fwgr15",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana as admin, skipped the password change prompt, and opened the provisioned 'Service health' dashboard. The dashboard contains exactly 3 panels with the following titles, in order: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_b6a2fb; observed dashboard_title=fwgr15-n3 Bench Dashboard, panel_title=fwgr15-n3 Availability.",
+      "values": {
+        "dashboard_title": "fwgr15-n3 Bench Dashboard",
+        "panel_title": "fwgr15-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "29/29",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"fwgr15-n3 Notes\" with content \"Notes for run fwgr15-n3\", then saved the dashboard. The dashboard now shows 2 panels: (1) \"fwgr15-n3 Notes\" with text \"Notes for run fwgr15-n3\", (2) \"fwgr15-n3 Availability\" with TestData value 18.5. The dashboard saved successfully with alert \"Dashboard saved\".",
+      "values": {
+        "panel_titles": "fwgr15-n3 Availability, fwgr15-n3 Notes",
+        "text_panel_content": "Notes for run fwgr15-n3",
+        "read14": "fwgr15-n3 Availability",
+        "read15": "fwgr15-n3 Notes"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_4ef014; observed time_range=Last 6 hours.",
+      "values": {
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set auto-refresh to \"1m\" via the time picker dropdown, then saved the dashboard with the \"Update default refresh value\" checkbox checked. \"Dashboard saved\" alert confirmed success. After saving, verified: the refresh interval button shows \"1m\", and both panels \"fwgr15-n3 Availability\" and \"fwgr15-n3 Notes\" are present on the dashboard.",
+      "values": {
+        "panels": "fwgr15-n3 Availability, fwgr15-n3 Notes",
+        "auto_refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified all facts from a fresh page load of the dashboard (navigated directly to the URL): (1) Dashboard title in top bar: \"fwgr15-n3 Bench Dashboard\". (2) Panel titles: \"fwgr15-n3 Notes\" and \"fwgr15-n3 Availability\". (3) Time range: \"Last 6 hours\". (4) Auto-refresh interval: \"1m\". (5) Tags (from dashboard settings): \"bench\" is listed. (6) Full URL: http://127.0.0.1:3000/d/bfwrkvshek074c/fwgr15-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m — UID: \"bfwrkvshek074c\". Data source confirmed: the Stat panel \"fwgr15-n3 Availability\" uses \"TestData\". Text content: the Text panel \"fwgr15-n3 Notes\" displays \"Notes for run fwgr15-n3\".",
+      "values": {
+        "dashboard_title": "fwgr15-n3 Bench Dashboard",
+        "panel_titles": "fwgr15-n3 Notes, fwgr15-n3 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench",
+        "dashboard_uid": "bfwrkvshek074c",
+        "data_source": "TestData",
+        "text_panel_content": "Notes for run fwgr15-n3"
+      },
+      "tier": "B",
+      "replayed": "1/6",
+      "repaired": true,
+      "turns": 25
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "From the freshly loaded dashboard page: (1) Dashboard title in top bar: \"fwgr15-n3 Bench Dashboard\". (2) Panel titles visible: \"fwgr15-n3 Notes\" and \"fwgr15-n3 Availability\". (3) Time range: \"Last 6 hours\". (4) Auto-refresh interval: \"1m\" shown next to the time picker. (5) Full URL: http://127.0.0.1:3000/d/bfwrkvshek074c/fwgr15-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "dashboard_title": "fwgr15-n3 Bench Dashboard",
+        "panel_titles": "fwgr15-n3 Notes, fwgr15-n3 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened dashboard settings for \"fwgr15-n3 Bench Dashboard\" and read the General tab. Dashboard Name (Title): \"fwgr15-n3 Bench Dashboard\". Tags listed: \"bench\". Time options shown: Time zone set to \"Browser Time\", Week start \"Default\", Auto refresh intervals \"5s,10s,30s,1m,5m,15m,30m,1h,2h,1d\", Now delay empty (placeholder \"0m\"), Hide time picker off, Refresh live dashboards off.",
+      "values": {
+        "dashboard_name": "fwgr15-n3 Bench Dashboard",
+        "tags": "bench",
+        "time_zone": "Browser Time",
+        "week_start": "Default",
+        "auto_refresh_intervals_setting": "5s,10s,30s,1m,5m,15m,30m,1h,2h,1d",
+        "now_delay": "0m (placeholder)",
+        "hide_time_picker": "false",
+        "refresh_live_dashboards": "false"
+      },
+      "tier": "A",
+      "replayed": "0/8",
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Opened the panel editor for \"fwgr15-n3 Availability\". Verified: Visualization type is \"Stat\" (shown on the Change Visualization button). Panel title is \"fwgr15-n3 Availability\" (shown as the region heading). Data source is \"TestData\" (shown in the data source picker with TestData logo, and the query row title shows \"A (TestData)\"). Exited the editor via \"Back to dashboard\" without saving.",
+      "values": {
+        "visualization_type": "Stat",
+        "panel_title": "fwgr15-n3 Availability",
+        "data_source": "TestData"
+      },
+      "tier": "B",
+      "replayed": "3/7",
+      "repaired": true,
+      "turns": 5
+    },
+    {
+      "id": "10-report",
+      "status": "success",
+      "summary": "The 'fwgr15-n3 Notes' panel displays the exact text: \"Notes for run fwgr15-n3\". This text does contain the string 'fwgr15-n3'.",
+      "values": {
+        "text_panel_content": "Notes for run fwgr15-n3"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_4127f1"
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "repinned": 1,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr15",
+      "step": "01-open",
+      "skill": "s_851aac",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.731,
+      "missedLocator": "page.getByRole('cell', { name: 'Down' }).nth(9)",
+      "fallbackUsed": "page.locator('div > div:nth-of-type(1) > div > div > div:nth-of-type(8) > div:nth-of-type(6)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+    },
+    {
+      "flow": "fwgr15",
+      "step": "06-open",
+      "skill": "s_924bc3",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.data_source, 02-create.data_source",
+      "reason": "the page at http://127.0.0.1:3000/d/bfwrkvshek074c/:id does not show \"fwgr15-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfwrkvshek074c/:id"
+    },
+    {
+      "flow": "fwgr15",
+      "step": "08-open",
+      "skill": "s_e2a00b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.994,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfwrkvshek074c/:id"
+    },
+    {
+      "flow": "fwgr15",
+      "step": "09-open",
+      "skill": "s_1d9bcd",
+      "similarity": 0.897,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.data_source, 02-create.data_source",
+      "reason": "after step 4 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfwrkvshek074c/:id"
+    }
+  ],
+  "wallMs": 201951,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 701097,
+    "completionTokens": 9825,
+    "cachedTokens": 544256
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 701097,
+      "completionTokens": 9825,
+      "cachedTokens": 544256
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

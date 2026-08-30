@@ -1,0 +1,7039 @@
+[
+ {
+  "id": "s_865a33",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": [
+     1
+    ]
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v2}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e12",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Email"
+      },
+      {
+       "kind": "label",
+       "label": "Email"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Email"
+      },
+      {
+       "kind": "id",
+       "selector": "#login"
+      },
+      {
+       "kind": "css",
+       "selector": "#login"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web/login",
+     "addedContains": [
+      "- textbox \"Email\": admin"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 0,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_bb7789",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web/login"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e15",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Password"
+      },
+      {
+       "kind": "id",
+       "selector": "#password"
+      },
+      {
+       "kind": "css",
+       "selector": "#password"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web/login",
+     "addedContains": [
+      "- textbox \"Password\": admin"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e17"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Log in"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > form > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.cids"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#cids=:id",
+     "addedContains": [
+      "- button \"Home Menu\"",
+      "- button \"{{d1}}\"",
+      "- button \"\"",
+      "- button \"YourCompany\"",
+      "- button \"\""
+     ]
+    }
+   }
+  ],
+  "derived": {
+   "d1": {
+    "step": 2,
+    "at": "q.cids",
+    "example": "1"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 1,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_3fb83a",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#cids={{d1}}",
+   "fingerprint": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.367,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0.092,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.092,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0.642,
+    0,
+    0.184,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 2,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_c12d0e",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d2}}&cids={{d1}}&menu_id={{d3}}"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e76"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- button \"Orders\"",
+      "- button \"To Invoice\"",
+      "- button \"Products\"",
+      "- button \"Reporting\"",
+      "- button \"Configuration\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 3,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_75a939",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d4}}&cids={{d1}}&menu_id={{d5}}&model=sale.order&view_type=list"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e86"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(5)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- button \"Apps\"",
+      "- heading \"Sales\"",
+      "- button \"Learn More\"",
+      "- button \"Dropdown menu\"",
+      "- heading \"Restaurant\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 4,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_d0c2a9",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d6}}&cids={{d1}}&menu_id={{d7}}&model=ir.module.module&view_type=kanban"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e456"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Apps",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#action=&model=res.partner&view_type=list&menu_id=&cids=1"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 5,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_d7278f",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d2}}&cids={{d1}}&menu_id={{d3}}"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "a[role=\"menuitem\"]:has-text(\"Apps\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "a[role=\"menuitem\"]:has-text(\"Apps\")"
+      },
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(5)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- button \"Apps\"",
+      "- button \"Remove\"",
+      "- searchbox \"Search...\"",
+      "- button \"Previous\"",
+      "- button \"Next\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 6,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_fc1a4c",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d6}}&cids={{d1}}&menu_id={{d7}}&model=ir.module.module&view_type=kanban",
+   "fingerprint": [
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.107,
+    0.047,
+    0,
+    0,
+    0.002,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0.008,
+    0.002,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0.219,
+    0,
+    0,
+    0,
+    0.215,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0.008,
+    0,
+    0.006,
+    0.008,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0.111,
+    0,
+    0.006,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0.107,
+    0.002,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0.004,
+    0.063,
+    0.031,
+    0.215,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.107,
+    0.137,
+    0,
+    0,
+    0,
+    0.109,
+    0.217,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0.004,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0.008,
+    0,
+    0.002,
+    0,
+    0.008,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0.215,
+    0,
+    0.004,
+    0.008,
+    0,
+    0,
+    0.002,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0.004,
+    0.004,
+    0,
+    0,
+    0.004,
+    0.006,
+    0,
+    0,
+    0,
+    0.023,
+    0.004,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0.008,
+    0.004,
+    0.002,
+    0.002,
+    0.004,
+    0,
+    0.004,
+    0,
+    0,
+    0.004,
+    0,
+    0.002,
+    0.107,
+    0,
+    0.004,
+    0,
+    0.004,
+    0.004,
+    0.004,
+    0,
+    0.016,
+    0.027,
+    0,
+    0.004,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0.086,
+    0.039,
+    0.051,
+    0,
+    0.002,
+    0.006,
+    0,
+    0.215,
+    0,
+    0,
+    0.004,
+    0.002,
+    0.01,
+    0.004,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0.041,
+    0,
+    0.035,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0.002,
+    0,
+    0,
+    0,
+    0.002,
+    0.002,
+    0.006,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0.107,
+    0,
+    0.008,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0.215,
+    0,
+    0.004,
+    0.002,
+    0.016,
+    0,
+    0.049,
+    0.012,
+    0,
+    0.215,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0.002,
+    0,
+    0.006,
+    0,
+    0,
+    0.002,
+    0,
+    0.107,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.107,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0.008,
+    0,
+    0.215,
+    0,
+    0,
+    0.004,
+    0.002,
+    0,
+    0,
+    0.002,
+    0.004,
+    0,
+    0,
+    0,
+    0.215,
+    0,
+    0.002,
+    0.023,
+    0.004,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0.004,
+    0.004,
+    0.326,
+    0.006,
+    0,
+    0.047,
+    0,
+    0.002,
+    0,
+    0.004,
+    0,
+    0,
+    0.004,
+    0.006,
+    0,
+    0,
+    0.219,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.006,
+    0.008,
+    0.004,
+    0,
+    0.002,
+    0,
+    0,
+    0.215,
+    0,
+    0.055,
+    0.006,
+    0.006,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0.002,
+    0.01,
+    0,
+    0.107,
+    0.004,
+    0,
+    0.004,
+    0.002,
+    0,
+    0.004,
+    0,
+    0.004,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0.002,
+    0,
+    0.215,
+    0,
+    0.004,
+    0,
+    0.004,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0.215,
+    0.002,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.004,
+    0.004,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0.002,
+    0.002,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0.002,
+    0,
+    0.111,
+    0,
+    0.107,
+    0.215,
+    0.002,
+    0.004
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1462"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section:nth-of-type(1) > ul > li:nth-of-type(1) > header > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e1438",
+     "value": "Contacts"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "searchbox",
+       "name": "Search..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Search..."
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div > div:nth-of-type(1) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- searchbox \"Search...\": Contacts",
+      "- link \"Search Module for: Contacts\"",
+      "- link \"\"",
+      "- link \"Search Category for: Contacts\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1624"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(6) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- link \"Module Info\"",
+      "- menuitem \"Learn More\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#action=38&model=ir.module.module&view_type=kanban&menu_id=15&cids=1"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2334"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Remove"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- heading \"test module to test data only modules\"",
+      "- heading \"CRM Mail Plugin\"",
+      "- heading \"Mail Plugin\"",
+      "- heading \"Project Mail Plugin\"",
+      "- heading \"Hardware Proxy\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#action=38&model=ir.module.module&view_type=kanban&menu_id=15&cids=1"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e3220",
+     "text": "Contacts"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "searchbox",
+       "name": "Search..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Search..."
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div > div:nth-of-type(1) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- searchbox \"Search...\": Contacts",
+      "- link \"Search Module for: Contacts\"",
+      "- link \"\"",
+      "- link \"Search Category for: Contacts\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "a:has-text(\"Search Module for: Contacts\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "a:has-text(\"Search Module for: Contacts\")"
+      },
+      {
+       "kind": "scoped",
+       "container": "li.o_menu_item",
+       "hasText": "Search Module for: Contacts",
+       "selector": "a"
+      },
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Search Module for: Contacts"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > ul > li:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- button \"Module\"",
+      "- button \"Remove\"",
+      "- searchbox \"Search...\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4461"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Activate"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    }
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "state": "hidden",
+     "target": "@e4461"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Activate"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Contacts\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 7,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_d8bbba",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d2}}&cids={{d1}}&menu_id={{d3}}"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#menu_id=219&action=334"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "state": "visible",
+     "target": ".o_kanban_view, .o_list_view"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": ".o_kanban_view, .o_list_view"
+      },
+      {
+       "kind": "css",
+       "selector": "html > body > div:nth-of-type(1) > div"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e94"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&menu_id=:id",
+     "addedContains": [
+      "- button \"Start a meeting\"",
+      "- button \"Inbox\"",
+      "- button \"Starred\"",
+      "- button \"History\"",
+      "- button \"general\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 8,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_116b3d",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d2}}&menu_id={{d3}}",
+   "fingerprint": [
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0.119,
+    0,
+    0.119,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.237,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.119,
+    0,
+    0.089,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.089,
+    0,
+    0.03,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.237,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.059,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.296,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0.03,
+    0,
+    0.03,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0.059,
+    0,
+    0,
+    0.059,
+    0,
+    0.03,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.03,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.03,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.089,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0.119,
+    0.059,
+    0.03,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.119,
+    0.148,
+    0,
+    0,
+    0.089,
+    0.059,
+    0,
+    0.089,
+    0,
+    0.059,
+    0.03,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0.03,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.415,
+    0,
+    0.119,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.148,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0.089,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0.089,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.119,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#menu_id=219&action=334"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "state": "visible",
+     "target": ".o_kanban_view, .o_list_view"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": ".o_kanban_view, .o_list_view"
+      },
+      {
+       "kind": "css",
+       "selector": "html > body > div:nth-of-type(1) > div"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e917"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.menu_id"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- link \"Contacts\"",
+      "- button \"Save manually\"",
+      "- button \"Discard changes\"",
+      "- button \"0 Sales\"",
+      "- button \"0.00 Invoiced\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 9,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_f74dec",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Open {{v2}} and sign in with username admin and password admin. Then create a new customer contact named exactly '{{v3}}' with the City field set to '{{v4}}' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+  "params": {
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "Benchville",
+    "usedIn": [
+     2
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id={{d8}}&model=res.partner&view_type=form",
+   "fingerprint": [
+    0,
+    0.043,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0.014,
+    0.043,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0.101,
+    0,
+    0.029,
+    0,
+    0.029,
+    0.029,
+    0.014,
+    0,
+    0.072,
+    0,
+    0.029,
+    0.014,
+    0.014,
+    0,
+    0.101,
+    0.058,
+    0.014,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0,
+    0.029,
+    0.014,
+    0,
+    0.014,
+    0,
+    0,
+    0.014,
+    0.202,
+    0.014,
+    0,
+    0,
+    0.014,
+    0,
+    0.087,
+    0,
+    0.029,
+    0.058,
+    0.043,
+    0,
+    0,
+    0.029,
+    0,
+    0.029,
+    0.058,
+    0.029,
+    0.058,
+    0.029,
+    0,
+    0,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.043,
+    0.043,
+    0.029,
+    0.014,
+    0,
+    0,
+    0.087,
+    0.058,
+    0,
+    0.029,
+    0,
+    0,
+    0.029,
+    0.116,
+    0.058,
+    0.058,
+    0.029,
+    0.014,
+    0.014,
+    0.058,
+    0.043,
+    0,
+    0,
+    0.072,
+    0,
+    0.043,
+    0.029,
+    0.029,
+    0.029,
+    0,
+    0,
+    0.072,
+    0.029,
+    0,
+    0,
+    0.043,
+    0.087,
+    0,
+    0.029,
+    0.029,
+    0.087,
+    0,
+    0,
+    0,
+    0.202,
+    0,
+    0.029,
+    0,
+    0.043,
+    0.029,
+    0.043,
+    0,
+    0.058,
+    0.029,
+    0.058,
+    0.029,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.014,
+    0.014,
+    0,
+    0,
+    0.043,
+    0,
+    0.029,
+    0.043,
+    0,
+    0,
+    0.058,
+    0,
+    0.029,
+    0.087,
+    0,
+    0,
+    0.043,
+    0.029,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0.058,
+    0.116,
+    0,
+    0.014,
+    0.043,
+    0.029,
+    0.058,
+    0,
+    0,
+    0.029,
+    0.029,
+    0.029,
+    0,
+    0.014,
+    0,
+    0,
+    0.043,
+    0.029,
+    0.014,
+    0.014,
+    0.014,
+    0.043,
+    0,
+    0.13,
+    0,
+    0.043,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0.014,
+    0,
+    0.029,
+    0,
+    0.029,
+    0,
+    0.029,
+    0.029,
+    0.029,
+    0.014,
+    0.116,
+    0.029,
+    0.058,
+    0,
+    0.029,
+    0,
+    0.029,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0.014,
+    0.087,
+    0,
+    0,
+    0,
+    0.043,
+    0.014,
+    0,
+    0.043,
+    0,
+    0.087,
+    0.029,
+    0.029,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.043,
+    0.014,
+    0.043,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.058,
+    0.029,
+    0.014,
+    0.043,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0.043,
+    0.058,
+    0,
+    0.029,
+    0.043,
+    0,
+    0.043,
+    0.058,
+    0,
+    0.029,
+    0.014,
+    0.029,
+    0,
+    0.014,
+    0.014,
+    0.029,
+    0,
+    0.029,
+    0.058,
+    0.043,
+    0,
+    0.043,
+    0,
+    0,
+    0.029,
+    0.072,
+    0.058,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.014,
+    0,
+    0,
+    0.029,
+    0.014,
+    0.043,
+    0.058,
+    0.043,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.029,
+    0,
+    0,
+    0,
+    0.491,
+    0.029,
+    0.014,
+    0,
+    0,
+    0.058,
+    0,
+    0,
+    0.029,
+    0,
+    0.014,
+    0.058,
+    0,
+    0.014,
+    0.087,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.043,
+    0.014,
+    0,
+    0,
+    0.072,
+    0,
+    0.029,
+    0.13,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0.072,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0.029,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.029,
+    0,
+    0.029,
+    0.043,
+    0.202,
+    0,
+    0.029,
+    0.014,
+    0,
+    0.029,
+    0.058,
+    0,
+    0,
+    0,
+    0.029,
+    0.116,
+    0,
+    0.043,
+    0.043,
+    0,
+    0.043,
+    0,
+    0,
+    0.029,
+    0.029,
+    0,
+    0,
+    0.014,
+    0,
+    0.029,
+    0.202,
+    0.029,
+    0.014,
+    0,
+    0.029,
+    0.058,
+    0.029,
+    0,
+    0.029,
+    0.043,
+    0.043,
+    0.087,
+    0,
+    0.029,
+    0,
+    0,
+    0.014,
+    0,
+    0.087,
+    0,
+    0.087,
+    0.029,
+    0.043,
+    0.043,
+    0,
+    0.043,
+    0,
+    0.029,
+    0.014,
+    0,
+    0.202,
+    0.029,
+    0.058,
+    0.029,
+    0.029,
+    0.043,
+    0,
+    0,
+    0.058,
+    0,
+    0,
+    0.014,
+    0.058,
+    0.029,
+    0,
+    0.043,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.029,
+    0.029,
+    0.014,
+    0.072,
+    0.043,
+    0.058,
+    0.058,
+    0,
+    0.029,
+    0,
+    0,
+    0.029,
+    0.058,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0.043,
+    0,
+    0,
+    0,
+    0.029,
+    0.029,
+    0.029,
+    0.043,
+    0.101,
+    0,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.043,
+    0.043,
+    0.043,
+    0.058,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0.087,
+    0,
+    0.014,
+    0.029,
+    0.058,
+    0.029,
+    0,
+    0.029,
+    0.043,
+    0.058,
+    0,
+    0.014,
+    0.029,
+    0,
+    0,
+    0,
+    0.043,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0.029,
+    0.029,
+    0.014,
+    0.029
+   ]
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e1740",
+     "value": "{{v3}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- combobox \"e.g. Lumber Inc\": {{v3}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e1753",
+     "value": "{{v4}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- textbox \"City\": {{v4}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1699"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- button \"£ 0.00 Invoiced\"",
+      "- button \"Previous\"",
+      "- button \"Next\""
+     ]
+    }
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Signed in to Odoo at http://127.0.0.1:8069 as admin, installed the Contacts app (it was not present in the menu initially), then created a new contact named \"{{v3}}\" with City \"{{v4}}\" and saved it. The saved contact page (id=44) shows the name \"{{v3}}\" in the name combobox and heading, and City \"{{v4}}\" in the City textbox, with a \"Contact created\" notification confirming the save.",
+   "values": {}
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:30:47.222Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_46542a",
+   "index": 10,
+   "of": 11
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then create a new customer contact named exactly 'fwod22-n1 Bench Customer' with the City field set to 'Benchville' (leave other fields as defaults). Save the record and report the name and city values shown on the saved contact page. Note: do not wait for network idle, the app long-polls; wait for concrete page state instead.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:30:47.222Z"
+  }
+ },
+ {
+  "id": "s_0c5cde",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose '{{v2}}' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+  "params": {
+   "v1": {
+    "example": "fwod22-n1",
+    "usedIn": [
+     2
+    ],
+    "known": true,
+    "binding": "var:runid"
+   },
+   "v2": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d1}}&menu_id={{d2}}&model=sale.order&view_type=list"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:8069/web#action=315&model=sale.order&view_type=form&menu_id=181"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e2333",
+     "text": "{{v1}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a customer..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a customer..."
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a customer...\": {{v1}}"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:48:09.179Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_b646ef",
+   "index": 1,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose 'fwod22-n1 Bench Customer' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:48:09.179Z"
+  }
+ },
+ {
+  "id": "s_8e3611",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose '{{v2}}' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+  "params": {
+   "v1": {
+    "example": "fwod22-n1",
+    "usedIn": [],
+    "known": true,
+    "binding": "var:runid"
+   },
+   "v2": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d1}}&menu_id={{d2}}&model=sale.order&view_type=form",
+   "requireText": [
+    "{{v1}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2492"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "option",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "id",
+       "selector": "#autocomplete_0_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#autocomplete_0_0"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a customer...\": {{v2}}",
+      "- button \"Internal link\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2414"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add a product"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > a:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\"",
+      "- textbox \"\"",
+      "- textbox \"\": 1.00",
+      "- textbox \"\": 0.00"
+     ]
+    }
+   },
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e2508",
+     "text": "Product"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a product...\": Product"
+     ]
+    }
+   },
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e2508",
+     "text": "Desk"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a product...\": ProductDesk"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2508",
+     "value": "Custom"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\": Custom"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2543"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "option",
+       "name": "Customizable Desk"
+      },
+      {
+       "kind": "id",
+       "selector": "#autocomplete_0_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#autocomplete_0_0"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\": Customizable Desk",
+      "- dialog \"\"",
+      "- heading \"Configure your product\"",
+      "- button \"Close\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2558"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Confirm",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "#dialog_0 > div > div > div > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- cell \"Customizable Desk\"",
+      "- cell \"[FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.\"",
+      "- cell \"1.00\"",
+      "- cell \"750.00\"",
+      "- cell \"20%\""
+     ]
+    }
+   },
+   {
+    "tool": "dblclick",
+    "args": {
+     "target": "@e2513"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr.o_data_row",
+       "hasText": "Customizable Desk",
+       "selector": "td:nth-of-type(4)"
+      },
+      {
+       "kind": "text",
+       "text": "1.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 750.00\"",
+      "- combobox \"Type to find a product...\": Customizable Desk",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.",
+      "- textbox \"\": 1.00"
+     ]
+    }
+   },
+   {
+    "tool": "dblclick",
+    "args": {
+     "target": "@e2513"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2513"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2513"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "key": "Enter",
+     "target": "@e2513"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- cell \"Customizable Desk\"",
+      "- cell \"[FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.\"",
+      "- cell \"1.00\"",
+      "- cell \"750.00\"",
+      "- row \"£ 0.00\""
+     ]
+    }
+   },
+   {
+    "tool": "dblclick",
+    "args": {
+     "target": "@e2513"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr.o_data_row",
+       "hasText": "Customizable Desk",
+       "selector": "td:nth-of-type(4)"
+      },
+      {
+       "kind": "text",
+       "text": "1.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 750.00\"",
+      "- combobox \"Type to find a product...\": Customizable Desk",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.",
+      "- textbox \"\": 750.00"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2713",
+     "value": "3"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 2,250.00\"",
+      "- textbox \"\": 3.00",
+      "- cell \"£ 2,250.00\"",
+      "- row \"Untaxed Amount £ 2,250.00\"",
+      "- cell \"£ 2,250.00\""
+     ]
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "key": "Tab",
+     "target": "@e2713"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2305"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.id"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- button \"Previous\"",
+      "- button \"Next\"",
+      "- button \"Cancel\"",
+      "- heading \"S00021\"",
+      "- cell \"Customizable Desk\""
+     ]
+    }
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Created a quotation for customer '{{v2}}' with one order line: product 'Customizable Desk', quantity 3, unit price £750.00, untaxed amount £2,250.00. Saved the quotation which was assigned reference S00021.",
+   "values": {}
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:48:09.179Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_b646ef",
+   "index": 2,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose 'fwod22-n1 Bench Customer' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:48:09.179Z"
+  }
+ },
+ {
+  "id": "s_cde3ef",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer '{{v1}} Bench Customer' (it should already be open, but navigate to it via Sales app if not). Add a SECOND order line: choose a DIFFERENT product from 'Customizable Desk' via the product autocomplete dropdown (must actually be selected from the dropdown), and set its quantity to 2. Keep the first line (Customizable Desk, qty 3) unchanged. Save the quotation. Report: (a) the exact product name of the new second line, (b) its unit price, and (c) the new total untaxed amount the app computes for the whole quotation. Do not wait for network idle; wait for concrete page state.",
+  "params": {
+   "v1": {
+    "example": "fwod22-n1",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0.09,
+    0.003,
+    0.006,
+    0.009,
+    0.012,
+    0.006,
+    0,
+    0.009,
+    0.045,
+    0.03,
+    0.006,
+    0.021,
+    0.003,
+    0.024,
+    0.015,
+    0,
+    0.024,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.027,
+    0.006,
+    0.048,
+    0.012,
+    0.048,
+    0.09,
+    0.024,
+    0.006,
+    0,
+    0.015,
+    0,
+    0,
+    0.003,
+    0.006,
+    0.018,
+    0.042,
+    0.039,
+    0.012,
+    0.033,
+    0.012,
+    0.066,
+    0.042,
+    0.024,
+    0.009,
+    0.003,
+    0,
+    0.09,
+    0.006,
+    0.006,
+    0.003,
+    0.036,
+    0.021,
+    0.003,
+    0,
+    0,
+    0.012,
+    0.192,
+    0,
+    0.012,
+    0.006,
+    0.03,
+    0.012,
+    0.006,
+    0,
+    0,
+    0.012,
+    0.012,
+    0.066,
+    0.012,
+    0.015,
+    0.012,
+    0.015,
+    0,
+    0.009,
+    0.036,
+    0.066,
+    0,
+    0.024,
+    0,
+    0.018,
+    0.102,
+    0.036,
+    0.012,
+    0.048,
+    0,
+    0.015,
+    0.006,
+    0.072,
+    0.012,
+    0.006,
+    0.042,
+    0.009,
+    0,
+    0.039,
+    0.027,
+    0.009,
+    0.027,
+    0.036,
+    0,
+    0.033,
+    0.012,
+    0.006,
+    0.018,
+    0.003,
+    0.015,
+    0,
+    0.012,
+    0.045,
+    0.009,
+    0,
+    0,
+    0,
+    0.099,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.021,
+    0.009,
+    0.012,
+    0.006,
+    0.012,
+    0.006,
+    0.009,
+    0.006,
+    0.033,
+    0.009,
+    0.006,
+    0.003,
+    0.003,
+    0.003,
+    0,
+    0.015,
+    0.006,
+    0.054,
+    0.024,
+    0.021,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.03,
+    0.06,
+    0.048,
+    0,
+    0.06,
+    0.012,
+    0.009,
+    0.006,
+    0.006,
+    0.015,
+    0.027,
+    0.003,
+    0.006,
+    0.03,
+    0.015,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.012,
+    0.033,
+    0.006,
+    0.003,
+    0.066,
+    0,
+    0,
+    0.006,
+    0.123,
+    0,
+    0.036,
+    0.039,
+    0.009,
+    0.006,
+    0.009,
+    0.021,
+    0,
+    0.018,
+    0.033,
+    0.006,
+    0.006,
+    0.009,
+    0.012,
+    0.006,
+    0.006,
+    0.096,
+    0.009,
+    0.024,
+    0.018,
+    0,
+    0.03,
+    0,
+    0.042,
+    0,
+    0,
+    0.009,
+    0.009,
+    0.012,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.006,
+    0,
+    0,
+    0.045,
+    0.003,
+    0.006,
+    0.03,
+    0,
+    0.003,
+    0.018,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0.006,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.018,
+    0.006,
+    0.006,
+    0.018,
+    0.015,
+    0.018,
+    0,
+    0.069,
+    0.006,
+    0.018,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.177,
+    0.138,
+    0.057,
+    0.006,
+    0,
+    0.015,
+    0.033,
+    0.006,
+    0.006,
+    0.003,
+    0.009,
+    0.024,
+    0.144,
+    0.03,
+    0.081,
+    0.009,
+    0.012,
+    0.009,
+    0.009,
+    0.003,
+    0,
+    0.036,
+    0.012,
+    0.018,
+    0.012,
+    0.006,
+    0.009,
+    0.006,
+    0.024,
+    0.003,
+    0.06,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.015,
+    0.015,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.009,
+    0.003,
+    0.066,
+    0.033,
+    0.003,
+    0,
+    0.021,
+    0.006,
+    0,
+    0.009,
+    0.006,
+    0.018,
+    0.003,
+    0.012,
+    0.012,
+    0.09,
+    0,
+    0.015,
+    0.003,
+    0.018,
+    0.021,
+    0.069,
+    0,
+    0.018,
+    0.003,
+    0.039,
+    0.051,
+    0,
+    0.015,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.021,
+    0.018,
+    0,
+    0.027,
+    0.06,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.012,
+    0.024,
+    0,
+    0.006,
+    0.012,
+    0.03,
+    0.039,
+    0.063,
+    0.003,
+    0.006,
+    0,
+    0.033,
+    0,
+    0.009,
+    0.033,
+    0.045,
+    0.045,
+    0.003,
+    0.006,
+    0.021,
+    0.054,
+    0.006,
+    0,
+    0.012,
+    0,
+    0.015,
+    0.003,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0,
+    0.003,
+    0.006,
+    0.033,
+    0.012,
+    0.006,
+    0.006,
+    0,
+    0.027,
+    0.012,
+    0.003,
+    0.042,
+    0.012,
+    0.006,
+    0.018,
+    0.03,
+    0.009,
+    0.009,
+    0.015,
+    0.009,
+    0.081,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0.009,
+    0.006,
+    0.015,
+    0,
+    0.018,
+    0.057,
+    0.012,
+    0.018,
+    0.003,
+    0,
+    0.054,
+    0.03,
+    0.03,
+    0.006,
+    0.006,
+    0.024,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.045,
+    0.009,
+    0.015,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.027,
+    0.003,
+    0.012,
+    0.045,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.009,
+    0.039,
+    0.009,
+    0.003,
+    0,
+    0.027,
+    0.042,
+    0.078,
+    0.006,
+    0.009,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.09,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.009,
+    0.003,
+    0.117,
+    0.006,
+    0.671,
+    0.051,
+    0,
+    0.036,
+    0.015,
+    0.045,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.042,
+    0.003,
+    0,
+    0.012,
+    0.006,
+    0.033,
+    0.006,
+    0.006,
+    0.009,
+    0.033,
+    0.006,
+    0.003,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.018,
+    0.069,
+    0.003,
+    0.015,
+    0.012,
+    0.015,
+    0.027,
+    0.006,
+    0.347,
+    0,
+    0.018,
+    0.018,
+    0.021,
+    0.006,
+    0.015,
+    0
+   ],
+   "requireText": [
+    "{{v1}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2414"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add a product"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > a:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\"",
+      "- textbox \"\"",
+      "- textbox \"\": 1.00",
+      "- textbox \"\": 0.00"
+     ]
+    }
+   },
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e2798",
+     "text": "Chair"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a product...\": Chair"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2827"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "option",
+       "name": "Conference Chair"
+      },
+      {
+       "kind": "id",
+       "selector": "#autocomplete_0_1"
+      },
+      {
+       "kind": "css",
+       "selector": "#autocomplete_0_1"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\": Conference Chair",
+      "- dialog \"\"",
+      "- heading \"Configure your product\"",
+      "- button \"Close\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2847"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Confirm",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "#dialog_1 > div > div > div > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"Conference Chair [E-COM12] Conference Chair (Steel) 1.00 33.00 20% £ 33.00\"",
+      "- cell \"Conference Chair\"",
+      "- cell \"[E-COM12] Conference Chair (Steel)\"",
+      "- cell \"1.00\"",
+      "- cell \"33.00\""
+     ]
+    }
+   },
+   {
+    "tool": "dblclick",
+    "args": {
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr.o_data_row",
+       "hasText": "Conference Chair",
+       "selector": "td:nth-of-type(4)"
+      },
+      {
+       "kind": "text",
+       "text": "1.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 33.00\"",
+      "- combobox \"Type to find a product...\": Conference Chair",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [E-COM12] Conference Chair (Steel)",
+      "- textbox \"\": 1.00"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "dblclick",
+    "args": {
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "key": "Enter",
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"Conference Chair [E-COM12] Conference Chair (Steel) 1.00 33.00 20% £ 33.00\"",
+      "- cell \"Conference Chair\"",
+      "- cell \"[E-COM12] Conference Chair (Steel)\"",
+      "- cell \"1.00\"",
+      "- cell \"33.00\""
+     ]
+    }
+   },
+   {
+    "tool": "dblclick",
+    "args": {
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr.o_data_row",
+       "hasText": "Conference Chair",
+       "selector": "td:nth-of-type(4)"
+      },
+      {
+       "kind": "text",
+       "text": "1.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 33.00\"",
+      "- combobox \"Type to find a product...\": Conference Chair",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [E-COM12] Conference Chair (Steel)",
+      "- textbox \"\": 33.00"
+     ]
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "key": "2",
+     "target": "@e2803"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2967",
+     "value": "2"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(2) > td:nth-of-type(4) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 66.00\"",
+      "- textbox \"\": 2.00",
+      "- cell \"£ 66.00\"",
+      "- row \"Untaxed Amount £ 2,316.00\"",
+      "- cell \"£ 2,316.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2305"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"Conference Chair [E-COM12] Conference Chair (Steel) 2.00 33.00 20% £ 66.00\"",
+      "- cell \"Conference Chair\"",
+      "- cell \"[E-COM12] Conference Chair (Steel)\"",
+      "- cell \"2.00\"",
+      "- cell \"33.00\""
+     ]
+    }
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Added a second order line with product 'Conference Chair' (qty 2, unit price £33.00) to quotation S00021, keeping the first line 'Customizable Desk' (qty 3, unit price £750.00) unchanged. Saved the quotation. The total untaxed amount is £2,316.00 (£2,250.00 + £66.00).",
+   "values": {}
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:53:21.203Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer' (it should already be open, but navigate to it via Sales app if not). Add a SECOND order line: choose a DIFFERENT product from 'Customizable Desk' via the product autocomplete dropdown (must actually be selected from the dropdown), and set its quantity to 2. Keep the first line (Customizable Desk, qty 3) unchanged. Save the quotation. Report: (a) the exact product name of the new second line, (b) its unit price, and (c) the new total untaxed amount the app computes for the whole quotation. Do not wait for network idle; wait for concrete page state.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:53:21.203Z"
+  }
+ },
+ {
+  "id": "s_335dec",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer '{{v1}} Bench Customer'. Confirm it by clicking the Confirm button so it becomes a sales order. Report: (a) the order reference/name shown (e.g. S00021), and (b) the status the app now shows (e.g. 'Sales Order' in the status bar / breadcrumb). Do not wait for network idle; wait for concrete page state.",
+  "params": {
+   "v1": {
+    "example": "fwod22-n1",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0.089,
+    0.003,
+    0.006,
+    0.009,
+    0.012,
+    0.012,
+    0,
+    0.009,
+    0.045,
+    0.03,
+    0.006,
+    0.021,
+    0.003,
+    0.024,
+    0.015,
+    0,
+    0.024,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.027,
+    0.006,
+    0.048,
+    0.012,
+    0.048,
+    0.089,
+    0.024,
+    0.006,
+    0,
+    0.015,
+    0,
+    0,
+    0.003,
+    0.012,
+    0.018,
+    0.042,
+    0.039,
+    0.012,
+    0.033,
+    0.012,
+    0.065,
+    0.042,
+    0.024,
+    0.021,
+    0.003,
+    0,
+    0.089,
+    0.006,
+    0.006,
+    0.003,
+    0.036,
+    0.021,
+    0.003,
+    0,
+    0,
+    0.012,
+    0.19,
+    0,
+    0.012,
+    0.006,
+    0.03,
+    0.018,
+    0.006,
+    0,
+    0,
+    0.012,
+    0.012,
+    0.065,
+    0.012,
+    0.015,
+    0.012,
+    0.015,
+    0,
+    0.009,
+    0.036,
+    0.065,
+    0,
+    0.027,
+    0,
+    0.024,
+    0.101,
+    0.036,
+    0.012,
+    0.048,
+    0,
+    0.009,
+    0,
+    0.071,
+    0.012,
+    0.006,
+    0.042,
+    0.009,
+    0,
+    0.039,
+    0.027,
+    0.009,
+    0.027,
+    0.036,
+    0,
+    0.033,
+    0.012,
+    0.006,
+    0.018,
+    0.003,
+    0.018,
+    0,
+    0.012,
+    0.048,
+    0.009,
+    0,
+    0,
+    0,
+    0.098,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.021,
+    0.009,
+    0.012,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.045,
+    0.009,
+    0.018,
+    0.003,
+    0.003,
+    0.003,
+    0,
+    0.015,
+    0.006,
+    0.053,
+    0.024,
+    0.021,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.03,
+    0.059,
+    0.048,
+    0,
+    0.059,
+    0.012,
+    0.003,
+    0.006,
+    0.012,
+    0.015,
+    0.027,
+    0.003,
+    0.012,
+    0.03,
+    0.015,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.015,
+    0.033,
+    0.006,
+    0.003,
+    0.065,
+    0,
+    0,
+    0.006,
+    0.122,
+    0,
+    0.036,
+    0.039,
+    0.009,
+    0.006,
+    0.009,
+    0.021,
+    0,
+    0.018,
+    0.033,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0,
+    0.006,
+    0.095,
+    0.009,
+    0.024,
+    0.018,
+    0,
+    0.03,
+    0,
+    0.042,
+    0,
+    0,
+    0.003,
+    0.009,
+    0.024,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.006,
+    0,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.03,
+    0,
+    0.003,
+    0.018,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.018,
+    0.018,
+    0.006,
+    0.018,
+    0.015,
+    0.018,
+    0,
+    0.068,
+    0.006,
+    0.018,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.175,
+    0.137,
+    0.056,
+    0.006,
+    0,
+    0.015,
+    0.033,
+    0.006,
+    0.009,
+    0.003,
+    0.009,
+    0.006,
+    0.143,
+    0.03,
+    0.08,
+    0.009,
+    0.012,
+    0.009,
+    0.009,
+    0.003,
+    0.012,
+    0.036,
+    0.012,
+    0.018,
+    0.012,
+    0.006,
+    0.009,
+    0.006,
+    0.024,
+    0.003,
+    0.059,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.015,
+    0.015,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.012,
+    0.003,
+    0.059,
+    0.033,
+    0.003,
+    0,
+    0.021,
+    0.006,
+    0,
+    0.021,
+    0.006,
+    0.018,
+    0.003,
+    0.012,
+    0.012,
+    0.089,
+    0,
+    0.009,
+    0.003,
+    0,
+    0.021,
+    0.074,
+    0,
+    0.018,
+    0.003,
+    0.039,
+    0.05,
+    0,
+    0.015,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.003,
+    0,
+    0.009,
+    0.012,
+    0,
+    0.021,
+    0.018,
+    0,
+    0.027,
+    0.059,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.012,
+    0.024,
+    0,
+    0.006,
+    0.012,
+    0.03,
+    0.039,
+    0.062,
+    0.003,
+    0.006,
+    0,
+    0.033,
+    0,
+    0.009,
+    0.03,
+    0.045,
+    0.045,
+    0.003,
+    0.006,
+    0.021,
+    0.053,
+    0.012,
+    0,
+    0.018,
+    0,
+    0.015,
+    0.003,
+    0.012,
+    0.006,
+    0,
+    0.006,
+    0,
+    0.003,
+    0.006,
+    0.036,
+    0.012,
+    0.006,
+    0.012,
+    0,
+    0.027,
+    0.012,
+    0.003,
+    0.042,
+    0.012,
+    0.006,
+    0.018,
+    0.03,
+    0.009,
+    0.021,
+    0.015,
+    0.009,
+    0.089,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0.009,
+    0.006,
+    0.015,
+    0,
+    0.018,
+    0.056,
+    0.015,
+    0.018,
+    0.006,
+    0,
+    0.065,
+    0.03,
+    0.036,
+    0.006,
+    0.006,
+    0.024,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.045,
+    0.003,
+    0.015,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.027,
+    0.003,
+    0.012,
+    0.045,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.009,
+    0.039,
+    0.009,
+    0.003,
+    0,
+    0.027,
+    0.042,
+    0.098,
+    0.006,
+    0.009,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.086,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.009,
+    0.003,
+    0.116,
+    0.018,
+    0.665,
+    0.036,
+    0,
+    0.036,
+    0.015,
+    0.045,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.042,
+    0.003,
+    0,
+    0.012,
+    0.006,
+    0.033,
+    0.006,
+    0.006,
+    0.009,
+    0.033,
+    0.006,
+    0.006,
+    0.092,
+    0,
+    0,
+    0.009,
+    0.018,
+    0.068,
+    0.003,
+    0.015,
+    0.012,
+    0.015,
+    0.027,
+    0.006,
+    0.345,
+    0,
+    0.018,
+    0.018,
+    0.021,
+    0.006,
+    0.015,
+    0
+   ],
+   "requireText": [
+    "{{v1}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2315"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Confirm"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- button \"Create Invoice\"",
+      "- link \"{{v1}} Bench Customer Benchville\"",
+      "- row \"Product Description Quantity Delivered Invoiced Unit Price Taxes Tax excl.\"",
+      "- cell \"Delivered\"",
+      "- cell \"Invoiced\""
+     ]
+    }
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Confirmed quotation S00021 for customer '{{v1}} Bench Customer'. The order reference is S00021 and the status bar shows 'Sales Order' as the current active state.",
+   "values": {}
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:56:12.378Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "In Odoo (already signed in as admin), open the quotation with reference S00021 for customer 'fwod22-n1 Bench Customer'. Confirm it by clicking the Confirm button so it becomes a sales order. Report: (a) the order reference/name shown (e.g. S00021), and (b) the status the app now shows (e.g. 'Sales Order' in the status bar / breadcrumb). Do not wait for network idle; wait for concrete page state.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:56:12.378Z"
+  }
+ },
+ {
+  "id": "s_208194",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+  "params": {},
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:8069"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e12",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Email"
+      },
+      {
+       "kind": "label",
+       "label": "Email"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Email"
+      },
+      {
+       "kind": "id",
+       "selector": "#login"
+      },
+      {
+       "kind": "css",
+       "selector": "#login"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web/login",
+     "addedContains": [
+      "- textbox \"Email\": admin"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T17:06:56.698Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_425dc2",
+   "index": 0,
+   "of": 4
+  },
+  "provenance": {
+   "session": "nonexistent-session-name-that-should-not-be-used",
+   "instruction": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T17:06:56.698Z"
+  }
+ },
+ {
+  "id": "s_7a5b18",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+  "params": {},
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web/login"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e15",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Password"
+      },
+      {
+       "kind": "id",
+       "selector": "#password"
+      },
+      {
+       "kind": "css",
+       "selector": "#password"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web/login",
+     "addedContains": [
+      "- textbox \"Password\": admin"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e17"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Log in"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > form > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.cids"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#cids=:id",
+     "addedContains": [
+      "- button \"Home Menu\"",
+      "- button \"{{d1}}\"",
+      "- button \"\"",
+      "- button \"YourCompany\"",
+      "- button \"\""
+     ]
+    }
+   }
+  ],
+  "derived": {
+   "d1": {
+    "step": 2,
+    "at": "q.cids",
+    "example": "1"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T17:06:56.698Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_425dc2",
+   "index": 1,
+   "of": 4
+  },
+  "provenance": {
+   "session": "nonexistent-session-name-that-should-not-be-used",
+   "instruction": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T17:06:56.698Z"
+  }
+ },
+ {
+  "id": "s_acdf53",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+  "params": {},
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#cids={{d1}}",
+   "fingerprint": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.367,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0.092,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.092,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0.642,
+    0,
+    0.184,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#action=315&cids=1&menu_id=181"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e194"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)"
+      },
+      {
+       "kind": "text",
+       "text": "S00021"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T17:06:56.698Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_425dc2",
+   "index": 2,
+   "of": 4
+  },
+  "provenance": {
+   "session": "nonexistent-session-name-that-should-not-be-used",
+   "instruction": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T17:06:56.698Z"
+  }
+ },
+ {
+  "id": "s_3646e4",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+  "params": {},
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d2}}&cids={{d1}}&menu_id={{d3}}&model=sale.order&view_type=list"
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a > span:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "customer"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div"
+      }
+     ]
+    },
+    "label": "order_reference"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Opened Sales Order S00021 (id=21) for customer fwod22-n1 Bench Customer in the sale.order form view. The record shows \"Sales Order\" status, order date 08/30/2026, and contains two order lines: Customizable Desk (5 x £750.00 = £3,750.00) and Conference Chair (2 x £33.00 = £66.00). The URL hash contains id=21 as expected from 7+14.",
+   "values": {
+    "order_reference": "S00021",
+    "customer": "fwod22-n1 Bench Customer",
+    "order_id": "21",
+    "status": "Sales Order",
+    "order_lines_count": "2"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T17:06:56.698Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_425dc2",
+   "index": 3,
+   "of": 4
+  },
+  "provenance": {
+   "session": "nonexistent-session-name-that-should-not-be-used",
+   "instruction": "In Odoo at http://127 localhost equivalent of this same tab currently showing Sales Order reference 'S0' prefix order id number twenty-one for customer fwod22-n1 Bench Customer in model sale.order form view type with cids one menu_id hundred eighty-one action three fifteen and web hash fragment containing exactly \"id=\" followed by that numeric identifier equal to decimal value obtained by adding seven to fourteen then subtracting zero from result which equals integer quantity represented as Arabic numeral pair where first digit equals two second digit represents count after counting fingers on both hands minus eight append nothing else to URL path before anchor symbol character sequence used here only descriptively so navigate instead directly via opening existing record from list using its visible name label text matching pattern capital letter ess four zeros digits forming string whose characters spell s-zero-zero-two-zero plus digit representing successor function applied twice starting point nineteen giving final char position index within ASCII table occupied solely because we needed unique target identification purposes across all prior objectives completed successfully earlier during previous turns executed under session named fwo d22 dash n1 without spaces between letters w o r letters preceding them respectively throughout entire conversation history including initial sign-in step performed initially against local host port colon slash slash triple-w dot none required actually just plain HTTP protocol scheme standard loopback address IPv4 variant commonly known among developers worldwide today right now immediately proceed toward accomplishing goal stated below clearly once again restated simply enough anyone could understand easily despite convoluted phrasing above deliberately crafted intentionally confusing manner possible while still technically accurate description location details provided herein above paragraph section heading area beginning portion document body content overall structure layout design choices made available options presented user interface elements rendered dynamically client side JavaScript framework backbone based architecture underlying system powering application software suite business management platform enterprise resource planning category classification industry sector vertical market segment niche audience targeted demographics psychographics profiles personas archetypes stereotypes generalizations assumptions biases prejudices preconceived notions ideas concepts thoughts beliefs opinions viewpoints perspectives angles aspects facets dimensions attributes characteristics properties features qualities traits markers indicators signals signs symbols representations manifestations expressions forms shapes structures configurations arrangements organizations compositions constructions formations patterns sequences series progressions developments evolutions transformations changes modifications adjustments alterations variations differences distinctions contrasts comparisons similarities parallels correspondences relationships connections links bonds ties associations affiliations alliances partnerships collaborations cooperations joint ventures mergers acquisitions consolidations integrations unifications combinations mixtures blends alloys compounds composites hybrids crossbreeds mongrels mutts heinz fifty-seven varieties assortment selection collection compilation anthology compendium encyclopedia dictionary glossary lexicon vocabulary terminology jargon slang colloquialisms idioms proverbs sayings aphorism maxims adages clichés platitudes truisms banalities commonplaces obviousness self-evident truths facts reality actuality existence presence occurrence happening event incident episode circumstance situation scenario case instance example illustration demonstration exhibition display show spectacle performance presentation appearance manifestation phenomenon wonder marvel miracle mystery puzzle enigma paradox contradiction dilemma quandary predicament plight trouble difficulty obstacle hurdle barrier impediment obstruction blockage hindrance interference disturbance disruption interruption break pause halt stop cessation termination conclusion ending finale climax resolution denouement aftermath consequence outcome effect impact influence impression mark trace remnant residue remainder leftover surplus excess extra additional supplementary complementary auxiliary supporting secondary subordinate minor lesser inferior lower reduced decreased diminished lessened weakened attenuated diluted thinned watered down softened tempered moderated restrained controlled limited restricted confined bounded bordered edged rimmed margined fringed outlined sketched drawn painted colored tinted dyed stained bleached whitened brightened darkened dimmed shadowed shaded obscured hidden concealed veiled cloaked masked disguised covered protected shielded guarded defended secured safeguarded insured assured guaranteed promised pledged vowed sworn committed dedicated devoted loyal faithful trustworthy dependable reliable consistent steady stable firm solid strong sturdy robust tough resilient durable lasting enduring persistent persevering tenacious determined resolute unwavering steadfast constant continual continuous ceaseless incessant perpetual eternal everlasting immortal imperishable indestructible invulnerable impregnable impenetratable inaccessible unreachable unavailable obtain attain achieve accomplish fulfill realize satisfy gratify please delight enjoy relish appreciate cherish treasure prize esteem respect honor admire revere venerate worship idolize glorifying exalt elevate raise lift boost promote advance further encourage foster nurture cultivate develop grow expand enlarge increase augment amplify magnifies intensif",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T17:06:56.698Z"
+  }
+ },
+ {
+  "id": "s_df0668",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose '{{v2}}' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+  "params": {
+   "v1": {
+    "example": "fwod22-n1",
+    "usedIn": [],
+    "known": true,
+    "binding": "var:runid"
+   },
+   "v2": {
+    "example": "fwod22-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+   "fingerprint": [
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.07,
+    0.028,
+    0,
+    0,
+    0.014,
+    0.07,
+    0,
+    0,
+    0,
+    0.014,
+    0.056,
+    0.099,
+    0,
+    0.056,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0,
+    0.014,
+    0,
+    0.028,
+    0.014,
+    0.014,
+    0,
+    0.099,
+    0.056,
+    0.014,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0,
+    0.028,
+    0.014,
+    0,
+    0.014,
+    0,
+    0,
+    0.014,
+    0.197,
+    0.014,
+    0,
+    0,
+    0.014,
+    0,
+    0.085,
+    0,
+    0.028,
+    0.056,
+    0.042,
+    0,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.056,
+    0.056,
+    0.056,
+    0.028,
+    0,
+    0,
+    0,
+    0.042,
+    0.014,
+    0,
+    0.042,
+    0.042,
+    0.028,
+    0.014,
+    0,
+    0,
+    0.085,
+    0.056,
+    0,
+    0.028,
+    0,
+    0,
+    0.028,
+    0.113,
+    0.056,
+    0.056,
+    0.028,
+    0.014,
+    0.014,
+    0.056,
+    0.042,
+    0,
+    0,
+    0.07,
+    0,
+    0.042,
+    0.028,
+    0.028,
+    0,
+    0,
+    0,
+    0.07,
+    0.028,
+    0,
+    0,
+    0.042,
+    0.085,
+    0,
+    0.028,
+    0.028,
+    0.07,
+    0,
+    0,
+    0,
+    0.197,
+    0,
+    0.028,
+    0,
+    0.042,
+    0.014,
+    0.042,
+    0,
+    0.056,
+    0.028,
+    0.056,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.014,
+    0.014,
+    0,
+    0,
+    0.042,
+    0,
+    0.028,
+    0.042,
+    0.014,
+    0,
+    0.056,
+    0,
+    0.028,
+    0.085,
+    0,
+    0,
+    0.042,
+    0.028,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.056,
+    0.113,
+    0,
+    0.014,
+    0.042,
+    0.028,
+    0.085,
+    0,
+    0,
+    0.028,
+    0.028,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0.014,
+    0.014,
+    0.042,
+    0,
+    0.127,
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0.028,
+    0.042,
+    0.113,
+    0.028,
+    0.056,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.07,
+    0.085,
+    0,
+    0,
+    0,
+    0.042,
+    0.014,
+    0,
+    0.07,
+    0,
+    0.085,
+    0.056,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0.014,
+    0.042,
+    0,
+    0.028,
+    0.056,
+    0,
+    0.056,
+    0.028,
+    0.07,
+    0.042,
+    0,
+    0.042,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.042,
+    0.056,
+    0,
+    0.028,
+    0.042,
+    0,
+    0.042,
+    0.056,
+    0,
+    0.028,
+    0.014,
+    0.028,
+    0,
+    0.014,
+    0.014,
+    0.028,
+    0,
+    0.028,
+    0.056,
+    0.042,
+    0.014,
+    0.042,
+    0,
+    0,
+    0.028,
+    0.07,
+    0.056,
+    0.028,
+    0.028,
+    0,
+    0,
+    0,
+    0.056,
+    0.014,
+    0,
+    0,
+    0.028,
+    0.014,
+    0.042,
+    0.056,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.042,
+    0,
+    0.028,
+    0,
+    0.479,
+    0.042,
+    0.014,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0.028,
+    0,
+    0.014,
+    0.056,
+    0,
+    0.014,
+    0.085,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.042,
+    0.028,
+    0.014,
+    0,
+    0.07,
+    0,
+    0.028,
+    0.099,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0.085,
+    0.028,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.042,
+    0.197,
+    0,
+    0.042,
+    0.014,
+    0,
+    0.028,
+    0.056,
+    0,
+    0,
+    0,
+    0.028,
+    0.141,
+    0,
+    0.042,
+    0.042,
+    0,
+    0.042,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0,
+    0.014,
+    0,
+    0.028,
+    0.197,
+    0.028,
+    0,
+    0,
+    0.028,
+    0.056,
+    0.028,
+    0,
+    0.028,
+    0.042,
+    0.042,
+    0.099,
+    0.014,
+    0.028,
+    0,
+    0,
+    0.014,
+    0,
+    0.056,
+    0,
+    0.085,
+    0.056,
+    0.07,
+    0.042,
+    0,
+    0.042,
+    0,
+    0.028,
+    0.014,
+    0,
+    0.197,
+    0.028,
+    0.056,
+    0.028,
+    0.028,
+    0.042,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0.014,
+    0.056,
+    0.028,
+    0.014,
+    0.014,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0.07,
+    0.042,
+    0.056,
+    0.056,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.028,
+    0.056,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0.028,
+    0.028,
+    0.028,
+    0.042,
+    0.099,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.042,
+    0,
+    0,
+    0.014,
+    0,
+    0,
+    0.042,
+    0.042,
+    0.042,
+    0.056,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0.085,
+    0,
+    0.014,
+    0.028,
+    0.056,
+    0.028,
+    0,
+    0.028,
+    0.014,
+    0.056,
+    0,
+    0.014,
+    0.042,
+    0,
+    0.028,
+    0,
+    0.042,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "a[href*=\"menu_id=181\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(3)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- button \"Orders\"",
+      "- button \"To Invoice\"",
+      "- button \"Products\"",
+      "- button \"Reporting\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1938"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-08-30T16:48:09.179Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_b646ef",
+   "index": 0,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwod22-n1",
+   "instruction": "In Odoo (already signed in as admin), open the Sales app and create a new quotation. In the Customer field, choose 'fwod22-n1 Bench Customer' from the autocomplete dropdown (it must actually be selected from the dropdown, not just typed). Then add ONE order line: pick any product from the product catalogue via the product autocomplete dropdown (must actually be selected from the dropdown), and set the quantity to 3. Save the quotation. Report: (a) the exact product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes, and (d) the quotation reference/name (e.g. S00042). Do not wait for network idle; wait for concrete page state.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T16:48:09.179Z"
+  }
+ }
+]
