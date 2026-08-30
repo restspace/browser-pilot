@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backfillReadValues, flattenComposedValues, validateReport, type Report } from '../src/agent/report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, validateReport, type Report } from '../src/agent/report.js';
 
 describe('report validation', () => {
   it('accepts a minimal valid report', () => {
@@ -153,14 +153,27 @@ describe('backfillReadValues', () => {
   });
 });
 describe('a snapshot ref is not a value name', () => {
-  it('names a ref-targeted read `value`, not after the handle', () => {
+  it('does not promote a read whose target names nothing', () => {
     // fwgr10: a read on @e5322 was promoted as `e5322`, buildFlow minted
     // {{03-report.e5322}} into three later flow steps, and no replay resolved
-    // it — the handle expires with the snapshot that issued it.
+    // it — the handle expires with the snapshot that issued it. Naming it
+    // `value` instead stopped the dead reference but kept the noise: fwod18
+    // published the column heading "Untaxed Amount" and the status badge
+    // "New" as `value` and `value_2`, outputs no later step would ever name.
+    // A value with no usable name is not published at all.
     const report = { status: 'success' as const, summary: 'The dashboard is named fwgr10-n2 Bench Dashboard.' };
     const added = backfillReadValues(report, [{ target: '@e5322', values: ['fwgr10-n2 Bench Dashboard'] }]);
-    expect(added).toEqual(['value']);
-    expect(report.evidence!.values!.value).toBe('fwgr10-n2 Bench Dashboard');
+    expect(added).toEqual([]);
+    expect(report.evidence?.values ?? {}).toEqual({});
+  });
+
+  it('still publishes a prose-pinned identifier, which the caller named itself', () => {
+    // addEvidenceValue's base comes from the CALLER ("ref"), not from a
+    // selector, so the drop above must not reach it — that path is how a
+    // record reference the model left in prose becomes threadable at all.
+    const report: Report = { status: 'success', summary: 'Created S00021.' };
+    expect(addEvidenceValue(report, 'ref', 'S00021')).toBe('ref');
+    expect(report.evidence!.values!.ref).toBe('S00021');
   });
 
   it('keeps a selector-derived name, which does mean something', () => {

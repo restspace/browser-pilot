@@ -121,6 +121,14 @@ export function buildFlow(
     now?: string;
     /** Given a skill id and the raw recorded instruction, return the slot bindings. */
     bind?: (skillId: string, instruction: string) => Record<string, string> | null;
+    /**
+     * What a ZERO-MODEL replay of this skill republishes, or null when that
+     * cannot be known (no skill, or the caller does not supply it). Same
+     * callback shape and same null convention as `lintFlowRefs`, deliberately:
+     * the producer and the checker must agree, and two copies of that rule
+     * disagreeing is the shape of most of the bugs found in this work.
+     */
+    publishes?: (skillId: string) => string[] | null;
   },
 ): Flow | null {
   const groups = groupByInstruction(entries);
@@ -130,6 +138,12 @@ export function buildFlow(
   const produced: { stepId: string; output: string; value: string }[] = [];
   const seenUrl = new Set(urlParts(opts.startUrl).map((p) => p.value));
   const varEntries = Object.entries(opts.vars).filter(([, v]) => v.length >= 2).sort((a, b) => b[1].length - a[1].length);
+  /** Unknown counts as published: an unknowable gate must not silently drop references. */
+  const publishes = (skillId: string | undefined, output: string): boolean => {
+    if (!skillId || !opts.publishes) return true;
+    const pubs = opts.publishes(skillId);
+    return pubs === null || pubs.includes(output);
+  };
 
   groups.forEach((g, i) => {
     const id = stepId(g.instruction.text, i);
@@ -212,6 +226,24 @@ export function buildFlow(
     for (const [output, value] of Object.entries(g.report?.values ?? {})) {
       if (typeof value !== 'string' || !value) continue;
       if (minted.some((m) => m.value === value)) continue;
+      // A DESCRIPTIVE value a tier-A replay will not republish must not become
+      // a reference. fwod18's 03-create reported the quotation's reference as
+      // "New (unsaved)" — Odoo's breadcrumb until the record is saved, so the
+      // model named the record BEFORE it existed. Seven later steps then
+      // referenced a value that never was one, and each dropped out of the
+      // zero-model path to re-derive it. Fifteen such references in one flow.
+      //
+      // Only a NON-IDENTIFIER is gated, and the asymmetry is the whole point.
+      // Leaving "New (unsaved)", a product name or a status word literal is
+      // harmless: it describes, it does not point at a record. Leaving an
+      // IDENTIFIER literal is the silent wrong-record failure this system
+      // exists to stop — so an identifier keeps its reference even when only
+      // recovery can resolve it. Paying a model turn beats acting on run 1's
+      // order.
+      //
+      // lintFlowRefs still warns about what survives; this makes the common
+      // case unable to arise, rather than reported after the fact.
+      if (!publishes(g.report?.skill, output) && !identifierLike(value)) continue;
       produced.push({ stepId: id, output, value });
       // An id can be minted where no url ever carries it: an app that saves
       // over its own API answers with JSON, and the run reads that answer

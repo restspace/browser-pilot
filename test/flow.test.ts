@@ -543,3 +543,62 @@ describe('a replay that observed nothing cannot narrate', () => {
     expect(r.summary).toContain('141.00'); // a live read was made; the older rules govern
   });
 });
+
+describe('a reference must be one a zero-model replay can republish', () => {
+  /** fwod18's shape: a create step reports a placeholder, and later steps cite it. */
+  const entries = (): RecordedEntry[] => [
+    { k: 'step', tool: 'goto', args: { url: `${ORIGIN}/` }, locators: {} },
+    { k: 'instruction', text: 'Create a quotation for the bench customer.', url: `${ORIGIN}/` },
+    {
+      k: 'report',
+      status: 'success',
+      summary: 'Created a quotation.',
+      // Odoo shows "New" in the breadcrumb until the record is saved, so the
+      // model named the reference BEFORE it existed. `product` is a plain
+      // description; `order_ref` is a real minted identifier.
+      values: { quotation_reference: 'New (unsaved)', product: 'Office Combination', order_ref: 'S00021' },
+      skill: 's_create',
+    },
+    {
+      k: 'instruction',
+      text: 'On quotation New (unsaved) for product Office Combination (order S00021), set the quantity to 5.',
+      url: `${ORIGIN}/`,
+    },
+    { k: 'report', status: 'success', summary: 'Set quantity.', values: { qty: '5' }, skill: 's_edit' },
+  ];
+
+  const build = (publishes?: (id: string) => string[] | null): Flow =>
+    buildFlow(entries(), { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's', publishes })!;
+
+  it('does not reference a DESCRIPTIVE value the producing step will not republish', () => {
+    // s_create republishes only `qty`-style reads; nothing here.
+    const text = build(() => []).steps[1].instruction;
+    expect(text).not.toContain('{{01-create.quotation_reference}}');
+    expect(text).not.toContain('{{01-create.product}}');
+    // Left literal, which is harmless: these describe, they do not point at a
+    // record. fwod18 minted fifteen such references and each one dropped its
+    // step out of the zero-model path to re-derive a value that never existed.
+    expect(text).toContain('New (unsaved)');
+    expect(text).toContain('Office Combination');
+  });
+
+  it('STILL references an unpublished identifier, because the literal is the dangerous option', () => {
+    // The asymmetry is the point: leaving S00021 literal would send every
+    // replay to run 1's order silently. A reference only recovery can resolve
+    // costs a model turn and stays on this run's record.
+    expect(build(() => []).steps[1].instruction).toContain('{{01-create.order_ref}}');
+  });
+
+  it('references everything when the step does republish it', () => {
+    const text = build(() => ['quotation_reference', 'product', 'order_ref']).steps[1].instruction;
+    expect(text).toContain('{{01-create.quotation_reference}}');
+    expect(text).toContain('{{01-create.product}}');
+  });
+
+  it('references everything when publication cannot be known', () => {
+    // An unknowable gate must not silently drop references — same null
+    // convention as lintFlowRefs.
+    expect(build(() => null).steps[1].instruction).toContain('{{01-create.product}}');
+    expect(build().steps[1].instruction).toContain('{{01-create.product}}');
+  });
+});

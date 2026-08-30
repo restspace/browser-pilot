@@ -576,6 +576,17 @@ ${describeLeaks(leaks.slice(0, 6))}`);
     const origin = startUrl ? originOf(startUrl) : null;
     if (!origin || !startUrl) throw new Error('could not determine the session start url — was anything opened?');
     const store = this.browser.learn;
+    // ONE definition of "what a zero-model replay republishes", shared by the
+    // flow builder (which decides what may become a reference) and the linter
+    // (which reports what still did). A step's pin may be the HEAD of a
+    // segment chain whose later segment does the reading, so the whole chain
+    // counts.
+    const publishedOutputsOf = (id: string): string[] | null => {
+      const sk = store.get(id);
+      if (!sk) return null;
+      const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
+      return chain.flatMap(publishedOutputs);
+    };
     const flow = buildFlow(entries, {
       name,
       origin,
@@ -587,6 +598,7 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         const sk = store.get(id);
         return sk ? bindSkill(sk, instr, this.knownValues()) : null;
       },
+      publishes: (id) => publishedOutputsOf(id),
     });
     if (!flow || !flow.steps.length) throw new Error('nothing to export — no successful instruction was recorded');
     // Before anything is written. The first cut of this ran after saveFlow,
@@ -622,12 +634,7 @@ the flow was written to ${kept} for inspection (it will not be replayed)`);
     // about any {{step.output}} only model recovery could re-observe. A step's
     // pin may be one segment of a chain whose LATER segment does the read, so
     // publishes() unions the whole chain.
-    const warnings = lintFlowRefs(flow, (id) => {
-      const sk = store.get(id);
-      if (!sk) return null;
-      const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
-      return chain.flatMap(publishedOutputs);
-    });
+    const warnings = lintFlowRefs(flow, publishedOutputsOf);
     // Phase 2 of PLAN-provenance: report anything of this run's that survived
     // into the flow. WARN for now — the ledger's coverage is what is being
     // measured, and a false alarm must not block an export.

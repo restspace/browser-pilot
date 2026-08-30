@@ -213,7 +213,17 @@ export function backfillReadValues(report: Report, reads: ObservedRead[]): strin
       if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v)) continue;
       const cited = new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(v)}(?![A-Za-z0-9])`).test(prose);
       if (!cited) continue;
-      const name = uniqueName(slug(read.target), values);
+      // A value whose only available name would be "value" is not worth
+      // publishing. fwod18's 03-create promoted the column heading "Untaxed
+      // Amount" and the status badge "New" under `value` and `value_2`,
+      // because both reads targeted a snapshot ref and slug() can make no
+      // name from `@e757`. Those became report outputs no later step would
+      // ever reference, while the value seven steps DID need went unpinned.
+      // Publishing page furniture under a meaningless name is strictly worse
+      // than not publishing it: it is noise a replay must still reproduce.
+      const base = slug(read.target);
+      if (!base) continue;
+      const name = uniqueName(base, values);
       values[name] = v;
       present.add(v);
       added.push(name);
@@ -223,7 +233,8 @@ export function backfillReadValues(report: Report, reads: ObservedRead[]): strin
   return added;
 }
 
-function slug(target: string): string {
+/** A name derived from a read's target, or null when the target names nothing. */
+function slug(target: string): string | null {
   const s = target.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24);
   // A target that is a SNAPSHOT REF names nothing. `@e5322` slugged to
   // `e5322`, buildFlow minted {{03-report.e5322}} into three later steps of
@@ -234,7 +245,7 @@ function slug(target: string): string {
   //
   // A selector-derived slug (`dashboard_title`, `price_cell`) is meaningful
   // and is kept.
-  if (!s || /^e\d+$/.test(s)) return 'value';
+  if (!s || /^e\d+$/.test(s)) return null;
   return s;
 }
 
@@ -346,7 +357,9 @@ export function proseIdentifiers(report: Report): string[] {
 /** Add a value to a report's evidence under a fresh name derived from `base`. */
 export function addEvidenceValue(report: Report, base: string, value: string): string {
   const values: Record<string, string | number | boolean | null> = { ...(report.evidence?.values ?? {}) };
-  const name = uniqueName(slug(base), values);
+  // The caller vouched for this one by naming it explicitly ("ref"), so an
+  // unusable base falls back rather than dropping the value.
+  const name = uniqueName(slug(base) ?? 'value', values);
   values[name] = value;
   (report.evidence ??= {}).values = values;
   return name;
