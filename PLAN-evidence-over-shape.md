@@ -101,6 +101,55 @@ measures, run 3 is cheap; the same 8→4→0 convergence the flows already show 
 and it fails safe at every stage, because the default before evidence arrives
 is the expensive-but-correct option.
 
+## The cleanup assumption
+
+> A flow is expected to remove the records it creates, the way a test tears
+> down its fixtures. Where it does not, the system falls back to model
+> recovery rather than to a guess.
+
+Adopted 2026-08-30. It is ordinary test hygiene, and it is also what makes
+cross-run comparison mean anything: if run 1's records are gone, run 2 starts
+where run 1 started, and anything still on the page is the app's rather than
+the last run's.
+
+It matters most for the second evidence source. Comparing the two runs'
+reports only works when the replay reports something; when it does not, the
+fallback is to ask the page whether the recorded literal is still there.
+**That check is only safe under cleanup**, and fwgr13 shows why: its replays
+edit run 1's dashboard rather than creating their own, so run 1's uid is
+present on run 2's page. Page-presence alone would call a live record identity
+"stable" and inline it — the one direction the policy forbids.
+
+### Our own targets do not currently satisfy it
+
+Worth stating plainly, because it makes the bench weaker evidence than it
+looks:
+
+| target | behaviour across runs |
+| --- | --- |
+| odoo | records accumulate: n1 creates S00021, n2 S00022, n3 S00023. The task *cancels* its order; cancelling is not removing. |
+| grafana | one dashboard, renamed by each run. No run creates its own. |
+| repairdesk | reset by the harness, so every run legitimately creates RD-1015. |
+
+Only repairdesk starts clean, and it gets there by harness reset rather than
+by the flow cleaning up after itself — which is a weaker guarantee, because it
+is a property of our rig and not of the procedure under test.
+
+Two consequences follow. Page-presence evidence must stay off until a flow is
+known to clean up: on odoo today, `S00021` is still in the orders list when
+run 2 needs it, so the check would inline a live record identity. And the
+bench tasks should be rewritten to remove what they create — which is a change
+to what the benchmark measures, so it is a decision to take deliberately
+rather than a fix to slip in.
+
+### Detecting compliance rather than assuming it
+
+The assumption is checkable with what a run already produces: if a flow cleans
+up, the identifiers an earlier run minted are gone by the time the next run
+starts. A run that still finds one has demonstrated the flow does not clean
+up, and page-presence evidence stays disabled for that flow — permanently, on
+the same one-demonstration-is-a-veto rule as everything else here.
+
 ## Inventory: every site that reads characters to decide identity
 
 Two populations, and they need different replacements. Being honest about the
@@ -201,7 +250,15 @@ mechanism above. Findings 9 and 10 are independent and cheap.
 
 ## Order of work
 
-**Stage 1 — DONE (5c9cfc1 + this).** `buildFlow` no longer judges: every
+**Stage 1 — LANDED, MEASURED, INCOMPLETE.** fwod20 gathered no evidence at
+all: the replays republished nothing to compare, because reads were stored
+unlabelled (fixed in 29fc864 — a read-back now carries the evidence key it was
+captured for). Reference-everything without evidence is a pure cost: fwod20's
+replays cost $0.2342/$0.2025 against fwod18's $0.0267/$0.0888. The next odoo
+run measures whether evidence now accumulates; if it does not, the
+reference-everything default must be reverted until it does.
+
+**Stage 1 (as built) — (5c9cfc1 + 4319acb).** `buildFlow` no longer judges: every
 reported value becomes a reference. `noteOutputEvidence` records, per output,
 how often a later run produced the same value there; `stableOutputs` exposes
 the ones no run has ever contradicted; the resolvers substitute those literals
