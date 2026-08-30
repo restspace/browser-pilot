@@ -37,6 +37,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { loadRates, priceRun } from './pricing.mjs';
 import { APP_DEFAULTS } from './app-defaults.mjs';
+import { resetTarget } from './app-reset.mjs';
 
 /**
  * Three arm SHAPES, because the incumbents are not the same kind of thing:
@@ -91,23 +92,13 @@ const TARGETS = {
   atelyr: {
     task: 'tasks/atelyr-project-flow.md',
     defaults: APP_DEFAULTS.atelyr,
-    reset() {
-      console.log('[harness] restoring datastore baseline');
-      execFileSync(process.execPath, [path.join(here, 'reset.mjs'), '--restore'], {
-        stdio: 'inherit',
-      });
-    },
+    reset: () => resetTarget('atelyr'),
     notReadyHint: 'Is the atelyr backend running? Check 127.0.0.1:3100 and the vite dev server.',
   },
   repairdesk: {
     task: 'tasks/repairdesk-ticket-flow.md',
     defaults: APP_DEFAULTS.repairdesk,
-    async reset() {
-      const url = new URL('/__reset', process.env.APP_URL);
-      const res = await fetch(url, { method: 'POST' });
-      if (!res.ok) throw new Error(`reset failed: ${res.status} ${res.statusText}`);
-      console.log(`[harness] reloaded seed via ${url}`);
-    },
+    reset: () => resetTarget('repairdesk'),
     notReadyHint: 'Start it with: node bench/app/server.mjs',
     // The app keeps its mutation log in memory, so stopping it destroys the
     // only evidence a run's objectives were met. Pulling the log into the
@@ -116,18 +107,18 @@ const TARGETS = {
     // matters most for a cloud run, where the box is gone minutes afterwards.
     logUrl: () => new URL('/__log', process.env.APP_URL),
   },
-  // The two self-hosted third-party targets (bench/thirdparty). Neither rolls
-  // back state on --reset: every write the task makes is named by the runid,
-  // verification (verify-odoo.mjs / verify-grafana.mjs) matches those exact
-  // names over the app's API, and runs therefore cannot claim each other's
-  // work. Rebuilding either container between runs would cost minutes per run
-  // and buy nothing that runid-scoping does not already give.
+  // The two self-hosted third-party targets (bench/thirdparty). Both now clear
+  // EARLIER runs' debris on --reset (see bench/app-reset.mjs). Runid-scoping
+  // keeps verification honest — every verifier matches its own runid — but it
+  // does not stop a REPLAY from finding the last run's records and working on
+  // them: fwgr13's replays renamed run 1's dashboard rather than making their
+  // own, and fwod20 left S00021, S00022 and S00023 in the orders list at once.
+  // A clean baseline per run is also what the cleanup assumption in
+  // PLAN-evidence-over-shape.md rests on.
   odoo: {
     task: 'tasks/odoo-sale-flow.md',
     defaults: APP_DEFAULTS.odoo,
-    reset() {
-      console.log('[harness] odoo: no rollback — writes are runid-scoped, verified by name over JSON-RPC');
-    },
+    reset: () => resetTarget('odoo'),
     notReadyHint:
       'Start it with: docker compose -f bench/thirdparty/odoo/docker-compose.yml up -d (then seed.sh once)',
   },
@@ -137,18 +128,7 @@ const TARGETS = {
     // Clear leftovers from earlier runs: everything the task creates carries
     // the `bench` tag, and provisioned dashboards (Service health) refuse API
     // deletion, so this can only ever remove benchmark debris.
-    async reset() {
-      const base = process.env.APP_URL.replace(/\/$/, '');
-      const auth = 'Basic ' + Buffer.from(`${process.env.APP_EMAIL}:${process.env.APP_PASSWORD}`).toString('base64');
-      const res = await fetch(`${base}/api/search?tag=bench&type=dash-db`, { headers: { authorization: auth } });
-      if (!res.ok) throw new Error(`grafana search failed: ${res.status}`);
-      const hits = await res.json();
-      for (const h of hits) {
-        const del = await fetch(`${base}/api/dashboards/uid/${h.uid}`, { method: 'DELETE', headers: { authorization: auth } });
-        console.log(`[harness] grafana: deleted leftover dashboard "${h.title}" (${del.status})`);
-      }
-      if (!hits.length) console.log('[harness] grafana: no leftover bench-tagged dashboards');
-    },
+    reset: () => resetTarget('grafana'),
     notReadyHint: 'Start it with: docker compose -f bench/thirdparty/grafana/docker-compose.yml up -d',
   },
 };

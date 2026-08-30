@@ -108,8 +108,23 @@ for (let n = own.from ? 2 : 1; n <= own.k; n++) {
       rows.push({ n, runid, verified: '', stop: 'no-flow', turns: null, cmds: null, total_usd: null, A_n: '', replayed: 'skipped', wall_s: null });
       continue;
     }
-    if (own.resetCmd) spawnSync(own.resetCmd, { stdio: 'inherit', env: process.env, shell: true });
-    else spawnSync(process.execPath, [path.join(here, 'reset-app.mjs')], { stdio: 'inherit', env: process.env });
+    // A replay against a dirty app produces numbers that look like results and
+    // are not, so a failed reset HALTS the sweep. reset-app.mjs used to be
+    // repairdesk-only and silently 404'd on the other targets while the sweep
+    // ignored its exit code — which is how fwgr13's replays came to rename run
+    // 1's dashboard and fwod20 accumulated three orders. See app-reset.mjs.
+    const resetEnv = { ...(APP_DEFAULTS[own.target] ?? {}), ...process.env };
+    const reset = own.resetCmd
+      ? spawnSync(own.resetCmd, { stdio: 'inherit', env: resetEnv, shell: true })
+      : spawnSync(process.execPath, [path.join(here, 'reset-app.mjs'), '--target', own.target], {
+          stdio: 'inherit',
+          env: resetEnv,
+        });
+    if (reset.status !== 0) {
+      console.error(`[sweep] ${runid}: app reset FAILED (exit ${reset.status}) — refusing to replay against a dirty app`);
+      rows.push({ n, runid, verified: '', stop: 'reset-failed', turns: null, cmds: null, total_usd: null, A_n: '', replayed: 'skipped', wall_s: null });
+      continue;
+    }
     // The replay needs the SAME app credentials the recording had. The harness
     // defaults them per target for run 1; the sweep drives replays itself and
     // was passing only process.env, so a flow whose sign-in step fills
