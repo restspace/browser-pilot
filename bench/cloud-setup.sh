@@ -15,6 +15,10 @@
 #   bench/cloud-setup.sh --skip-browser  # a browser is already installed
 #   bench/cloud-setup.sh --port 4181     # run the app somewhere else
 #
+#   # One box, several sweeps: bring up every target once, then reset between
+#   # runs instead of re-provisioning. Repeatable.
+#   bench/cloud-setup.sh --with-target odoo --with-target grafana
+#
 # Safe to re-run: every step checks before it acts.
 
 set -euo pipefail
@@ -40,14 +44,18 @@ PORT="${PORT:-4180}"
 WITH_ARM_B=0
 WITH_ARM_MCP=0
 WITH_ARM_BU=0
-WITH_TARGET=""
+# Repeatable: `--with-target odoo --with-target grafana` brings up both, so one
+# box can run several sweeps back to back. Safe now that every target has a
+# real per-run reset (bench/app-reset.mjs) - before that state accumulated
+# across sweeps and a fresh box was the only way to get a clean baseline.
+WITH_TARGETS=""
 SKIP_BROWSER=0
 START_APP=1
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --with-arm-b) WITH_ARM_B=1 ;;
-    --with-target) WITH_TARGET="$2"; shift ;;
+    --with-target) WITH_TARGETS="${WITH_TARGETS} $2"; shift ;;
     --with-arm-mcp) WITH_ARM_MCP=1 ;;
     --with-arm-bu) WITH_ARM_BU=1 ;;
     --with-all-arms) WITH_ARM_B=1; WITH_ARM_MCP=1; WITH_ARM_BU=1 ;;
@@ -191,7 +199,7 @@ fi
 # cloud image the docker daemon is NOT running at boot and `service docker
 # start` dies on a ulimit it may not set — but plain `dockerd` as root works
 # (probed 2026-08-24: engine 29.3.1, compose v5.1.1, both stacks healthy).
-if [ -n "$WITH_TARGET" ]; then
+for WITH_TARGET in $WITH_TARGETS; do
   say "Starting target: ${WITH_TARGET}"
   [ -f "bench/thirdparty/${WITH_TARGET}/docker-compose.yml" ] || die "unknown target ${WITH_TARGET}"
   if ! docker info >/dev/null 2>&1; then
@@ -236,7 +244,7 @@ if [ -n "$WITH_TARGET" ]; then
       echo "    grafana login page: HTTP ${code:-unreachable}"
       ;;
   esac
-fi
+done
 
 # ---------------------------------------------------------------- preflight
 
