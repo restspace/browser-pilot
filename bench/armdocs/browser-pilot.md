@@ -28,6 +28,11 @@ Sizing an instruction:
   Do not drive the page by repeated `peek`/`config` polling. `peek` is for orienting
   ONCE when a `do` reports something you did not expect. If you are about to issue the
   same read a second time, issue a `do` instead.
+  Name records by what is ON SCREEN — a name, a reference like S00021 — NEVER by an
+  internal database id from a url ("res.partner id 44"). Instructions are recorded
+  and replayed against fresh data: a name generalises, a database id is a pointer
+  into THIS run's database and poisons every replay (fwod27 halted both replays on
+  exactly this).
 
 Escalation:
   When the routine model reports an instruction "blocked", it is retried once on a

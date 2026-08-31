@@ -224,3 +224,23 @@ describe('fatal leaks', () => {
     expect(fatal(at('s.steps[0].args.url', 'identifier'))).toBe(false);
   });
 });
+
+describe('id-position url parts', () => {
+  it('a q.id part is an identifier by position, whatever its length', async () => {
+    const { idPositionPart, RunLedger } = await import('../src/skills/ledger.js');
+    expect(idPositionPart({ label: 'q.id', value: '44' })).toBe(true);
+    expect(idPositionPart({ label: 'q.res_id', value: '7' })).toBe(true);
+    // shape still matters when the label is not an id slot
+    expect(idPositionPart({ label: 'q.view_type', value: '44' })).toBe(false);
+    // and an id-named param carrying a word is routing, not a record number
+    expect(idPositionPart({ label: 'q.id', value: 'form' })).toBe(false);
+    // odoo's contact id 44 must reach the ledger — every guard downstream of
+    // it missed fwod27's stale-record leak because this value never banked
+    const ledger = new RunLedger();
+    const banked = ledger.addUrlIds('http://x/#id=44&model=res.partner', 'i2', [
+      { label: 'q.id', value: '44' },
+      { label: 'q.model', value: 'res.partner' },
+    ]);
+    expect(banked.map((b) => b.value)).toEqual(['44']);
+  });
+});

@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { RecordedEntry, RecordedInstruction, RecordedReport } from '../daemon/recorder.js';
 import { rootDir } from '../shared/paths.js';
 import { escapeRe, urlParts } from './compile.js';
-import { identifierLike } from './ledger.js';
+import { idPositionPart, identifierLike } from './ledger.js';
 
 /**
  * A flow is the resolved path a session took: the instructions the caller
@@ -260,7 +260,10 @@ export function buildFlow(
         // identifierLike() accepts a long word too. It still refuses short
         // route words — "tickets" out of a url was being substituted into
         // fwrd8's verify prose ("on the {{01-open.url.h0}} list").
-        if (!fresh || !identifierLike(part.value)) continue;
+        // Position is evidence here too: a `q.id` part is a record id
+        // whatever its length — odoo's `#id=44` failed the shape test and the
+        // recording's record rode into fwod27's replays (see idPositionPart).
+        if (!fresh || (!identifierLike(part.value) && !idPositionPart(part))) continue;
         if (produced.some((p) => p.value === part.value) || varEntries.some(([, v]) => v === part.value)) continue;
         minted.push({ stepId: id, output: `url.${part.label}`, value: part.value });
       }
@@ -360,6 +363,46 @@ const MUTATING_TOOLS = new Set(['click', 'dblclick', 'right_click', 'modifier_cl
  * reset fix to notice. The recording knows: the instruction ran mutating
  * tools. Say so at export, while the recording is still in front of someone.
  */
+/**
+ * Flow instructions that quote a DATABASE ID this recording minted.
+ *
+ * The one channel no leak guard reads is the instruction prose itself. In
+ * fwod27 the recording-time orchestrator wrote "You are on an Odoo contact
+ * form for res.partner id 44" — the id of the record ITS run created (in a
+ * blocked instruction, so no flow step produces the value and nothing can be
+ * referencized). Locator and navigation guards all passed; both replays
+ * navigated to record 44, which the reset had deleted, and halted at step 2
+ * with 0/6.
+ *
+ * Scans EVERY recorded url (blocked instructions included — that is where
+ * fwod27's id was minted) for id-position parts, then flags any flow
+ * instruction that still quotes one as a literal id. Warn-level: the flow
+ * still exports, but the person who can re-record is told while it is cheap.
+ */
+export function staleInstructionIds(entries: RecordedEntry[], flow: Flow): string[] {
+  const minted = new Set<string>();
+  for (const e of entries) {
+    const url = e.k === 'step' ? e.diff?.url : e.k === 'instruction' ? e.url : undefined;
+    if (!url) continue;
+    for (const part of urlParts(url)) if (idPositionPart(part)) minted.add(part.value);
+  }
+  if (!minted.size) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const step of flow.steps) {
+    for (const m of step.instruction.matchAll(/\bid\s*[:#]?\s*(\d{1,10})\b/gi)) {
+      if (!minted.has(m[1]) || seen.has(`${step.id}:${m[1]}`)) continue;
+      seen.add(`${step.id}:${m[1]}`);
+      out.push(
+        `${step.id}'s instruction quotes record id ${m[1]} — a database id this recording minted, so every replay ` +
+          `will act on the RECORDING run's record (deleted by the next reset). Re-record with instructions that ` +
+          `name records by what is on screen (a name or reference), never by internal id.`,
+      );
+    }
+  }
+  return out;
+}
+
 export function unbankedMutations(entries: RecordedEntry[]): string[] {
   const out: string[] = [];
   let current: RecordedInstruction | null = null;

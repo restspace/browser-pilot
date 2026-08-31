@@ -1,0 +1,198 @@
+{
+  "name": "fwod27",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and log in to Odoo with username 'admin' and password 'admin' (submit the login form). Important: do NOT wait for network idle anywhere — this app long-polls and never becomes idle; wait for concrete page elements instead. After logging in, verify you are signed in as the administrator and report what you see (e.g., the Odoo apps home screen and the logged-in user name shown in the top-right user menu).",
+      "skill": "s_b263eb",
+      "params": {
+        "v1": "http://127.0.0.1:8069/"
+      },
+      "outputs": [
+        "user_display_name",
+        "company",
+        "page_title",
+        "o_user_menu_oe_topbar_na"
+      ],
+      "recorded": {
+        "user_display_name": "Mitchell Adminbench",
+        "company": "YourCompany",
+        "page_title": "Odoo - Discuss",
+        "o_user_menu_oe_topbar_na": "Discuss"
+      },
+      "outputEvidence": {
+        "user_display_name": {
+          "same": 1,
+          "differed": 0
+        },
+        "company": {
+          "same": 1,
+          "differed": 0
+        },
+        "page_title": {
+          "same": 1,
+          "differed": 0
+        },
+        "o_user_menu_oe_topbar_na": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-verify",
+      "instruction": "You are on an Odoo contact form for res.partner id 44. Verify this contact's Name is exactly '{{runid}} Bench Customer' and its City is 'Benchville'. If the City is missing or wrong, click into Edit mode, set the City field to 'Benchville' (it is in the Address section), and Save. Then report the final values of the Name and City fields as shown on the saved form (read the actual field values, e.g. by switching to edit mode and reading the input values, or from the saved form display). Do NOT wait for network idle — this app long-polls; wait for concrete elements instead. Do not create a new contact; work with the existing record id 44.",
+      "skill": "s_98001d",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "contact_name",
+        "contact_city"
+      ],
+      "recorded": {
+        "contact_name": "fwod27-n1 Bench Customer",
+        "contact_city": "Benchville"
+      }
+    },
+    {
+      "id": "03-create",
+      "instruction": "In Odoo, go to the Sales app and create a new Quotation with these details: Customer = '{{runid}} Bench Customer' (this is an autocomplete field — type the name and actually pick the matching option from the dropdown that appears; a value only counts if chosen from the dropdown). Add exactly ONE order line: pick any product from the product catalogue (use the product autocomplete dropdown on the order line and actually select an option from it), set Quantity to 3. Leave the default unit price the app fills in. Then Save the quotation (do NOT confirm it). Report: (a) the product name you chose, (b) the unit price the app filled in for that line, (c) the untaxed amount the app computes (shown in the totals section, e.g. 'Untaxed Amount'), and (d) the quotation reference/name (e.g. S00042). Do NOT wait for network idle anywhere — this app long-polls and never becomes idle; wait for concrete page elements instead.",
+      "skill": "s_e24cdf",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "product_name",
+        "unit_price",
+        "quantity",
+        "untaxed_amount",
+        "quotation_reference",
+        "unit_price_2",
+        "untaxed_amount_2"
+      ],
+      "recorded": {
+        "product_name": "Chair floor protection",
+        "unit_price": "£12.00",
+        "quantity": "3.00",
+        "untaxed_amount": "£36.00",
+        "quotation_reference": "S00021",
+        "unit_price_2": "12.00",
+        "untaxed_amount_2": "£ 36.00"
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo, open the existing Quotation {{03-create.quotation_reference}} (customer '{{runid}} Bench Customer', currently in draft with one line: '{{03-create.product_name}}', quantity 3, unit price {{03-create.unit_price}}). Put the form in Edit mode and ADD A SECOND order line: choose a DIFFERENT product from the product catalogue (use the product autocomplete dropdown on the new line and actually select an option from the dropdown — a value only counts if chosen from the dropdown), with Quantity 2. Keep the default unit price the app fills in. Then Save (do NOT confirm). Report: (a) the second product's name, (b) its unit price, and (c) the new Untaxed Amount the app computes in the totals section. Do NOT wait for network idle anywhere — this app long-polls; wait for concrete page elements instead.",
+      "skill": "s_e28fcd",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-create.product_name}}",
+        "v5": "{{03-create.unit_price}}"
+      },
+      "outputs": [
+        "second_product_name",
+        "second_unit_price",
+        "second_quantity",
+        "untaxed_amount_total",
+        "untaxed_amount_total_2",
+        "ref"
+      ],
+      "recorded": {
+        "second_product_name": "[E-COM06] Corner Desk Right Sit",
+        "second_unit_price": "147.00",
+        "second_quantity": "2.00",
+        "untaxed_amount_total": "£330.00",
+        "untaxed_amount_total_2": "£ 330.00",
+        "ref": "S00021"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo, open the existing Quotation {{03-create.quotation_reference}} (customer '{{runid}} Bench Customer', draft, two lines: line 1 '{{03-create.product_name}}' qty 3 unit price {{03-create.unit_price}}, line 2 '{{04-open.second_product_name}}' qty 2 unit price £{{04-open.second_unit_price}}, Untaxed Amount {{04-open.untaxed_amount_total}}). Put the form in Edit mode and change the FIRST line's Quantity from 3 to 5 (only that line; leave the second line untouched). Then Save (do NOT confirm). Report the new Untaxed Amount the app computes in the totals section, and also confirm the first line's quantity now reads 5. Do NOT wait for network idle anywhere — this app long-polls; wait for concrete page elements instead.",
+      "skill": "s_98e039",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-create.product_name}}",
+        "v5": "{{03-create.unit_price}}",
+        "v7": "{{04-open.second_product_name}}",
+        "v8": "{{04-open.second_unit_price}}",
+        "v9": "{{04-open.untaxed_amount_total}}"
+      },
+      "outputs": [
+        "first_line_quantity",
+        "new_untaxed_amount",
+        "first_line_subtotal",
+        "second_line_subtotal",
+        "quotation_reference",
+        "new_untaxed_amount_2"
+      ],
+      "recorded": {
+        "first_line_quantity": "5.00",
+        "new_untaxed_amount": "£354.00",
+        "first_line_subtotal": "£60.00",
+        "second_line_subtotal": "£294.00",
+        "quotation_reference": "S00021",
+        "new_untaxed_amount_2": "£ 354.00"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo, open the existing Quotation {{03-create.quotation_reference}} (customer '{{runid}} Bench Customer', draft, two lines: '{{03-create.product_name}}' qty 5, '{{04-open.second_product_name}}' qty 2, Untaxed Amount {{05-open.new_untaxed_amount}}). Confirm the quotation so it becomes a sales order (use the Confirm button; if a confirmation dialog appears, accept it). Do NOT wait for network idle anywhere — this app long-polls and never becomes idle; wait for concrete page elements instead. After confirming, report: (a) the order reference/name shown (e.g. {{03-create.quotation_reference}}), and (b) the status the app now shows for the order (read the status bar / status field on the form, e.g. 'Sales Order', 'Quotation', etc.).",
+      "skill": "s_e6d77f",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-create.product_name}}",
+        "v5": "{{04-open.second_product_name}}",
+        "v6": "{{05-open.new_untaxed_amount}}"
+      },
+      "outputs": [
+        "order_reference",
+        "order_status",
+        "statusbar_full",
+        "order_status_2"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "order_status": "Sales Order",
+        "statusbar_full": "Sales Order / Quotation Sent / Quotation",
+        "order_status_2": "Sales Order\nQuotation Sent\nQuotation"
+      }
+    },
+    {
+      "id": "07-report",
+      "instruction": "In Odoo you are on the sales order form {{03-create.quotation_reference}} (id 21, customer '{{runid}} Bench Customer'). Read the current status of this order from the status bar / status field on the form and report it exactly (e.g. '{{06-open.order_status}}', 'Cancelled'). If the order is NOT yet cancelled, cancel it now: open the Cancel action (Action/gear menu or Cancel button), and if a dialog appears asking for a cancellation reason, fill in any required field (e.g. reason 'benchmark run cleanup') and click the confirm/OK button in the dialog. Do NOT wait for network idle anywhere — this app long-polls; wait for concrete page elements instead. Do not repeat a cancel action if the order already shows as cancelled. Report the final status shown on the form.",
+      "skill": "s_264c85",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{06-open.order_status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "order_status",
+        "order_status_full",
+        "order_status_2"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "order_status": "Cancelled",
+        "order_status_full": "Cancelled / Sales Order / Quotation Sent / Quotation",
+        "order_status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod27-n1",
+    "created": "2026-08-31T18:48:58.524Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

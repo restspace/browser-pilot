@@ -213,7 +213,10 @@ export interface RecordedReport {
   /**
    * Renames the post-session relabel pass applied to this report's values,
    * old name -> new name. The durable trace of the pass (the daemon's stderr
-   * goes nowhere), written when the entries are rewritten at export.
+   * goes nowhere), written when the entries are rewritten at export. An empty
+   * object on the session's LAST successful report means the pass ran and
+   * proposed nothing; a `(error)` key means it failed with that message —
+   * fwod27's zero-field script could not tell those apart.
    */
   relabel?: Record<string, string>;
   tier?: 'A' | 'B';

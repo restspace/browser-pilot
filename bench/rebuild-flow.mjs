@@ -48,7 +48,7 @@ const root = path.resolve(here, '..');
 
 /** dist/ is imported by URL: a bare Windows path is not a legal ESM specifier. */
 const dist = (rel) => pathToFileURL(path.join(root, 'dist', rel)).href;
-const { buildFlow, lintFlowRefs } = await import(dist('skills/flow.js'));
+const { buildFlow, lintFlowRefs, staleInstructionIds } = await import(dist('skills/flow.js'));
 const { SkillStore } = await import(dist('skills/store.js'));
 const { bindSkill, publishedOutputs } = await import(dist('skills/learn.js'));
 const { compileSkills } = await import(dist('skills/compile.js'));
@@ -308,7 +308,7 @@ for (const { runid, file } of sessions()) {
         refs: histogram(text.match(/\{\{[^}]*\}\}/g) ?? []),
         crossStepRefs: (text.match(/\{\{\d\d-[^}]*\}\}/g) ?? []).length,
         outputs: Object.fromEntries(flow.steps.map((s) => [s.id, s.outputs ?? []])),
-        lint: lintFlowRefs(flow, publishedOutputsOf),
+        lint: [...staleInstructionIds(entries, flow), ...lintFlowRefs(flow, publishedOutputsOf)],
       };
     }
   }

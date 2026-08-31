@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, unbankedMutations, urlOutputs } from '../skills/flow.js';
+import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
@@ -605,6 +605,16 @@ ${describeLeaks(leaks.slice(0, 6))}`);
           signal: AbortSignal.timeout(30_000),
         });
         if (dropped.length) console.error(`[relabel] dropped ${dropped.length} unsafe rename(s): ${dropped.join('; ')}`);
+        // Leave a trace even when nothing is renamed: fwod27's script showed
+        // zero `relabel` fields and could not say whether the pass proposed
+        // nothing or never ran — this daemon's stderr goes nowhere.
+        if (!plan.size) {
+          const last = [...entries].reverse().find((e) => e.k === 'report' && e.status === 'success');
+          if (last && last.k === 'report') {
+            last.relabel = {};
+            this.browser.script.persist();
+          }
+        }
         if (plan.size) {
           const applied = applyRelabelToEntries(entries, plan);
           // A skill may be the head of a segment chain whose LATER segment
@@ -627,7 +637,13 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         }
       }
     } catch (err) {
-      console.error(`[relabel] skipped: ${err instanceof Error ? err.message : String(err)}`);
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[relabel] skipped: ${message}`);
+      const last = [...entries].reverse().find((e) => e.k === 'report' && e.status === 'success');
+      if (last && last.k === 'report') {
+        last.relabel = { '(error)': message.slice(0, 120) };
+        this.browser.script.persist();
+      }
     }
     const flow = buildFlow(entries, {
       name,
@@ -688,6 +704,7 @@ ${describeLeaks(leaks.slice(0, 10))}`);
     // Work the recording did that the flow does not contain. Loud, because a
     // flow missing its create step is unusable and looks fine until a replay
     // runs against a clean app.
+    for (const w of staleInstructionIds(entries, flow).reverse()) warnings.unshift(`warning: ${w}`);
     for (const m of unbankedMutations(entries).reverse()) warnings.unshift(`warning: ${m}`);
     if (stripped) warnings.unshift(`note: dropped ${stripped} locator candidate(s) carrying a value this run minted (known only by export time)`);
     if (prior) warnings.unshift(`warning: ignored ${prior} entr${prior === 1 ? 'y' : 'ies'} from an earlier take in session '${this.opts.session}' — this flow covers only what this daemon recorded`);

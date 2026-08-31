@@ -686,3 +686,38 @@ describe('work the recording did that the flow does not contain', () => {
     expect(unbankedMutations(entries)[0]).toContain('reported nothing');
   });
 });
+
+describe('instruction prose quoting a run-minted database id', () => {
+  it('warns when a flow instruction carries an id no guard can otherwise see', async () => {
+    const { staleInstructionIds } = await import('../src/skills/flow.js');
+    // fwod27's shape: the contact is created in a BLOCKED instruction (so no
+    // flow step produces the value), then the next instruction quotes its
+    // database id in prose. Every locator/navigation guard passes; both
+    // replays navigated to the recording's deleted record and halted.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create the contact.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {}, diff: { url: `${ORIGIN}/web#id=44&model=res.partner&view_type=form` } },
+      { k: 'report', status: 'blocked', summary: 'timed out', values: {} },
+      { k: 'instruction', text: "You are on an Odoo contact form for res.partner id 44. Verify the Name.", url: `${ORIGIN}/web#id=44&model=res.partner` },
+      { k: 'step', tool: 'read', args: { target: '@e2' }, locators: {}, result: '"x"' },
+      { k: 'report', status: 'success', summary: 'verified', values: {} },
+    ] as unknown as RecordedEntry[];
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    const warnings = staleInstructionIds(entries, flow);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('record id 44');
+    expect(warnings[0]).toContain("never by internal id");
+  });
+
+  it('says nothing about a number that is not a minted id', async () => {
+    const { staleInstructionIds } = await import('../src/skills/flow.js');
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Set the quantity to id 44.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'fill', args: { target: '@e1', value: '44' }, locators: {} },
+      { k: 'report', status: 'success', summary: 'done', values: {} },
+    ] as unknown as RecordedEntry[];
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    // no url ever carried id=44, so the 44 in prose is the task's own number
+    expect(staleInstructionIds(entries, flow)).toEqual([]);
+  });
+});

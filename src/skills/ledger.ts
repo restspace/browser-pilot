@@ -59,6 +59,24 @@ export interface LedgerEntry {
  * length floors, which is why repair-desk's "t15" was banked by one caller
  * and left literal by another.
  */
+/**
+ * A url part that is an identifier by POSITION, whatever its characters.
+ *
+ * identifierLike reads the value's shape, and a shape gate has a floor: odoo's
+ * database ids are short integers (`#id=44`), invisible to it — and through
+ * it, to the ledger, the leak guards, flow minting and compile slotting all at
+ * once. fwod27 is the bill: the recording's contact id 44 rode into a flow
+ * instruction as prose ("res.partner id 44"), no guard saw it, and both
+ * replays navigated to the recording's deleted record and halted at step 2.
+ *
+ * The url's own vocabulary settles what a shape cannot: a query/hash param
+ * NAMED id holds a record id. Only all-digit values qualify — a param named
+ * `id` carrying a word is some app's routing, not a record number.
+ */
+export function idPositionPart(part: { label: string; value: string }): boolean {
+  return /^q\.(id|.*_id)$/.test(part.label) && /^\d{1,10}$/.test(part.value);
+}
+
 export function identifierLike(value: string): boolean {
   if (value.length < MIN_ID_LEN) return false;
   // No minted id contains whitespace. Without this the `length >= 12` clause
@@ -125,9 +143,18 @@ export class RunLedger {
    * wins: the step that MINTED a value owns it, so later steps reference it
    * rather than re-minting a duplicate.
    */
-  add(value: string, binding: Binding, opts: { kind?: LedgerEntry['kind']; known?: boolean } = {}): LedgerEntry | null {
+  add(
+    value: string,
+    binding: Binding,
+    opts: { kind?: LedgerEntry['kind']; known?: boolean; vouched?: boolean } = {},
+  ): LedgerEntry | null {
     const v = String(value ?? '').trim();
-    if (v.length < MIN_ID_LEN || v.length > MAX_VALUE_LEN || this.seen.has(v)) return null;
+    // The length floor guards against banking junk from shape-guessing
+    // callers. A VOUCHED value has positional evidence instead (a `q.id` url
+    // part — see idPositionPart), and odoo's two-digit record ids are exactly
+    // what the floor was silently discarding: fwod27's contact id 44 never
+    // banked, so no guard downstream could see it leak.
+    if ((v.length < MIN_ID_LEN && !opts.vouched) || !v.length || v.length > MAX_VALUE_LEN || this.seen.has(v)) return null;
     const entry: LedgerEntry = {
       value: v,
       binding,
@@ -144,8 +171,12 @@ export class RunLedger {
   addUrlIds(url: string, step: string, parts: { label: string; value: string }[]): LedgerEntry[] {
     const out: LedgerEntry[] = [];
     for (const part of parts) {
-      if (!identifierLike(part.value)) continue;
-      const entry = this.add(part.value, { from: 'url', step, label: part.label }, { kind: 'identifier', known: true });
+      if (!identifierLike(part.value) && !idPositionPart(part)) continue;
+      const entry = this.add(
+        part.value,
+        { from: 'url', step, label: part.label },
+        { kind: 'identifier', known: true, vouched: idPositionPart(part) },
+      );
       if (entry) out.push(entry);
     }
     return out;

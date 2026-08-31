@@ -1,0 +1,56 @@
+{
+  "flow": "fwod27",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Logged into Odoo successfully with admin/admin. The app home screen loaded showing the Odoo Discuss module (default landing page). The logged-in user is displayed in the top-right user menu as \"Mitchell Adminbench\" with the company name \"YourCompany\". The page URL is /web#action=123&cids=1&menu_id=81, confirming the login and redirect to the main Odoo interface with the sidebar navigation (Discuss, Inbox, Starred, History, Channels, etc.) and the messaging area for the \"general\" channel.",
+      "values": {
+        "company": "YourCompany",
+        "page_title": "Odoo - Discuss",
+        "user_display_name": "Mitchell Adminbench",
+        "o_user_menu_oe_topbar_na": "Discuss"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-verify",
+      "status": "blocked",
+      "summary": "Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 59
+    }
+  ],
+  "passed": 1,
+  "total": 7,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 637618,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 582219,
+    "completionTokens": 12099,
+    "cachedTokens": 498304
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 269395,
+      "completionTokens": 3684,
+      "cachedTokens": 224256
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 312824,
+      "completionTokens": 8415,
+      "cachedTokens": 274048
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

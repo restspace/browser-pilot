@@ -1,0 +1,108 @@
+
+[sweep] run 1/3: fwod27-n1 (store: /home/user/browser-pilot/bench/results/fwod27-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod27-n1
+  flow "fwod27" saved: 7 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwod27.json
+  warning: note: dropped 12 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: instruction "In Odoo, create a new contact (customer) with Name exactly 'fwod27-n1 …" ran 11 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "In Odoo, create a new contact (customer) with Name exactly 'fwod27-n1 …" ran 6 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "In Odoo, open the sales order S00021 (customer 'fwod27-n1 Bench Custom…" ran 8 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "In Odoo, open the sales order S00021 (customer 'fwod27-n1 Bench Custom…" ran 1 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: 90 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[1].instruction: "Benchville" (output) in "You are on an Odoo contact form for res.partner id 44. Verify this contact's Name is exactly '{{runid}} Bench Customer' and its City is 'Benchville'. If the Cit"
+  flow.steps[5].instruction: "Sales Order" (output) in "In Odoo, open the existing Quotation {{03-create.quotation_reference}} (customer '{{runid}} Bench Customer', draft, two lines: '{{03-create.product_name}}' qty "
+  flow.steps[6].instruction: "Cancelled" (output) in "In Odoo you are on the sales order form {{03-create.quotation_reference}} (id 21, customer '{{runid}} Bench Customer'). Read the current status of this order fr"
+  s_4af88e.steps[1].expect.addedContains[3]: "YourCompany" (output) in "- button \"YourCompany\""
+  s_98001d.template: "Benchville" (output) in "You are on an Odoo contact form for res.partner id 44. Verify this contact's Name is exactly '{{v1}} Bench Customer' and its City is 'Benchville'. If the City i"
+  s_98001d.reportTemplate.summary: "Benchville" (output) in "Contact record (res.partner id 44) is already saved with both fields correct. Name field reads \"{{v1}} Bench Customer\" and City field reads \"Benchville\" on the "
+  s_98001d.reportTemplate.values.contact_city: "Benchville" (output) in "Benchville"
+  s_e24cdf.steps[0].expect.addedContains[0]: "Discuss" (output) in "- menuitem \"Discuss\""
+  s_e6d77f.template: "Sales Order" (output) in "In Odoo, open the existing Quotation {{v1}} (customer '{{v2}}', draft, two lines: '{{v4}}' qty 5, '{{v5}}' qty 2, Untaxed Amount {{v6}}). Confirm the quotation "
+  s_e6d77f.steps[1].expect.addedContains[1]: "Benchville" (output) in "- link \"{{v2}} Benchville\""
+  warning: {{03-create.unit_price}} (used by 04-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+  warning: {{04-open.untaxed_amount_total}} (used by 05-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+  warning: {{05-open.new_untaxed_amount}} (used by 06-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+  warning: {{06-open.order_status}} (used by 07-report) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod27-n1 stop=completed
+turns=10 wall=1553.6s
+commands=9 cmdTime=1464.7s cmdBytes=9928 timeouts=0
+orchestrator in=12133 cw=0 cr=32960 out=8200
+inner prompt=4179035 cached=3620544 completion=37997
+spend=$0.4773 maxUsd=2
+learn: A_n=0 replayed=0/9 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwod27-n1-browser-pilot-result.json
+
+fwod27-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod27-n2 (replay flow fwod27, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+
+fwod27-n2: objectives passed 0/6
+  obj 1: FAIL — customer not found
+  obj 2: FAIL — no customer, so no order
+  obj 3: FAIL — no customer, so no order
+  obj 4: FAIL — no customer, so no order
+  obj 5: FAIL — no order
+  obj 6: FAIL — no order
+
+[sweep] run 3/3: fwod27-n3 (replay flow fwod27, no orchestrator)
+[reset] odoo: no leftover bench customers
+
+fwod27-n3: objectives passed 0/6
+  obj 1: FAIL — customer not found
+  obj 2: FAIL — no customer, so no order
+  obj 3: FAIL — no customer, so no order
+  obj 4: FAIL — no customer, so no order
+  obj 5: FAIL — no order
+  obj 6: FAIL — no order
+
+Learning sweep fwod27 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod27-n1' │ '6/6'    │ 'completed' │ 10    │ 9    │ 0.4773    │ 0   │ '0/9'        │ 1554   │
+│ 1       │ 2 │ 'fwod27-n2' │ '0/6'    │ 'halted'    │ 59    │ 7    │ 0.1679    │ 1   │ '1/7 (flow)' │ 638    │
+│ 2       │ 3 │ 'fwod27-n3' │ '0/6'    │ 'halted'    │ 58    │ 7    │ 0.1558    │ 1   │ '1/7 (flow)' │ 796    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_b263eb  validated    2 steps  5/5 (100%)
+           Open {{v1}} and log in to Odoo with username 'admin' and password 'admin' (submit the login form). Important: …
+  s_4af88e  validated    2 steps  3/3 (100%)
+           Open {{v1}} and log in to Odoo with username 'admin' and password 'admin' (submit the login form). Important: …
+  s_4eda96  validated    1 steps  3/3 (100%)
+           Open {{v1}} and log in to Odoo with username 'admin' and password 'admin' (submit the login form). Important: …
+  s_f17e90  validated    5 steps  3/3 (100%)
+           Open {{v1}} and log in to Odoo with username 'admin' and password 'admin' (submit the login form). Important: …
+  s_98001d  provisional  3 steps  1/1 (100%)
+           You are on an Odoo contact form for res.partner id 44. Verify this contact's Name is exactly '{{v1}} Bench Cus…
+  s_e24cdf  provisional  2 steps  1/1 (100%)
+           In Odoo, go to the Sales app and create a new Quotation with these details: Customer = '{{v1}}' (this is an au…
+  s_2117fc  provisional  1 steps  1/1 (100%)
+           In Odoo, go to the Sales app and create a new Quotation with these details: Customer = '{{v1}}' (this is an au…
+  s_e6d77f  provisional  4 steps  1/1 (100%)
+           In Odoo, open the existing Quotation {{v1}} (customer '{{v2}}', draft, two lines: '{{v4}}' qty 5, '{{v5}}' qty…
+  s_264c85  provisional  2 steps  1/1 (100%)
+           In Odoo you are on the sales order form {{v1}} (id 21, customer '{{v2}}'). Read the current status of this ord…
+  s_f04e7d  provisional  7 steps  1/1 (100%)
+           In Odoo, go to the Sales app and create a new Quotation with these details: Customer = '{{v1}}' (this is an au…
+  s_475e38  provisional  5 steps  1/1 (100%)
+           In Odoo, go to the Sales app and create a new Quotation with these details: Customer = '{{v1}}' (this is an au…
+  s_e28fcd  provisional 12 steps  1/1 (100%)
+           In Odoo, open the existing Quotation {{v1}} (customer '{{v2}}', currently in draft with one line: '{{v4}}', qu…
+  s_98e039  provisional  7 steps  1/1 (100%)
+           In Odoo, open the existing Quotation {{v1}} (customer '{{v2}}', draft, two lines: line 1 '{{v4}}' qty 3 unit p…
+store: /home/user/browser-pilot/bench/results/fwod27-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod27-sweep.json
+SWEEP EXIT=0
