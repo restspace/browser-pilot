@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, mergeReportValues, namingAskMessage, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, mergeReportValues, namingAskMessage, promoteLabelledReads, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
@@ -247,6 +247,10 @@ export async function runInstruction(
       // sees the scalars a real element actually shows.
       const split = flattenComposedValues(report);
       if (split.length) opts.onProgress?.(`[report] split composed value(s) into ${split.join(', ')}`);
+      // Read-time labels first: the model named these values in the read call
+      // itself, and its name must win over the selector slug backfill derives.
+      const labelled = promoteLabelledReads(report, browser.script.readsThisInstruction());
+      if (labelled.length) opts.onProgress?.(`[report] published ${labelled.length} read-time labelled value(s): ${labelled.join(', ')}`);
       const promoted = backfillReadValues(report, browser.script.readsThisInstruction());
       if (promoted.length) opts.onProgress?.(`[report] promoted ${promoted.length} prose-cited read value(s) into evidence: ${promoted.join(', ')}`);
       // Second source, for the identifiers no read observed at all: a record

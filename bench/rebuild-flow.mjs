@@ -52,7 +52,7 @@ const { buildFlow, lintFlowRefs } = await import(dist('skills/flow.js'));
 const { SkillStore } = await import(dist('skills/store.js'));
 const { bindSkill, publishedOutputs } = await import(dist('skills/learn.js'));
 const { compileSkills } = await import(dist('skills/compile.js'));
-const { backfillReadValues, flattenComposedValues, unnamedReadValues } = await import(dist('agent/report.js'));
+const { backfillReadValues, flattenComposedValues, promoteLabelledReads, unnamedReadValues } = await import(dist('agent/report.js'));
 
 const argv = process.argv.slice(2);
 const arg = (name, dflt) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : dflt);
@@ -60,6 +60,10 @@ const tag = arg('--tag');
 const dir = path.resolve(arg('--dir', 'bench/results-published'));
 const baselineFile = arg('--baseline');
 const writeBaseline = argv.includes('--write-baseline');
+// Deterministic labelling arm: backfill EVERY unnamed singular read under a
+// selector-derived name, not only the ones the prose cites. The A/B this flag
+// exists for: same recordings, same code, citation gate on vs off.
+const labelAll = argv.includes('--label-all');
 
 if (!tag) {
   console.error('usage: rebuild-flow.mjs --tag <sweepTag> [--dir <published>] [--baseline <file>] [--write-baseline]');
@@ -106,7 +110,8 @@ function readsOf(steps) {
       parsed = e.result;
     }
     const values = (Array.isArray(parsed) ? parsed : [parsed]).filter((v) => typeof v === 'string');
-    if (values.length) out.push({ target: String(e.args?.target ?? ''), values });
+    const label = typeof e.args?.label === 'string' && e.args.label.trim() ? e.args.label.trim() : undefined;
+    if (values.length) out.push({ target: String(e.args?.target ?? ''), values, ...(label ? { label } : {}) });
   }
   return out;
 }
@@ -149,7 +154,30 @@ const recompile = !argv.includes('--published-skills');
  * `step.skill` on the flow still resolves. Segmented compiles keep their own
  * ids for the tail; only the head takes the pinned one.
  */
-function storeFrom(entries, known) {
+/**
+ * Re-run the post-report pipeline for one instruction, from the report AS THE
+ * MODEL RETURNED IT. The recorded `values` are already post-backfill, so
+ * re-deriving from them would score the old code's output: strip every name
+ * that is a slug of a read target (backfill's signature) and re-decide.
+ */
+function rebuildReport(g, reads) {
+  const modelValues = {};
+  for (const [k, v] of Object.entries(g.report.values ?? {})) {
+    if (!reads.some((r) => slugLike(r.target) === k.replace(/_\d+$/, ''))) modelValues[k] = v;
+  }
+  const rebuilt = {
+    status: g.report.status,
+    summary: g.report.summary ?? '',
+    ...(Object.keys(modelValues).length ? { evidence: { values: modelValues } } : {}),
+  };
+  const wouldAsk = unnamedReadValues(rebuilt, reads);
+  flattenComposedValues(rebuilt);
+  promoteLabelledReads(rebuilt, reads);
+  const promoted = backfillReadValues(rebuilt, reads, { requireCitation: !labelAll });
+  return { rebuilt, modelValues, wouldAsk, promoted };
+}
+
+function storeFrom(entries, known, valuesByInstruction) {
   const skills = [];
   // knownValues ACCUMULATES through a session. The daemon compiles each
   // instruction with `this.ledger.all()`, and the ledger banks every value a
@@ -160,16 +188,25 @@ function storeFrom(entries, known) {
   // shipped. That gap was my reconstruction, not a regression.
   const known2 = { ...known };
   let cur = null;
+  let idx = -1;
   for (const e of entries) {
-    if (e.k === 'instruction') cur = { instruction: e.text ?? '', entries: [e] };
-    else if (!cur) continue;
+    if (e.k === 'instruction') {
+      cur = { instruction: e.text ?? '', entries: [e] };
+      idx++;
+    } else if (!cur) continue;
     else if (e.k === 'report') {
       if (e.status === 'success') {
+        // Compile from the RE-DECIDED pipeline output, not the recorded
+        // `e.values` — those were produced by whatever report.ts ran that
+        // sweep, so using them makes a backfill/flatten change invisible to
+        // every flow metric below. Same blind spot as reading the published
+        // skill store, one layer up.
+        const values = valuesByInstruction[idx] ?? e.values ?? {};
         try {
           const compiled = compileSkills({
             entries: cur.entries,
             instruction: cur.instruction,
-            report: { status: e.status, summary: e.summary ?? '', evidence: { values: e.values ?? {} } },
+            report: { status: e.status, summary: e.summary ?? '', evidence: { values } },
             session: 'rebuild',
             // The daemon compiles with the session's known values (the runid it
             // was given, values it minted). Without them discoverSlots finds
@@ -182,9 +219,9 @@ function storeFrom(entries, known) {
         } catch {
           /* a recording compile.ts cannot handle is itself a finding, but not a crash */
         }
-        // Bank this instruction's reported values for the NEXT compile, exactly
-        // as the daemon's ledger does.
-        for (const [name, value] of Object.entries(e.values ?? {})) known2[name] = String(value);
+        // Bank this instruction's values for the NEXT compile, exactly as the
+        // daemon's ledger does (its report entries are post-pipeline too).
+        for (const [name, value] of Object.entries(values)) known2[name] = String(value);
       }
       cur = null;
     } else cur.entries.push(e);
@@ -204,27 +241,14 @@ for (const { runid, file } of sessions()) {
   const gs = groups(entries);
   const run = { runid, instructions: [], flow: null };
 
+  // Instruction index -> the values the re-decided pipeline produced, for the
+  // compile pass below. Sparse where an instruction has no report.
+  const valuesByInstruction = [];
   for (const [i, g] of gs.entries()) {
     if (!g.report) continue;
     const reads = readsOf(g.steps);
-    // The recorded report's `values` are already POST-backfill, so re-deriving
-    // the pipeline from them would score the old code's output. Reconstruct the
-    // report as the model returned it: summary plus whatever the model itself
-    // named. A value the backfill added is one no read-target could name, and
-    // that is precisely what we want to re-decide.
-    const modelValues = {};
-    for (const [k, v] of Object.entries(g.report.values ?? {})) {
-      // A backfilled name is a slug of a read target; a model's name is not.
-      if (!reads.some((r) => slugLike(r.target) === k.replace(/_\d+$/, ''))) modelValues[k] = v;
-    }
-    const rebuilt = {
-      status: g.report.status,
-      summary: g.report.summary ?? '',
-      ...(Object.keys(modelValues).length ? { evidence: { values: modelValues } } : {}),
-    };
-    const wouldAsk = unnamedReadValues(rebuilt, reads);
-    flattenComposedValues(rebuilt);
-    const promoted = backfillReadValues(rebuilt, reads);
+    const { rebuilt, modelValues, wouldAsk, promoted } = rebuildReport(g, reads);
+    valuesByInstruction[i] = rebuilt.evidence?.values ?? {};
     run.instructions.push({
       n: i + 1,
       status: g.report.status,
@@ -240,7 +264,7 @@ for (const { runid, file } of sessions()) {
   }
 
   const startUrl = startUrlOf(entries);
-  const store = recompile ? storeFrom(entries, { runid }) : published;
+  const store = recompile ? storeFrom(entries, { runid }, valuesByInstruction) : published;
   if (startUrl && store) {
     const publishedOutputsOf = (id) => {
       const sk = store.get(id);

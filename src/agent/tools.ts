@@ -192,7 +192,9 @@ export const TOOL_DEFS: ToolDef[] = [
     description:
       'Read text/value/attribute from ONE element — much cheaper than a full snapshot for spot checks. ' +
       'The target must match exactly one element, or the read fails: a snapshot ref (@e123) always does, ' +
-      'and a bare tag like "h1" usually does not. Use read_all to read every match, or what=count to count them.',
+      'and a bare tag like "h1" usually does not. Use read_all to read every match, or what=count to count them. ' +
+      'If the value matters beyond this glance — a reference, id, name, or total the task or a later step will use — ' +
+      'pass `label` NOW: a labelled value is published under that name automatically; an unlabelled one stays anonymous.',
     parameters: {
       type: 'object',
       required: ['target', 'what'],
@@ -200,6 +202,11 @@ export const TOOL_DEFS: ToolDef[] = [
         target: TARGET,
         what: { type: 'string', enum: ['text', 'value', 'attr', 'count'] },
         attr: { type: 'string', description: 'Attribute name when what=attr.' },
+        label: {
+          type: 'string',
+          description:
+            'Name for this value, the way a person would say it: order_reference, unit_price, customer_name. Later steps address the value by this name.',
+        },
       },
     },
   },

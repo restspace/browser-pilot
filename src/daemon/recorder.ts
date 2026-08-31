@@ -394,8 +394,8 @@ export class ScriptRecorder {
    * label included, read_all arrays expanded — for report-time promotion of
    * prose-cited values into evidence.values. Synthetic read-backs excluded.
    */
-  readsThisInstruction(): { target: string; values: string[] }[] {
-    const out: { target: string; values: string[] }[] = [];
+  readsThisInstruction(): { target: string; values: string[]; label?: string }[] {
+    const out: { target: string; values: string[]; label?: string }[] = [];
     for (let i = this.entries.length - 1; i >= 0; i--) {
       const e = this.entries[i];
       if (e.k === 'instruction') break;
@@ -408,7 +408,8 @@ export class ScriptRecorder {
         parsed = e.result;
       }
       const values = (Array.isArray(parsed) ? parsed : [parsed]).filter((v): v is string => typeof v === 'string');
-      if (values.length) out.unshift({ target: String(e.args.target ?? ''), values });
+      const label = typeof e.args.label === 'string' && e.args.label.trim() ? e.args.label.trim() : undefined;
+      if (values.length) out.unshift({ target: String(e.args.target ?? ''), values, ...(label ? { label } : {}) });
     }
     return out;
   }

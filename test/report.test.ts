@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, unnamedReadValues, validateReport, type Report } from '../src/agent/report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, promoteLabelledReads, unnamedReadValues, validateReport, type Report } from '../src/agent/report.js';
 
 describe('report validation', () => {
   it('accepts a minimal valid report', () => {
@@ -285,5 +285,47 @@ describe('citation matching', () => {
     const report: Report = { status: 'success', summary: 'The Untaxed Amount updated to £99.00.' };
     expect(unnamedReadValues(report, [{ target: '@e1918', values: ['£ 1,599.00'] }], { requireCitation: true })).toEqual([]);
     expect(backfillReadValues({ ...report }, [{ target: 'total', values: ['£ 1,599.00'] }])).toEqual([]);
+  });
+});
+
+describe('promoteLabelledReads', () => {
+  it('publishes a labelled read under the model name and suppresses the ask', () => {
+    const report: Report = { status: 'success', summary: 'Confirmed the quotation.' };
+    const reads = [{ target: '@e123', values: ['S00021'], label: 'order_reference' }];
+    expect(promoteLabelledReads(report, reads)).toEqual(['order_reference']);
+    expect(report.evidence?.values).toEqual({ order_reference: 'S00021' });
+    // Already named at read time: the naming retry has nothing to ask about.
+    expect(unnamedReadValues(report, reads)).toEqual([]);
+  });
+
+  it('the label wins over the selector slug backfill would derive', () => {
+    const report: Report = { status: 'success', summary: 'Quotation S00021 confirmed.' };
+    const reads = [{ target: 'h1', values: ['S00021'], label: 'order_reference' }];
+    promoteLabelledReads(report, reads);
+    backfillReadValues(report, reads);
+    // One name, the model's — not a duplicate h1 entry from the backfill.
+    expect(report.evidence?.values).toEqual({ order_reference: 'S00021' });
+  });
+
+  it('ignores bulk reads, present values, and reads without labels', () => {
+    const report: Report = {
+      status: 'success',
+      summary: 'Read the table.',
+      evidence: { values: { total: '85.00' } },
+    };
+    expect(
+      promoteLabelledReads(report, [
+        { target: 'td', values: ['a', 'b'], label: 'rows' },
+        { target: '@e5', values: ['85.00'], label: 'unit_price' },
+        { target: '@e6', values: ['SO-99'] },
+      ]),
+    ).toEqual([]);
+    expect(report.evidence?.values).toEqual({ total: '85.00' });
+  });
+
+  it('an unusable label falls back rather than dropping the value', () => {
+    const report: Report = { status: 'success', summary: 'ok' };
+    expect(promoteLabelledReads(report, [{ target: '@e1', values: ['S00021'], label: '@@@' }])).toEqual(['value']);
+    expect(report.evidence?.values).toEqual({ value: 'S00021' });
   });
 });

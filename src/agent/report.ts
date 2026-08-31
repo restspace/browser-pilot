@@ -184,6 +184,44 @@ function coerce(input: unknown): { value: Record<string, unknown>; notes: string
 export interface ObservedRead {
   target: string;
   values: string[];
+  /** Name the model gave the value AT READ TIME (`read`'s label argument). */
+  label?: string;
+}
+
+/**
+ * Publish reads the model LABELLED at call time into `evidence.values`.
+ *
+ * The naming problem is an attention problem, not a comprehension one: asked at
+ * report time, the model must recall a value it read fifteen turns earlier, and
+ * the probe put wording changes at noise level while MOVING the ask 4x'd
+ * compliance. This moves it all the way — the label is given in the same tool
+ * call that reads the value, when the model's attention is on that exact value,
+ * and everything after is deterministic: the labelled value goes into evidence
+ * under the model's own name, the naming ask never needs to fire for it, and
+ * `readLabel` in compile ties the recorded read to that name for replay.
+ *
+ * Runs BEFORE backfillReadValues so the model's name wins over a selector slug
+ * — `order_reference`, not `h1`. Singular reads only: read_all's label would
+ * name a table. Mutates the report; returns the names added.
+ */
+export function promoteLabelledReads(report: Report, reads: ObservedRead[]): string[] {
+  if (report.status !== 'success') return [];
+  const values: Record<string, string | number | boolean | null> = { ...(report.evidence?.values ?? {}) };
+  const present = new Set(Object.values(values).map((v) => String(v).trim()));
+  const added: string[] = [];
+  for (const read of reads) {
+    if (!read.label || read.values.length !== 1) continue;
+    const v = read.values[0].trim();
+    if (!v || v.length > VALUE_CHARS || present.has(v)) continue;
+    // The model vouched for this value by labelling it, so an unusable label
+    // falls back rather than dropping the value (same stance as addEvidenceValue).
+    const name = uniqueName(slug(read.label) ?? 'value', values);
+    values[name] = v;
+    present.add(v);
+    added.push(name);
+  }
+  if (added.length) (report.evidence ??= {}).values = values;
+  return added;
 }
 
 /** Most read values promoted into evidence per report — enough for any real page summary, a cap against read_all floods. */
@@ -201,11 +239,15 @@ const MIN_PROMOTED_LEN = 3;
  * already carry it, add it under a name derived from the read's target.
  * Mutates the report; returns the names added.
  */
-export function backfillReadValues(report: Report, reads: ObservedRead[]): string[] {
+export function backfillReadValues(
+  report: Report,
+  reads: ObservedRead[],
+  opts: { requireCitation?: boolean } = {},
+): string[] {
   const values: Record<string, string | number | boolean | null> = { ...(report.evidence?.values ?? {}) };
   const present = new Set(Object.values(values).map((v) => String(v).trim()));
   const added: string[] = [];
-  for (const { read, value: v } of promotableReads(report, reads)) {
+  for (const { read, value: v } of promotableReads(report, reads, opts)) {
     if (added.length >= MAX_PROMOTED) break;
     // A value whose only available name would be "value" is not worth
     // publishing. fwod18's 03-create promoted the column heading "Untaxed
@@ -232,7 +274,12 @@ export function backfillReadValues(report: Report, reads: ObservedRead[]): strin
  * backfill and the naming retry work from, so they can never disagree about
  * which values are unnamed.
  */
-function promotableReads(report: Report, reads: ObservedRead[]): Array<{ read: ObservedRead; value: string }> {
+function promotableReads(
+  report: Report,
+  reads: ObservedRead[],
+  opts: { requireCitation?: boolean } = {},
+): Array<{ read: ObservedRead; value: string }> {
+  const { requireCitation = true } = opts;
   const prose = `${report.summary} ${report.details ?? ''}`;
   const present = new Set(Object.values(report.evidence?.values ?? {}).map((v) => String(v).trim()));
   const out: Array<{ read: ObservedRead; value: string }> = [];
@@ -241,7 +288,12 @@ function promotableReads(report: Report, reads: ObservedRead[]): Array<{ read: O
     for (const raw of read.values) {
       const v = raw.trim();
       if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v) || seen.has(v)) continue;
-      if (!cites(prose, v)) continue;
+      // Citation is the proof the read MATTERED, and dropping it is only safe
+      // for singular reads: a read that deliberately targeted one element is
+      // itself the claim the value matters, while read_all's forty cells are a
+      // table, not forty claims. So `requireCitation: false` still requires it
+      // of bulk values.
+      if (!cites(prose, v) && (requireCitation || read.values.length > 1)) continue;
       seen.add(v);
       out.push({ read, value: v });
     }
@@ -340,6 +392,10 @@ export function unnamedReadValues(
     // the caller needs named, and asking about them would bury the one that
     // matters. Its values still reach evidence through the backfill.
     if (read.values.length > 1) continue;
+    // A read the model labelled at call time is already named — promotion
+    // publishes it deterministically, so asking again would nag about work
+    // that is done.
+    if (read.label) continue;
     for (const raw of read.values) {
       const v = raw.trim();
       if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v) || seen.has(v)) continue;
