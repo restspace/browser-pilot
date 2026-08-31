@@ -51,6 +51,7 @@ const dist = (rel) => pathToFileURL(path.join(root, 'dist', rel)).href;
 const { buildFlow, lintFlowRefs } = await import(dist('skills/flow.js'));
 const { SkillStore } = await import(dist('skills/store.js'));
 const { bindSkill, publishedOutputs } = await import(dist('skills/learn.js'));
+const { compileSkills } = await import(dist('skills/compile.js'));
 const { backfillReadValues, flattenComposedValues, unnamedReadValues } = await import(dist('agent/report.js'));
 
 const argv = process.argv.slice(2);
@@ -133,7 +134,52 @@ function startUrlOf(entries) {
   return null;
 }
 
-const store = fs.existsSync(path.join(dir, `${tag}-skills`)) ? new SkillStore(path.join(dir, `${tag}-skills`)) : null;
+const recompile = !argv.includes('--published-skills');
+
+/**
+ * Skills COMPILED FROM THE RECORDING, not read off the published store.
+ *
+ * The published store was built by whatever code ran that sweep, so reading it
+ * makes every compile.ts change invisible here — the first cut of this file did
+ * exactly that and reported "no diff" for a change that rewrote which reads
+ * survive compilation. Recompiling closes that: compile.ts, and everything it
+ * decides about labels and published outputs, is now under the gate.
+ *
+ * Each instruction's skill is registered under the id the RECORDING pinned, so
+ * `step.skill` on the flow still resolves. Segmented compiles keep their own
+ * ids for the tail; only the head takes the pinned one.
+ */
+function storeFrom(entries) {
+  const skills = [];
+  let cur = null;
+  for (const e of entries) {
+    if (e.k === 'instruction') cur = { instruction: e.text ?? '', entries: [e] };
+    else if (!cur) continue;
+    else if (e.k === 'report') {
+      if (e.status === 'success') {
+        try {
+          const compiled = compileSkills({
+            entries: cur.entries,
+            instruction: cur.instruction,
+            report: { status: e.status, summary: e.summary ?? '', evidence: { values: e.values ?? {} } },
+            session: 'rebuild',
+          });
+          if (compiled.length && e.skill) compiled[0].id = e.skill;
+          skills.push(...compiled);
+        } catch {
+          /* a recording compile.ts cannot handle is itself a finding, but not a crash */
+        }
+      }
+      cur = null;
+    } else cur.entries.push(e);
+  }
+  return {
+    get: (id) => skills.find((s) => s.id === id) ?? null,
+    list: (origin) => skills.filter((s) => s.origin === origin),
+  };
+}
+
+const published = fs.existsSync(path.join(dir, `${tag}-skills`)) ? new SkillStore(path.join(dir, `${tag}-skills`)) : null;
 
 const report = { tag, runs: [] };
 
@@ -178,6 +224,7 @@ for (const { runid, file } of sessions()) {
   }
 
   const startUrl = startUrlOf(entries);
+  const store = recompile ? storeFrom(entries) : published;
   if (startUrl && store) {
     const publishedOutputsOf = (id) => {
       const sk = store.get(id);
