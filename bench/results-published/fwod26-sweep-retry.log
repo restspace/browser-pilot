@@ -1,0 +1,83 @@
+[sweep] reusing fwod26's recording: 7 step(s), store from /home/user/browser-pilot/bench/results/fwod26-skills
+
+[sweep] run 2/3: fwod26-n2 (replay flow fwod26, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod26-n2: 6 drift ticket(s) → fwod26-n2-drift.json
+
+fwod26-n2: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00022
+
+[sweep] run 3/3: fwod26-n3 (replay flow fwod26, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod26-n3: 6 drift ticket(s) → fwod26-n3-drift.json
+
+fwod26-n3: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod26 (K=3)
+┌─────────┬───┬─────────────┬──────────┬───────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop      │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼───────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 2 │ 'fwod26-n2' │ '6/6'    │ 'success' │ 79    │ 7    │ 0.0312    │ 1   │ '7/7 (flow)' │ 461    │
+│ 1       │ 3 │ 'fwod26-n3' │ '6/6'    │ 'success' │ 57    │ 7    │ 0.0227    │ 1   │ '7/7 (flow)' │ 479    │
+└─────────┴───┴─────────────┴──────────┴───────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_dc0d02  validated    8 steps  5/5 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Create a new quotation (Sales > Orders > Quota…
+  s_ab5045  validated    3 steps  3/3 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_e0c450  validated    2 steps  3/3 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Create a new quotation (Sales > Orders > Quota…
+  s_56478b  validated    8 steps  3/3 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Create a new quotation (Sales > Orders > Quota…
+  s_feac33  validated   10 steps  3/3 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Create a new quotation (Sales > Orders > Quota…
+  s_56e28e  validated   31 steps  3/3 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Open the existing quotation {{v1}} (Sales > Or…
+  s_001cb1  validated   13 steps  3/3 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Open the existing quotation {{v1}} (Sales > Or…
+  s_d1dc5d  validated    3 steps  3/3 (100%)
+           We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Open the existing quotation {{v1}} (Sales > Or…
+  s_8f803c  validated    1 steps  3/3 (100%)
+           Final verification on Odoo 17 at http://127.0.0.1:8069/ (logged in as admin). Two checks, report both: (1) Ope…
+  s_28658e  validated    1 steps  2/2 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_ee6791  validated    3 steps  2/2 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_3f94eb  validated    1 steps  2/2 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_fb3374  validated    1 steps  2/2 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_04a024  validated    3 steps  2/2 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_ca59e5  validated    2 steps  2/2 (100%)
+           We are already logged in to Odoo 17 as {{v2}} at http://127.0.0.1:8069/ (currently on the Sales > Quotations l…
+  s_c620a0  validated    7 steps  2/2 (100%)  variant of s_c32248
+           On the Odoo page at http://127.0.0.1:8069/ there are TWO stacked modal dialogs. The topmost/active one is titl…
+  s_c32248  demoted      8 steps  1/2 (50%)
+           On the Odoo page at http://127.0.0.1:8069/ there are TWO stacked modal dialogs. The topmost/active one is titl…
+  s_32af4c  provisional  2 steps  1/1 (100%)
+           We are already logged in to Odoo 17 as admin at http://127.0.0.1:8069/ (currently on the Sales > Quotations li…
+  s_cc93f4  provisional  4 steps  1/1 (100%)
+           We are already logged in to Odoo 17 as admin at http://127.0.0.1:8069/ (currently on the Sales > Quotations li…
+  s_6be0b2  provisional  2 steps  1/1 (100%)
+           We are already logged in to Odoo 17 as admin at http://127.0.0.1:8069/ (currently on the Sales > Quotations li…
+  s_04e921  provisional  1 steps  1/1 (100%)
+           Final verification on Odoo 17 at http://127.0.0.1:8069/ (logged in as admin). Two checks, report both: (1) Ope…
+  s_aa9005  provisional  5 steps  1/1 (100%)
+           Final verification on Odoo 17 at http://127.0.0.1:8069/ (logged in as admin). Two checks, report both: (1) Ope…
+store: /home/user/browser-pilot/bench/results/fwod26-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod26-sweep.json

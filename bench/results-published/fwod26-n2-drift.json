@@ -1,0 +1,71 @@
+[
+  {
+    "flow": "fwod26",
+    "step": "02-create",
+    "skill": "s_56478b",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.998,
+    "missedLocator": "page.getByRole('option', { name: 'fwod26-n2 Bench Customer' }).nth(0)",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod26",
+    "step": "03-open",
+    "skill": "s_56e28e",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod26",
+    "step": "04-open",
+    "skill": "s_001cb1",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod26",
+    "step": "05-open",
+    "skill": "s_d1dc5d",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod26",
+    "step": "06-edit",
+    "skill": "s_c32248",
+    "similarity": 0.975,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference",
+    "reason": "step 1 raised an alert the recording never saw: Are you sure you want to cancel this order?",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod26",
+    "step": "07-report",
+    "skill": "s_8f803c",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+  }
+]
