@@ -1,0 +1,87 @@
+{
+  "flow": "fwgr16",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana with admin/admin credentials (no change-password prompt appeared), then searched for and opened the 'Service health' dashboard. The dashboard contains exactly 3 panels with titles: 'Request rate', 'Error count', and 'Latency by endpoint'.",
+      "values": {
+        "panel_title_1": "Request rate",
+        "panel_title_2": "Error count",
+        "panel_title_3": "Latency by endpoint",
+        "panel_titles": "Request rate, Error count, Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": true,
+      "turns": 18
+    },
+    {
+      "id": "02-open",
+      "status": "failure",
+      "summary": "Could not complete the instruction within the turn cap. Context: the original unsaved dashboard state (Stat panel 'fwgr16-n2 Availability') was lost when the previous attempt navigated away — unsaved Grafana dashboards are in-memory only, and the stored procedure s_f85e5c refused to replay for that reason. I rebuilt the state from scratch: created a new dashboard, added a visualization, changed it to the Stat visualization, and renamed it to 'fwgr16-n2 Availability' (verified: the panel heading changed to 'fwgr16-n2 Availability' in the live DOM). I then added a second panel and opened the visualization picker to select Text, but ran out of turns before selecting Text, titling it 'fwgr16-n2 Notes', and saving the dashboard as 'fwgr16-n2 Bench Dashboard'. The dashboard is still UNSAVED at /dashboard/new with panel 1 ('fwgr16-n2 Availability', Stat) and panel 2 (default 'Panel Title', in edit mode with the visualization picker open). Remaining steps: select Text visualization for panel 2, set its title to 'fwgr16-n2 Notes' with text content containing 'fwgr16-n2', then save the dashboard with title 'fwgr16-n2 Bench Dashboard' and confirm the save prompt.",
+      "values": {
+        "panel_1_title": "fwgr16-n2 Availability",
+        "panel_1_type": "Stat",
+        "panel_2_state": "in edit mode, visualization picker open, default title 'Panel Title'",
+        "dashboard_saved": "no"
+      },
+      "tier": "B",
+      "replayed": "0/14",
+      "repaired": false,
+      "turns": 74
+    }
+  ],
+  "passed": 1,
+  "total": 4,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr16",
+      "step": "01-open",
+      "skill": "s_3caa90",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Username input field')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr16",
+      "step": "02-open",
+      "skill": "s_f85e5c",
+      "similarity": 0.946,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "every candidate refused — s_f85e5c: not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at http://127.0.0.1:3000/d/bench-service-health/service-health) — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/dashboard/new does not show \"fwgr16-n2 Availability\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    }
+  ],
+  "wallMs": 764681,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1145542,
+    "completionTokens": 22905,
+    "cachedTokens": 995776
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 532033,
+      "completionTokens": 10651,
+      "cachedTokens": 444160
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 613509,
+      "completionTokens": 12254,
+      "cachedTokens": 551616
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

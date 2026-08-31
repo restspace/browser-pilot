@@ -1,0 +1,98 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "4ade3a7"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd37-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd37-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 534513,
+  "orchestrator": {
+    "input": 11827,
+    "cacheWrite": 0,
+    "cacheRead": 19488,
+    "output": 2030
+  },
+  "inner": {
+    "promptTokens": 1332865,
+    "cachedTokens": 1127936,
+    "completionTokens": 12495,
+    "instructions": 8,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1332865,
+        "completionTokens": 12495,
+        "cachedTokens": 1127936,
+        "instructions": 8
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 73,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 432566,
+  "commandBytes": 4591,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd37-skills",
+    "instructions": 8,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 73,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Modal",
+    "Together",
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.0282,
+  "maxUsd": 2,
+  "spendUsd": 0.0554,
+  "finalText": "All objectives completed. Final report:\n\n1. **DONE** — Ticket `fwrd37-n1 RD Bench Ticket` created (reference **RD-1015**, initial status Draft, no customer, created 2026-08-31). Only the title was required at creation.\n\n2. **DONE** — Part `fwrd37-n1 RD Part A` added with cost $100.00 and markup 25%. The app computed a price of **$125.00** (cost + 25% markup).\n\n3. **DONE** — Part `fwrd37-n1 RD Part B` added with cost $200.00 and markup 25%. The app computed a price of **$250.00**. Ticket parts total at that point: $375.00.\n\n4. **DONE** — Part A's cost changed from 100 to 150 (markup kept at 25%). The app recomputed its price as **$187.50** ($150.00 + 25% markup); ticket parts total updated to $437.50.\n\n5. **DONE** — Ticket status set to **Ready**. The precondition the app enforces: **every part on the ticket must have a supplier assigned**. The first \"Mark Ready\" attempt was refused with the exact error: *\"Ticket is not ready Part \"fwrd37-n1 RD Part A\" has no supplier Part \"fwrd37-n1 RD Part B\" has no supplier\"*. After assigning supplier \"Acme Supplies\" to both parts, \"Mark Ready\" succeeded: status changed Draft → Ready, and the button was replaced by \"Mark Draft\" / \"Mark Closed\".\n\n6. **DONE** — Both parts deleted (each via Delete + \"Delete part\" confirmation dialog); the parts table then showed \"No parts on this ticket yet.\" with no total. The ticket was then archived via the \"Archive ticket\" button (no preconditions enforced for archiving): the detail view shows an \"Archived\" badge and the button changed to \"Unarchive ticket\". The ticket no longer appears in the active ticket list (only visible when \"Show archived\" is checked, listed as \"RD-1015 fwrd37-n1 RD Bench Ticket Archived … Ready 0\"). Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd37-n1-browser-pilot-transcript.jsonl"
+}

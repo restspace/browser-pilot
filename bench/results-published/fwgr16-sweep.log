@@ -1,0 +1,104 @@
+
+[sweep] run 1/3: fwgr16-n1 (store: /home/user/browser-pilot/bench/results/fwgr16-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+stopped: fwgr16-n1
+  flow "fwgr16" saved: 4 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwgr16.json
+  warning: warning: instruction "Create a NEW dashboard in Grafana. Add a Stat visualization panel titl…" ran 19 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "Create a NEW dashboard in Grafana. Add a Stat visualization panel titl…" ran 3 state-changing step(s) but reported failure — its work is NOT in the flow
+  warning: warning: 53 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[1].instruction: "unsaved new dashboard" (output) in "On the currently open unsaved new dashboard (which already has a Stat panel '{{runid}} Availability'): 1) delete the leftover default 'Panel Title' panel; 2) ad"
+  flow.steps[1].params.v1: "unsaved new dashboard" (output) in "unsaved new dashboard"
+  flow.steps[2].instruction: "Last 6 hours" (output) in "On the open dashboard '{{runid}} Bench Dashboard': 1) add the tag 'bench' to the dashboard (via dashboard settings > General, or the save dialog's tags field); "
+  flow.steps[2].instruction: "bench" (output) in "On the open dashboard '{{runid}} Bench Dashboard': 1) add the tag 'bench' to the dashboard (via dashboard settings > General, or the save dialog's tags field); "
+  flow.steps[2].params.v3: "bench" (output) in "bench"
+  flow.steps[3].params.v4: "bench" (output) in "{{runid}}-bench-dashboard"
+  s_7d5e38.steps[2].expect.urlPattern: "bench" (output) in "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  s_72344f.template: "Last 6 hours" (output) in "On the open dashboard '{{v1}}': 1) add the tag '{{v3}}' to the dashboard (via dashboard settings > General, or the save dialog's tags field); 2) set the dashboa"
+  s_72344f.preconditions.urlPattern: "cfwvrgg44dblsb" (url) in "http://127.0.0.1:3000/d/cfwvrgg44dblsb/{{v2}}-{{v3}}-dashboard"
+  s_72344f.steps[0].expect.urlPattern: "cfwvrgg44dblsb" (url) in "http://127.0.0.1:3000/d/cfwvrgg44dblsb/{{v2}}-{{v3}}-dashboard"
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwgr16-n1 stop=completed
+turns=6 wall=1008.7s
+commands=5 cmdTime=971.0s cmdBytes=5210 timeouts=0
+orchestrator in=4231 cw=0 cr=14912 out=1103
+inner prompt=2920548 cached=2545728 completion=21454
+spend=$0.2968 maxUsd=2
+learn: A_n=0 replayed=0/5 full=0 repaired=0 compiled=4 variants=0
+-> /home/user/browser-pilot/bench/results/fwgr16-n1-browser-pilot-result.json
+
+fwgr16-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid cfwvrgg44dblsb reported
+
+[sweep] run 2/3: fwgr16-n2 (replay flow fwgr16, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr16-n1 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr16-n2: 2 drift ticket(s) → fwgr16-n2-drift.json
+
+fwgr16-n2: objectives passed 1/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: FAIL — dashboard not found (or not saved)
+  obj 3: FAIL — text panel not found
+  obj 4: FAIL — no dashboard
+  obj 5: FAIL — no dashboard
+  obj 6: FAIL — no dashboard to report
+
+[sweep] run 3/3: fwgr16-n3 (replay flow fwgr16, no orchestrator)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr16-n3: 1 drift ticket(s) → fwgr16-n3-drift.json
+
+fwgr16-n3: objectives passed 1/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: FAIL — dashboard not found (or not saved)
+  obj 3: FAIL — text panel not found
+  obj 4: FAIL — no dashboard
+  obj 5: FAIL — no dashboard
+  obj 6: FAIL — no dashboard to report
+
+Learning sweep fwgr16 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr16-n1' │ '6/6'    │ 'completed' │ 6     │ 5    │ 0.2968    │ 0   │ '0/5'        │ 1009   │
+│ 1       │ 2 │ 'fwgr16-n2' │ '1/6'    │ 'halted'    │ 92    │ 4    │ 0.2948    │ 1   │ '1/4 (flow)' │ 765    │
+│ 2       │ 3 │ 'fwgr16-n3' │ '1/6'    │ 'halted'    │ 67    │ 4    │ 0.1724    │ 1   │ '1/4 (flow)' │ 678    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_83e9d9  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip/change-password prompt if it appears). Th…
+  s_3caa90  demoted      3 steps  1/3 (33%)
+           Open {{v1}} and sign in with username admin and password admin (skip/change-password prompt if it appears). Th…
+  s_7d5e38  provisional  3 steps  1/1 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip/change-password prompt if it appears). Th…
+  s_72344f  provisional 21 steps  1/1 (100%)
+           On the open dashboard '{{v1}}': 1) add the tag '{{v3}}' to the dashboard (via dashboard settings > General, or…
+  s_498a58  provisional  5 steps  1/1 (100%)
+           Reload the dashboard '{{v1}}' (URL /d/{{v3}}/{{v4}}) fresh and verify persisted state: report the panel titles…
+  s_433da8  provisional  7 steps  1/1 (100%)
+           Open {{v1}} and sign in with username admin and password admin (skip/change-password prompt if it appears). Th…
+  s_f85e5c  provisional 14 steps  1/1 (100%)
+           On the currently open {{v1}} (which already has a Stat panel '{{v2}}'): 1) delete the leftover default 'Panel …
+  s_b57784  provisional  3 steps  1/1 (100%)
+           On the currently open {{v1}} (which already has a Stat panel '{{v2}}'): 1) delete the leftover default 'Panel …
+  s_be6e05  provisional  3 steps  1/1 (100%)  variant of s_3caa90
+           Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if…
+  s_3c7fa3  provisional  2 steps  1/1 (100%)  variant of s_3caa90
+           Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if…
+  s_2fe908  provisional  5 steps  1/1 (100%)  variant of s_3caa90
+           Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if…
+  s_1b8e15  provisional  3 steps  1/1 (100%)  variant of s_3caa90
+           Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if…
+  s_2bd903  provisional  2 steps  1/1 (100%)  variant of s_3caa90
+           Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if…
+  s_bac556  provisional  8 steps  1/1 (100%)  variant of s_3caa90
+           Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if…
+store: /home/user/browser-pilot/bench/results/fwgr16-skills
+
+summary: /home/user/browser-pilot/bench/results/fwgr16-sweep.json
