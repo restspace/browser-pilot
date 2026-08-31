@@ -291,7 +291,16 @@ for (const shape of shapes) {
           const again = await llm.complete(msgs, [tool], { temperature: 0 });
           const call2 = (again.toolCalls ?? []).find((x) => x.name === 'report');
           const v2 = call2?.args?.evidence?.values;
-          if (v2 && typeof v2 === 'object' && Object.keys(v2).length) { values = v2; answered++; }
+          if (v2 && typeof v2 === 'object' && Object.keys(v2).length) {
+            if (process.env.PROBE_TRACE) {
+              console.error(`
+  ask=[${unnamed.join(' | ')}]
+  before=${JSON.stringify(Object.keys(values))}
+  after =${JSON.stringify(Object.keys(v2))}`);
+            }
+            values = v2;
+            answered++;
+          }
         }
       }
     } catch (err) {

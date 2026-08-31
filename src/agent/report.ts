@@ -274,6 +274,38 @@ function promotableReads(report: Report, reads: ObservedRead[]): Array<{ read: O
  * bench/naming-probe.mjs measures the text that actually ships rather than a
  * copy of it that can drift out of agreement with this one.
  */
+/**
+ * Union of two reports' evidence values, keeping every value either one names.
+ *
+ * The naming retry asks for the report "unchanged except that evidence.values
+ * includes each of those values", and models do not honour the "unchanged"
+ * half. Traced over the recorded corpus, one retry went
+ *
+ *   before ["contact_name","contact_city","sales_order_title","sales_order_status"]
+ *   after  ["contact_name","contact_city","order_reference","order_status"]
+ *
+ * — it added the order reference we asked for and silently dropped the title.
+ * Taking the second report wholesale meant the ask added and subtracted in
+ * equal measure, which is why firing it 8 times moved the score not at all.
+ *
+ * Union by VALUE, not by key: a model that renames `sales_order_status` to
+ * `order_status` has not lost anything, and carrying both would publish the
+ * same value twice under two names for later steps to choose between. The
+ * second report's naming wins; only values it dropped entirely come back.
+ */
+export function mergeReportValues(
+  first: Record<string, string | number | boolean | null> | undefined,
+  second: Record<string, string | number | boolean | null> | undefined,
+): Record<string, string | number | boolean | null> {
+  const out = { ...(second ?? {}) };
+  const held = new Set(Object.values(out).map((v) => String(v).trim()));
+  for (const [k, v] of Object.entries(first ?? {})) {
+    if (held.has(String(v).trim()) || k in out) continue;
+    out[k] = v;
+  }
+  return out;
+}
+
 export function namingAskMessage(unnamed: string[]): string {
   const it = unnamed.length === 1 ? 'it' : 'them';
   return (

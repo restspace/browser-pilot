@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, namingAskMessage, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, mergeReportValues, namingAskMessage, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
@@ -172,6 +172,8 @@ export async function runInstruction(
   let reportRetried = false;
   /** The naming ask below is made at most once per instruction, and never blocks a report. */
   let namingAsked = false;
+  /** evidence.values from the report held for naming, so the retry cannot lose them. */
+  let heldValues: Record<string, string | number | boolean | null> | undefined;
   let capWarned = false;
   let unproductiveTurns = 0;
 
@@ -525,6 +527,7 @@ export async function runInstruction(
               tool_call_id: call.id,
               content: namingAskMessage(unnamed),
             });
+            heldValues = validation.report.evidence?.values;
             browser.script?.noteNamingAsk?.(unnamed);
             transcript.push(`report held for naming: ${unnamed.join(', ')}`);
             opts.onProgress?.(`[turn ${turn}] asking for names for ${unnamed.length} unnamed read value(s): ${unnamed.join(', ')}`);
@@ -532,6 +535,12 @@ export async function runInstruction(
           }
           if (namingAsked && Object.keys(validation.report.evidence?.values ?? {}).length) {
             browser.script?.noteNamingAnswered?.();
+            // The retry asked for the report "unchanged except…"; models drop
+            // things anyway. Keep every value either report named — see
+            // mergeReportValues for the trace that made this necessary.
+            if (heldValues) {
+              (validation.report.evidence ??= {}).values = mergeReportValues(heldValues, validation.report.evidence.values);
+            }
           }
           // A repaired payload is accepted, not silently rewritten: the caller
           // and the transcript both see what was changed on the agent's behalf.
