@@ -111,6 +111,26 @@ d('browser primitives (fixture page)', () => {
     expect(out.result).toContain('Saved Ada');
   });
 
+  it('a singular read refuses an ambiguous target instead of silently taking the first', async () => {
+    // fwod24: `read text h1` matched three headings on Odoo's form, we returned
+    // the first, and the recorder stored the locator with no alternates — so
+    // both replays met the same ambiguity, had nothing to fall back to, and
+    // dropped four of seven steps to the model. Every ACTION already refuses
+    // this via Playwright's strict mode; the singular read was the exception.
+    const out = await run('read', { target: '#rows .row', what: 'text' });
+    expect(out.isError).toBe(true);
+    expect(out.result).toContain('matched 3 elements');
+    // The error has to teach the way out, or the agent just retries the same thing.
+    expect(out.result).toContain('read_all');
+    expect(out.result).toContain('@e');
+  });
+
+  it('read what=count still answers for a plural target — the question IS how many', async () => {
+    const out = await run('read', { target: '#rows .row', what: 'count' });
+    expect(out.isError).toBe(false);
+    expect(out.result).toBe('3');
+  });
+
   it('read_all returns a value across every matching element in one call', async () => {
     const texts = await run('read_all', { target: '#rows .row', what: 'text' });
     expect(JSON.parse(texts.result)).toEqual(['Row Alpha', 'Row Beta', 'Row Gamma']);

@@ -190,7 +190,9 @@ export const TOOL_DEFS: ToolDef[] = [
   {
     name: 'read',
     description:
-      'Read text/value/attribute/count from a selector (the first match) — much cheaper than a full snapshot for spot checks.',
+      'Read text/value/attribute from ONE element — much cheaper than a full snapshot for spot checks. ' +
+      'The target must match exactly one element, or the read fails: a snapshot ref (@e123) always does, ' +
+      'and a bare tag like "h1" usually does not. Use read_all to read every match, or what=count to count them.',
     parameters: {
       type: 'object',
       required: ['target', 'what'],
@@ -790,7 +792,39 @@ async function dispatch(
       return waitFor(page, args, signal);
 
     case 'read': {
-      const loc = t().first();
+      const loc = t();
+      // `count` asks HOW MANY, so plural is the answer, not an error.
+      if (args.what === 'count') return String(await loc.count());
+      // Every ACTION already insists on a unique target: click and fill hand
+      // the locator to Playwright, whose strict mode throws on an ambiguous
+      // match, and the agent answers that by naming something specific. A
+      // singular read was the one exception — it took `.first()` of however
+      // many matched, silently.
+      //
+      // That is the fwod24 defect end to end. `read text h1` matched three
+      // headings on Odoo's form; we returned the first, and the recorder,
+      // seeing a count that was not 1, stored the locator with NO alternates
+      // (describeTarget bails before it derives any). The flow then threaded
+      // that value through eleven references. On both replays resolveChain
+      // met the same ambiguity, refused to guess which heading — correctly,
+      // since picking wrong reads another record's number — and had no
+      // fallback to try, so four of seven steps dropped to the model.
+      //
+      // Recording was accepting exactly what replay would refuse. Closing
+      // that costs about two turns per recording (9 of 54 singular reads
+      // across five recorded runs were ambiguous, three of them this bug),
+      // and the agent already has a unique-by-construction answer it reaches
+      // for unprompted in half of all reads: a snapshot ref.
+      //
+      // read_all stays plural. Reading every price in a table is the point,
+      // and 14 of its 16 uses matched many by design.
+      const n = await loc.count();
+      if (n > 1) {
+        throw new Error(
+          `read matched ${n} elements for ${JSON.stringify(String(args.target))} — a read must name exactly one. ` +
+            `Use a snapshot ref (@e123) for the one you mean, or a more specific selector; use read_all to read all ${n}.`,
+        );
+      }
       switch (args.what) {
         case 'text':
           return JSON.stringify(await loc.innerText({ timeout }));
@@ -798,8 +832,6 @@ async function dispatch(
           return JSON.stringify(await loc.inputValue({ timeout }));
         case 'attr':
           return JSON.stringify(await loc.getAttribute(String(args.attr), { timeout }));
-        case 'count':
-          return String(await t().count());
         default:
           throw new Error(`unknown read kind: ${args.what}`);
       }
