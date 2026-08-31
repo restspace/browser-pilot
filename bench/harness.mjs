@@ -390,7 +390,7 @@ if (learnDir) {
 const saveFlow = args['save-flow'] && args.arm === 'browser-pilot' && learnDir ? String(args['save-flow']) : null;
 if (args.flowsDir) process.env.BROWSER_PILOT_FLOWS_DIR = path.resolve(String(args.flowsDir));
 const coarseBlock = coarse
-  ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Equally, do NOT spend a call just exploring or cataloguing the UI ("describe the app's structure", "open the dialog and list every field, option and button", "report the full contents") — that sends the agent on an open-ended survey that burns its whole budget without moving the goal forward. Ask for the outcome and let the agent read only what it needs to achieve it; if you need a specific fact back, request that one fact as part of an action, not an exhaustive inventory. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there. The internal agent's default budget is 30 steps and 300 seconds per instruction; a genuinely large sub-goal (create a record AND configure it AND save it) can exceed that and comes back reporting it ran out, having done real work that is then hard to build on. When you expect an instruction to be that size, give it room: \`--max-turns 60 --timeout 600\`. Prefer raising the budget over splitting one sub-goal into several calls.`
+  ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Equally, do NOT spend a call just exploring or cataloguing the UI ("describe the app's structure", "open the dialog and list every field, option and button", "report the full contents") — that sends the agent on an open-ended survey that burns its whole budget without moving the goal forward. Ask for the outcome and let the agent read only what it needs to achieve it; if you need a specific fact back, request that one fact as part of an action, not an exhaustive inventory. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there.`
   : '';
 
 // The cli text is kept byte-for-byte what it was before other arm shapes
@@ -1473,7 +1473,15 @@ try {
         ? `${arm.bin} stop --session ${runid}${saveFlow ? ` --save-flow ${saveFlow}` : ''}`
         : `${arm.bin} --session ${runid} close`;
     const r = await runCommand(stop);
-    log({ k: 'cleanup', cmd: stop, code: r.code });
+    // The export prints its WARNINGS here — unslotted run values, stripped
+    // candidates, references only recovery can resolve, and work the flow did
+    // not bank. Recording only `code` threw every one of them away, which is
+    // why fwod23's two blocked create instructions produced no visible
+    // `warning: instruction ... state-changing step(s)` line even though the
+    // detector was in the build. Every export warning this project has emitted
+    // during a sweep has been discarded at this line.
+    log({ k: 'cleanup', cmd: stop, code: r.code, ...(r.out ? { out: r.out } : {}) });
+    if (r.out) console.log(r.out);
   } else if (mcp) {
     mcp.close();
     log({ k: 'cleanup', cmd: 'mcp close', code: 0 });
