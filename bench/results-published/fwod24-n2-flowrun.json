@@ -1,0 +1,222 @@
+{
+  "flow": "fwod24",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Odoo as admin/admin, navigated to Contacts, and created a new individual contact named \"fwod24-n2 Bench Customer\" with City field \"Benchville\". The saved form shows the customer name heading as \"fwod24-n2 Bench Customer\" and the City field value as \"Benchville\". A \"Contact created\" notification appeared confirming the save.",
+      "values": {
+        "customer_name": "fwod24-n2 Bench Customer",
+        "city": "Benchville",
+        "record_url": "http://127.0.0.1:8069/web#cids=1&menu_id=227&action=340&model=res.partner&view_type=form&id=45"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_dbb7ce; observed name_price_unit_nth_0=85.00, name_product_template_id=[FURN_1118] Corner Desk Left Sit.",
+      "values": {
+        "name_price_unit_nth_0": "85.00",
+        "name_product_template_id": "[FURN_1118] Corner Desk Left Sit"
+      },
+      "tier": "A",
+      "replayed": "19/19",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened existing quotation S00022 for customer 'fwod24-n2 Bench Customer'. Added a second order line: product '[FURN_7777] Office Chair' with quantity 2, unit price 70.00 (auto-filled). The saved form shows Untaxed Amount: £395.00 (computed from 3 x £85.00 + 2 x £70.00).",
+      "values": {
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_unit_price": "70.00",
+        "untaxed_amount": "£395.00",
+        "quotation_reference": "S00022",
+        "name_price_unit": "85.00"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 for 'fwod24-n2 Bench Customer', changed first line ([FURN_1118] Corner Desk Left Sit) quantity from 3 to 5, and saved. The saved form confirms: Line 1 quantity = 5.00, Unit Price = 85.00, Subtotal = £425.00; Line 2 maintained at 2 x £70.00 = £140.00; Untaxed Amount = £565.00. All values verified on the live form.",
+      "values": {
+        "first_line_quantity": "5.00",
+        "untaxed_amount": "£565.00",
+        "quotation_reference": "S00022"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 for 'fwod24-n2 Bench Customer' (5 x Corner Desk Left Sit, 2 x Office Chair, Untaxed Amount £565.00) and confirmed it using the Confirm button. The order is now a Sales Order with reference S00022 and status 'Sales Order' (confirmed, shown as checked radio in the status bar).",
+      "values": {
+        "order_reference": "S00022",
+        "order_status": "Sales Order"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened confirmed sales order S00022 for 'fwod24-n2 Bench Customer', cancelled it via the Action menu (gear icon) → Cancel, and accepted the confirmation dialog. The status bar now shows 'Cancelled' (checked radio in the progress bar). The order reference remains S00022 (page title \"Odoo - S00022\").",
+      "values": {
+        "order_status": "Cancelled",
+        "order_reference": "S00022",
+        "title": "Odoo - S00022"
+      },
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Verified both items: (1) Contact 'fwod24-n2 Bench Customer' — Name: 'fwod24-n2 Bench Customer', City: 'Benchville' on the saved form. (2) Sales order S00022 — page title: 'Odoo - S00022', status bar shows 'Cancelled' as the checked/active radio (order was cancelled in the previous step).",
+      "values": {
+        "contact_name": "fwod24-n2 Bench Customer",
+        "contact_city": "Benchville",
+        "order_reference": "S00022",
+        "order_status": "Cancelled",
+        "page_title": "Odoo - S00022"
+      },
+      "tier": "B",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 17
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 8,
+  "driftTickets": [
+    {
+      "flow": "fwod24",
+      "step": "01-open",
+      "skill": "s_6f5c4d",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_6f5c4d stopped at step 3 — after step 3 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Calendar\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 3 none of the 5 recorded page change(s) appeared (e.g. \"- menuitem \\\"Calendar\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+    },
+    {
+      "flow": "fwod24",
+      "step": "02-create",
+      "skill": "s_be8261",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.getByRole('option', { name: 'fwod24-n2 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "02-create",
+      "skill": "s_dbb7ce",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "03-open",
+      "skill": "s_6f91e5",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.h1, 02-create.h1",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "04-open",
+      "skill": "s_c995ae",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.h1, 03-open.name_product_template_id, 02-create.h1, 03-open.name_product_template_id",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "05-open",
+      "skill": "s_dee084",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.h1, 02-create.h1, 02-create.h1",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "06-open",
+      "skill": "s_ad84fc",
+      "atStep": "10",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "07-verify",
+      "skill": "s_fd7c4b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 757475,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 972842,
+    "completionTokens": 9181,
+    "cachedTokens": 434176
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 972842,
+      "completionTokens": 9181,
+      "cachedTokens": 434176
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

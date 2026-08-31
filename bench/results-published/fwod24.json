@@ -1,0 +1,150 @@
+{
+  "name": "fwod24",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in Odoo create a new customer contact named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville'. Save the record and report the customer name and city exactly as shown on the saved form. Note: do not wait for network idle, the app long-polls; wait on concrete page state instead.",
+      "skill": "s_01d203",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo (already signed in as admin), go to Sales and create a new quotation. Set the Customer to '{{runid}} Bench Customer' (it is an autocomplete dropdown - you must actually select the option from the dropdown, not just type it). Then add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), with quantity 3. Let the app fill in the unit price automatically. Save the quotation. Report: (a) the product name you chose, (b) the unit price the app filled in, (c) the Untaxed Amount the app computes, and (d) the quotation's name/reference. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_8d89f4",
+      "params": {
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "h1",
+        "name_price_unit_nth_0",
+        "name_product_template_id"
+      ],
+      "recorded": {
+        "h1": "S00021",
+        "name_price_unit_nth_0": "85.00",
+        "name_product_template_id": "[FURN_1118] Corner Desk Left Sit"
+      },
+      "outputEvidence": {
+        "name_price_unit_nth_0": {
+          "same": 1,
+          "differed": 0
+        },
+        "name_product_template_id": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo (already signed in as admin), open the existing quotation {{02-create.h1}} for customer '{{runid}} Bench Customer' (it currently has one order line: '{{02-create.name_product_template_id}}' quantity 3). Add a SECOND order line with a DIFFERENT product (select it from the autocomplete dropdown options, not just typed) with quantity 2. Let the app fill in the unit price automatically. Save. Report: (a) the product name of the new second line, (b) its unit price, and (c) the new total Untaxed Amount the app computes for the whole quotation. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_6f91e5",
+      "params": {
+        "v1": "{{02-create.h1}}",
+        "v2": "{{runid}}",
+        "v3": "{{02-create.name_product_template_id}}"
+      },
+      "outputs": [
+        "name_product_template_id",
+        "name_price_unit"
+      ],
+      "recorded": {
+        "name_product_template_id": "[FURN_7777] Office Chair",
+        "name_price_unit": "70.00"
+      },
+      "outputEvidence": {
+        "name_price_unit": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo (already signed in as admin), open the existing quotation {{02-create.h1}} for customer '{{runid}} Bench Customer'. It has two order lines: line 1 is '{{02-create.name_product_template_id}}' quantity 3, line 2 is '{{03-open.name_product_template_id}}' quantity 2. Change ONLY the FIRST line's quantity from 3 to 5. Save. Report the new total Untaxed Amount the app computes for the whole quotation, and confirm the first line now shows quantity 5. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_c995ae",
+      "params": {
+        "v1": "{{02-create.h1}}",
+        "v2": "{{runid}}",
+        "v3": "{{02-create.name_product_template_id}}",
+        "v4": "{{03-open.name_product_template_id}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo (already signed in as admin), open the existing quotation {{02-create.h1}} for customer '{{runid}} Bench Customer' (two lines: 5 x Corner Desk Left Sit, 2 x Office Chair, Untaxed Amount £565.00). Confirm the quotation so it becomes a sales order (use the Confirm button / Confirm Sale action). Report: (a) the order reference/name shown (e.g. {{02-create.h1}}), and (b) the status the app now shows for the order (e.g. 'Sales Order' / 'In Progress' badge). Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_dee084",
+      "params": {
+        "v1": "{{02-create.h1}}",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "role_radiogroup_aria_che"
+      ],
+      "recorded": {
+        "role_radiogroup_aria_che": "Sales Order"
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo (already signed in as admin), open the confirmed sales order {{02-create.h1}} for customer '{{runid}} Bench Customer' (currently in '{{05-open.role_radiogroup_aria_che}}' status). Cancel the order (use the Cancel action from the Action/gear menu or the Cancel button; if a confirmation dialog appears, accept it). Report: (a) the status the app shows after cancelling (e.g. 'Cancelled'), and (b) the order reference still shown. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_ad84fc",
+      "params": {
+        "v1": "{{02-create.h1}}",
+        "v2": "{{runid}}",
+        "v3": "{{05-open.role_radiogroup_aria_che}}"
+      },
+      "outputs": [
+        "role_radiogroup_aria_che",
+        "h1"
+      ],
+      "recorded": {
+        "role_radiogroup_aria_che": "Cancelled",
+        "h1": "S00021"
+      }
+    },
+    {
+      "id": "07-verify",
+      "instruction": "In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{runid}} Bench Customer' and report the exact Name and City shown on the saved form. (2) Open the sales order {{02-create.h1}} and report the exact order reference/name shown in the page title and the current status shown on the status bar. Do not change anything. Do not wait for network idle - the app long-polls; wait on concrete page state instead.",
+      "skill": "s_fd7c4b",
+      "params": {
+        "v3": "{{runid}} Bench Customer",
+        "v2": "{{02-create.h1}}"
+      },
+      "outputs": [
+        "h1",
+        "role_radiogroup_aria_che",
+        "title"
+      ],
+      "recorded": {
+        "h1": "S00021",
+        "role_radiogroup_aria_che": "Cancelled",
+        "title": "Odoo - S00021"
+      },
+      "outputEvidence": {
+        "title": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod24-n1",
+    "created": "2026-08-31T08:11:15.170Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

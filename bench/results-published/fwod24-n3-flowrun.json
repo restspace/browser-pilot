@@ -1,0 +1,201 @@
+{
+  "flow": "fwod24",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Odoo at http://127.0.0.1:8069/ with admin/admin, navigated to Contacts, created a new customer contact named \"fwod24-n3 Bench Customer\" with City \"Benchville\", and saved. The saved form shows the customer name as \"fwod24-n3 Bench Customer\" and the city as \"Benchville\" — both match exactly.",
+      "values": {
+        "customer_name": "fwod24-n3 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 19
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new quotation in Odoo Sales. Set customer to 'fwod24-n3 Bench Customer' (selected from autocomplete dropdown). Added one order line with product 'Customizable Desk' (selected from autocomplete dropdown), quantity 3. The app auto-filled the unit price at £750.00. The Untaxed Amount computed to £2,250.00. The quotation was saved with reference S00023.",
+      "values": {
+        "product_name": "Customizable Desk",
+        "unit_price": "750.00",
+        "untaxed_amount": "£2,250.00",
+        "quotation_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "1/3",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened existing quotation S00023 for fwod24-n3 Bench Customer (which had one line: [FURN_1118] Corner Desk Left Sit qty 3). Added a second order line with product '[FURN_7777] Office Chair' (selected from autocomplete dropdown), quantity 2. The app auto-filled the unit price at £70.00. Saved. The new total Untaxed Amount computed to £2,390.00.",
+      "values": {
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_unit_price": "70.00",
+        "total_untaxed_amount": "£2,390.00"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00023 for fwod24-n3 Bench Customer. Changed the first order line (Customizable Desk) quantity from 3 to 5 and saved. The first line now shows quantity 5.00. The new total Untaxed Amount computed to £3,890.00.",
+      "values": {
+        "first_line_quantity": "5.00",
+        "total_untaxed_amount": "£3,890.00"
+      },
+      "tier": "B",
+      "replayed": "0/3",
+      "repaired": true,
+      "turns": 7
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00023 for fwod24-n3 Bench Customer. The order reference shown is S00023 and the status bar now shows \"Sales Order\" (checked, with \"Quotation Sent\" and \"Quotation\" as earlier stages). The order has two lines: 5 x Customizable Desk (£750.00 each) and 2 x Office Chair (£70.00 each), Untaxed Amount £3,890.00. Note: the previous attempt's Confirm clicks had been blocked by a lingering \"System notification\" panel; after closing it and reloading, the Confirm button click succeeded.",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Sales Order"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 48
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened confirmed sales order S00023 for fwod24-n3 Bench Customer and cancelled it via the Cancel action (accepted the confirmation dialog). After cancelling, the status bar shows \"Cancelled\" as the checked radio, and the order reference S00023 is still shown in the heading.",
+      "values": {
+        "status": "Cancelled",
+        "order_reference": "S00023"
+      },
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Verified both items: (1) Contact 'fwod24-n3 Bench Customer' shows Name exactly \"fwod24-n3 Bench Customer\" and City exactly \"Benchville\" on the saved form. (2) Sales order S00023 shows page title \"Odoo - S00023\" (order reference S00023) and the status bar shows \"Cancelled\" as the current status.",
+      "values": {
+        "contact_name": "fwod24-n3 Bench Customer",
+        "contact_city": "Benchville",
+        "order_reference": "S00023",
+        "order_status": "Cancelled",
+        "title": "Odoo - S00023"
+      },
+      "tier": "B",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 4
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwod24",
+      "step": "01-open",
+      "skill": "s_01d203",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('textbox', { name: 'Email' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/"
+    },
+    {
+      "flow": "fwod24",
+      "step": "02-create",
+      "skill": "s_8d89f4",
+      "similarity": 0.985,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_8d89f4 stopped at step 2 — after step 2 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+      "reason": "after step 2 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod24",
+      "step": "03-open",
+      "skill": "s_6f91e5",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.h1, 02-create.h1",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "04-open",
+      "skill": "s_c995ae",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.h1, 03-open.name_product_template_id, 02-create.h1, 03-open.name_product_template_id",
+      "reason": "after step 1 the page did not show \"- combobox \\\"Type to find a product...\\\": [FURN_1118] Corner Desk Left Sit\" / \"- textbox \\\"\\\": [FURN_1118] Corner Desk Left Sit\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "06-open",
+      "skill": "s_ad84fc",
+      "atStep": "10",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod24",
+      "step": "07-verify",
+      "skill": "s_fd7c4b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('h1')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 1589094,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2114699,
+    "completionTokens": 27781,
+    "cachedTokens": 1245248
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1717457,
+      "completionTokens": 12145,
+      "cachedTokens": 905728
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 397242,
+      "completionTokens": 15636,
+      "cachedTokens": 339520
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
