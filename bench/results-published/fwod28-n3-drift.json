@@ -1,0 +1,63 @@
+[
+  {
+    "flow": "fwod28",
+    "step": "02-create",
+    "skill": "s_70dc77",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Activate' })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+  },
+  {
+    "flow": "fwod28",
+    "step": "03-create",
+    "skill": "s_2fc10d",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByRole('option', { name: 'fwod28-n3 Bench Customer' }).nth(0)",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod28",
+    "step": "06-open",
+    "skill": "s_a8f6af",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 03-create.product_name, 03-create.product_name",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod28",
+    "step": "07-open",
+    "skill": "s_8e361b",
+    "atStep": "9",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.locator('heading:has-text(\"Cancel Sales Order\")')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod28",
+    "step": "09-open",
+    "skill": "s_8597b2",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.locator('a:has-text(\"Search Name for: fwod28-n3\")')",
+    "fallbackUsed": "page.locator('li.o_menu_item', { hasText: 'Search Name for: fwod28-n3' }).locator('a')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+  }
+]

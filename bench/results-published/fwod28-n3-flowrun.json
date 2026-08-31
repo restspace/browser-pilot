@@ -1,0 +1,217 @@
+{
+  "flow": "fwod28",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_feb8b2.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new contact \"fwod28-n3 Bench Customer\" with City \"Benchville\" in Odoo Contacts. The form saved successfully and the record is confirmed: the Name field shows \"fwod28-n3 Bench Customer\" and the City field shows \"Benchville\".",
+      "values": {
+        "customer_name": "fwod28-n3 Bench Customer",
+        "customer_city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "0/3",
+      "repaired": false,
+      "turns": 9
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_54b0f6; observed quantity=3.00, unit_price=85.00, untaxed_amount=£ 255.00, quotation_reference=S00023.",
+      "values": {
+        "quantity": "3.00",
+        "unit_price": "85.00",
+        "untaxed_amount": "£ 255.00",
+        "quotation_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "19/19",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_a33fd0"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Added a second order line to draft quotation S00023 for customer 'fwod28-n3 Bench Customer'. First line (Corner Desk Left Sit) remains qty 3.00. Second line is '[FURN_6666] Acoustic Bloc Screens' at qty 2.00. The new total untaxed amount is £845.00 (£255.00 + £590.00). The quotation remains in draft (not confirmed).",
+      "values": {
+        "second_line_product": "[FURN_6666] Acoustic Bloc Screens",
+        "first_line_qty": "3.00",
+        "untaxed_amount": "£845.00",
+        "untaxed_amount_2": "£ 845.00",
+        "ref": "S00023"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 15
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Changed first line quantity from 3.00 to 5.00 on draft quotation S00023. The app auto-saved the change. Verified: line 1 quantity is now 5.00, and the new total untaxed amount is £1,015.00 (£425.00 + £590.00). The quotation remains in draft (not confirmed).",
+      "values": {
+        "first_line_qty_after": "5.00",
+        "new_untaxed_amount": "£1,015.00",
+        "new_untaxed_amount_2": "£ 1,015.00",
+        "ref": "S00023"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Confirmed draft quotation S00023 (customer: fwod28-n3 Bench Customer) to a sales order. The order reference remains S00023. The status bar now shows \"Sales Order\" as the active status (checked). The quotation is now a confirmed Sales Order.",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Sales Order",
+        "status_text": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Cancelled sales order S00023 via the Cancel Sales Order wizard (clicked the \"Cancel\" button, which cancelled without sending email). Verified: the status bar now shows \"Cancelled\" as the current status, and the order reference is still S00023 (breadcrumb shows \"Odoo - S00023\").",
+      "values": {
+        "order_reference": "S00023",
+        "status_after_cancel": "Cancelled"
+      },
+      "tier": "A",
+      "replayed": "8/18",
+      "repaired": false,
+      "turns": 44
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_328843; observed order_reference=S00023.",
+      "values": {
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Read-only verification of contact 'fwod28-n3 Bench Customer' in the Contacts app (kanban view). Name shows exactly \"fwod28-n3 Bench Customer\" and City shows \"Benchville\" — both match the originally created values. No changes were made.",
+      "values": {
+        "name": "fwod28-n3 Bench Customer",
+        "city": "Benchville",
+        "ref": "fwod28-n3"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 9,
+  "total": 9,
+  "repinned": 1,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwod28",
+      "step": "02-create",
+      "skill": "s_70dc77",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Activate' })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+    },
+    {
+      "flow": "fwod28",
+      "step": "03-create",
+      "skill": "s_2fc10d",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('option', { name: 'fwod28-n3 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod28",
+      "step": "06-open",
+      "skill": "s_a8f6af",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-create.product_name, 03-create.product_name",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod28",
+      "step": "07-open",
+      "skill": "s_8e361b",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('heading:has-text(\"Cancel Sales Order\")')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod28",
+      "step": "09-open",
+      "skill": "s_8597b2",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('a:has-text(\"Search Name for: fwod28-n3\")')",
+      "fallbackUsed": "page.locator('li.o_menu_item', { hasText: 'Search Name for: fwod28-n3' }).locator('a')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+    }
+  ],
+  "wallMs": 678712,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1465503,
+    "completionTokens": 15070,
+    "cachedTokens": 1207872
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1176523,
+      "completionTokens": 12897,
+      "cachedTokens": 982016
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 288980,
+      "completionTokens": 2173,
+      "cachedTokens": 225856
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
