@@ -65,6 +65,7 @@ const root = path.resolve(here, '..');
 const dist = (rel) => pathToFileURL(path.join(root, 'dist', rel)).href;
 const { OpenAICompatProvider, resolveProviderConfig } = await import(dist('agent/llm.js'));
 const { TOOL_DEFS } = await import(dist('agent/tools.js'));
+const { namingAskMessage, unnamedReadValues } = await import(dist('agent/report.js'));
 
 const argv = process.argv.slice(2);
 const arg = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
@@ -234,7 +235,7 @@ const model = arg('--model', 'deepseek/deepseek-v4-flash');
 const provider = arg('--provider', 'openrouter');
 const limit = Number(arg('--limit', '0')) || 0;
 const names = argv.includes('--all') ? Object.keys(VARIANTS) : [arg('--variant', 'current')];
-const SHAPES = ['summary-nudge', 'summary-nonudge', 'turns-nudge', 'turns-nonudge'];
+const SHAPES = ['summary-nudge', 'summary-nonudge', 'turns-nudge', 'turns-nonudge', 'turns-retry'];
 // Default to the shape that matches live behaviour, not the flattering one.
 const shapes = argv.includes('--shapes') ? SHAPES : [arg('--shape', 'turns-nonudge')];
 const all = cases(limit);
@@ -250,6 +251,8 @@ for (const shape of shapes) {
   const llm = new OpenAICompatProvider(cfg);
   const tool = reportTool(variant);
   let filled = 0, covered = 0, wanted = 0, failed = 0;
+  // turns-retry only: how often the ask FIRED, and how often it was answered.
+  let asked = 0, answered = 0;
   const perApp = {};
   for (const c of all) {
     perApp[c.app] ??= { n: 0, filled: 0, covered: 0, wanted: 0 };
@@ -259,10 +262,34 @@ for (const shape of shapes) {
     wanted += c.expect.length;
     let values = {};
     try {
-      const done = await llm.complete(messages(c, variant, shape), [tool], { temperature: 0 });
+      const msgs = messages(c, variant, shape === 'turns-retry' ? 'turns-nonudge' : shape);
+      const done = await llm.complete(msgs, [tool], { temperature: 0 });
       const call = (done.toolCalls ?? []).find((x) => x.name === 'report');
       values = call?.args?.evidence?.values ?? {};
       if (typeof values !== 'object' || values === null) values = {};
+      // turns-retry: the mechanism that actually ships. The loop lets the first
+      // report through the schema, then holds it and quotes the unnamed values
+      // back — one ask, at report time, naming the values so only labels are
+      // owed. Replayed here with the REAL message (namingAskMessage), against
+      // the shape that matches live behaviour.
+      if (shape === 'turns-retry' && call?.args) {
+        const reads = c.steps
+          .filter((s) => /^read/.test(s.tool) && s.args?.target !== '(read-back)' && typeof s.result === 'string')
+          .map((s) => {
+            let p; try { p = JSON.parse(s.result); } catch { p = s.result; }
+            return { target: String(s.args?.target ?? ''), values: (Array.isArray(p) ? p : [p]).filter((v) => typeof v === 'string') };
+          });
+        const unnamed = unnamedReadValues(call.args, reads);
+        if (unnamed.length) {
+          asked++;
+          msgs.push(done.assistantMessage);
+          msgs.push({ role: 'tool', tool_call_id: call.id, content: namingAskMessage(unnamed) });
+          const again = await llm.complete(msgs, [tool], { temperature: 0 });
+          const call2 = (again.toolCalls ?? []).find((x) => x.name === 'report');
+          const v2 = call2?.args?.evidence?.values;
+          if (v2 && typeof v2 === 'object' && Object.keys(v2).length) { values = v2; answered++; }
+        }
+      }
     } catch (err) {
       failed++;
       if (failed <= 2) console.error(`
@@ -280,6 +307,7 @@ for (const shape of shapes) {
   console.log(`  reports with any values : ${filled}/${all.length}  (${((filled / all.length) * 100).toFixed(0)}%)`);
   console.log(`  page values named       : ${covered}/${wanted}  (${((covered / wanted) * 100).toFixed(0)}%)`);
   if (failed) console.log(`  call failures           : ${failed}`);
+  if (shape === 'turns-retry') console.log(`  naming ask fired        : ${asked}/${all.length}   answered with values: ${answered}/${asked || 1}`);
   for (const [app, A] of Object.entries(perApp)) {
     console.log(`    ${app.padEnd(11)} values-filled ${A.filled}/${A.n}   named ${A.covered}/${A.wanted}`);
   }

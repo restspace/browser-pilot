@@ -269,6 +269,20 @@ function promotableReads(report: Report, reads: ObservedRead[]): Array<{ read: O
  * Strengthening the tool-schema wording did not work: this is the same ask made
  * where it cannot be skimmed past.
  */
+/**
+ * What the loop says when it holds a report for naming. Exported so
+ * bench/naming-probe.mjs measures the text that actually ships rather than a
+ * copy of it that can drift out of agreement with this one.
+ */
+export function namingAskMessage(unnamed: string[]): string {
+  const it = unnamed.length === 1 ? 'it' : 'them';
+  return (
+    `report not accepted yet — you read ${unnamed.map((v) => JSON.stringify(v)).join(', ')} off the page and described ${it} in the summary, but evidence.values does not name ${it}. ` +
+    'Call report again, unchanged except that evidence.values includes each of those values under the name a person would use for it ' +
+    '(order_reference, unit_price, customer_name — not a selector fragment). Later work addresses records by these names; a value left only in prose cannot be used.'
+  );
+}
+
 export function unnamedReadValues(report: Report, reads: ObservedRead[]): string[] {
   if (report.status !== 'success') return [];
   return promotableReads(report, reads).slice(0, MAX_PROMOTED).map((p) => p.value);

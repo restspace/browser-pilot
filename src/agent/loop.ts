@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, namingAskMessage, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
@@ -523,10 +523,7 @@ export async function runInstruction(
             state.messages.push({
               role: 'tool',
               tool_call_id: call.id,
-              content:
-                `report not accepted yet — you read ${unnamed.map((v) => JSON.stringify(v)).join(', ')} off the page and described ${unnamed.length === 1 ? 'it' : 'them'} in the summary, but evidence.values does not name ${unnamed.length === 1 ? 'it' : 'them'}. ` +
-                'Call report again, unchanged except that evidence.values includes each of those values under the name a person would use for it ' +
-                '(order_reference, unit_price, customer_name — not a selector fragment). Later work addresses records by these names; a value left only in prose cannot be used.',
+              content: namingAskMessage(unnamed),
             });
             browser.script?.noteNamingAsk?.(unnamed);
             transcript.push(`report held for naming: ${unnamed.join(', ')}`);
