@@ -1,0 +1,63 @@
+[
+  {
+    "flow": "fwod28",
+    "step": "02-create",
+    "skill": "s_70dc77",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('button', { name: 'Activate' })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+  },
+  {
+    "flow": "fwod28",
+    "step": "03-create",
+    "skill": "s_27a7fe",
+    "similarity": 0.995,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_27a7fe stopped at step 2 — after step 2 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+    "reason": "after step 2 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+  },
+  {
+    "flow": "fwod28",
+    "step": "04-open",
+    "skill": "s_3aeada",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_3aeada stopped at step 4 — step 4 raised an alert the recording never saw: Invalid fields: Order Lines",
+    "reason": "step 4 raised an alert the recording never saw: Invalid fields: Order Lines",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod28",
+    "step": "05-open",
+    "skill": "s_64afd5",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 04-open.second_line_unit_price, 04-open.second_line_unit_price",
+    "reason": "after step 1 none of the 1 recorded page change(s) appeared (e.g. \"- row \\\"20% £ 885.00\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod28",
+    "step": "09-open",
+    "skill": "s_8597b2",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.locator('a:has-text(\"Search Name for: fwod28-n2\")')",
+    "fallbackUsed": "page.locator('li.o_menu_item', { hasText: 'Search Name for: fwod28-n2' }).locator('a')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+  }
+]

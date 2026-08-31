@@ -1,0 +1,326 @@
+{
+  "name": "fwod28",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in to Odoo with login 'admin' and password 'admin'. Verify you are signed in (e.g. the apps menu / user name is visible). Note: the app long-polls so never wait for network idle; wait on concrete page state instead.",
+      "skill": "s_07ad9c",
+      "params": {
+        "v1": "http://127.0.0.1:8069/"
+      },
+      "outputs": [
+        "signed_in_as"
+      ],
+      "recorded": {
+        "signed_in_as": "admin"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo, create a new contact/customer named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville'. Use the Contacts app (or Sales app's customer creation) — fill any required fields, save, and verify the record is saved with the name '{{runid}} Bench Customer' and City 'Benchville'. Report what the saved record shows for Name and City.",
+      "skill": "s_7a1324",
+      "params": {
+        "v1": "{{runid}}",
+        "v2": "Contacts"
+      },
+      "outputs": [
+        "saved_name",
+        "saved_city"
+      ],
+      "recorded": {
+        "saved_name": "fwod28-n1 Bench Customer",
+        "saved_city": "Benchville"
+      }
+    },
+    {
+      "id": "03-create",
+      "instruction": "In the Odoo Sales app, create a new quotation for the customer '{{runid}} Bench Customer' (choose them from the autocomplete dropdown — typing alone does not count). Add exactly ONE order line: pick any product from the product catalogue via the autocomplete dropdown, with quantity 3. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app filled in for that line, and (c) the untaxed amount the app computes for the quotation. Do not confirm the quotation yet — leave it as a draft quotation.",
+      "skill": "s_a33fd0",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "customer",
+        "product_name",
+        "quantity",
+        "quotation_reference",
+        "status",
+        "unit_price",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "customer": "fwod28-n1 Bench Customer",
+        "product_name": "[FURN_6666] Acoustic Bloc Screens",
+        "quantity": "3.00",
+        "quotation_reference": "S00021",
+        "status": "Quotation (draft)",
+        "unit_price": "295.00",
+        "untaxed_amount": "£ 885.00"
+      },
+      "outputEvidence": {
+        "product_name": {
+          "same": 0,
+          "differed": 1
+        },
+        "quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "quotation_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "unit_price": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open the existing draft quotation {{03-create.quotation_reference}} for customer '{{runid}} Bench Customer' in the Odoo Sales app (it currently has one order line: '{{03-create.product_name}}', quantity 3, unit price {{03-create.unit_price}}, untaxed amount 885.00). Add a SECOND order line with a DIFFERENT product (pick one from the product autocomplete dropdown — typing alone does not count) with quantity 2. Save. Then report: (a) the product name of the new second line, (b) the new total untaxed amount the app computes for the quotation, and (c) confirm the first line is still quantity 3. Keep the quotation in draft — do not confirm it.",
+      "skill": "s_3aeada",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-create.product_name}}",
+        "v5": "{{03-create.unit_price}}"
+      },
+      "outputs": [
+        "first_line_product",
+        "first_line_quantity",
+        "first_line_unit_price",
+        "status",
+        "total_untaxed_amount",
+        "second_line_product",
+        "second_line_quantity",
+        "second_line_unit_price",
+        "ref"
+      ],
+      "recorded": {
+        "first_line_product": "[FURN_6666] Acoustic Bloc Screens",
+        "first_line_quantity": "3.00",
+        "first_line_unit_price": "295.00",
+        "status": "Quotation (draft)",
+        "total_untaxed_amount": "£ 1,025.00",
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "70.00",
+        "ref": "S00021"
+      },
+      "outputEvidence": {
+        "first_line_product": {
+          "same": 0,
+          "differed": 1
+        },
+        "first_line_quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "second_line_product": {
+          "same": 1,
+          "differed": 1
+        },
+        "second_line_quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "ref": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Open the existing draft quotation {{03-create.quotation_reference}} in the Odoo Sales app (it has two order lines: line 1 '{{03-create.product_name}}' quantity {{03-create.quantity}} unit price {{03-create.unit_price}}, line 2 '{{04-open.second_line_product}}' quantity {{04-open.second_line_quantity}} unit price {{04-open.second_line_unit_price}}; current untaxed amount 1,025.00). Change the FIRST line's quantity from 3 to 5. Save. Then report the new total untaxed amount the app computes, and confirm line 1 now shows quantity 5.00. Keep the quotation in draft — do not confirm it.",
+      "skill": "s_64afd5",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{03-create.product_name}}",
+        "v3": "{{03-create.quantity}}",
+        "v4": "{{03-create.unit_price}}",
+        "v5": "{{04-open.second_line_product}}",
+        "v6": "{{04-open.second_line_quantity}}",
+        "v7": "{{04-open.second_line_unit_price}}",
+        "v8": "5.00"
+      },
+      "outputs": [
+        "first_line_quantity_after",
+        "first_line_subtotal",
+        "second_line_quantity",
+        "second_line_subtotal",
+        "status",
+        "total_untaxed_amount",
+        "ref"
+      ],
+      "recorded": {
+        "first_line_quantity_after": "5.00",
+        "first_line_subtotal": "£ 1,475.00",
+        "second_line_quantity": "2.00",
+        "second_line_subtotal": "£ 140.00",
+        "status": "Quotation (draft)",
+        "total_untaxed_amount": "£ 1,615.00",
+        "ref": "S00021"
+      },
+      "outputEvidence": {
+        "first_line_quantity_after": {
+          "same": 1,
+          "differed": 0
+        },
+        "first_line_subtotal": {
+          "same": 0,
+          "differed": 1
+        },
+        "second_line_quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "second_line_subtotal": {
+          "same": 1,
+          "differed": 0
+        },
+        "total_untaxed_amount": {
+          "same": 0,
+          "differed": 1
+        },
+        "ref": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "Open the existing draft quotation {{03-create.quotation_reference}} in the Odoo Sales app (two lines: '{{03-create.product_name}}' qty {{05-open.first_line_quantity_after}}, '{{04-open.second_line_product}}' qty {{04-open.second_line_quantity}}, untaxed amount 1,615.00). Confirm the quotation so it becomes a sales order. Then report: (a) the order reference/name shown (e.g. {{03-create.quotation_reference}}), and (b) the status the app now shows (e.g. 'Sales Order' / 'Confirmed' — quote the exact status text on the page). Do not cancel it yet.",
+      "skill": "s_a8f6af",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{03-create.product_name}}",
+        "v3": "{{05-open.first_line_quantity_after}}",
+        "v4": "{{04-open.second_line_product}}",
+        "v5": "{{04-open.second_line_quantity}}"
+      },
+      "outputs": [
+        "first_line",
+        "order_reference",
+        "second_line",
+        "status"
+      ],
+      "recorded": {
+        "first_line": "[FURN_6666] Acoustic Bloc Screens qty 5.00",
+        "order_reference": "S00021",
+        "second_line": "[FURN_7777] Office Chair qty 2.00",
+        "status": "Sales Order"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "status": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "Open the confirmed sales order {{03-create.quotation_reference}} in the Odoo Sales app (status '{{06-open.status}}'). Cancel it so nothing stays active — use the Cancel action (confirm any dialog that appears). Then report the exact status the app shows after cancelling (e.g. 'Cancelled'), and confirm the order reference is still {{03-create.quotation_reference}}.",
+      "skill": "s_8e361b",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}",
+        "v2": "{{06-open.status}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status_after_cancel"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status_after_cancel": "Cancelled"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "status_after_cancel": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "Open sales order {{03-create.quotation_reference}} in the Odoo Sales app and report its current status exactly as shown in the statusbar, plus the order reference and the untaxed amount. Do not change anything — this is a read-only verification.",
+      "skill": "s_328843",
+      "params": {
+        "v1": "{{03-create.quotation_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status",
+        "untaxed_amount"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Cancelled",
+        "untaxed_amount": "£1,615.00"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "09-open",
+      "instruction": "In the Odoo Contacts app, open the contact named '{{runid}} Bench Customer' and report its Name and City exactly as shown. Do not change anything — read-only verification.",
+      "skill": "s_49ee23",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "city",
+        "name",
+        "ref"
+      ],
+      "recorded": {
+        "city": "Benchville",
+        "name": "fwod28-n1 Bench Customer",
+        "ref": "fwod28-n1"
+      },
+      "outputEvidence": {
+        "city": {
+          "same": 2,
+          "differed": 0
+        },
+        "name": {
+          "same": 0,
+          "differed": 2
+        },
+        "ref": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod28-n1",
+    "created": "2026-08-31T20:50:45.817Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

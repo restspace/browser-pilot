@@ -1,0 +1,160 @@
+
+[sweep] run 1/3: fwod28-n1 (store: /home/user/browser-pilot/bench/results/fwod28-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod28-n1
+  flow "fwod28" saved: 9 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwod28.json
+  warning: note: dropped 3 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: instruction "In Odoo, create a new contact/customer named exactly 'fwod28-n1 Bench …" ran 9 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "In the Odoo Sales app, create a new quotation for the customer 'fwod28…" ran 13 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "Open the confirmed sales order S00021 in the Odoo Sales app (status 'S…" ran 8 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: 119 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "admin" (output) in "Open http://127.0.0.1:8069/ and sign in to Odoo with login 'admin' and password 'admin'. Verify you are signed in (e.g. the apps menu / user name is visible). N"
+  flow.steps[1].instruction: "Benchville" (output) in "In Odoo, create a new contact/customer named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville'. Use the Contacts app (or Sales app's cu"
+  flow.steps[4].instruction: "5.00" (output) in "Open the existing draft quotation {{03-create.quotation_reference}} in the Odoo Sales app (it has two order lines: line 1 '{{03-create.product_name}}' quantity "
+  flow.steps[4].params.v8: "5.00" (output) in "5.00"
+  flow.steps[5].instruction: "Sales Order" (output) in "Open the existing draft quotation {{03-create.quotation_reference}} in the Odoo Sales app (two lines: '{{03-create.product_name}}' qty {{05-open.first_line_quan"
+  flow.steps[6].instruction: "Cancelled" (output) in "Open the confirmed sales order {{03-create.quotation_reference}} in the Odoo Sales app (status '{{06-open.status}}'). Cancel it so nothing stays active — use th"
+  s_07ad9c.template: "admin" (output) in "Open {{v1}} and sign in to Odoo with login 'admin' and password 'admin'. Verify you are signed in (e.g. the apps menu / user name is visible). Note: the app lon"
+  s_07ad9c.steps[1].args.value: "admin" (output) in "admin"
+  s_07ad9c.steps[1].expect.addedContains[0]: "admin" (output) in "- textbox \"Email\": admin"
+  s_feb8b2.template: "admin" (output) in "Open {{v1}} and sign in to Odoo with login 'admin' and password 'admin'. Verify you are signed in (e.g. the apps menu / user name is visible). Note: the app lon"
+  warning: {{06-open.status}} (used by 07-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod28-n1 stop=completed
+turns=10 wall=1530.6s
+commands=9 cmdTime=1285.6s cmdBytes=6645 timeouts=0
+orchestrator in=21922 cw=0 cr=16640 out=2591
+inner prompt=3950985 cached=3331520 completion=27952
+spend=$0.4875 maxUsd=2
+learn: A_n=0 replayed=0/9 full=0 repaired=0 compiled=9 variants=0
+-> /home/user/browser-pilot/bench/results/fwod28-n1-browser-pilot-result.json
+
+fwod28-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod28-n2 (replay flow fwod28, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod28-n2: 5 drift ticket(s) → fwod28-n2-drift.json
+
+fwod28-n2: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00022
+
+[sweep] run 3/3: fwod28-n3 (replay flow fwod28, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod28-n3: 5 drift ticket(s) → fwod28-n3-drift.json
+
+fwod28-n3: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod28 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod28-n1' │ '6/6'    │ 'completed' │ 10    │ 9    │ 0.4875    │ 0   │ '0/9'        │ 1531   │
+│ 1       │ 2 │ 'fwod28-n2' │ '6/6'    │ 'success'   │ 109   │ 9    │ 0.1543    │ 1   │ '9/9 (flow)' │ 647    │
+│ 2       │ 3 │ 'fwod28-n3' │ '6/6'    │ 'success'   │ 82    │ 9    │ 0.1794    │ 1   │ '9/9 (flow)' │ 679    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_07ad9c  validated    2 steps  5/5 (100%)
+           Open {{v1}} and sign in to Odoo with login 'admin' and password 'admin'. Verify you are signed in (e.g. the ap…
+  s_49ee23  validated    3 steps  5/5 (100%)
+           In the Odoo Contacts app, open the contact named '{{v1}}' and report its Name and City exactly as shown. Do no…
+  s_a8f6af  validated    2 steps  3/4 (75%)
+           Open the existing draft quotation {{v1}} in the Odoo Sales app (two lines: '{{v2}}' qty {{v3}}, '{{v4}}' qty {…
+  s_feb8b2  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in to Odoo with login 'admin' and password 'admin'. Verify you are signed in (e.g. the ap…
+  s_7a1324  validated    3 steps  3/3 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_5fdc30  validated    2 steps  3/3 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_211f93  validated    3 steps  3/3 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_f5fb94  validated    3 steps  3/3 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_42208b  validated    2 steps  3/3 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_70dc77  demoted      3 steps  1/3 (33%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_a33fd0  validated    2 steps  3/3 (100%)  variant of s_27a7fe
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose them from the autocomplete dro…
+  s_328843  validated    1 steps  3/3 (100%)
+           Open sales order {{v1}} in the Odoo Sales app and report its current status exactly as shown in the statusbar,…
+  s_8597b2  validated    4 steps  3/3 (100%)
+           In the Odoo Contacts app, open the contact named '{{v1}}' and report its Name and City exactly as shown. Do no…
+  s_3aeada  provisional 12 steps  1/2 (50%)
+           Open the existing draft quotation {{v1}} for customer '{{v2}}' in the Odoo Sales app (it currently has one ord…
+  s_64afd5  provisional 10 steps  1/2 (50%)
+           Open the existing draft quotation {{v1}} in the Odoo Sales app (it has two order lines: line 1 '{{v2}}' quanti…
+  s_99f687  validated    2 steps  2/2 (100%)  variant of s_27a7fe
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose them from the autocomplete dro…
+  s_2fc10d  validated   11 steps  2/2 (100%)  variant of s_27a7fe
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose them from the autocomplete dro…
+  s_54b0f6  validated    4 steps  2/2 (100%)  variant of s_27a7fe
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose them from the autocomplete dro…
+  s_27a7fe  demoted      3 steps  1/2 (50%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose them from the autocomplete dro…
+  s_8e361b  provisional 18 steps  1/2 (50%)
+           Open the confirmed sales order {{v1}} in the Odoo Sales app (status '{{v2}}'). Cancel it so nothing stays acti…
+  s_75e419  provisional  6 steps  1/1 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_c3d8e4  provisional  1 steps  1/1 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_bba340  provisional  2 steps  1/1 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_46a6f0  provisional  2 steps  1/1 (100%)
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_fb551d  provisional  1 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose them from the autocomplete dro…
+  s_df50e7  provisional 16 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose them from the autocomplete dro…
+  s_5d0a0b  provisional  1 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_24e424  provisional  1 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_69b56b  provisional  3 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_fe84ef  provisional  2 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_f2f606  provisional 16 steps  1/1 (100%)  variant of s_3aeada
+           Open the existing draft quotation {{v1}} for customer '{{v2}} Bench Customer' in the Odoo Sales app (it curren…
+  s_e92ddb  provisional 12 steps  1/1 (100%)  variant of s_64afd5
+           Open the existing draft quotation {{v1}} in the Odoo Sales app (it has two order lines: line 1 '{{v2}}' quanti…
+  s_5f875f  provisional 23 steps  1/1 (100%)
+           Open the confirmed sales order {{v1}} in the Odoo Sales app (status ''). Cancel it so nothing stays active — u…
+  s_2a81d1  provisional  1 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_5b18b5  provisional  1 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_dd8fee  provisional  3 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_de4400  provisional  2 steps  1/1 (100%)  variant of s_70dc77
+           In Odoo, create a new contact/customer named exactly '{{v1}} Bench Customer' with the City field set to 'Bench…
+  s_8c6a2a  provisional  9 steps  1/1 (100%)
+           Open the existing draft quotation {{v1}} for customer '{{v2}} Bench Customer' in the Odoo Sales app (it curren…
+  s_2b4a2f  provisional  5 steps  1/1 (100%)
+           Open the existing draft quotation {{v1}} in the Odoo Sales app (it has two order lines: line 1 '' quantity {{v…
+  s_bbd697  provisional 23 steps  1/1 (100%)  variant of s_8e361b
+           Open the confirmed sales order {{v1}} in the Odoo Sales app (status '{{v2}}'). Cancel it so nothing stays acti…
+store: /home/user/browser-pilot/bench/results/fwod28-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod28-sweep.json

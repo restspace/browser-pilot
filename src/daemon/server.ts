@@ -599,10 +599,13 @@ ${describeLeaks(leaks.slice(0, 6))}`);
       const cases = relabelCases(entries);
       if (cases.length) {
         // Time-boxed: this runs inside `stop`, whose caller is waiting. A
-        // slow model costs 30s and the flow exports with the names it has;
-        // it must never cost the export (see the CLI's stop timeout).
+        // slow model costs a bounded wait and the flow exports with the names
+        // it has; it must never cost the export (see the CLI's stop timeout,
+        // 120s with --save-flow). 30s proved too tight in practice — fwod28's
+        // pass aborted before glm-5.3 answered, its trace reading
+        // {"(error)":"LLM request aborted"} on both live outings.
         const { plan, dropped } = await requestRelabelPlan(this.recoveryProvider(), cases, {
-          signal: AbortSignal.timeout(30_000),
+          signal: AbortSignal.timeout(75_000),
         });
         if (dropped.length) console.error(`[relabel] dropped ${dropped.length} unsafe rename(s): ${dropped.join('; ')}`);
         // Leave a trace even when nothing is renamed: fwod27's script showed
