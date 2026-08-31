@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, validateReport, type Report } from '../src/agent/report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, unnamedReadValues, validateReport, type Report } from '../src/agent/report.js';
 
 describe('report validation', () => {
   it('accepts a minimal valid report', () => {
@@ -226,5 +226,34 @@ describe('composed report values', () => {
     const report = of({ line_1_qty: 'taken', lines: '["A","B"]' });
     expect(flattenComposedValues(report)).toEqual(['lines_1', 'lines_2']);
     expect(report.evidence?.values).toEqual({ line_1_qty: 'taken', lines_1: 'A', lines_2: 'B' });
+  });
+});
+
+describe('unnamedReadValues', () => {
+  it('names the values the report described but did not label', () => {
+    const report: Report = { status: 'success', summary: 'Saved quotation S00021 with unit price 85.00.' };
+    expect(unnamedReadValues(report, [
+      { target: 'h1', values: ['S00021'] },
+      { target: '[name="price_unit"]', values: ['85.00'] },
+    ])).toEqual(['S00021', '85.00']);
+  });
+
+  it('asks for nothing when the model already named the value', () => {
+    const report: Report = {
+      status: 'success',
+      summary: 'Saved quotation S00021.',
+      evidence: { values: { quotation_reference: 'S00021' } },
+    };
+    expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual([]);
+  });
+
+  it('asks for nothing about a value the report never mentioned', () => {
+    const report: Report = { status: 'success', summary: 'Saved the quotation.' };
+    expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual([]);
+  });
+
+  it('never holds a blocked or failed report', () => {
+    const report: Report = { status: 'blocked', summary: 'Stuck after reading S00021.' };
+    expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual([]);
   });
 });

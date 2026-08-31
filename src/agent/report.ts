@@ -202,35 +202,76 @@ const MIN_PROMOTED_LEN = 3;
  * Mutates the report; returns the names added.
  */
 export function backfillReadValues(report: Report, reads: ObservedRead[]): string[] {
-  const prose = `${report.summary} ${report.details ?? ''}`;
   const values: Record<string, string | number | boolean | null> = { ...(report.evidence?.values ?? {}) };
   const present = new Set(Object.values(values).map((v) => String(v).trim()));
   const added: string[] = [];
-  for (const read of reads) {
-    for (const raw of read.values) {
-      if (added.length >= MAX_PROMOTED) break;
-      const v = raw.trim();
-      if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v)) continue;
-      const cited = new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(v)}(?![A-Za-z0-9])`).test(prose);
-      if (!cited) continue;
-      // A value whose only available name would be "value" is not worth
-      // publishing. fwod18's 03-create promoted the column heading "Untaxed
-      // Amount" and the status badge "New" under `value` and `value_2`,
-      // because both reads targeted a snapshot ref and slug() can make no
-      // name from `@e757`. Those became report outputs no later step would
-      // ever reference, while the value seven steps DID need went unpinned.
-      // Publishing page furniture under a meaningless name is strictly worse
-      // than not publishing it: it is noise a replay must still reproduce.
-      const base = slug(read.target);
-      if (!base) continue;
-      const name = uniqueName(base, values);
-      values[name] = v;
-      present.add(v);
-      added.push(name);
-    }
+  for (const { read, value: v } of promotableReads(report, reads)) {
+    if (added.length >= MAX_PROMOTED) break;
+    // A value whose only available name would be "value" is not worth
+    // publishing. fwod18's 03-create promoted the column heading "Untaxed
+    // Amount" and the status badge "New" under `value` and `value_2`,
+    // because both reads targeted a snapshot ref and slug() can make no
+    // name from `@e757`. Those became report outputs no later step would
+    // ever reference, while the value seven steps DID need went unpinned.
+    // Publishing page furniture under a meaningless name is strictly worse
+    // than not publishing it: it is noise a replay must still reproduce.
+    const base = slug(read.target);
+    if (!base) continue;
+    const name = uniqueName(base, values);
+    values[name] = v;
+    present.add(v);
+    added.push(name);
   }
   if (added.length) (report.evidence ??= {}).values = values;
   return added;
+}
+
+/**
+ * Read values the report CITED in prose but did not put in `evidence.values`,
+ * paired with the read that observed them. The one filter both the deterministic
+ * backfill and the naming retry work from, so they can never disagree about
+ * which values are unnamed.
+ */
+function promotableReads(report: Report, reads: ObservedRead[]): Array<{ read: ObservedRead; value: string }> {
+  const prose = `${report.summary} ${report.details ?? ''}`;
+  const present = new Set(Object.values(report.evidence?.values ?? {}).map((v) => String(v).trim()));
+  const out: Array<{ read: ObservedRead; value: string }> = [];
+  const seen = new Set<string>();
+  for (const read of reads) {
+    for (const raw of read.values) {
+      const v = raw.trim();
+      if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v) || seen.has(v)) continue;
+      if (!new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(v)}(?![A-Za-z0-9])`).test(prose)) continue;
+      seen.add(v);
+      out.push({ read, value: v });
+    }
+  }
+  return out;
+}
+
+/**
+ * Values this instruction read off the page and then described in prose without
+ * naming them in `evidence.values`.
+ *
+ * These are the values `backfillReadValues` would name from their SELECTOR, and
+ * a selector is a bad name in a way that compounds. fwod24 recorded the odoo
+ * quotation reference as `02-create.h1`, because the model returned
+ * `evidence.values: {}` on five of nine instructions and every name in the flow
+ * came from the backfill. Eleven flow references pointed at `h1`; on both
+ * replays the bare `page.locator('h1')` read missed, nothing republished the
+ * output, and four of seven steps fell to the model with
+ * `unresolved reference(s): 02-create.h1`. The model had the right name — n3's
+ * own recovery report called it `quotation_reference` — but run 1's naming is
+ * permanent, so the good name never got in.
+ *
+ * Asking once, naming the values so the model only has to label them, costs one
+ * cheap turn on the RECORDING run and buys a name every later run reproduces.
+ * Strengthening the tool-schema wording did not work: this is the same ask made
+ * where it cannot be skimmed past.
+ */
+export function unnamedReadValues(report: Report, reads: ObservedRead[]): string[] {
+  if (report.status !== 'success') return [];
+  return promotableReads(report, reads).slice(0, MAX_PROMOTED).map((p) => p.value);
 }
 
 /** A name derived from a read's target, or null when the target names nothing. */

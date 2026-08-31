@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, proseIdentifiers, validateReport, type Report } from './report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
@@ -170,6 +170,8 @@ export async function runInstruction(
   const actions: ActionRecord[] = [];
   const screenshots: string[] = [];
   let reportRetried = false;
+  /** The naming ask below is made at most once per instruction, and never blocks a report. */
+  let namingAsked = false;
   let capWarned = false;
   let unproductiveTurns = 0;
 
@@ -504,6 +506,32 @@ export async function runInstruction(
       if (call.name === 'report') {
         const validation = call.args ? validateReport(call.args) : { ok: false as const, error: 'arguments were not valid JSON' };
         if (validation.ok) {
+          // The report is schema-valid and will be accepted; the only question
+          // left is whether the values it describes carry names. Ask once, with
+          // the values quoted back so the model supplies labels rather than
+          // re-reading the page — see unnamedReadValues for what an unnamed
+          // value costs every later replay. The report is never lost: the
+          // second call is accepted whatever it says, and so is this one if the
+          // model simply repeats it.
+          // Never spend the last turn on naming: a held report that then hits
+          // the cap is reported as blocked, and losing a completed instruction
+          // costs far more than a selector-derived name.
+          const roomToAsk = !namingAsked && turn < opts.maxTurns && Date.now() < deadline;
+          const unnamed = roomToAsk ? unnamedReadValues(validation.report, browser.script?.readsThisInstruction() ?? []) : [];
+          if (unnamed.length) {
+            namingAsked = true;
+            state.messages.push({
+              role: 'tool',
+              tool_call_id: call.id,
+              content:
+                `report not accepted yet — you read ${unnamed.map((v) => JSON.stringify(v)).join(', ')} off the page and described ${unnamed.length === 1 ? 'it' : 'them'} in the summary, but evidence.values does not name ${unnamed.length === 1 ? 'it' : 'them'}. ` +
+                'Call report again, unchanged except that evidence.values includes each of those values under the name a person would use for it ' +
+                '(order_reference, unit_price, customer_name — not a selector fragment). Later work addresses records by these names; a value left only in prose cannot be used.',
+            });
+            transcript.push(`report held for naming: ${unnamed.join(', ')}`);
+            opts.onProgress?.(`[turn ${turn}] asking for names for ${unnamed.length} unnamed read value(s): ${unnamed.join(', ')}`);
+            continue;
+          }
           // A repaired payload is accepted, not silently rewritten: the caller
           // and the transcript both see what was changed on the agent's behalf.
           if (validation.coerced?.length) {
