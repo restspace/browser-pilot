@@ -64,6 +64,11 @@ const writeBaseline = argv.includes('--write-baseline');
 // selector-derived name, not only the ones the prose cites. The A/B this flag
 // exists for: same recordings, same code, citation gate on vs off.
 const labelAll = argv.includes('--label-all');
+// Post-session relabel arm: run the one smart-model rename pass over each
+// recording's value names before anything else sees the entries — the same
+// call the daemon now makes at export, priced and inspected offline.
+const relabelModel = arg('--relabel-model');
+const relabelProvider = arg('--provider', 'openrouter');
 
 if (!tag) {
   console.error('usage: rebuild-flow.mjs --tag <sweepTag> [--dir <published>] [--baseline <file>] [--write-baseline]');
@@ -238,6 +243,17 @@ const report = { tag, runs: [] };
 
 for (const { runid, file } of sessions()) {
   const entries = readEntries(file);
+  if (relabelModel) {
+    const { relabelCases, requestRelabelPlan, applyRelabelToEntries } = await import(dist('skills/relabel.js'));
+    const { OpenAICompatProvider, resolveProviderConfig } = await import(dist('agent/llm.js'));
+    const llm = new OpenAICompatProvider(resolveProviderConfig({ provider: relabelProvider, model: relabelModel }));
+    const { plan, dropped } = await requestRelabelPlan(llm, relabelCases(entries));
+    const n = [...plan.values()].reduce((sum, m) => sum + Object.keys(m).length, 0);
+    console.log(`\n[relabel] ${runid}: ${n} rename(s)${dropped.length ? `, dropped ${dropped.length} unsafe` : ''}`);
+    for (const [i, m] of plan) for (const [o, nn] of Object.entries(m)) console.log(`    i${i}: ${o} -> ${nn}`);
+    for (const d of dropped) console.log(`    dropped: ${d}`);
+    applyRelabelToEntries(entries, plan);
+  }
   const gs = groups(entries);
   const run = { runid, instructions: [], flow: null };
 

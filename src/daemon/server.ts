@@ -8,6 +8,7 @@ import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, unbankedMutations, urlOutputs } from '../skills/flow.js';
+import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
@@ -536,7 +537,7 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         let savedFlow;
         if (a.saveFlow) {
           try {
-            savedFlow = this.exportFlow(String(a.saveFlow));
+            savedFlow = await this.exportFlow(String(a.saveFlow));
           } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             // Swallowing this into a result field is how a refused export went
@@ -560,7 +561,7 @@ ${describeLeaks(leaks.slice(0, 6))}`);
    * with declared run variables turned into references. Requires learning mode
    * (the recording is the source) and a session that ran at least one step.
    */
-  private exportFlow(name: string): { path: string; name: string; steps: number; vars: string[]; warnings?: string[] } {
+  private async exportFlow(name: string): Promise<{ path: string; name: string; steps: number; vars: string[]; warnings?: string[] }> {
     if (!this.browser.learn || !this.browser.script) {
       throw new Error('not a learning session — start it with --learn to record a flow');
     }
@@ -587,6 +588,42 @@ ${describeLeaks(leaks.slice(0, 6))}`);
       const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
       return chain.flatMap(publishedOutputs);
     };
+    // Post-session relabel: one smart-model pass over the finished session's
+    // value names, BEFORE buildFlow mints any {{step.name}} reference. Session
+    // end is the only moment naming can use hindsight — which values later
+    // instructions actually consumed — and renaming is value-keyed, so nothing
+    // banked can be lost; see relabel.ts. Best-effort: a failed call exports
+    // the flow with the names it already has. Instruction order in this take
+    // matches the ledger's i<N> because a take begins with the daemon.
+    try {
+      const cases = relabelCases(entries);
+      if (cases.length) {
+        const { plan, dropped } = await requestRelabelPlan(this.recoveryProvider(), cases);
+        if (dropped.length) console.error(`[relabel] dropped ${dropped.length} unsafe rename(s): ${dropped.join('; ')}`);
+        if (plan.size) {
+          const applied = applyRelabelToEntries(entries, plan);
+          // A skill may be the head of a segment chain whose LATER segment
+          // holds the labelled read, so the whole chain takes the rename.
+          const skillIndex = new Map<string, number>();
+          for (const c of cases) {
+            if (!c.skill) continue;
+            const sk = store.get(c.skill);
+            if (!sk) continue;
+            const chain = sk.seq ? store.list(sk.origin).filter((s) => s.seq?.chain === sk.seq!.chain) : [sk];
+            for (const s of chain) skillIndex.set(s.id, c.index);
+          }
+          const skills = [...skillIndex.keys()].map((id) => store.get(id)).filter((s): s is NonNullable<typeof s> => Boolean(s));
+          for (const id of applyRelabelToSkills(skills, plan, skillIndex)) {
+            const sk = store.get(id);
+            if (sk) store.put(sk);
+          }
+          this.browser.script.persist();
+          console.error(`[relabel] renamed ${applied} value(s) across ${plan.size} instruction(s)`);
+        }
+      }
+    } catch (err) {
+      console.error(`[relabel] skipped: ${err instanceof Error ? err.message : String(err)}`);
+    }
     const flow = buildFlow(entries, {
       name,
       origin,

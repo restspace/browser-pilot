@@ -358,6 +358,11 @@ export class ScriptRecorder {
     }
   }
 
+  /** Rewrite script.jsonl after in-place entry edits (post-session relabel). */
+  persist(): void {
+    this.rewrite();
+  }
+
   private rewrite(): void {
     try {
       fs.writeFileSync(this.file(), this.entries.map((e) => JSON.stringify(e)).join('\n') + '\n');
