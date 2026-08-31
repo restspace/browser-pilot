@@ -257,3 +257,16 @@ describe('unnamedReadValues', () => {
     expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual([]);
   });
 });
+
+describe('citation matching', () => {
+  it('promotes a page value the prose respaced', () => {
+    // fwod25 instr 5: the totals read "£ 1,599.00", the summary wrote "£1,599.00".
+    const report: Report = { status: 'success', summary: 'The Untaxed Amount updated to £1,599.00.' };
+    expect(unnamedReadValues(report, [{ target: '@e1918', values: ['£ 1,599.00'] }])).toEqual(['£ 1,599.00']);
+  });
+
+  it('still refuses a value the prose does not contain', () => {
+    const report: Report = { status: 'success', summary: 'The Untaxed Amount updated to £99.00.' };
+    expect(unnamedReadValues(report, [{ target: '@e1918', values: ['£ 1,599.00'] }])).toEqual([]);
+  });
+});

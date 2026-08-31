@@ -211,6 +211,18 @@ export interface RecordedReport {
   /** The skill this instruction compiled into, merged into, or fully replayed (learning mode). */
   skill?: string;
   tier?: 'A' | 'B';
+  /**
+   * Values the loop asked the model to NAME before accepting this report, and
+   * whether the retry actually named them.
+   *
+   * fwod25 could not be read. Its flow came out with zero outputs, zero
+   * cross-step references and seven literal `S00021`, because every report
+   * carried `values: {}` — exactly what the naming ask exists to prevent. But
+   * nothing published records whether the ask fired, so "the ask does not work"
+   * and "the ask never ran" were indistinguishable after a 50-minute sweep. An
+   * intervention that leaves no trace in the artifacts cannot be evaluated.
+   */
+  namingAsk?: { asked: string[]; named: boolean };
 }
 
 export type RecordedEntry = RecordedStep | RecordedInstruction | RecordedReport;
@@ -311,7 +323,21 @@ export class ScriptRecorder {
 
   /** Close the current instruction with its outcome (learning mode; flows are built from these). */
   endInstruction(report: Omit<RecordedReport, 'k'>): void {
-    this.append({ k: 'report', ...report });
+    this.append({ k: 'report', ...report, ...(this.pendingAsk ? { namingAsk: this.pendingAsk } : {}) });
+    this.pendingAsk = undefined;
+  }
+
+  /** Values the loop is holding this instruction's report to name — see RecordedReport.namingAsk. */
+  private pendingAsk?: { asked: string[]; named: boolean };
+
+  /** Record that the loop asked for names; call again with the outcome once the retry lands. */
+  noteNamingAsk(asked: string[]): void {
+    this.pendingAsk = { asked, named: false };
+  }
+
+  /** Mark the held report as having come back with names. */
+  noteNamingAnswered(): void {
+    if (this.pendingAsk) this.pendingAsk.named = true;
   }
 
   /**

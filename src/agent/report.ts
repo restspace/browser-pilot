@@ -241,7 +241,7 @@ function promotableReads(report: Report, reads: ObservedRead[]): Array<{ read: O
     for (const raw of read.values) {
       const v = raw.trim();
       if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v) || seen.has(v)) continue;
-      if (!new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(v)}(?![A-Za-z0-9])`).test(prose)) continue;
+      if (!cites(prose, v)) continue;
       seen.add(v);
       out.push({ read, value: v });
     }
@@ -293,6 +293,21 @@ function slug(target: string): string | null {
 function uniqueName(base: string, taken: Record<string, unknown>): string {
   if (!(base in taken)) return base;
   for (let i = 2; ; i++) if (!(`${base}_${i}` in taken)) return `${base}_${i}`;
+}
+
+/**
+ * Does the prose quote this value? Internal whitespace is elastic.
+ *
+ * fwod25's instr 5 read "£ 1,599.00" off the totals and wrote "£1,599.00" in
+ * the summary. A verbatim test called that a miss, so the value was never
+ * promoted and never named — one space between a currency symbol and its
+ * digits. Models normalise spacing when they write prose; the page does not.
+ * Everything else stays strict: this matches the same characters in the same
+ * order, only tolerant about how much space sits between them.
+ */
+function cites(prose: string, value: string): boolean {
+  const body = escapeRegExp(value).replace(/\s+/g, '\\s*');
+  return new RegExp(`(?<![A-Za-z0-9])${body}(?![A-Za-z0-9])`).test(prose);
 }
 
 function escapeRegExp(s: string): string {

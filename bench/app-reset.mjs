@@ -99,10 +99,30 @@ async function resetOdoo() {
     // and if that still fails, say why and let it fail. A dirty baseline is
     // exactly what this reset exists to prevent, and guessing at a workaround
     // is how the real reason gets hidden.
+    // `action_cancel` is NOT enough. On a SENT quotation Odoo 17 routes it
+    // through a `sale.order.cancel` wizard rather than cancelling in place, so
+    // the call returns an action dict, the order stays sent, and the unlink
+    // below is refused:
+    //
+    //   [reset-app] odoo reset FAILED: You can not delete a sent quotation or a
+    //   confirmed sales order. You must first cancel it.
+    //
+    // That cost fwod25 its third run. It only surfaced now because fwod24's
+    // task cancelled the order itself; fwod25 halted before it got there, so
+    // the reset met a state the previous sweep never left behind.
+    //
+    // Writing the state directly is what a wizard-free cancel amounts to, and
+    // it applies to every state the button refuses. The error is no longer
+    // swallowed: an empty catch here is what hid the reason last time.
     try {
       await kw('sale.order', 'action_cancel', [orders]);
-    } catch {
-      /* already cancelled, or not available in this state */
+    } catch (err) {
+      log(`odoo: action_cancel refused (${err.message}) — cancelling by state instead`);
+    }
+    const stuck = await kw('sale.order', 'search', [[['id', 'in', orders], ['state', '!=', 'cancel']]]);
+    if (stuck.length) {
+      await kw('sale.order', 'write', [stuck, { state: 'cancel' }]);
+      log(`odoo: force-cancelled ${stuck.length} order(s) the Cancel action left uncancelled`);
     }
     await kw('sale.order', 'unlink', [orders]);
     log(`odoo: deleted ${orders.length} leftover bench order(s)`);

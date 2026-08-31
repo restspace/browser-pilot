@@ -677,3 +677,64 @@ describe('escalate-on-blocked', () => {
     expect(result.escalation).toMatchObject({ rescued: false, to: 'smart' });
   });
 });
+
+describe('naming ask', () => {
+  /** A browser whose script recorder reports the reads the instruction made. */
+  const withReads = (reads: Array<{ target: string; values: string[] }>) =>
+    ({
+      ...browserStub,
+      script: {
+        readsThisInstruction: () => reads,
+        beginInstruction: () => {},
+        endInstruction: () => {},
+        mark: () => 0,
+        entriesSince: () => [],
+      },
+    }) as unknown as BrowserSession;
+
+  it('holds a success report that describes a read value it did not name, and accepts the retry', async () => {
+    // fwod25 instr 7 exactly: read @e1671 -> "S00021", cited in the summary,
+    // evidence.values empty. The flow that came out had zero outputs and seven
+    // literal S00021 in its steps.
+    const state = new SessionState('t-name');
+    const provider = scriptedProvider([
+      { toolCalls: [reportCall({ status: 'success', summary: 'The order reference remains S00021, now a Sales Order.' })] },
+      {
+        toolCalls: [
+          reportCall({
+            status: 'success',
+            summary: 'The order reference remains S00021, now a Sales Order.',
+            evidence: { values: { order_reference: 'S00021' } },
+          }),
+        ],
+      },
+    ]);
+    const result = await runInstruction(provider, withReads([{ target: '@e1671', values: ['S00021'] }]), state, 'confirm it', loopOpts);
+    expect(result.report.status).toBe('success');
+    expect(result.report.evidence?.values).toEqual({ order_reference: 'S00021' });
+    expect(result.turns).toBe(2);
+  });
+
+  it('accepts the second report even if the model names nothing, rather than losing the instruction', async () => {
+    const state = new SessionState('t-name-refused');
+    const provider = scriptedProvider([
+      { toolCalls: [reportCall({ status: 'success', summary: 'Reference S00021 confirmed.' })] },
+    ]);
+    const result = await runInstruction(provider, withReads([{ target: '@e1671', values: ['S00021'] }]), state, 'confirm it', loopOpts);
+    expect(result.report.status).toBe('success');
+    expect(result.turns).toBe(2);
+  });
+
+  it('does not hold a report whose values are already named', async () => {
+    const state = new SessionState('t-name-ok');
+    const provider = scriptedProvider([
+      {
+        toolCalls: [
+          reportCall({ status: 'success', summary: 'Reference S00021.', evidence: { values: { order_reference: 'S00021' } } }),
+        ],
+      },
+    ]);
+    const result = await runInstruction(provider, withReads([{ target: '@e1671', values: ['S00021'] }]), state, 'confirm it', loopOpts);
+    expect(result.turns).toBe(1);
+  });
+});

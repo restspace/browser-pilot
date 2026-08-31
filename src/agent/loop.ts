@@ -528,9 +528,13 @@ export async function runInstruction(
                 'Call report again, unchanged except that evidence.values includes each of those values under the name a person would use for it ' +
                 '(order_reference, unit_price, customer_name — not a selector fragment). Later work addresses records by these names; a value left only in prose cannot be used.',
             });
+            browser.script?.noteNamingAsk?.(unnamed);
             transcript.push(`report held for naming: ${unnamed.join(', ')}`);
             opts.onProgress?.(`[turn ${turn}] asking for names for ${unnamed.length} unnamed read value(s): ${unnamed.join(', ')}`);
             continue;
+          }
+          if (namingAsked && Object.keys(validation.report.evidence?.values ?? {}).length) {
+            browser.script?.noteNamingAnswered?.();
           }
           // A repaired payload is accepted, not silently rewritten: the caller
           // and the transcript both see what was changed on the agent's behalf.
