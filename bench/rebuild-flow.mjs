@@ -149,8 +149,16 @@ const recompile = !argv.includes('--published-skills');
  * `step.skill` on the flow still resolves. Segmented compiles keep their own
  * ids for the tail; only the head takes the pinned one.
  */
-function storeFrom(entries) {
+function storeFrom(entries, known) {
   const skills = [];
+  // knownValues ACCUMULATES through a session. The daemon compiles each
+  // instruction with `this.ledger.all()`, and the ledger banks every value a
+  // report named (server.ts noteMintedIds), so instruction 6 is compiled
+  // knowing what instructions 1-5 produced. Passing only the runid made later
+  // skills far poorer: s_c995ae bound 1 param here against 4 in the store, and
+  // the rebuilt flow carried 10 cross-step references against the 19 that
+  // shipped. That gap was my reconstruction, not a regression.
+  const known2 = { ...known };
   let cur = null;
   for (const e of entries) {
     if (e.k === 'instruction') cur = { instruction: e.text ?? '', entries: [e] };
@@ -163,12 +171,20 @@ function storeFrom(entries) {
             instruction: cur.instruction,
             report: { status: e.status, summary: e.summary ?? '', evidence: { values: e.values ?? {} } },
             session: 'rebuild',
+            // The daemon compiles with the session's known values (the runid it
+            // was given, values it minted). Without them discoverSlots finds
+            // fewer slots, so fewer step params carry a reference and the
+            // rebuilt flow looks a third emptier than the one that shipped.
+            knownValues: known2,
           });
           if (compiled.length && e.skill) compiled[0].id = e.skill;
           skills.push(...compiled);
         } catch {
           /* a recording compile.ts cannot handle is itself a finding, but not a crash */
         }
+        // Bank this instruction's reported values for the NEXT compile, exactly
+        // as the daemon's ledger does.
+        for (const [name, value] of Object.entries(e.values ?? {})) known2[name] = String(value);
       }
       cur = null;
     } else cur.entries.push(e);
@@ -224,7 +240,7 @@ for (const { runid, file } of sessions()) {
   }
 
   const startUrl = startUrlOf(entries);
-  const store = recompile ? storeFrom(entries) : published;
+  const store = recompile ? storeFrom(entries, { runid }) : published;
   if (startUrl && store) {
     const publishedOutputsOf = (id) => {
       const sk = store.get(id);
@@ -240,7 +256,9 @@ for (const { runid, file } of sessions()) {
       session: runid,
       bind: (id, instr) => {
         const sk = store.get(id);
-        return sk ? bindSkill(sk, instr, {}) : null;
+        const bound = sk ? bindSkill(sk, instr, { runid }) : null;
+        if (process.env.REBUILD_TRACE) console.error(`  bind ${id}: skill=${sk ? 'found' : 'MISSING'} params=${bound ? JSON.stringify(Object.keys(bound)) : 'NULL'}`);
+        return bound;
       },
     });
     if (flow) {
