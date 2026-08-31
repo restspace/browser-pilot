@@ -247,9 +247,23 @@ describe('unnamedReadValues', () => {
     expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual([]);
   });
 
-  it('asks for nothing about a value the report never mentioned', () => {
+  it('asks about a value the read returned even when the prose never quotes it', () => {
+    // The trigger is what the READ returned, not what the summary happens to
+    // repeat. Keyed on prose, the ask fired on 3 of 27 recorded instructions
+    // (and was answered 3 times out of 3) — a summary like this one is the
+    // common case, not the odd one.
     const report: Report = { status: 'success', summary: 'Saved the quotation.' };
-    expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual([]);
+    expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }])).toEqual(['S00021']);
+  });
+
+  it('leaves read_all bulk alone — a table of cells is not values the caller needs named', () => {
+    const report: Report = { status: 'success', summary: 'Listed the orders.' };
+    expect(unnamedReadValues(report, [{ target: 'td', values: ['S00021', 'S00022', 'S00023'] }])).toEqual([]);
+  });
+
+  it('still honours the citation filter when a caller asks for it', () => {
+    const report: Report = { status: 'success', summary: 'Saved the quotation.' };
+    expect(unnamedReadValues(report, [{ target: 'h1', values: ['S00021'] }], { requireCitation: true })).toEqual([]);
   });
 
   it('never holds a blocked or failed report', () => {
@@ -265,8 +279,11 @@ describe('citation matching', () => {
     expect(unnamedReadValues(report, [{ target: '@e1918', values: ['£ 1,599.00'] }])).toEqual(['£ 1,599.00']);
   });
 
-  it('still refuses a value the prose does not contain', () => {
+  it('still refuses a value the prose does not contain, under the citation filter', () => {
+    // backfillReadValues invents a name unilaterally, so it keeps needing proof
+    // the read mattered. Only the ASK dropped that requirement.
     const report: Report = { status: 'success', summary: 'The Untaxed Amount updated to £99.00.' };
-    expect(unnamedReadValues(report, [{ target: '@e1918', values: ['£ 1,599.00'] }])).toEqual([]);
+    expect(unnamedReadValues(report, [{ target: '@e1918', values: ['£ 1,599.00'] }], { requireCitation: true })).toEqual([]);
+    expect(backfillReadValues({ ...report }, [{ target: 'total', values: ['£ 1,599.00'] }])).toEqual([]);
   });
 });

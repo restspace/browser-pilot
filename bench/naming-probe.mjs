@@ -28,22 +28,20 @@
  *   turns-nudge       48%                             31%
  *   turns-nonudge     11%                              8%
  *
- * Both factors are real and they compound. Real turn structure costs more
- * (-37 points) than losing the explicit ask (-26). And turns-nonudge lands at
- * 11%, against 1-of-9 model-named instructions in fwod24 and 0-of-10 in
- * fwod25 — so THAT shape is the faithful one, and it is the default here for
- * exactly that reason.
+ * Collapsing a real tool-call history into a tidy summary is worth a great deal,
+ * so the first cut of this file — which did exactly that, and ended with "now
+ * call the report tool" — reported 89% compliance and concluded the model was
+ * willing. It was measuring its own nudge.
  *
- * The first cut of this file defaulted to summary-nudge and reported 89%
- * compliance as evidence the model was willing and something else suppressed
- * it. That number was measuring this file's own nudge. Any variant comparison
- * run in a shape that scores 85% is comparing wordings whose effect the nudge
- * has already swamped.
+ * But turns-nonudge is not the faithful shape either, for a subtler reason:
+ * with no ask, the model mostly does not call `report` at all. It carries on
+ * acting. Only 2 of 12 turns produced a report, so that row is largely counting
+ * "has not finished yet", not "reported without naming". The live loop never
+ * stops at one turn; it keeps going until a report arrives.
  *
- * The useful half: adding an ask at REPORT time to a realistic history takes
- * compliance from 11% to 48%. Asking at the right moment is worth about four
- * times asking in the system prompt — which is the case for the retry ask in
- * loop.ts, and it is why fwod25 could not show that mechanism working.
+ * So `turns-nudge` is the default: real turn structure, with the ask standing
+ * in for the loop's persistence. `called report at all` is printed alongside
+ * every score, because the two failures must never be added together again.
  *
  * WHAT IT IS NOT
  *
@@ -236,8 +234,9 @@ const provider = arg('--provider', 'openrouter');
 const limit = Number(arg('--limit', '0')) || 0;
 const names = argv.includes('--all') ? Object.keys(VARIANTS) : [arg('--variant', 'current')];
 const SHAPES = ['summary-nudge', 'summary-nonudge', 'turns-nudge', 'turns-nonudge', 'turns-retry'];
-// Default to the shape that matches live behaviour, not the flattering one.
-const shapes = argv.includes('--shapes') ? SHAPES : [arg('--shape', 'turns-nonudge')];
+// turns-nudge: real turn structure, and an ask that stands in for the live
+// loop's habit of continuing until a report arrives. See the header.
+const shapes = argv.includes('--shapes') ? SHAPES : [arg('--shape', 'turns-nudge')];
 const all = cases(limit);
 
 console.log(`${all.length} case(s) from ${new Set(all.map((c) => c.run)).size} recording(s), model ${model}\n`);
@@ -253,6 +252,10 @@ for (const shape of shapes) {
   let filled = 0, covered = 0, wanted = 0, failed = 0;
   // turns-retry only: how often the ask FIRED, and how often it was answered.
   let asked = 0, answered = 0;
+  // Did the model call `report` AT ALL this turn? The live loop keeps going
+  // until it does; this probe gives it one turn, so "still acting" and
+  // "reported without values" must not be scored as the same thing.
+  let noReport = 0;
   const perApp = {};
   for (const c of all) {
     perApp[c.app] ??= { n: 0, filled: 0, covered: 0, wanted: 0 };
@@ -262,9 +265,10 @@ for (const shape of shapes) {
     wanted += c.expect.length;
     let values = {};
     try {
-      const msgs = messages(c, variant, shape === 'turns-retry' ? 'turns-nonudge' : shape);
+      const msgs = messages(c, variant, shape === 'turns-retry' ? 'turns-nudge' : shape);
       const done = await llm.complete(msgs, [tool], { temperature: 0 });
       const call = (done.toolCalls ?? []).find((x) => x.name === 'report');
+      if (!call) noReport++;
       values = call?.args?.evidence?.values ?? {};
       if (typeof values !== 'object' || values === null) values = {};
       // turns-retry: the mechanism that actually ships. The loop lets the first
@@ -304,7 +308,9 @@ for (const shape of shapes) {
     process.stdout.write(hit === c.expect.length ? '#' : Object.keys(values).length ? '+' : '.');
   }
   console.log(`\n\n=== ${name} ===`);
-  console.log(`  reports with any values : ${filled}/${all.length}  (${((filled / all.length) * 100).toFixed(0)}%)`);
+  const reported = all.length - noReport;
+  console.log(`  called report at all    : ${reported}/${all.length}  (${((reported / all.length) * 100).toFixed(0)}%)`);
+  console.log(`  reports with any values : ${filled}/${all.length}  (${((filled / all.length) * 100).toFixed(0)}%)   of those that reported: ${reported ? ((filled / reported) * 100).toFixed(0) : 0}%`);
   console.log(`  page values named       : ${covered}/${wanted}  (${((covered / wanted) * 100).toFixed(0)}%)`);
   if (failed) console.log(`  call failures           : ${failed}`);
   if (shape === 'turns-retry') console.log(`  naming ask fired        : ${asked}/${all.length}   answered with values: ${answered}/${asked || 1}`);

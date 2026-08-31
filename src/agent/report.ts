@@ -283,9 +283,39 @@ export function namingAskMessage(unnamed: string[]): string {
   );
 }
 
-export function unnamedReadValues(report: Report, reads: ObservedRead[]): string[] {
+export function unnamedReadValues(
+  report: Report,
+  reads: ObservedRead[],
+  opts: { requireCitation?: boolean } = {},
+): string[] {
   if (report.status !== 'success') return [];
-  return promotableReads(report, reads).slice(0, MAX_PROMOTED).map((p) => p.value);
+  const { requireCitation = false } = opts;
+  if (requireCitation) return promotableReads(report, reads).slice(0, MAX_PROMOTED).map((p) => p.value);
+  // Key the ask on what the READS returned, not on what the prose happens to
+  // quote. The citation test earns its place in backfillReadValues, which
+  // invents a name unilaterally and needs proof the read mattered. As a gate on
+  // ASKING the author it is far too strict, and the probe priced it: over the
+  // recorded corpus the ask fired on 3 of 27 instructions and was answered 3
+  // times out of 3. A mechanism that works whenever it runs and runs on a ninth
+  // of cases is a trigger problem, not a mechanism problem — and a summary that
+  // says "created the quotation and confirmed it" without repeating S00021
+  // never tripped it, which is the common case rather than the odd one.
+  const present = new Set(Object.values(report.evidence?.values ?? {}).map((v) => String(v).trim()));
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const read of reads) {
+    // read_all is bulk by nature — a table of forty cells is not forty values
+    // the caller needs named, and asking about them would bury the one that
+    // matters. Its values still reach evidence through the backfill.
+    if (read.values.length > 1) continue;
+    for (const raw of read.values) {
+      const v = raw.trim();
+      if (v.length < MIN_PROMOTED_LEN || v.length > VALUE_CHARS || present.has(v) || seen.has(v)) continue;
+      seen.add(v);
+      out.push(v);
+    }
+  }
+  return out.slice(0, MAX_PROMOTED);
 }
 
 /** A name derived from a read's target, or null when the target names nothing. */
