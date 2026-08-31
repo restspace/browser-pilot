@@ -29,7 +29,7 @@ const root = path.resolve(__dirname, '..');
 // on ambiguous headings and CSS-union selectors, while repairdesk reaches for a
 // snapshot ref almost every time. A rule measured on one of those would have
 // been calibrated to a house style rather than to browsers.
-const TAGS = ['fwod24', 'fwod25', 'fwgr14', 'fwrd35'];
+const TAGS = ['fwod24', 'fwod25', 'fwod26', 'fwgr14', 'fwrd35'];
 
 describe('recorded-flow rebuild', () => {
   for (const tag of TAGS) {
