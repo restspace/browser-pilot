@@ -1,0 +1,10061 @@
+[
+ {
+  "id": "s_df9cea",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Open {{v1}} and sign in with email {{v2}} and password {{v3}}. Then report what the main page shows after login: the app's title, the main navigation/sections, and what kinds of records it manages.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:4180/",
+    "usedIn": []
+   },
+   "v2": {
+    "example": "bench@example.com",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "bench-pass-1234",
+    "usedIn": [
+     1
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/login"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e17",
+     "value": "{{v3}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "login-password"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "id",
+       "selector": "#login-password"
+      },
+      {
+       "kind": "css",
+       "selector": "#login-password"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/login",
+     "addedContains": [
+      "- textbox \"\": {{v3}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e19"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "login-submit"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Sign in"
+      },
+      {
+       "kind": "css",
+       "selector": "#login-form > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- link \"RD Repair Desk\"",
+      "- link \"Tickets\"",
+      "- button \"Sign out\"",
+      "- heading \"Repair tickets\"",
+      "- button \"New ticket\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:14:54.776Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:26:54.333Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_de52a2",
+   "index": 1,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then report what the main page shows after login: the app's title, the main navigation/sections, and what kinds of records it manages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:14:54.776Z"
+  }
+ },
+ {
+  "id": "s_9f446c",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Open {{v1}} and sign in with email {{v2}} and password {{v3}}. Then report what the main page shows after login: the app's title, the main navigation/sections, and what kinds of records it manages.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:4180/",
+    "usedIn": []
+   },
+   "v2": {
+    "example": "bench@example.com",
+    "usedIn": []
+   },
+   "v3": {
+    "example": "bench-pass-1234",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets",
+   "fingerprint": [
+    0,
+    0.019,
+    0.009,
+    0.019,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.188,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0.019,
+    0,
+    0.075,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.028,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.009,
+    0,
+    0.019,
+    0.207,
+    0,
+    0,
+    0.019,
+    0.019,
+    0.009,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.752,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.028,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0.038,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.188,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.188,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.075,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.395,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.103,
+    0.019,
+    0,
+    0.019,
+    0,
+    0.038,
+    0,
+    0,
+    0.15,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0.028,
+    0,
+    0,
+    0.103,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.019,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#nav > div > a > span:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "appTitle"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "nav-tickets"
+      },
+      {
+       "kind": "css",
+       "selector": "#nav > div > nav > a"
+      }
+     ]
+    },
+    "label": "navigationSections"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Signed in successfully. The app is \"Repair Desk\" — an internal workshop tool for managing repair tickets. The main page shows a **\"Repair tickets\"** dashboard listing repair jobs in a table with columns: Ref, Title, Customer, Status, Parts, and Created. Navigation consists of a single \"Tickets\" section in the main nav. The page includes a \"New ticket\" button, a filter region (Status combobox with Draft/Ready/Closed options, Search box, Show archived checkbox), and pagination (13 tickets across 2 pages). Each ticket is linked to a customer (e.g. Marlow Bakery, The Anchor Inn, Pinehurst Grocers, Blue Fox Cafe) and tracks a parts count. The footer describes it as \"Repair Desk — internal workshop tooling. Prices include the configured markup.\"",
+   "values": {
+    "appTitle": "Repair Desk",
+    "ticketCount": "13, showing 1–10",
+    "navigationSections": "Tickets",
+    "recordTypes": "Repair tickets with Ref, Title, Customer, Status, Parts, Created",
+    "statuses": "Draft, Ready, Closed"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:14:54.776Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:26:55.077Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_de52a2",
+   "index": 2,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then report what the main page shows after login: the app's title, the main navigation/sections, and what kinds of records it manages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:14:54.776Z"
+  }
+ },
+ {
+  "id": "s_55bb1a",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Open {{v1}} and sign in with email {{v2}} and password {{v3}}. Then report what the main page shows after login: the app's title, the main navigation/sections, and what kinds of records it manages.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:4180/",
+    "usedIn": [
+     1
+    ]
+   },
+   "v2": {
+    "example": "bench@example.com",
+    "usedIn": [
+     2
+    ]
+   },
+   "v3": {
+    "example": "bench-pass-1234",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v1}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e13",
+     "value": "{{v2}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "login-email"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Email address"
+      },
+      {
+       "kind": "label",
+       "label": "Email address"
+      },
+      {
+       "kind": "id",
+       "selector": "#login-email"
+      },
+      {
+       "kind": "css",
+       "selector": "#login-email"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/login",
+     "addedContains": [
+      "- textbox \"\": {{v2}}"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 5,
+   "successes": 5,
+   "partial": 0,
+   "created": "2026-08-30T12:14:54.776Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:26:55.085Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_de52a2",
+   "index": 0,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Open http://127.0.0.1:4180/ and sign in with email bench@example.com and password bench-pass-1234. Then report what the main page shows after login: the app's title, the main navigation/sections, and what kinds of records it manages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:14:54.776Z"
+  }
+ },
+ {
+  "id": "s_14c9c7",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Create a new repair ticket with the title exactly '{{v2}}'. Open the New ticket form, discover which fields are required, fill them with sensible values (pick any existing customer if a customer field is required), and submit. Wait for the ticket to actually appear in the list or detail view (the list refreshes a short beat after a create, so wait for the concrete page state rather than assuming the first render is final). Report: the required fields you had to fill, the new ticket's Ref, its title, its status, and its parts count.",
+  "params": {
+   "v2": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [
+     2,
+     5,
+     7,
+     9,
+     10
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets",
+   "fingerprint": [
+    0,
+    0.019,
+    0.009,
+    0.019,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.188,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0.019,
+    0,
+    0.075,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.028,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.009,
+    0,
+    0.019,
+    0.207,
+    0,
+    0,
+    0.019,
+    0.019,
+    0.009,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.752,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.028,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0.038,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.188,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.188,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.075,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.395,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.103,
+    0.019,
+    0,
+    0.019,
+    0,
+    0.038,
+    0,
+    0,
+    0.15,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0.028,
+    0,
+    0,
+    0.103,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.019,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "\"New ticket\""
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"New ticket\""
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "new-ticket"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New ticket"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- dialog \"New ticket\"",
+      "- heading \"New ticket\"",
+      "- textbox \"\"",
+      "- textbox \"\"",
+      "- button \"Cancel\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e170",
+     "value": "{{v2}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-title"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-title"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-title"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- textbox \"\": {{v2}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e174",
+     "value": "Marlow Bakery"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-customer"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-customer"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-customer"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- textbox \"\": Marlow Bakery"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e178"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "modal-save"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Create ticket"
+      },
+      {
+       "kind": "id",
+       "selector": "#modal-save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-save"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets"
+    }
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "target": "\"{{v2}}\"",
+     "state": "visible",
+     "timeout_ms": 10000
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v2}}\""
+      },
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(2)"
+      },
+      {
+       "kind": "text",
+       "text": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section:nth-of-type(2) > div:nth-of-type(1) > table > thead > tr > th:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "requiredFields"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(1) > a"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "label": "newTicketRef"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "newTicketTitle"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(3)"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(3)"
+      }
+     ]
+    },
+    "label": "newTicketCustomer"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(4)"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "label": "newTicketStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "list-summary"
+      },
+      {
+       "kind": "id",
+       "selector": "#list-summary"
+      },
+      {
+       "kind": "text",
+       "text": "Showing 1–10 of 14"
+      },
+      {
+       "kind": "css",
+       "selector": "#list-summary"
+      }
+     ]
+    },
+    "label": "totalTickets"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Created a new repair ticket \"{{v2}}\". The \"New ticket\" form has only **Title** as a required field (marked with an asterisk). Customer is optional — I selected Marlow Bakery as an existing customer. The ticket appeared in the list immediately after the dialog closed. The list now shows 14 tickets total (was 13). The new ticket is row 1 with Ref **RD-1015**, title \"{{v2}}\", customer Marlow Bakery, status **Draft**, and parts count **0**.",
+   "values": {
+    "requiredFields": "Title",
+    "optionalFields": "Customer",
+    "newTicketRef": "RD-1015",
+    "newTicketTitle": "{{v2}}",
+    "newTicketStatus": "Draft",
+    "newTicketPartsCount": "0",
+    "newTicketCustomer": "Marlow Bakery",
+    "totalTickets": "14"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:15:15.135Z",
+   "failedAtStep": {},
+   "fallthroughs": 2,
+   "lastUsed": "2026-08-30T12:26:59.481Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Create a new repair ticket with the title exactly 'fwrd35-n1 RD Bench Ticket'. Open the New ticket form, discover which fields are required, fill them with sensible values (pick any existing customer if a customer field is required), and submit. Wait for the ticket to actually appear in the list or detail view (the list refreshes a short beat after a create, so wait for the concrete page state rather than assuming the first render is final). Report: the required fields you had to fill, the new ticket's Ref, its title, its status, and its parts count.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:15:15.135Z"
+  }
+ },
+ {
+  "id": "s_023af6",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Open the ticket detail page for ticket {{v1}} (title '{{v2}}'). On that page, add a part named exactly '{{v4}}' with cost {{v5}} and markup {{v6}}. Discover the part form's fields (there may be cost, markup, quantity, etc.) and fill them appropriately. Submit and wait for the part to actually appear on the ticket page (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part form fields you saw, the part's name, cost, markup, and the price the app computes/displays for that part.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "fwrd35-n1 RD Part A",
+    "usedIn": [
+     2,
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "known": true
+   },
+   "v5": {
+    "example": "100",
+    "usedIn": [
+     3,
+     8
+    ]
+   },
+   "v6": {
+    "example": "25",
+    "usedIn": [
+     4,
+     9
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/{{d1}}",
+   "fingerprint": [
+    0,
+    0.077,
+    0.038,
+    0,
+    0,
+    0,
+    0.115,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.153,
+    0,
+    0,
+    0.077,
+    0,
+    0.077,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0.153,
+    0,
+    0.038,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0.077,
+    0.038,
+    0,
+    0,
+    0,
+    0.077,
+    0.077,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0.038,
+    0,
+    0,
+    0.038,
+    0.038,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0.115,
+    0,
+    0.077,
+    0.153,
+    0.038,
+    0,
+    0.077,
+    0.077,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0.077,
+    0,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.23,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.23,
+    0,
+    0.115,
+    0.077,
+    0,
+    0,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0.077,
+    0.077,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0.077,
+    0.077,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0.077,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.115,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0.038,
+    0,
+    0.153,
+    0.038,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0,
+    0.153,
+    0.038,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.115,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0.077,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.306,
+    0,
+    0.077,
+    0,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0.077,
+    0,
+    0.077,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.038,
+    0.077,
+    0,
+    0,
+    0.077,
+    0.115,
+    0,
+    0,
+    0.077,
+    0.077,
+    0,
+    0,
+    0,
+    0,
+    0.077,
+    0,
+    0.077,
+    0.038,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e290"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "add-part"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add part"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > section > header > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Add part\"",
+      "- heading \"Add part\"",
+      "- textbox \"\"",
+      "- spinbutton \"\"",
+      "- spinbutton \"\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e309",
+     "value": "{{v4}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-name"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Part name *"
+      },
+      {
+       "kind": "label",
+       "label": "Part name *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-name"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-name"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- textbox \"\": {{v4}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e313",
+     "value": "{{v5}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-cost"
+      },
+      {
+       "kind": "role",
+       "role": "spinbutton",
+       "name": "Cost *"
+      },
+      {
+       "kind": "label",
+       "label": "Cost *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-cost"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-cost"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- spinbutton \"\": {{v5}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e317",
+     "value": "{{v6}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-markup"
+      },
+      {
+       "kind": "role",
+       "role": "spinbutton",
+       "name": "Markup % *"
+      },
+      {
+       "kind": "label",
+       "label": "Markup % *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-markup"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-markup"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- spinbutton \"\": {{v6}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e327"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "modal-save"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add part"
+      },
+      {
+       "kind": "id",
+       "selector": "#modal-save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-save"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "target": "\"{{v4}}\"",
+     "state": "visible",
+     "timeout_ms": 10000
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v4}}\""
+      },
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(1)"
+      },
+      {
+       "kind": "text",
+       "text": "{{v4}}"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td:nth-of-type(1)"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e340",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(1)"
+      },
+      {
+       "kind": "text",
+       "text": "{{v4}}"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "partName"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e341",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(2)"
+      },
+      {
+       "kind": "text",
+       "text": "${{v5}}.00"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "partCost"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e342",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(3)"
+      },
+      {
+       "kind": "text",
+       "text": "{{v6}}%"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td:nth-of-type(3)"
+      }
+     ]
+    },
+    "label": "partMarkup"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e345",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(6)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p18"
+      }
+     ]
+    },
+    "label": "partPrice"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Added part \"{{v4}}\" to ticket {{v1}}. The \"Add part\" form has these fields: **Part name*** (required textbox), **Cost*** (required spinbutton), **Markup %*** (required spinbutton), **Quantity** (optional spinbutton, defaults to 1), and **Supplier** (optional textbox). I filled Name={{v4}}, Cost=100, Markup=25, left Qty at 1 and Supplier blank, then submitted. The part appeared in the parts table with: Name=\"{{v4}}\", Cost=\"${{v5}}.00\", Markup=\"{{v6}}%\", Qty=1, Price=\"$125.00\". The total row shows \"Total (price × quantity) $125.00\". The computed price for quantity 1 is ${{v5}} cost × 1.{{v6}} = $125.",
+   "values": {
+    "partFormFields": "Part name*, Cost*, Markup %*, Quantity (default 1), Supplier",
+    "partName": "{{v4}}",
+    "partCost": "${{v5}}.00",
+    "partMarkup": "{{v6}}%",
+    "partQuantity": "1",
+    "partPrice": "$125.00",
+    "totalPrice": "$125.00"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:15:49.315Z",
+   "failedAtStep": {},
+   "fallthroughs": 2,
+   "lastUsed": "2026-08-30T12:27:04.478Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_8a1dbf",
+   "index": 1,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Open the ticket detail page for ticket RD-1015 (title 'fwrd35-n1 RD Bench Ticket'). On that page, add a part named exactly 'fwrd35-n1 RD Part A' with cost 100 and markup 25. Discover the part form's fields (there may be cost, markup, quantity, etc.) and fill them appropriately. Submit and wait for the part to actually appear on the ticket page (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part form fields you saw, the part's name, cost, markup, and the price the app computes/displays for that part.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:15:49.315Z"
+  }
+ },
+ {
+  "id": "s_5afab6",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Open the ticket detail page for ticket {{v1}} (title '{{v2}}'). On that page, add a part named exactly '{{v4}}' with cost {{v5}} and markup {{v6}}. Discover the part form's fields (there may be cost, markup, quantity, etc.) and fill them appropriately. Submit and wait for the part to actually appear on the ticket page (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part form fields you saw, the part's name, cost, markup, and the price the app computes/displays for that part.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "fwrd35-n1 RD Part A",
+    "usedIn": [],
+    "known": true
+   },
+   "v5": {
+    "example": "100",
+    "usedIn": []
+   },
+   "v6": {
+    "example": "25",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets",
+   "fingerprint": [
+    0,
+    0.019,
+    0.009,
+    0.019,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.065,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.186,
+    0,
+    0.037,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.019,
+    0,
+    0.084,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.028,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.009,
+    0,
+    0.019,
+    0.205,
+    0.009,
+    0,
+    0.019,
+    0.019,
+    0.009,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.746,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.093,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.037,
+    0.009,
+    0.028,
+    0.019,
+    0,
+    0,
+    0,
+    0.037,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.093,
+    0.037,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.186,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.186,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.075,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0.037,
+    0.009,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.093,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.391,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.103,
+    0.019,
+    0,
+    0.019,
+    0,
+    0.037,
+    0,
+    0,
+    0.168,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.019,
+    0.028,
+    0,
+    0,
+    0.103,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.019,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "\"{{v1}}\""
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v1}}\""
+      },
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(1) > a"
+      },
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v1}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "mints": {
+     "at": "h1"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- heading \"{{v2}}\"",
+      "- button \"Mark Ready\"",
+      "- button \"Archive ticket\"",
+      "- heading \"Parts\"",
+      "- button \"Add part\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 5,
+   "successes": 5,
+   "partial": 0,
+   "created": "2026-08-30T12:15:49.315Z",
+   "failedAtStep": {},
+   "fallthroughs": 6,
+   "lastUsed": "2026-08-30T12:27:04.483Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_8a1dbf",
+   "index": 0,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Open the ticket detail page for ticket RD-1015 (title 'fwrd35-n1 RD Bench Ticket'). On that page, add a part named exactly 'fwrd35-n1 RD Part A' with cost 100 and markup 25. Discover the part form's fields (there may be cost, markup, quantity, etc.) and fill them appropriately. Submit and wait for the part to actually appear on the ticket page (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part form fields you saw, the part's name, cost, markup, and the price the app computes/displays for that part.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:15:49.315Z"
+  }
+ },
+ {
+  "id": "s_601ba4",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, add a second part named exactly '{{v3}}' with cost {{v4}} and markup {{v5}} (leave quantity at 1 and supplier blank). Submit and wait for the part to actually appear in the parts table on the ticket page (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part's name, cost, markup, quantity, the price the app computes/displays for that part, and the ticket's total.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1",
+    "usedIn": [
+     9
+    ],
+    "known": true,
+    "binding": "var:runid"
+   },
+   "v3": {
+    "example": "fwrd35-n1 RD Part B",
+    "usedIn": [
+     2,
+     6,
+     8,
+     10
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "200",
+    "usedIn": [
+     3
+    ]
+   },
+   "v5": {
+    "example": "25",
+    "usedIn": [
+     4
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+   "fingerprint": [
+    0,
+    0.055,
+    0.027,
+    0,
+    0,
+    0,
+    0.082,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.192,
+    0,
+    0.055,
+    0.055,
+    0,
+    0.055,
+    0.11,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0.11,
+    0,
+    0.027,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0.082,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0.11,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0.055,
+    0,
+    0.055,
+    0.027,
+    0,
+    0,
+    0,
+    0.055,
+    0.055,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0.082,
+    0,
+    0.055,
+    0.11,
+    0.11,
+    0,
+    0.055,
+    0.055,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0.165,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.055,
+    0,
+    0.082,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.165,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.33,
+    0,
+    0.082,
+    0.055,
+    0,
+    0,
+    0,
+    0.275,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.055,
+    0.055,
+    0.137,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0.082,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.055,
+    0.055,
+    0,
+    0.11,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.22,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.082,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.082,
+    0,
+    0.137,
+    0,
+    0,
+    0.055,
+    0,
+    0.055,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.082,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0.11,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.275,
+    0.027,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0.192,
+    0.165,
+    0,
+    0,
+    0,
+    0.11,
+    0.027,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.082,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.055,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.165,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0.22,
+    0,
+    0.137,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.082,
+    0.055,
+    0,
+    0.055,
+    0,
+    0.11,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.055,
+    0,
+    0,
+    0.055,
+    0.082,
+    0,
+    0.027,
+    0.055,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0.055,
+    0,
+    0.055,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e375"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "add-part"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add part"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > section > header > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Add part\"",
+      "- heading \"Add part\"",
+      "- textbox \"\"",
+      "- spinbutton \"\"",
+      "- spinbutton \"\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e379",
+     "value": "{{v3}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-name"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Part name *"
+      },
+      {
+       "kind": "label",
+       "label": "Part name *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-name"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-name"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- textbox \"\": {{v3}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e383",
+     "value": "{{v4}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-cost"
+      },
+      {
+       "kind": "role",
+       "role": "spinbutton",
+       "name": "Cost *"
+      },
+      {
+       "kind": "label",
+       "label": "Cost *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-cost"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-cost"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- spinbutton \"\": {{v4}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e387",
+     "value": "{{v5}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-markup"
+      },
+      {
+       "kind": "role",
+       "role": "spinbutton",
+       "name": "Markup % *"
+      },
+      {
+       "kind": "label",
+       "label": "Markup % *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-markup"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-markup"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- spinbutton \"\": {{v5}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e327"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "modal-save"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add part"
+      },
+      {
+       "kind": "id",
+       "selector": "#modal-save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-save"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "target": "\"{{v3}}\"",
+     "state": "visible",
+     "timeout_ms": 10000
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v3}}\""
+      },
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v3}}",
+       "selector": "td:nth-of-type(1)"
+      },
+      {
+       "kind": "text",
+       "text": "{{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "partName"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v3}}",
+       "selector": "td:nth-of-type(2)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "partCost"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}} RD Part A",
+       "selector": "td:nth-of-type(3)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(3)"
+      }
+     ]
+    },
+    "label": "partMarkup"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v3}}",
+       "selector": "td:nth-of-type(6)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p19"
+      }
+     ]
+    },
+    "label": "partPrice"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "parts-total"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tfoot > tr > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "ticketTotal"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Added part \"{{v3}}\" to ticket {{v1}} successfully. The part's details from the parts table: Name=\"{{v3}}\", Cost=\"${{v4}}.00\", Markup=\"{{v5}}%\", Qty=\"1\", Supplier=\"No supplier\", Price=\"$250.00\" (${{v4}} cost × 1.{{v5}} markup = $250). The ticket's total row shows \"Total (price × quantity) $375.00\", which is the sum of Part A ($125.00) + Part B ($250.00).",
+   "values": {
+    "partName": "{{v3}}",
+    "partCost": "${{v4}}.00",
+    "partMarkup": "{{v5}}%",
+    "partQuantity": "1",
+    "partPrice": "$250.00",
+    "ticketTotal": "$375.00"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:16:25.759Z",
+   "failedAtStep": {},
+   "fallthroughs": 2,
+   "lastUsed": "2026-08-30T12:27:09.037Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, add a second part named exactly 'fwrd35-n1 RD Part B' with cost 200 and markup 25 (leave quantity at 1 and supplier blank). Submit and wait for the part to actually appear in the parts table on the ticket page (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part's name, cost, markup, quantity, the price the app computes/displays for that part, and the ticket's total.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:16:25.759Z"
+  }
+ },
+ {
+  "id": "s_a0f16b",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, edit the part named '{{v2}}' so its cost changes from 100 to {{v4}} (keep markup at 25 and quantity at 1). Discover how the part edit UI works (an edit button/inline form on the part row, etc.), make the change, and wait for the parts table to reflect the new cost (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part's name, its new cost, markup, quantity, the price the app computes/displays for it afterwards, and the ticket's new total.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Part A",
+    "usedIn": [
+     1,
+     4,
+     5,
+     6,
+     9
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "fwrd35-n1",
+    "usedIn": [
+     10
+    ],
+    "known": true,
+    "binding": "var:runid"
+   },
+   "v4": {
+    "example": "150",
+    "usedIn": [
+     2,
+     4,
+     5
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+   "fingerprint": [
+    0,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.168,
+    0,
+    0.096,
+    0.048,
+    0,
+    0.048,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0,
+    0.096,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0,
+    0.048,
+    0,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.072,
+    0,
+    0.048,
+    0.096,
+    0.12,
+    0,
+    0.048,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.239,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.144,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.287,
+    0,
+    0.072,
+    0.048,
+    0,
+    0,
+    0,
+    0.239,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.048,
+    0.048,
+    0.215,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0.048,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.383,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.072,
+    0,
+    0.12,
+    0,
+    0,
+    0.096,
+    0,
+    0.048,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.239,
+    0.024,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.168,
+    0.144,
+    0,
+    0,
+    0,
+    0.096,
+    0.024,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.144,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0.191,
+    0,
+    0.168,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0.048,
+    0,
+    0.048,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.048,
+    0,
+    0,
+    0.048,
+    0.072,
+    0,
+    0.048,
+    0.048,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}",
+    "{{v3}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e439"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(7) > button:nth-of-type(1)"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-edit-p18"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Edit part\"",
+      "- heading \"Edit part\"",
+      "- textbox \"\": {{v2}}",
+      "- spinbutton \"\": 100",
+      "- spinbutton \"\": 25"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e464",
+     "value": "{{v4}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-cost"
+      },
+      {
+       "kind": "role",
+       "role": "spinbutton",
+       "name": "Cost *"
+      },
+      {
+       "kind": "label",
+       "label": "Cost *"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-cost"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-cost"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- spinbutton \"\": {{v4}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e478"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "modal-save"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save part"
+      },
+      {
+       "kind": "id",
+       "selector": "#modal-save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-save"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- row \"{{v2}} ${{v4}}.00 25% 1 No supplier $187.50 Edit Delete\"",
+      "- cell \"${{v4}}.00\"",
+      "- cell \"$187.50\"",
+      "- row \"Total (price × quantity) $437.50\"",
+      "- cell \"$437.50\""
+     ]
+    }
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "state": "visible",
+     "target": "\"${{v4}}.00\"",
+     "timeout_ms": 10000
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"${{v4}}.00\""
+      },
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(2)"
+      },
+      {
+       "kind": "text",
+       "text": "${{v4}}.00"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e515",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(2)"
+      },
+      {
+       "kind": "text",
+       "text": "${{v4}}.00"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "newCost"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e519",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(6)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p18"
+      }
+     ]
+    },
+    "label": "newPrice"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e536",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "parts-total"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tfoot > tr > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "ticketTotal"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "partName"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(3)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(3)"
+      }
+     ]
+    },
+    "label": "markup"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v3}} RD Part B",
+       "selector": "td:nth-of-type(6)"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p19"
+      }
+     ]
+    },
+    "label": "partBPrice"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Edited Part A on ticket {{v1}} successfully. The edit UI is triggered by clicking the \"Edit\" button on each part row, which opens an \"Edit part\" dialog pre-filled with the existing values (name, cost, markup, quantity, supplier). I changed Cost from 100 to {{v4}}, left Markup at 25% and Qty at 1, and clicked \"Save part\". The parts table now shows: **Part A** — Cost=\"${{v4}}.00\", Markup=\"25%\", Qty=\"1\", Price=\"$187.50\" (${{v4}} × 1.25). **Part B** — Cost=\"$200.00\", Markup=\"25%\", Qty=\"1\", Price=\"$250.00\". The ticket's **total is $437.50** ($187.50 + $250.00).",
+   "values": {
+    "partName": "{{v2}}",
+    "newCost": "${{v4}}.00",
+    "markup": "25%",
+    "quantity": "1",
+    "newPrice": "$187.50",
+    "ticketTotal": "$437.50",
+    "partBPrice": "$250.00"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:18:19.552Z",
+   "failedAtStep": {},
+   "fallthroughs": 2,
+   "lastUsed": "2026-08-30T12:27:12.643Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, edit the part named 'fwrd35-n1 RD Part A' so its cost changes from 100 to 150 (keep markup at 25 and quantity at 1). Discover how the part edit UI works (an edit button/inline form on the part row, etc.), make the change, and wait for the parts table to reflect the new cost (the view refreshes a short beat after a mutation, so wait for the concrete page state). Report: the part's name, its new cost, markup, quantity, the price the app computes/displays for it afterwards, and the ticket's new total.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:18:19.552Z"
+  }
+ },
+ {
+  "id": "s_5845cc",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, attempt to change the ticket's status to 'Ready'. The app enforces preconditions before it will accept that status — try it, and if it refuses, report the EXACT error/validation message(s) the app shows (quote them verbatim), and any hints on the page about what is required. Do not try to work around it yet — just attempt the status change and report exactly what the app says and what state the ticket is left in.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+   "fingerprint": [
+    0,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.168,
+    0,
+    0.096,
+    0.048,
+    0,
+    0.048,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0,
+    0.096,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0,
+    0.048,
+    0,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.072,
+    0,
+    0.048,
+    0.096,
+    0.12,
+    0,
+    0.048,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.239,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.144,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.287,
+    0,
+    0.072,
+    0.048,
+    0,
+    0,
+    0,
+    0.239,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.048,
+    0.048,
+    0.215,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0.048,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.383,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.072,
+    0,
+    0.12,
+    0,
+    0,
+    0.096,
+    0,
+    0.048,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.239,
+    0.024,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0.168,
+    0.144,
+    0,
+    0,
+    0,
+    0.096,
+    0.024,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0.048,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.144,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0.191,
+    0,
+    0.168,
+    0,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.096,
+    0.048,
+    0,
+    0.048,
+    0,
+    0.096,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.048,
+    0,
+    0,
+    0.048,
+    0.072,
+    0,
+    0.048,
+    0.048,
+    0.048,
+    0,
+    0,
+    0,
+    0,
+    0.048,
+    0,
+    0.048,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e493"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "alertContains": "Ticket is not ready Part \"fwrd35-n1 RD Part A\" has no supplier Part \"fwrd35-n1 RD Part B\" has no supplier",
+     "addedContains": [
+      "- alert \"\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e491",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > p:nth-of-type(3) > span:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "ticketStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "buttonLabel"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Attempted to change ticket {{v1}} status to \"Ready\" by clicking the \"Mark Ready\" button. The app blocked it with a native alert dialog showing the EXACT error message: **\"Ticket is not ready\\nPart \\\"fwrd35-n1 RD Part A\\\" has no supplier\\nPart \\\"fwrd35-n1 RD Part B\\\" has no supplier\"**. The alert was titled \"Ready?\" on the button itself — clicking it triggers validation before committing. The ticket remains in **Draft** status. The page provides a hint: the Parts table has a \"Supplier\" column showing \"No supplier\" for both parts, and the \"Mark Ready\" button text suggests the app expects each part to have a supplier assigned before the ticket can proceed to \"Ready\" status.",
+   "values": {
+    "ticketStatus": "Draft",
+    "exactError": "Ticket is not ready\nPart \"fwrd35-n1 RD Part A\" has no supplier\nPart \"fwrd35-n1 RD Part B\" has no supplier",
+    "buttonLabel": "Mark Ready",
+    "hints": "Each part must have a supplier assigned"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:18:38.652Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:27:13.840Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, attempt to change the ticket's status to 'Ready'. The app enforces preconditions before it will accept that status — try it, and if it refuses, report the EXACT error/validation message(s) the app shows (quote them verbatim), and any hints on the page about what is required. Do not try to work around it yet — just attempt the status change and report exactly what the app says and what state the ticket is left in.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:18:38.652Z"
+  }
+ },
+ {
+  "id": "s_e1db81",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, both parts currently show 'No supplier'. Edit each part ('{{v4}}' and '{{v2}} RD Part B') to assign a supplier — use the supplier name '{{v5}}' for both, keeping all other values unchanged (Part A: cost 150, markup 25, qty 1; Part B: cost 200, markup 25, qty 1). Wait for the parts table to reflect the supplier on both rows (the view refreshes a short beat after a mutation, so wait for the concrete page state). Then click the '{{v3}}' button to set the ticket status to Ready, and confirm/accept any confirmation dialog. Report: the supplier shown on each part row afterwards, the ticket's status as displayed on the page, and any confirmation text shown.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n2",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "Mark Ready",
+    "usedIn": [
+     5,
+     11,
+     12
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "fwrd35-n2 RD Part A",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v5": {
+    "example": "Bench Supply Co",
+    "usedIn": [
+     2,
+     7
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e521"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(7) > button:nth-of-type(1)"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-edit-p18"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Edit part\"",
+      "- heading \"Edit part\"",
+      "- textbox \"\": {{v4}}",
+      "- spinbutton \"\": 150",
+      "- spinbutton \"\": 25"
+     ]
+    },
+    "via": {
+     "skill": "s_7c5a90",
+     "step": 1
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e561",
+     "value": "{{v5}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-supplier"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Supplier"
+      },
+      {
+       "kind": "label",
+       "label": "Supplier"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-supplier"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-supplier"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- textbox \"\": {{v5}}"
+     ]
+    },
+    "via": {
+     "skill": "s_7c5a90",
+     "step": 1
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e478"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "modal-save"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save part"
+      },
+      {
+       "kind": "id",
+       "selector": "#modal-save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-save"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- row \"{{v4}} $150.00 25% 1 {{v5}} $187.50 Edit Delete\"",
+      "- cell \"{{v5}}\""
+     ]
+    },
+    "via": {
+     "skill": "s_7c5a90",
+     "step": 1
+    }
+   },
+   {
+    "tool": "dialog_expect",
+    "args": {
+     "action": "accept"
+    },
+    "locators": {},
+    "via": {
+     "skill": "s_7c5a90",
+     "step": 2
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "\"{{v3}}\""
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "status-to-Ready"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "{{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "alertContains": "Ticket is not ready Part \"{{v2}} RD Part B\" has no supplier",
+     "addedContains": [
+      "- alert \"Ticket is not ready Part \\\"{{v2}} RD Part B\\\" has no supplier\""
+     ]
+    },
+    "via": {
+     "skill": "s_7c5a90",
+     "step": 3
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e71"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit",
+       "seen": {
+        "hit": 0,
+        "miss": 1
+       }
+      },
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(7) > button:nth-of-type(1)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-edit-p19",
+       "seen": {
+        "hit": 1,
+        "miss": 0
+       }
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Edit part\"",
+      "- heading \"Edit part\"",
+      "- textbox \"\": {{v2}} RD Part B",
+      "- spinbutton \"\": 200",
+      "- spinbutton \"\": 25"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e106",
+     "value": "{{v5}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-supplier"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Supplier"
+      },
+      {
+       "kind": "label",
+       "label": "Supplier"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-supplier"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-supplier"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- textbox \"\": {{v5}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e110"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "modal-save"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save part"
+      },
+      {
+       "kind": "id",
+       "selector": "#modal-save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-save"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- row \"{{v2}} RD Part B $200.00 25% 1 {{v5}} $250.00 Edit Delete\""
+     ]
+    }
+   },
+   {
+    "tool": "dialog_expect",
+    "args": {
+     "action": "accept"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "scroll_into_view",
+    "args": {
+     "target": "@e125"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "status-to-Ready"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "{{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(1)"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e125"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "status-to-Ready"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "{{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- button \"Mark Draft\"",
+      "- button \"Mark Closed\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e182",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Ready"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > p:nth-of-type(3) > span:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "ticketStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "field-supplier"
+      },
+      {
+       "kind": "label",
+       "label": "Supplier"
+      },
+      {
+       "kind": "id",
+       "selector": "#f-supplier"
+      },
+      {
+       "kind": "css",
+       "selector": "#f-supplier"
+      }
+     ]
+    },
+    "label": "partASupplier"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "partB"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p19"
+      }
+     ]
+    },
+    "label": "partBPrice"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p18"
+      }
+     ]
+    },
+    "label": "partAPrice"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "parts-total"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tfoot > tr > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "ticketTotal"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "ticket-title"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "ticketTitle"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "ticket-ref"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > p:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "ticketRef"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Edited Part B (\"{{v2}} RD Part B\") to assign supplier \"{{v5}}\" by clicking Edit, filling the supplier field, and saving. Both parts now show supplier \"{{v5}}\". Then clicked \"{{v3}}\" and accepted the confirmation dialog. The ticket status changed to \"Ready\". Part A: cost $150.00, markup 25%, qty 1, price $187.50, supplier \"{{v5}}\". Part B: cost $200.00, markup 25%, qty 1, price $250.00, supplier \"{{v5}}\". Ticket total: $437.50. Status: Ready.",
+   "values": {
+    "partASupplier": "{{v5}}",
+    "partB": "{{v2}} RD Part B",
+    "partBSupplier": "{{v5}}",
+    "partBPrice": "$250.00",
+    "partAPrice": "$187.50",
+    "ticketTotal": "$437.50",
+    "ticketStatus": "Ready",
+    "ticketRef": "{{v1}}",
+    "ticketTitle": "{{v2}} RD Bench Ticket"
+   }
+  },
+  "stats": {
+   "uses": 2,
+   "successes": 2,
+   "partial": 0,
+   "created": "2026-08-30T12:26:38.025Z",
+   "failedAtStep": {},
+   "fallthroughs": 3,
+   "lastUsed": "2026-08-30T12:27:20.983Z"
+  },
+  "status": "validated",
+  "variantOf": "s_7c5a90",
+  "provenance": {
+   "session": "fwrd35-n2",
+   "instruction": "On the ticket detail page for ticket RD-1015, both parts currently show 'No supplier'. Edit each part ('fwrd35-n2 RD Part A' and 'fwrd35-n2 RD Part B') to assign a supplier — use the supplier name 'Bench Supply Co' for both, keeping all other values unchanged (Part A: cost 150, markup 25, qty 1; Part B: cost 200, markup 25, qty 1). Wait for the parts table to reflect the supplier on both rows (the view refreshes a short beat after a mutation, so wait for the concrete page state). Then click the 'Mark Ready' button to set the ticket status to Ready, and confirm/accept any confirmation dialog. Report: the supplier shown on each part row afterwards, the ticket's status as displayed on the page, and any confirmation text shown.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:26:38.025Z"
+  }
+ },
+ {
+  "id": "s_7c5a90",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, both parts currently show 'No supplier'. Edit each part ('{{v2}}' and '{{v4}}') to assign a supplier — use the supplier name '{{v6}}' for both, keeping all other values unchanged (Part A: cost 150, markup 25, qty 1; Part B: cost 200, markup 25, qty 1). Wait for the parts table to reflect the supplier on both rows (the view refreshes a short beat after a mutation, so wait for the concrete page state). Then click the '{{v5}}' button to set the ticket status to Ready, and confirm/accept any confirmation dialog. Report: the supplier shown on each part row afterwards, the ticket's status as displayed on the page, and any confirmation text shown.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Part A",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "fwrd35-n1 RD Part B",
+    "usedIn": [
+     4
+    ],
+    "known": true
+   },
+   "v5": {
+    "example": "Mark Ready",
+    "usedIn": [
+     8
+    ],
+    "known": true
+   },
+   "v6": {
+    "example": "Bench Supply Co",
+    "usedIn": [
+     2,
+     5,
+     9,
+     10
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+   "fingerprint": [
+    0,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.166,
+    0,
+    0.095,
+    0.047,
+    0,
+    0.047,
+    0.095,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.095,
+    0,
+    0.095,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.095,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.095,
+    0,
+    0.047,
+    0,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.071,
+    0,
+    0.047,
+    0.095,
+    0.119,
+    0,
+    0.047,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.237,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.142,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.285,
+    0,
+    0.071,
+    0.047,
+    0,
+    0,
+    0,
+    0.237,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.047,
+    0.047,
+    0.214,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.095,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0.047,
+    0,
+    0.095,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.38,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.047,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.071,
+    0,
+    0.119,
+    0,
+    0,
+    0.095,
+    0,
+    0.047,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.095,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.237,
+    0.024,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.166,
+    0.142,
+    0,
+    0,
+    0,
+    0.095,
+    0.024,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.142,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.095,
+    0.19,
+    0,
+    0.166,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.095,
+    0.047,
+    0,
+    0.047,
+    0,
+    0.095,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.047,
+    0,
+    0,
+    0.047,
+    0.071,
+    0,
+    0.047,
+    0.047,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}",
+    "{{v4}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "loop",
+    "args": {},
+    "locators": {},
+    "body": [
+     {
+      "tool": "click",
+      "args": {
+       "target": "@e521"
+      },
+      "locators": {
+       "target": [
+        {
+         "kind": "scoped",
+         "container": "tr",
+         "hasText": "{{v2}}",
+         "selector": "td:nth-of-type(7) > button:nth-of-type(1)"
+        },
+        {
+         "kind": "role",
+         "role": "button",
+         "name": "Edit"
+        },
+        {
+         "kind": "css",
+         "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)"
+        },
+        {
+         "kind": "testid",
+         "attr": "data-testid",
+         "value": "part-edit-p18"
+        }
+       ]
+      },
+      "expect": {
+       "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+       "addedContains": [
+        "- dialog \"Edit part\"",
+        "- heading \"Edit part\"",
+        "- textbox \"\": {{v2}}",
+        "- spinbutton \"\": 150",
+        "- spinbutton \"\": 25"
+       ]
+      }
+     },
+     {
+      "tool": "fill",
+      "args": {
+       "target": "@e561",
+       "value": "{{v6}}"
+      },
+      "locators": {
+       "target": [
+        {
+         "kind": "testid",
+         "attr": "data-testid",
+         "value": "field-supplier"
+        },
+        {
+         "kind": "role",
+         "role": "textbox",
+         "name": "Supplier"
+        },
+        {
+         "kind": "label",
+         "label": "Supplier"
+        },
+        {
+         "kind": "id",
+         "selector": "#f-supplier"
+        },
+        {
+         "kind": "css",
+         "selector": "#f-supplier"
+        }
+       ]
+      },
+      "expect": {
+       "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+       "addedContains": [
+        "- textbox \"\": {{v6}}"
+       ]
+      }
+     },
+     {
+      "tool": "click",
+      "args": {
+       "target": "@e478"
+      },
+      "locators": {
+       "target": [
+        {
+         "kind": "testid",
+         "attr": "data-testid",
+         "value": "modal-save"
+        },
+        {
+         "kind": "role",
+         "role": "button",
+         "name": "Save part"
+        },
+        {
+         "kind": "id",
+         "selector": "#modal-save"
+        },
+        {
+         "kind": "css",
+         "selector": "#modal-save"
+        }
+       ]
+      },
+      "expect": {
+       "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+       "addedContains": [
+        "- row \"{{v2}} $150.00 25% 1 {{v6}} $187.50 Edit Delete\"",
+        "- cell \"{{v6}}\""
+       ]
+      }
+     }
+    ],
+    "while": [
+     {
+      "kind": "scoped",
+      "container": "tr",
+      "hasText": "{{v2}}",
+      "selector": "td:nth-of-type(7) > button:nth-of-type(1)"
+     },
+     {
+      "kind": "role",
+      "role": "button",
+      "name": "Edit"
+     },
+     {
+      "kind": "css",
+      "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(1)"
+     },
+     {
+      "kind": "testid",
+      "attr": "data-testid",
+      "value": "part-edit-p18"
+     }
+    ],
+    "max": 7
+   },
+   {
+    "tool": "dialog_expect",
+    "args": {
+     "action": "accept"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "\"{{v5}}\""
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v5}}\""
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "{{v5}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- button \"Mark Draft\"",
+      "- button \"Mark Closed\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e682",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "{{v6}}",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(5)"
+      }
+     ]
+    },
+    "label": "partASupplier"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e692",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "{{v6}}",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(5)"
+      }
+     ]
+    },
+    "label": "partASupplier"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e654",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > p:nth-of-type(3) > span:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "ticketStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p18"
+      }
+     ]
+    },
+    "label": "partAPrice"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(6)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-price-p19"
+      }
+     ]
+    },
+    "label": "partBPrice"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "parts-total"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div > table > tfoot > tr > td:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "ticketTotal"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Assigned supplier \"{{v6}}\" to both parts on ticket {{v1}}, then successfully changed the ticket status to Ready. Part A now shows: Name=\"{{v2}}\", Cost=\"$150.00\", Markup=\"25%\", Qty=\"1\", Supplier=\"{{v6}}\", Price=\"$187.50\". Part B now shows: Name=\"{{v4}}\", Cost=\"$200.00\", Markup=\"25%\", Qty=\"1\", Supplier=\"{{v6}}\", Price=\"$250.00\". When clicking \"{{v5}}\", a native confirmation dialog with the message **\"Ready?\"** appeared and was accepted. The ticket status now displays as **\"Ready\"** on the page. The buttons changed to \"Mark Draft\" and \"Mark Closed\" (the \"{{v5}}\" button is gone). Total: $437.50.",
+   "values": {
+    "partASupplier": "{{v6}}",
+    "partBSupplier": "{{v6}}",
+    "ticketStatus": "Ready",
+    "confirmationDialogText": "Ready?",
+    "partAPrice": "$187.50",
+    "partBPrice": "$250.00",
+    "ticketTotal": "$437.50"
+   }
+  },
+  "stats": {
+   "uses": 2,
+   "successes": 1,
+   "partial": 1,
+   "created": "2026-08-30T12:20:35.392Z",
+   "failedAtStep": {
+    "3": 1
+   },
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:26:38.012Z",
+   "lastFailedAt": 3
+  },
+  "status": "demoted",
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, both parts currently show 'No supplier'. Edit each part ('fwrd35-n1 RD Part A' and 'fwrd35-n1 RD Part B') to assign a supplier — use the supplier name 'Bench Supply Co' for both, keeping all other values unchanged (Part A: cost 150, markup 25, qty 1; Part B: cost 200, markup 25, qty 1). Wait for the parts table to reflect the supplier on both rows (the view refreshes a short beat after a mutation, so wait for the concrete page state). Then click the 'Mark Ready' button to set the ticket status to Ready, and confirm/accept any confirmation dialog. Report: the supplier shown on each part row afterwards, the ticket's status as displayed on the page, and any confirmation text shown.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:20:35.392Z"
+  }
+ },
+ {
+  "id": "s_312e24",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, remove BOTH parts: '{{v2}}' and '{{v4}}'. Use each part row's delete/remove control, accepting any confirmation dialog. The view refreshes a short beat after a mutation, so wait for the concrete page state — verify the parts table is actually empty (parts count 0, no rows) before finishing. Report: the parts count and the contents of the parts table afterwards, and the ticket's status.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Part A",
+    "usedIn": [
+     2
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "fwrd35-n1 RD Part B",
+    "usedIn": [
+     4,
+     6
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+   "fingerprint": [
+    0,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.165,
+    0,
+    0.094,
+    0.047,
+    0,
+    0.047,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0.094,
+    0,
+    0.024,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0,
+    0.047,
+    0,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.071,
+    0,
+    0.047,
+    0.094,
+    0.118,
+    0,
+    0.047,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0.235,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.141,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.282,
+    0,
+    0.071,
+    0.047,
+    0,
+    0,
+    0,
+    0.235,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.047,
+    0.047,
+    0.212,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0.047,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.424,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.071,
+    0,
+    0.118,
+    0,
+    0,
+    0.094,
+    0,
+    0.047,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.024,
+    0,
+    0.235,
+    0.024,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.165,
+    0.141,
+    0,
+    0,
+    0,
+    0.094,
+    0.024,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.071,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0.047,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0.141,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.188,
+    0,
+    0.165,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.094,
+    0.047,
+    0,
+    0.047,
+    0,
+    0.094,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.047,
+    0,
+    0,
+    0.047,
+    0.071,
+    0,
+    0.047,
+    0.047,
+    0.047,
+    0,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.047,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}",
+    "{{v4}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "dialog_expect",
+    "args": {
+     "action": "accept"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e686"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v2}}",
+       "selector": "td:nth-of-type(7) > button:nth-of-type(2)"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Delete"
+      },
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7) > button:nth-of-type(2)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-delete-p18"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Confirm\"",
+      "- heading \"Confirm\"",
+      "- button \"Cancel\"",
+      "- button \"Delete part\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e709"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "confirm-yes"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Delete part"
+      },
+      {
+       "kind": "id",
+       "selector": "#confirm-yes"
+      },
+      {
+       "kind": "css",
+       "selector": "#confirm-yes"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e754"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "tr",
+       "hasText": "{{v4}}",
+       "selector": "td:nth-of-type(7) > button:nth-of-type(2)"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Delete"
+      },
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr > td:nth-of-type(7) > button:nth-of-type(2)"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "part-delete-p19"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- dialog \"Confirm\"",
+      "- heading \"Confirm\"",
+      "- button \"Cancel\"",
+      "- button \"Delete part\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "\"Delete part\""
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"Delete part\""
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "confirm-yes"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Delete part"
+      },
+      {
+       "kind": "id",
+       "selector": "#confirm-yes"
+      },
+      {
+       "kind": "css",
+       "selector": "#confirm-yes"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "state": "hidden",
+     "target": "\"{{v4}}\"",
+     "timeout_ms": 10000
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v4}}\""
+      }
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "\"No parts on this ticket yet.\"",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td"
+      }
+     ]
+    },
+    "label": "partsTableStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e785",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > p:nth-of-type(3) > span:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "ticketStatus"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Successfully removed both parts from ticket {{v1}}. Each part's Delete button triggered a custom confirmation dialog (\"Confirm\" heading with \"Delete part\" / \"Cancel\" buttons). After accepting both, the parts table now shows only the header row and the message **\"No parts on this ticket yet.\"** — zero parts, no rows. The ticket's status remains **Ready** as displayed on the page. Buttons shown: \"Mark Draft\", \"Mark Closed\", \"Archive ticket\".",
+   "values": {
+    "partsCount": "0",
+    "partsTableStatus": "No parts on this ticket yet.",
+    "ticketStatus": "Ready",
+    "confirmDialogText": "Confirm (heading) with Delete part / Cancel buttons"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:22:54.836Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:27:24.414Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, remove BOTH parts: 'fwrd35-n1 RD Part A' and 'fwrd35-n1 RD Part B'. Use each part row's delete/remove control, accepting any confirmation dialog. The view refreshes a short beat after a mutation, so wait for the concrete page state — verify the parts table is actually empty (parts count 0, no rows) before finishing. Report: the parts count and the contents of the parts table afterwards, and the ticket's status.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:22:54.836Z"
+  }
+ },
+ {
+  "id": "s_3badf9",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, archive the ticket using the 'Archive ticket' button, accepting any confirmation dialog. The app may enforce preconditions before archiving — if it refuses, report the exact error message. After archiving, verify the ticket is archived: go to the tickets list, tick the 'Show archived' filter if needed, and confirm the ticket {{v1}} '{{v2}}' appears as archived (and that it does NOT appear in the default un-archived list). Report: any confirmation text shown, how the ticket is displayed in the archived view (its Ref, title, status, parts count, and any archived badge/indicator), and whether it still appears in the default (non-archived) list.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets",
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}} Archived",
+       "selector": "td:nth-of-type(1) > a"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "label": "archivedRef"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}} Archived",
+       "selector": "td:nth-of-type(3)"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(3)"
+      }
+     ]
+    },
+    "label": "archivedCustomer"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}} Archived",
+       "selector": "td:nth-of-type(6)"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(6)"
+      }
+     ]
+    },
+    "label": "archivedCreated"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}} Archived",
+       "selector": "td:nth-of-type(2)"
+      },
+      {
+       "kind": "text",
+       "text": "{{v2}} Archived"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "archivedTitle"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v2}} Archived",
+       "selector": "td:nth-of-type(4) > span"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(4) > span"
+      }
+     ]
+    },
+    "label": "archivedStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "list-summary"
+      },
+      {
+       "kind": "id",
+       "selector": "#list-summary"
+      },
+      {
+       "kind": "text",
+       "text": "Showing 1–10 of 15"
+      },
+      {
+       "kind": "css",
+       "selector": "#list-summary"
+      }
+     ]
+    },
+    "label": "totalTicketsWithArchived"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Archived ticket {{v1}} successfully. Clicking \"Archive ticket\" on the detail page did NOT show any confirmation dialog — the button immediately changed to \"Unarchive ticket\". On the ticket list with \"Show archived\" unchecked, {{v1}} does NOT appear (confirmed by count of 0). With \"Show archived\" checked, {{v1}} appears in the table showing: Ref=\"{{v1}}\", Title=\"{{v2}}\" with an **\"Archived\" badge** displayed next to the title, Customer=\"Marlow Bakery\", Status=\"Ready\", Parts=\"0\", Created=\"2026-08-30\". The page shows 15 total tickets (was 14 before archiving, confirming the archived ticket is counted).",
+   "values": {
+    "confirmationDialog": "none (no dialog shown)",
+    "archivedAppearance": "Archived badge next to title in list",
+    "archivedRef": "{{v1}}",
+    "archivedTitle": "{{v2}}",
+    "archivedStatus": "Ready",
+    "archivedPartsCount": "0",
+    "archivedCustomer": "Marlow Bakery",
+    "archivedCreated": "2026-08-30",
+    "appearsInDefaultList": "false",
+    "appearsInArchivedList": "true",
+    "totalTicketsWithArchived": "15"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:23:29.823Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:27:31.030Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_5e7780",
+   "index": 1,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, archive the ticket using the 'Archive ticket' button, accepting any confirmation dialog. The app may enforce preconditions before archiving — if it refuses, report the exact error message. After archiving, verify the ticket is archived: go to the tickets list, tick the 'Show archived' filter if needed, and confirm the ticket RD-1015 'fwrd35-n1 RD Bench Ticket' appears as archived (and that it does NOT appear in the default un-archived list). Report: any confirmation text shown, how the ticket is displayed in the archived view (its Ref, title, status, parts count, and any archived badge/indicator), and whether it still appears in the default (non-archived) list.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:23:29.823Z"
+  }
+ },
+ {
+  "id": "s_9c993a",
+  "origin": "http://127.0.0.1:4180",
+  "template": "On the ticket detail page for ticket {{v1}}, archive the ticket using the 'Archive ticket' button, accepting any confirmation dialog. The app may enforce preconditions before archiving — if it refuses, report the exact error message. After archiving, verify the ticket is archived: go to the tickets list, tick the 'Show archived' filter if needed, and confirm the ticket {{v1}} '{{v2}}' appears as archived (and that it does NOT appear in the default un-archived list). Report: any confirmation text shown, how the ticket is displayed in the archived view (its Ref, title, status, parts count, and any archived badge/indicator), and whether it still appears in the default (non-archived) list.",
+  "params": {
+   "v1": {
+    "example": "RD-1015",
+    "usedIn": [
+     3
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+   "fingerprint": [
+    0,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.207,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.118,
+    0,
+    0.03,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.03,
+    0,
+    0,
+    0.03,
+    0.03,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.089,
+    0,
+    0.059,
+    0.118,
+    0.089,
+    0,
+    0.059,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.177,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.354,
+    0,
+    0.089,
+    0.059,
+    0,
+    0,
+    0,
+    0.295,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.059,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.059,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.059,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.089,
+    0,
+    0.148,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.03,
+    0,
+    0.295,
+    0.03,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.207,
+    0.177,
+    0,
+    0,
+    0,
+    0.118,
+    0.03,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.177,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.236,
+    0,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0.059,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0.059,
+    0,
+    0,
+    0.059,
+    0.089,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e789"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "archive"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Archive ticket"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(2) > button:nth-of-type(3)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- button \"Unarchive ticket\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:4180/#/tickets"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "\"{{v1}}\"",
+     "what": "count"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v1}}\""
+      }
+     ]
+    },
+    "label": "archivedPartsCount"
+   },
+   {
+    "tool": "check",
+    "args": {
+     "target": "@e852"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "show-archived"
+      },
+      {
+       "kind": "role",
+       "role": "checkbox",
+       "name": "Show archived"
+      },
+      {
+       "kind": "label",
+       "label": "Show archived"
+      },
+      {
+       "kind": "id",
+       "selector": "#show-archived"
+      },
+      {
+       "kind": "css",
+       "selector": "#show-archived"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- checkbox \"\" [checked]",
+      "- row \"{{v1}} {{v2}} Archived Marlow Bakery Ready 0 2026-08-30\"",
+      "- cell \"{{v1}}\"",
+      "- link \"{{v1}}\"",
+      "- cell \"{{v2}} Archived\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 5,
+   "successes": 5,
+   "partial": 0,
+   "created": "2026-08-30T12:23:29.823Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:27:31.035Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_5e7780",
+   "index": 0,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "On the ticket detail page for ticket RD-1015, archive the ticket using the 'Archive ticket' button, accepting any confirmation dialog. The app may enforce preconditions before archiving — if it refuses, report the exact error message. After archiving, verify the ticket is archived: go to the tickets list, tick the 'Show archived' filter if needed, and confirm the ticket RD-1015 'fwrd35-n1 RD Bench Ticket' appears as archived (and that it does NOT appear in the default un-archived list). Report: any confirmation text shown, how the ticket is displayed in the archived view (its Ref, title, status, parts count, and any archived badge/indicator), and whether it still appears in the default (non-archived) list.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:23:29.823Z"
+  }
+ },
+ {
+  "id": "s_f0cf8b",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Final verification check. Go to the tickets list at the app's main page (default view, 'Show archived' unchecked) and confirm that no ticket titled '{{v1}}' or ref {{v3}} appears in the active list. Then open the archived view (tick 'Show archived') and open ticket {{v3}}'s detail page, and report: its title, status, parts count, whether it shows an archived indicator, and the names of any parts on it (there should be none).",
+  "params": {
+   "v1": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "RD-1015",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets/{{d1}}",
+   "fingerprint": [
+    0,
+    0.059,
+    0.029,
+    0,
+    0,
+    0,
+    0.088,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0.088,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.206,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.088,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.118,
+    0,
+    0.029,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.088,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.029,
+    0,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.088,
+    0,
+    0.059,
+    0.118,
+    0.088,
+    0,
+    0.059,
+    0.059,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0.088,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.177,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.353,
+    0,
+    0.088,
+    0.059,
+    0,
+    0,
+    0,
+    0.294,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.059,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0.059,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.059,
+    0.088,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.088,
+    0,
+    0.147,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.088,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.029,
+    0,
+    0.294,
+    0.029,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0.206,
+    0.177,
+    0,
+    0,
+    0,
+    0.118,
+    0.029,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.088,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0.177,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.235,
+    0,
+    0.059,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0.059,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0.059,
+    0,
+    0,
+    0.059,
+    0.088,
+    0,
+    0,
+    0.059,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0.059,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v1}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "ticket-title"
+      },
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "detailTitle"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#view > div > div:nth-of-type(1) > p:nth-of-type(3) > span:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "detailStatus"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "section > div > table > tbody > tr > td"
+      }
+     ]
+    },
+    "label": "detailPartsTableContents"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Final verification passed. With \"Show archived\" unchecked, the tickets list shows 13 tickets (RD-1004 to RD-1014) — {{v3}} \"{{v1}}\" does NOT appear. With \"Show archived\" checked, {{v3}} appears in the list with an \"Archived\" badge. On the ticket detail page: Title=\"{{v1}}\", Status=\"Ready\", an **\"Archived\"** badge is displayed next to the status line, Parts table shows **\"No parts on this ticket yet.\"** (0 parts, no part rows). The ticket is correctly archived and empty.",
+   "values": {
+    "appearsInDefaultList": "false",
+    "appearsInArchivedList": "true",
+    "detailTitle": "{{v1}}",
+    "detailStatus": "Ready",
+    "detailPartsCount": "0",
+    "detailPartsTableContents": "No parts on this ticket yet.",
+    "archivedIndicator": "Archived badge displayed",
+    "hasAnyParts": "false"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-08-30T12:24:05.857Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-08-30T12:27:33.637Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_f1ec91",
+   "index": 1,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Final verification check. Go to the tickets list at the app's main page (default view, 'Show archived' unchecked) and confirm that no ticket titled 'fwrd35-n1 RD Bench Ticket' or ref RD-1015 appears in the active list. Then open the archived view (tick 'Show archived') and open ticket RD-1015's detail page, and report: its title, status, parts count, whether it shows an archived indicator, and the names of any parts on it (there should be none).",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:24:05.857Z"
+  }
+ },
+ {
+  "id": "s_7d1cc3",
+  "origin": "http://127.0.0.1:4180",
+  "template": "Final verification check. Go to the tickets list at the app's main page (default view, 'Show archived' unchecked) and confirm that no ticket titled '{{v1}}' or ref {{v3}} appears in the active list. Then open the archived view (tick 'Show archived') and open ticket {{v3}}'s detail page, and report: its title, status, parts count, whether it shows an archived indicator, and the names of any parts on it (there should be none).",
+  "params": {
+   "v1": {
+    "example": "fwrd35-n1 RD Bench Ticket",
+    "usedIn": [
+     3
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "RD-1015",
+    "usedIn": [
+     3
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:4180/#/tickets",
+   "fingerprint": [
+    0,
+    0.018,
+    0.009,
+    0.018,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.018,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0,
+    0.037,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.037,
+    0,
+    0.018,
+    0,
+    0.064,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0.018,
+    0.037,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0,
+    0,
+    0.018,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0.009,
+    0,
+    0.018,
+    0.202,
+    0.028,
+    0,
+    0.018,
+    0.018,
+    0.009,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.735,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0.018,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.092,
+    0.009,
+    0.028,
+    0.018,
+    0,
+    0,
+    0,
+    0.092,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.092,
+    0.037,
+    0,
+    0.018,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0.018,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0.018,
+    0.018,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.184,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0.018,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.073,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.184,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0.073,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0.092,
+    0.009,
+    0,
+    0.018,
+    0.018,
+    0,
+    0,
+    0,
+    0.046,
+    0.055,
+    0,
+    0,
+    0,
+    0.009,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.092,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0.386,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.101,
+    0.018,
+    0,
+    0.018,
+    0,
+    0.037,
+    0,
+    0,
+    0.129,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.028,
+    0,
+    0,
+    0.101,
+    0.018,
+    0,
+    0,
+    0,
+    0,
+    0.018,
+    0,
+    0.018,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v3}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "check",
+    "args": {
+     "target": "@e852",
+     "checked": false
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "show-archived"
+      },
+      {
+       "kind": "role",
+       "role": "checkbox",
+       "name": "Show archived"
+      },
+      {
+       "kind": "label",
+       "label": "Show archived"
+      },
+      {
+       "kind": "id",
+       "selector": "#show-archived"
+      },
+      {
+       "kind": "css",
+       "selector": "#show-archived"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- checkbox \"\"",
+      "- row \"RD-1005 Till printer jams on receipts Blue Fox Cafe Draft 2 2026-01-12\"",
+      "- cell \"RD-1005\"",
+      "- link \"RD-1005\"",
+      "- cell \"Till printer jams on receipts\""
+     ]
+    }
+   },
+   {
+    "tool": "check",
+    "args": {
+     "target": "@e852",
+     "checked": true
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "show-archived"
+      },
+      {
+       "kind": "role",
+       "role": "checkbox",
+       "name": "Show archived"
+      },
+      {
+       "kind": "label",
+       "label": "Show archived"
+      },
+      {
+       "kind": "id",
+       "selector": "#show-archived"
+      },
+      {
+       "kind": "css",
+       "selector": "#show-archived"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets",
+     "addedContains": [
+      "- checkbox \"\" [checked]",
+      "- row \"{{v3}} {{v1}} Archived Marlow Bakery Ready 0 2026-08-30\"",
+      "- cell \"{{v3}}\"",
+      "- link \"{{v3}}\"",
+      "- cell \"{{v1}} Archived\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "\"{{v3}}\""
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "\"{{v3}}\""
+      },
+      {
+       "kind": "scoped",
+       "container": "#ticket-rows tr",
+       "hasText": "{{v1}} Archived",
+       "selector": "td:nth-of-type(1) > a"
+      },
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "mints": {
+     "at": "h1"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:4180/#/tickets/:id",
+     "addedContains": [
+      "- heading \"{{v1}}\"",
+      "- button \"Mark Draft\"",
+      "- button \"Mark Closed\"",
+      "- button \"Unarchive ticket\"",
+      "- heading \"Parts\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 5,
+   "successes": 5,
+   "partial": 0,
+   "created": "2026-08-30T12:24:05.857Z",
+   "failedAtStep": {},
+   "fallthroughs": 4,
+   "lastUsed": "2026-08-30T12:27:33.643Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_f1ec91",
+   "index": 0,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwrd35-n1",
+   "instruction": "Final verification check. Go to the tickets list at the app's main page (default view, 'Show archived' unchecked) and confirm that no ticket titled 'fwrd35-n1 RD Bench Ticket' or ref RD-1015 appears in the active list. Then open the archived view (tick 'Show archived') and open ticket RD-1015's detail page, and report: its title, status, parts count, whether it shows an archived indicator, and the names of any parts on it (there should be none).",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-08-30T12:24:05.857Z"
+  }
+ }
+]

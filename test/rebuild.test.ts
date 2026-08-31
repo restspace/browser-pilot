@@ -25,7 +25,11 @@ import { describe, expect, it } from 'vitest';
  *     --baseline bench/fixtures/fwod24.json --write-baseline
  */
 const root = path.resolve(__dirname, '..');
-const TAGS = ['fwod24', 'fwod25'];
+// Three apps, not one. An odoo-only corpus pins odoo's habits: its forms lean
+// on ambiguous headings and CSS-union selectors, while repairdesk reaches for a
+// snapshot ref almost every time. A rule measured on one of those would have
+// been calibrated to a house style rather than to browsers.
+const TAGS = ['fwod24', 'fwod25', 'fwgr14', 'fwrd35'];
 
 describe('recorded-flow rebuild', () => {
   for (const tag of TAGS) {
