@@ -836,6 +836,33 @@ d('identity-scoped locators (fixture page)', () => {
     expect(await captureReadBack(page, 'Acme Holdings')).toBeNull();
   }, 30_000);
 
+  it('pins an ambiguous value shown in exactly one heading — the page names its own record', async () => {
+    const { captureReadBack, setIdentityHints } = await import('../src/daemon/recorder.js');
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    setIdentityHints([]);
+    // fwod26's shape: an app-minted reference in both the breadcrumb and the
+    // form's <h1>. The unique-text pin bails (two matches, no row anchor),
+    // but the heading names the record THIS page displays, so a replay that
+    // navigated to its own record reads its own reference there.
+    await page.evaluate(() => {
+      const crumb = document.createElement('span');
+      crumb.className = 'breadcrumb';
+      crumb.textContent = 'S00021';
+      const h1 = document.createElement('h1');
+      const inner = document.createElement('span');
+      inner.textContent = 'S00021';
+      h1.appendChild(inner);
+      document.body.append(crumb, h1);
+    });
+    const step = await captureReadBack(page, 'S00021', 'quotation_reference');
+    expect(step).toBeTruthy();
+    expect(step!.label).toBe('quotation_reference');
+    expect(JSON.parse(step!.result!)).toBe('S00021');
+    // and never located BY the value it exists to re-read
+    expect(JSON.stringify(step!.locators.target.chain)).not.toContain('S00021');
+  }, 30_000);
+
   it('refuses an ambiguous form value rather than pinning the wrong control', async () => {
     const { captureReadBack } = await import('../src/daemon/recorder.js');
     const page = await session.getPage();

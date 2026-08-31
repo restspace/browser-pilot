@@ -598,7 +598,12 @@ ${describeLeaks(leaks.slice(0, 6))}`);
     try {
       const cases = relabelCases(entries);
       if (cases.length) {
-        const { plan, dropped } = await requestRelabelPlan(this.recoveryProvider(), cases);
+        // Time-boxed: this runs inside `stop`, whose caller is waiting. A
+        // slow model costs 30s and the flow exports with the names it has;
+        // it must never cost the export (see the CLI's stop timeout).
+        const { plan, dropped } = await requestRelabelPlan(this.recoveryProvider(), cases, {
+          signal: AbortSignal.timeout(30_000),
+        });
         if (dropped.length) console.error(`[relabel] dropped ${dropped.length} unsafe rename(s): ${dropped.join('; ')}`);
         if (plan.size) {
           const applied = applyRelabelToEntries(entries, plan);

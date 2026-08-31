@@ -1,0 +1,220 @@
+{
+  "flow": "fwod26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-create",
+      "status": "success",
+      "summary": "Created a new customer contact 'fwod26-n3 Bench Customer' with City 'Benchville' in Odoo. The saved record page shows the Name field as \"fwod26-n3 Bench Customer\" and the City field as \"Benchville\".",
+      "values": {
+        "customer_name": "fwod26-n3 Bench Customer",
+        "customer_city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_ab5045"
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_feac33; observed o_form_sheet_span_o_form=Untaxed Amount, customer=fwod26-n3 Bench Customer, quantity=3.00, total=£ 306.00, o_form_sheet_span_o_form_3=TAX 20%, o_form_sheet_span_o_form_4=£ 51.00, o_form_sheet_span_o_form_5=Total, o_form_sheet_span_o_form_6=£ 306.00, product_name=[FURN_1118] Corner Desk Left Sit.",
+      "values": {
+        "o_form_sheet_span_o_form": "Untaxed Amount",
+        "customer": "fwod26-n3 Bench Customer",
+        "quantity": "3.00",
+        "total": "£ 306.00",
+        "o_form_sheet_span_o_form_3": "TAX 20%",
+        "o_form_sheet_span_o_form_4": "£ 51.00",
+        "o_form_sheet_span_o_form_5": "Total",
+        "o_form_sheet_span_o_form_6": "£ 306.00",
+        "product_name": "[FURN_1118] Corner Desk Left Sit"
+      },
+      "tier": "A",
+      "replayed": "28/28",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a second order line to quotation S00023 (customer: fwod26-n3 Bench Customer). The second line's product is [E-COM11] Cabinet with Doors, quantity 2, unit price £140.00, line amount £280.00. The first line ([FURN_1118] Corner Desk Left Sit, qty 3, £255.00) was left unchanged. The totals section now shows: Untaxed Amount £535.00, TAX 20% £107.00, Total £642.00.",
+      "values": {
+        "second_line_product": "[E-COM11] Cabinet with Doors",
+        "second_line_quantity": "2.00",
+        "second_line_amount": "£280.00",
+        "first_line_product": "[FURN_1118] Corner Desk Left Sit",
+        "first_line_quantity": "3.00",
+        "first_line_amount": "£255.00",
+        "untaxed_amount": "£535.00",
+        "tax_20": "£107.00",
+        "total": "£642.00",
+        "quotation_reference": "S00023",
+        "oe_subtotal_footer_o_for": "Untaxed Amount",
+        "oe_subtotal_footer_o_for_2": "TAX 20%",
+        "oe_subtotal_footer_o_for_3": "Total"
+      },
+      "tier": "B",
+      "replayed": "31/31",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first order line's quantity from 3 to 5 on quotation S00023 (customer: fwod26-n3 Bench Customer). First line ([FURN_1118] Corner Desk Left Sit): quantity now 5.00, amount £425.00. Second line ([E-COM11] Cabinet with Doors, qty 2): unchanged at £280.00. Totals section now shows: Untaxed Amount £705.00, TAX 20% £141.00, Total £846.00.",
+      "values": {
+        "first_line_quantity": "5.00",
+        "first_line_amount": "£425.00",
+        "second_line_quantity": "2.00",
+        "second_line_amount": "£280.00",
+        "untaxed_amount": "£705.00",
+        "tax_20": "£141.00",
+        "total": "£846.00"
+      },
+      "tier": "B",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed the draft quotation S00023 (customer: fwod26-n3 Bench Customer, £705.00 Untaxed Amount) by clicking the 'Confirm' button. After confirmation, the record's order reference remains S00023 (shown in the page title and breadcrumb), and the status bar now shows 'Sales Order' as the active stage.",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Sales Order"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "06-edit",
+      "status": "success",
+      "summary": "Successfully closed the 'Edit: fwod26-n3 Bench Customer' modal by clicking Discard, then clicked Cancel in the 'Cancel Sales Order' modal to cancel the order without sending an email. The status bar now shows 'Cancelled' as the active status for order S00023.",
+      "values": {
+        "status": "Cancelled",
+        "status_2": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 22,
+      "repinned": "s_c620a0"
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "(1) Contact 'fwod26-n3 Bench Customer': Name = \"fwod26-n3 Bench Customer\", City = \"Benchville\". (2) Sales Order S00023: reference \"S00023\", status = \"Cancelled\", customer = \"fwod26-n3 Bench Customer\", Untaxed Amount = £705.00, TAX 20% = £141.00, Total = £846.00.",
+      "values": {
+        "contact_name": "fwod26-n3 Bench Customer",
+        "contact_city": "Benchville",
+        "order_reference": "S00023",
+        "order_status": "Cancelled",
+        "order_customer": "fwod26-n3 Bench Customer",
+        "untaxed_amount": "£705.00",
+        "tax_20": "£141.00",
+        "total": "£846.00"
+      },
+      "tier": "B",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 21
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 2,
+  "drift": 6,
+  "driftTickets": [
+    {
+      "flow": "fwod26",
+      "step": "02-create",
+      "skill": "s_56478b",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.998,
+      "missedLocator": "page.getByRole('option', { name: 'fwod26-n3 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod26",
+      "step": "03-open",
+      "skill": "s_56e28e",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod26",
+      "step": "04-open",
+      "skill": "s_001cb1",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod26",
+      "step": "05-open",
+      "skill": "s_d1dc5d",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod26",
+      "step": "06-edit",
+      "skill": "s_c620a0",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('.modal-dialog .modal-footer button:has-text(\"Cancel\") >> nth=0')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Send and cancel' })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod26",
+      "step": "07-report",
+      "skill": "s_8f803c",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.quotation_reference, 02-create.quotation_reference, 02-create.untaxed_amount_label, 02-create.quotation_reference, 02-create.untaxed_amount_label",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 478758,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1237158,
+    "completionTokens": 10142,
+    "cachedTokens": 1051392
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1237158,
+      "completionTokens": 10142,
+      "cachedTokens": 1051392
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -385,7 +385,16 @@ async function main(): Promise<void> {
         // Generous: the daemon aborts any in-flight instruction and lets it
         // unwind before closing the browser. Reachable-but-unresponsive is a
         // real failure worth reporting, not a silent "not running".
-        const res = await request(conn, 'stop', { saveFlow: flags.get('save-flow') || undefined }, undefined, 20_000);
+        //
+        // A --save-flow stop is doing real work, not just unwinding: flow
+        // export includes the post-session relabel (an LLM call, time-boxed
+        // daemon-side), read-back pinning and the flow lint. fwod26 hit the
+        // old shared 20s budget mid-export — the client gave up, the sweep
+        // read "flow was never saved" and SKIPPED both replays, while the
+        // detached daemon finished writing a perfectly good flow seconds
+        // later. Reachable-and-working must be allowed to finish.
+        const stopTimeout = flags.get('save-flow') ? 120_000 : 20_000;
+        const res = await request(conn, 'stop', { saveFlow: flags.get('save-flow') || undefined }, undefined, stopTimeout);
         const data = res.data as { preempted?: boolean; videos?: string[]; flow?: { path?: string; name?: string; steps?: number; vars?: string[]; warnings?: string[]; error?: string } } | undefined;
         console.log(`stopped: ${name}${data?.preempted ? ' (interrupted a running instruction)' : ''}`);
         for (const video of data?.videos ?? []) console.log(`  video: ${video}`);

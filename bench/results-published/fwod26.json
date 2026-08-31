@@ -1,0 +1,350 @@
+{
+  "name": "fwod26",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-create",
+      "instruction": "We are already logged in to Odoo 17 as admin at http://127.0.0.1:8069/ (currently on the Sales > Quotations list page). Create a new customer contact named exactly '{{runid}} Bench Customer' with City set to 'Benchville'. Path: in the left navbar, click the 'Sales' menu item, then in the submenu click 'Orders' then 'Customers' (menuitem 'Customers'), then click the 'New' button to open a blank contact form. In the form, type '{{runid}} Bench Customer' into the Name field, then click into the 'City' field (in the address block) and type 'Benchville'. Then click 'Save'. IMPORTANT: do NOT use wait_for with networkidle; the app long-polls. After saving, report the Name and City values shown on the saved record.",
+      "skill": "s_ab5045",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "contact_name",
+        "contact_city"
+      ],
+      "recorded": {
+        "contact_name": "fwod26-n1 Bench Customer",
+        "contact_city": "Benchville"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Create a new quotation (Sales > Orders > Quotations, click 'New') for the customer '{{runid}} Bench Customer'. The Customer field is an autocomplete dropdown: type '{{runid}} Bench Customer' into it and then click the matching option that appears in the dropdown (the value only counts if the dropdown option is actually chosen). Then add exactly ONE order line: in the Order Lines table, click 'Add a product' (or click into the empty Product cell), type a product name and pick a real product from the autocomplete dropdown options (e.g. a furniture product from the catalogue — any product is fine, but it must be selected from the dropdown). Set the Quantity to 3. Do NOT add any second line. Then click 'Save' (or let it autosave) and report: (a) the exact product name you chose, (b) the Unit Price the app filled in automatically, and (c) the Untaxed Amount the app computes (shown in the totals section). IMPORTANT: do NOT wait for networkidle — the app long-polls and is never idle; wait for concrete page state instead.",
+      "skill": "s_dc0d02",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "quotation_reference",
+        "customer",
+        "product_name",
+        "unit_price",
+        "quantity",
+        "untaxed_amount",
+        "tax",
+        "total",
+        "untaxed_amount_label",
+        "untaxed_amount_value",
+        "tax_label",
+        "tax_amount_value",
+        "total_label",
+        "total_value"
+      ],
+      "recorded": {
+        "quotation_reference": "S00021",
+        "customer": "fwod26-n1 Bench Customer",
+        "product_name": "[FURN_1118] Corner Desk Left Sit",
+        "unit_price": "£ 85.00",
+        "quantity": "3.00",
+        "untaxed_amount": "£ 255.00",
+        "tax": "£ 51.00 (20%)",
+        "total": "£ 306.00",
+        "untaxed_amount_label": "Untaxed Amount",
+        "untaxed_amount_value": "£ 255.00",
+        "tax_label": "TAX 20%",
+        "tax_amount_value": "£ 51.00",
+        "total_label": "Total",
+        "total_value": "£ 306.00"
+      },
+      "outputEvidence": {
+        "customer": {
+          "same": 0,
+          "differed": 2
+        },
+        "product_name": {
+          "same": 2,
+          "differed": 0
+        },
+        "quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "total": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Open the existing quotation {{02-create.quotation_reference}} (Sales > Orders > Quotations, click the row for {{02-create.quotation_reference}}, customer '{{runid}} Bench Customer'). It currently has ONE order line: product '{{02-create.product_name}}', quantity 3, {{02-create.untaxed_amount_label}} £255.00. Add a SECOND order line with a DIFFERENT product: click 'Add a product' (or click into the empty Product cell of the next row), type a product name and pick a real, different product from the autocomplete dropdown options (must be chosen from the dropdown, not merely typed). Set that new line's Quantity to 2. Keep the first line unchanged. Save. Then report: (a) the exact product name of the second line you added, and (b) the new {{02-create.untaxed_amount_label}} the app computes in the totals section. IMPORTANT: do NOT wait for networkidle — the app long-polls; wait for concrete page state instead.",
+      "skill": "s_56e28e",
+      "params": {
+        "v1": "{{02-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-create.product_name}}",
+        "v5": "{{02-create.untaxed_amount_label}}"
+      },
+      "outputs": [
+        "quotation_reference",
+        "second_line_product",
+        "second_line_quantity",
+        "second_line_unit_price",
+        "second_line_amount",
+        "first_line_product",
+        "first_line_quantity",
+        "first_line_amount",
+        "untaxed_amount",
+        "tax_20",
+        "total",
+        "totals_text",
+        "untaxed_amount_label",
+        "tax_label",
+        "total_label"
+      ],
+      "recorded": {
+        "quotation_reference": "S00021",
+        "second_line_product": "[E-COM11] Cabinet with Doors",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "£ 140.00",
+        "second_line_amount": "£ 280.00",
+        "first_line_product": "[FURN_1118] Corner Desk Left Sit",
+        "first_line_quantity": "3.00",
+        "first_line_amount": "£ 255.00",
+        "untaxed_amount": "£ 535.00",
+        "tax_20": "£ 107.00",
+        "total": "£ 642.00",
+        "totals_text": "Untaxed Amount\t£ 535.00\nTAX 20%\t\n£ 107.00\n\nTotal\t£ 642.00",
+        "untaxed_amount_label": "Untaxed Amount",
+        "tax_label": "TAX 20%",
+        "total_label": "Total"
+      },
+      "outputEvidence": {
+        "quotation_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "second_line_product": {
+          "same": 2,
+          "differed": 0
+        },
+        "second_line_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "second_line_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "first_line_product": {
+          "same": 2,
+          "differed": 0
+        },
+        "first_line_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "first_line_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "total": {
+          "same": 0,
+          "differed": 2
+        },
+        "tax_20": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Open the existing quotation {{02-create.quotation_reference}} (Sales > Orders > Quotations, click the row for {{02-create.quotation_reference}}, customer '{{runid}} Bench Customer'). It has two order lines: line 1 = product '{{02-create.product_name}}' quantity 3 (£255.00), line 2 = product '{{03-open.second_line_product}}' quantity 2 (£280.00), {{02-create.untaxed_amount_label}} £535.00. Change ONLY the first line's Quantity from 3 to 5 (click into the Quantity cell of the first line, clear it, type 5, then click elsewhere on the form so it registers). Do not change the second line. Save. Then report the new {{02-create.untaxed_amount_label}} the app computes in the totals section (and the first line's new amount if visible). IMPORTANT: do NOT wait for networkidle — the app long-polls; wait for concrete page state instead.",
+      "skill": "s_001cb1",
+      "params": {
+        "v1": "{{02-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-create.product_name}}",
+        "v5": "{{03-open.second_line_product}}",
+        "v6": "{{02-create.untaxed_amount_label}}"
+      },
+      "outputs": [
+        "quotation_reference",
+        "first_line_product",
+        "first_line_quantity",
+        "first_line_amount",
+        "second_line_product",
+        "second_line_quantity",
+        "second_line_amount",
+        "untaxed_amount",
+        "tax_20",
+        "total",
+        "totals_text"
+      ],
+      "recorded": {
+        "quotation_reference": "S00021",
+        "first_line_product": "[FURN_1118] Corner Desk Left Sit",
+        "first_line_quantity": "5.00",
+        "first_line_amount": "£ 425.00",
+        "second_line_product": "[E-COM11] Cabinet with Doors",
+        "second_line_quantity": "2.00",
+        "second_line_amount": "£ 280.00",
+        "untaxed_amount": "£ 705.00",
+        "tax_20": "£ 141.00",
+        "total": "£ 846.00",
+        "totals_text": "Untaxed Amount\t£ 705.00\nTAX 20%\t\n£ 141.00\n\nTotal\t£ 846.00"
+      },
+      "outputEvidence": {
+        "first_line_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "first_line_amount": {
+          "same": 1,
+          "differed": 1
+        },
+        "second_line_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "second_line_amount": {
+          "same": 1,
+          "differed": 1
+        },
+        "untaxed_amount": {
+          "same": 1,
+          "differed": 1
+        },
+        "tax_20": {
+          "same": 1,
+          "differed": 1
+        },
+        "total": {
+          "same": 1,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "We are logged in to Odoo 17 as admin at http://127.0.0.1:8069/. Open the existing quotation {{02-create.quotation_reference}} (Sales > Orders > Quotations, click the row for {{02-create.quotation_reference}}, customer '{{runid}} Bench Customer'). It is a draft quotation with two lines and {{02-create.untaxed_amount_label}} £705.00. Confirm it so it becomes a sales order: click the 'Confirm' button (or 'Confirm Order') in the header of the form. After confirming, report: (a) the order reference / name of the record (e.g. {{02-create.quotation_reference}} — check the title/breadcrumb at the top of the form), and (b) the status the app now shows (look at the status bar / status field on the form, e.g. 'Sales Order'). IMPORTANT: do NOT wait for networkidle — the app long-polls; wait for concrete page state instead.",
+      "skill": "s_d1dc5d",
+      "params": {
+        "v1": "{{02-create.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-create.untaxed_amount_label}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "status": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-edit",
+      "instruction": "On the Odoo page at http://127.0.0.1:8069/ there are TWO stacked modal dialogs. The topmost/active one is titled 'Edit: {{runid}} Bench Customer' with buttons 'Save & Close', 'Save & New', 'Discard'. Step 1: click the 'Discard' button in that topmost 'Edit: {{runid}} Bench Customer' modal to close it (do NOT click Save). Step 2: after it closes, the remaining modal is titled 'Cancel {{05-open.status}}' with the message 'Are you sure you want to cancel this order?' and buttons 'Send and cancel', 'Cancel', 'Discard'. Click the 'Cancel' button in THAT modal (the middle one — it cancels the order without sending an email; do NOT click 'Discard' there). Step 3: report the status shown in the status bar of the sales order {{02-create.quotation_reference}} form (e.g. 'Cancelled'). IMPORTANT: do NOT wait for networkidle — the app long-polls; wait for concrete page state instead.",
+      "skill": "s_c620a0",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "{{05-open.status}}",
+        "v4": "{{02-create.quotation_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status",
+        "modals_closed"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Cancelled",
+        "modals_closed": "Edit: fwod26-n1 Bench Customer (Discard), Cancel Sales Order (Cancel)"
+      },
+      "outputEvidence": {
+        "status": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "07-report",
+      "instruction": "Final verification on Odoo 17 at http://127.0.0.1:8069/ (logged in as admin). Two checks, report both: (1) Open the contact '{{runid}} Bench Customer' (Sales > Orders > Customers, search for it, open it) and report the Name and City values shown on the saved record. (2) Open the sales order {{02-create.quotation_reference}} (Sales > Orders > Orders, search for {{02-create.quotation_reference}}, open it) and report: the order reference/name shown in the breadcrumb, the status shown in the status bar, the customer, and the {{02-create.untaxed_amount_label}} in the totals. Do not change anything — read only. IMPORTANT: do NOT wait for networkidle — the app long-polls; wait for concrete page state instead.",
+      "skill": "s_8f803c",
+      "params": {
+        "v1": "{{runid}} Bench Customer",
+        "v3": "{{02-create.quotation_reference}}",
+        "v4": "{{02-create.untaxed_amount_label}}"
+      },
+      "outputs": [
+        "contact_name",
+        "contact_city",
+        "order_reference",
+        "order_status",
+        "order_customer",
+        "order_untaxed_amount",
+        "order_tax_20",
+        "order_total"
+      ],
+      "recorded": {
+        "contact_name": "fwod26-n1 Bench Customer",
+        "contact_city": "Benchville",
+        "order_reference": "S00021",
+        "order_status": "Cancelled",
+        "order_customer": "fwod26-n1 Bench Customer",
+        "order_untaxed_amount": "£ 705.00",
+        "order_tax_20": "£ 141.00",
+        "order_total": "£ 846.00"
+      },
+      "outputEvidence": {
+        "contact_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "contact_city": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_status": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_customer": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod26-n1",
+    "created": "2026-08-31T17:15:47.584Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

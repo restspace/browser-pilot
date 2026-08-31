@@ -80,6 +80,10 @@ describe('applyRelabelToEntries', () => {
     expect(Object.keys(reports[0].values)).toEqual(['order_reference', 'unit_price']);
     expect(reports[1].values).toEqual({ order_status: 'Sales Order' });
     expect(reports[2].values).toEqual({ x: '1' }); // blocked report untouched: not in the plan
+    // The durable trace: each renamed report records what the pass did to it.
+    expect(reports[0].relabel).toEqual({ h1: 'order_reference' });
+    expect(reports[1].relabel).toEqual({ role_radiogroup_aria_che: 'order_status' });
+    expect(reports[2].relabel).toBeUndefined();
   });
 });
 

@@ -210,6 +210,12 @@ export interface RecordedReport {
   values: Record<string, string>;
   /** The skill this instruction compiled into, merged into, or fully replayed (learning mode). */
   skill?: string;
+  /**
+   * Renames the post-session relabel pass applied to this report's values,
+   * old name -> new name. The durable trace of the pass (the daemon's stderr
+   * goes nowhere), written when the entries are rewritten at export.
+   */
+  relabel?: Record<string, string>;
   tier?: 'A' | 'B';
   /**
    * Values the loop asked the model to NAME before accepting this report, and
@@ -658,6 +664,31 @@ export async function captureReadBack(page: Page, value: string, label?: string)
         if (step && (count === 1 || winner?.kind === 'scoped')) return label ? { ...step, label } : step;
       } finally {
         await handle.dispose().catch(() => {});
+      }
+    }
+  }
+  // Ambiguous by text, but shown in exactly one HEADING. The row-anchor rule
+  // above guards against LIST pages, where a matching string may belong to an
+  // EARLIER run's record (fwod9 republished n1's customer as n2's
+  // observation). A heading is the opposite case: it names the record THIS
+  // PAGE displays, and a replay reaches this page by its own navigation, so
+  // the heading shows the replay's own value. fwod26 is what refusing this
+  // costs: S00021 sat in both the breadcrumb and the form's <h1>, the unique-
+  // text pin bailed, the run's one record reference never became a replayable
+  // read, and five later steps fell back with `unresolved reference(s)` on
+  // BOTH replays — for a value that was on screen, correctly named, the
+  // whole time.
+  if (count > 1) {
+    const inHeading = page.locator('h1, h2, h3').getByText(v, { exact: true });
+    if ((await inHeading.count().catch(() => 0)) === 1) {
+      const handle = await inHeading.elementHandle({ timeout: 1_000 }).catch(() => null);
+      if (handle) {
+        try {
+          const step = await readBackFromHandle(page, handle, v);
+          if (step) return label ? { ...step, label } : step;
+        } finally {
+          await handle.dispose().catch(() => {});
+        }
       }
     }
   }

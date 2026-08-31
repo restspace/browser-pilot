@@ -148,13 +148,20 @@ export function validateRelabelPlan(
   return { plan, dropped };
 }
 
-/** Ask the model for a plan. One call; a refusal or malformed answer is an empty plan. */
+/**
+ * Ask the model for a plan. One call; a refusal or malformed answer is an
+ * empty plan. Pass a timeout signal: this runs inside the daemon's `stop`,
+ * and a slow model must cost the caller a bounded wait, never the export —
+ * fwod26's stop blew the CLI's 20s budget on exactly this call and the sweep
+ * skipped both replays believing the flow was never saved.
+ */
 export async function requestRelabelPlan(
   provider: Provider,
   cases: RelabelCase[],
+  opts: { signal?: AbortSignal } = {},
 ): Promise<{ plan: RelabelPlan; dropped: string[] }> {
   if (!cases.length) return { plan: new Map(), dropped: [] };
-  const done = await provider.complete(relabelMessages(cases), [RENAME_TOOL]);
+  const done = await provider.complete(relabelMessages(cases), [RENAME_TOOL], { signal: opts.signal });
   const call = (done.toolCalls ?? []).find((t) => t.name === 'rename_values');
   return validateRelabelPlan(call?.args, cases);
 }
@@ -162,6 +169,12 @@ export async function requestRelabelPlan(
 /**
  * Rename report value keys in the recorded entries, in place. Key order is
  * preserved so the rewritten script diffs cleanly. Returns renames applied.
+ *
+ * Each renamed report also gets a `relabel` field recording old -> new — the
+ * durable trace, like `namingAsk`. The daemon runs detached with its stderr
+ * ignored, so fwod26's first live relabel was a black box: nothing anywhere
+ * said whether the pass ran, renamed, or failed. script.jsonl is the one
+ * artifact every run publishes; what the pass did belongs in it.
  */
 export function applyRelabelToEntries(entries: RecordedEntry[], plan: RelabelPlan): number {
   let applied = 0;
@@ -171,12 +184,17 @@ export function applyRelabelToEntries(entries: RecordedEntry[], plan: RelabelPla
     else if (e.k === 'report' && plan.has(index)) {
       const renames = plan.get(index)!;
       const values: Record<string, string> = {};
+      const done: Record<string, string> = {};
       for (const [k, v] of Object.entries(e.values ?? {})) {
         const nk = renames[k] ?? k;
-        if (nk !== k) applied++;
+        if (nk !== k) {
+          applied++;
+          done[k] = nk;
+        }
         values[nk] = v;
       }
       e.values = values;
+      if (Object.keys(done).length) e.relabel = done;
     }
   }
   return applied;

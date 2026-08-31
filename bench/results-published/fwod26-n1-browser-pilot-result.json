@@ -1,0 +1,103 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "1473cf1"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod26-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 18,
+  "wallMs": 2636977,
+  "orchestrator": {
+    "input": 48715,
+    "cacheWrite": 0,
+    "cacheRead": 105920,
+    "output": 6018
+  },
+  "inner": {
+    "promptTokens": 7620877,
+    "cachedTokens": 6511360,
+    "completionTokens": 62244,
+    "instructions": 16,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 5952573,
+        "completionTokens": 28873,
+        "cachedTokens": 5128192,
+        "instructions": 10
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1668304,
+        "completionTokens": 33371,
+        "cachedTokens": 1383168,
+        "instructions": 6
+      }
+    },
+    "skills": {
+      "instructions": 10,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 70,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 17,
+  "subcommands": {
+    "do": 10,
+    "peek": 7
+  },
+  "invocationCount": 17,
+  "commandMs": 2537805,
+  "commandBytes": 25755,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod26-skills",
+    "instructions": 10,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 70,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Friendli"
+  ],
+  "orReportedCostUsd": 0.11,
+  "maxUsd": 2,
+  "spendUsd": 1.132,
+  "finalText": "All objectives are complete and verified. Here is the final report:\n\n---\n\n**Objective 1 — DONE.** Customer `fwod26-n1 Bench Customer` created and saved; verified on the saved record: Name = \"fwod26-n1 Bench Customer\", City = \"Benchville\".\n\n**Objective 2 — DONE.** Quotation **S00021** created for that customer with one order line: product **[FURN_1118] Corner Desk Left Sit** (chosen from the autocomplete dropdown), quantity 3. The app auto-filled **Unit Price £85.00** and computed **Untaxed Amount £255.00** (TAX 20% £51.00, Total £306.00).\n\n**Objective 3 — DONE.** A second order line was added with a different product: **[E-COM11] Cabinet with Doors** (chosen from the autocomplete dropdown), quantity 2 (unit price auto-filled £140.00, line amount £280.00). New **Untaxed Amount £535.00** (TAX 20% £107.00, Total £642.00).\n\n**Objective 4 — DONE.** First line's quantity changed from 3 to 5 (line amount £425.00; second line unchanged at £280.00). New **Untaxed Amount £705.00** (TAX 20% £141.00, Total £846.00).\n\n**Objective 5 — DONE.** Quotation confirmed; it became a sales order with reference **S00021** and status **\"Sales Order\"** (status bar showed \"Sales Order\" checked, with \"Quotation Sent\" and \"Quotation\" inactive).\n\n**Objective 6 — DONE.** The sales order was cancelled via the \"Cancel Sales Order\" confirmation dialog (choosing \"Cancel\", not \"Send and cancel\"). Status bar now shows **\"Cancelled\"** as the sole checked state, with the only remaining action being \"Set to Quotation\". Nothing created by this run remains active.\n\nNote: cancelling required clearing a stacked \"Edit: fwod26-n1 Bench Customer\" modal that was invisibly overlaying the page and swallowing clicks on the Cancel button; once discarded, the cancellation went through normally.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod26-n1-browser-pilot-transcript.jsonl"
+}
