@@ -1,0 +1,107 @@
+
+[sweep] run 1/3: fwod25-n1 (store: /home/user/browser-pilot/bench/results/fwod25-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod25-n1
+  flow "fwod25" saved: 7 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwod25.json
+  warning: warning: instruction "Navigate to http://127.0.0.1:8069/ and sign in with username 'admin' a…" ran 10 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "In Odoo (already signed in as admin), go to Sales > Orders > Quotation…" ran 15 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: instruction "In Odoo (already signed in as admin), verify two things and report the…" ran 11 state-changing step(s) but reported blocked — its work is NOT in the flow
+  warning: warning: 6 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  s_f7f3d2.steps[1].args.url: "135" (url) in "http://127.0.0.{{d1}}:8069/web#action=135&model=res.partner&view_type=kanban&cids=1&menu_id=101"
+  s_f7f3d2.steps[1].args.url: "101" (url) in "http://127.0.0.{{d1}}:8069/web#action=135&model=res.partner&view_type=kanban&cids=1&menu_id=101"
+  s_e2c307.steps[0].args.url: "186" (url) in "http://127.0.0.1:8069/web#cids=1&menu_id=186&action=288&model=sale.order&view_type=list"
+  s_e2c307.steps[0].args.url: "288" (url) in "http://127.0.0.1:8069/web#cids=1&menu_id=186&action=288&model=sale.order&view_type=list"
+  s_37d1a8.steps[8].args.url: "315" (url) in "http://127.0.0.1:8069/web#cids=1&menu_id=183&action=315&model=sale.order&view_type=form&id=21"
+  s_37d1a8.steps[8].args.url: "183" (url) in "http://127.0.0.1:8069/web#cids=1&menu_id=183&action=315&model=sale.order&view_type=form&id=21"
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod25-n1 stop=completed
+turns=8 wall=2135.5s
+commands=7 cmdTime=2066.6s cmdBytes=9570 timeouts=0
+orchestrator in=35321 cw=0 cr=0 out=2450
+inner prompt=3409271 cached=2346624 completion=18331
+spend=$0.5378 maxUsd=2
+learn: A_n=0 replayed=0/7 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwod25-n1-browser-pilot-result.json
+
+fwod25-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod25-n2 (replay flow fwod25, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod25-n2: 2 drift ticket(s) → fwod25-n2-drift.json
+
+fwod25-n2: objectives passed 5/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: FAIL — final state=sale, ref=S00022
+
+[sweep] run 3/3: fwod25-n3 (replay flow fwod25, no orchestrator)
+[reset-app] odoo reset FAILED: You can not delete a sent quotation or a confirmed sales order. You must first cancel it.
+[sweep] fwod25-n3: app reset FAILED (exit 1) — refusing to replay against a dirty app
+
+Learning sweep fwod25 (K=3)
+┌─────────┬───┬─────────────┬──────────┬────────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop           │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼────────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod25-n1' │ '6/6'    │ 'completed'    │ 8     │ 7    │ 0.5378    │ 0   │ '0/7'        │ 2136   │
+│ 1       │ 2 │ 'fwod25-n2' │ '5/6'    │ 'halted'       │ 62    │ 7    │ 0.214     │ 1   │ '6/7 (flow)' │ 1171   │
+│ 2       │ 3 │ 'fwod25-n3' │ ''       │ 'reset-failed' │ null  │ null │ null      │ ''  │ 'skipped'    │ null   │
+└─────────┴───┴─────────────┴──────────┴────────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_be3b38  validated    2 steps  3/3 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_e2c307  validated    2 steps  3/3 (100%)
+           In Odoo (already signed in as admin), go to Sales > Orders > Quotations and create a new quotation. Set the Cu…
+  s_cf0160  validated    2 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_f74383  validated    1 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_14ac2a  validated    6 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_f7f3d2  validated    3 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_880d37  validated    2 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_4784c0  validated    2 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_c670d9  validated    3 steps  2/2 (100%)
+           Navigate to {{v2}} and sign in with username 'admin' and password 'admin'. Then create a new customer contact …
+  s_3efe86  validated    3 steps  2/2 (100%)
+           In Odoo (already signed in as admin), go to Sales > Orders > Quotations and create a new quotation. Set the Cu…
+  s_b6b2d3  validated    2 steps  2/2 (100%)
+           In Odoo (already signed in as admin), go to Sales > Orders > Quotations and create a new quotation. Set the Cu…
+  s_4802a3  validated   12 steps  2/2 (100%)
+           In Odoo (already signed in as admin), go to Sales > Orders > Quotations and create a new quotation. Set the Cu…
+  s_3a7638  validated    7 steps  2/2 (100%)
+           In Odoo (already signed in as admin), open the existing quotation S00021 for customer '{{v1}} Bench Customer' …
+  s_a6cf83  validated    3 steps  2/2 (100%)
+           In Odoo (already signed in as admin), open the existing quotation S00021 for customer '{{v1}} Bench Customer'.…
+  s_9a49ab  validated    1 steps  2/2 (100%)
+           In Odoo (already signed in as admin), open the existing quotation S00021 for customer '{{v1}} Bench Customer' …
+  s_f75b90  validated    6 steps  2/2 (100%)
+           In Odoo (already signed in as admin), open the sales order S00021 for customer '{{v1}} Bench Customer' (curren…
+  s_652fd0  provisional  2 steps  1/2 (50%)
+           In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{v1}} Bench Cu…
+  s_d0de29  provisional  1 steps  1/1 (100%)
+           In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{v1}} Bench Cu…
+  s_02c9d7  provisional  3 steps  1/1 (100%)
+           In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{v1}} Bench Cu…
+  s_37d1a8  provisional 10 steps  1/1 (100%)
+           In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{v1}} Bench Cu…
+  s_f11ce7  provisional  1 steps  1/1 (100%)
+           In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{v1}} Bench Cu…
+store: /home/user/browser-pilot/bench/results/fwod25-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod25-sweep.json

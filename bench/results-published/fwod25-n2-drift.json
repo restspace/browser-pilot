@@ -1,0 +1,27 @@
+[
+  {
+    "flow": "fwod25",
+    "step": "02-create",
+    "skill": "s_4802a3",
+    "atStep": "1",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('option', { name: 'fwod25-n2 Bench Customer' }).nth(0)",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod25",
+    "step": "07-verify",
+    "skill": "s_652fd0",
+    "similarity": 0.973,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_652fd0 stopped at step 1 — after step 1 none of the 4 recorded page change(s) appeared (e.g. \"- menuitem \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+    "reason": "after step 1 none of the 4 recorded page change(s) appeared (e.g. \"- menuitem \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  }
+]

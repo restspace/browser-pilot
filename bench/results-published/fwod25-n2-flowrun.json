@@ -1,0 +1,128 @@
+{
+  "flow": "fwod25",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c670d9.",
+      "values": {},
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_4802a3.",
+      "values": {},
+      "tier": "A",
+      "replayed": "19/19",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3a7638.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a6cf83.",
+      "values": {},
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_9a49ab.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_f75b90.",
+      "values": {},
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "blocked",
+      "summary": "Instruction timed out after 600s (32 turns, 28 tool call(s)). Work may be partially complete — check the actions log and verify current state before resuming.",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/2",
+      "repaired": false,
+      "turns": 62
+    }
+  ],
+  "passed": 6,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod25",
+      "step": "02-create",
+      "skill": "s_4802a3",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('option', { name: 'fwod25-n2 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod25",
+      "step": "07-verify",
+      "skill": "s_652fd0",
+      "similarity": 0.973,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_652fd0 stopped at step 1 — after step 1 none of the 4 recorded page change(s) appeared (e.g. \"- menuitem \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 1 none of the 4 recorded page change(s) appeared (e.g. \"- menuitem \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 1170923,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 823630,
+    "completionTokens": 8650,
+    "cachedTokens": 579008
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 374373,
+      "completionTokens": 3550,
+      "cachedTokens": 184064
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 449257,
+      "completionTokens": 5100,
+      "cachedTokens": 394944
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

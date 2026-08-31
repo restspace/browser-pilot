@@ -1,0 +1,88 @@
+{
+  "name": "fwod25",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Navigate to http://127.0.0.1:8069/ and sign in with username 'admin' and password 'admin'. Then create a new customer contact named '{{runid}} Bench Customer' with the City field set to 'Benchville' (use the Contacts app or Sales > Customers > New). Save the record and report the name and city values shown on the saved record to confirm. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_be3b38",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo (already signed in as admin), go to Sales > Orders > Quotations and create a new quotation. Set the Customer to '{{runid}} Bench Customer' (it's an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Then add ONE order line: pick any product from the product catalogue (again, must actually select an option from the product dropdown) with quantity 3. Save the quotation. Report back: (a) the exact product name you chose, (b) the unit price the app filled in for that line, and (c) the Untaxed Amount the app computes in the totals. Do not confirm the quotation yet. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_e2c307",
+      "params": {
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo (already signed in as admin), open the existing quotation S00021 for customer '{{runid}} Bench Customer' (Sales > Orders > Quotations). It currently has one order line: 'Conference Chair', quantity 3, unit price £33.00, Untaxed Amount £99.00. Add a SECOND order line: choose a DIFFERENT product from the product catalogue (it's an autocomplete dropdown - you must actually select an option from the dropdown, not just type) with quantity 2. Save the quotation. Report back: (a) the exact product name you chose for the second line, (b) its unit price, and (c) the new Untaxed Amount the app computes in the totals. Do not confirm the quotation yet. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_3a7638",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo (already signed in as admin), open the existing quotation S00021 for customer '{{runid}} Bench Customer'. It has two order lines: line 1 'Conference Chair' quantity 3 unit price £33.00, line 2 'Customizable Desk' quantity 2 unit price £750.00, Untaxed Amount £1,599.00. Change the FIRST line's quantity from 3 to 5. Save the quotation. Report back the new Untaxed Amount the app computes in the totals (and the line 1 subtotal if visible). Do not confirm the quotation yet. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_a6cf83",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo (already signed in as admin), open the existing quotation S00021 for customer '{{runid}} Bench Customer' (Untaxed Amount £1,665.00, status 'Quotation'). Confirm the quotation by clicking the Confirm button so it becomes a sales order. Report back: (a) the order reference / name shown (e.g. S00021), and (b) the status the app now shows (e.g. 'Sales Order'). Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_9a49ab",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo (already signed in as admin), open the sales order S00021 for customer '{{runid}} Bench Customer' (currently status 'Sales Order'). Cancel the order (use the Cancel action from the order's action menu / 'cog' dropdown, confirming any dialog that appears). Report back the status the app shows after cancelling (e.g. 'Cancelled'). Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_f75b90",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "07-verify",
+      "instruction": "In Odoo (already signed in as admin), verify two things and report them: (1) Open the contact '{{runid}} Bench Customer' (via Sales > Orders > Customers) and report the exact Name and City values shown on the saved record. (2) Open the sales order S00021 (Sales > Orders > Orders) and report its reference/name, the status shown, and the Untaxed Amount. Just read and report these values, do not change anything. Note: the app long-polls so never wait for network idle; wait for concrete page state instead.",
+      "skill": "s_652fd0",
+      "params": {
+        "v1": "{{runid}}",
+        "v2": "S00021"
+      },
+      "outputs": [],
+      "recorded": {}
+    }
+  ],
+  "provenance": {
+    "session": "fwod25-n1",
+    "created": "2026-08-31T10:44:23.980Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
