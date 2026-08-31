@@ -43,6 +43,26 @@
  * in for the loop's persistence. `called report at all` is printed alongside
  * every score, because the two failures must never be added together again.
  *
+ * WHAT IT COULD AND COULD NOT SETTLE (deepseek-v4-flash, 27 cases, 98 values)
+ *
+ * Wording, in turns-nudge — current 37% of values named, mechanical 37%,
+ * consequence 31%, example 30%. The text that already ships is joint-best and
+ * the worked-example inversion is last. Three deliberate rewrites, none better:
+ * prompt phrasing is not the lever, and the ceiling is ~37%.
+ *
+ * The retry ask works whenever it runs — 6 or 7 of every 7 or 8 asks answered,
+ * across four runs — and after mergeReportValues every report that arrived
+ * carried values (100%, from 87%). But its effect on the corpus-wide score sits
+ * inside run-to-run variance: the same configuration measured 48% then 52% of
+ * reports filled on separate runs, which is larger than the gap being looked
+ * for. This instrument cannot resolve a few points on 27 cases, and no amount
+ * of re-running it will change that.
+ *
+ * So the retry's real value is settled LIVE, not here: `namingAsk` on the report
+ * entry in script.jsonl records what was asked and whether it was answered, on
+ * every instruction of every run. A single real sweep answers it with a bigger
+ * n than this file can ever build.
+ *
  * WHAT IT IS NOT
  *
  * The message history is RECONSTRUCTED from the recording, not the exact
