@@ -164,7 +164,7 @@ fi
 
 # ---------------------------------------------------------------- arm C (playwright-mcp)
 
-# Pins live in bench/harness.mjs (ARMS) — these must match them.
+# Pins live in bench/harness.mjs (ARMS) ï¿½ these must match them.
 PLAYWRIGHT_MCP_VERSION="${PLAYWRIGHT_MCP_VERSION:-0.0.79}"
 BROWSER_USE_VERSION="${BROWSER_USE_VERSION:-0.13.8}"
 
@@ -197,7 +197,7 @@ fi
 
 # --with-target odoo|grafana brings up a bench/thirdparty compose stack. On the
 # cloud image the docker daemon is NOT running at boot and `service docker
-# start` dies on a ulimit it may not set — but plain `dockerd` as root works
+# start` dies on a ulimit it may not set ï¿½ but plain `dockerd` as root works
 # (probed 2026-08-24: engine 29.3.1, compose v5.1.1, both stacks healthy).
 for WITH_TARGET in $WITH_TARGETS; do
   say "Starting target: ${WITH_TARGET}"
@@ -242,6 +242,15 @@ for WITH_TARGET in $WITH_TARGETS; do
         [ "$code" = "200" ] && break; sleep 2
       done
       echo "    grafana login page: HTTP ${code:-unreachable}"
+      ;;
+    kanboard)
+      for _ in $(seq 1 45); do
+        code="$(curl -sL -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:8085/ || true)"
+        [ "$code" = "200" ] && break; sleep 2
+      done
+      echo "    kanboard login page: HTTP ${code:-unreachable}"
+      # The reset doubles as the idempotent seed (Bench Board + seed tasks).
+      node bench/reset-app.mjs --target kanboard
       ;;
   esac
 done

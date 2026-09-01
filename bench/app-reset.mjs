@@ -139,6 +139,66 @@ async function resetOdoo() {
   }
 }
 
+/**
+ * Kanboard reset doubles as the SEED, because both are the same idempotent
+ * statement of the baseline: project "Bench Board" exists with its three
+ * seed tasks in Backlog, and no "<runid> Bench Task" from an earlier run
+ * survives. The application API (Basic jsonrpc:<token>, token pinned in the
+ * mounted config.php) reaches everything; nothing here touches the current
+ * run's records, because at reset time every matching task is an earlier
+ * run's by definition.
+ */
+async function resetKanboard() {
+  const base = (process.env.APP_URL || 'http://127.0.0.1:8085/').replace(/\/$/, '');
+  const token = process.env.KANBOARD_API_TOKEN || 'bench-api-token';
+  const auth = 'Basic ' + Buffer.from(`jsonrpc:${token}`).toString('base64');
+  let rpcId = 0;
+  const rpc = async (method, params = {}) => {
+    const res = await fetch(`${base}/jsonrpc.php`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: auth },
+      body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params }),
+    });
+    if (!res.ok) throw new Error(`kanboard rpc ${method}: HTTP ${res.status}`);
+    const body = await res.json();
+    if (body.error) throw new Error(`kanboard rpc ${method}: ${body.error.message}`);
+    return body.result;
+  };
+
+  let project = await rpc('getProjectByName', { name: 'Bench Board' });
+  if (!project) {
+    const id = await rpc('createProject', { name: 'Bench Board' });
+    if (!id) throw new Error('kanboard: could not create the Bench Board project');
+    project = await rpc('getProjectById', { project_id: id });
+    log('kanboard: created project "Bench Board"');
+  }
+  const projectId = Number(project.id);
+  const columns = await rpc('getColumns', { project_id: projectId });
+  const backlog = Number(columns[0].id);
+
+  // Earlier runs' debris: every task named "<something> Bench Task", open or
+  // closed. status_id 1 = open, 0 = closed.
+  let removed = 0;
+  for (const statusId of [1, 0]) {
+    for (const t of (await rpc('getAllTasks', { project_id: projectId, status_id: statusId })) ?? []) {
+      if (!/ Bench Task$/.test(t.title)) continue;
+      await rpc('removeTask', { task_id: Number(t.id) });
+      removed++;
+    }
+  }
+  log(removed ? `kanboard: deleted ${removed} leftover bench task(s)` : 'kanboard: no leftover bench tasks');
+
+  // The seed tasks the read-only objective reports. Recreate any that are
+  // missing (or that a wayward run closed) so every run reads one baseline.
+  const SEED = ['Seed: triage inbox', 'Seed: order missing parts', 'Seed: ship repaired device'];
+  const open = (await rpc('getAllTasks', { project_id: projectId, status_id: 1 })) ?? [];
+  for (const title of SEED) {
+    if (open.some((t) => t.title === title)) continue;
+    await rpc('createTask', { title, project_id: projectId, column_id: backlog });
+    log(`kanboard: seeded task "${title}"`);
+  }
+}
+
 function resetAtelyr() {
   log('atelyr: restoring datastore baseline');
   execFileSync(process.execPath, [path.join(here, 'reset.mjs'), '--restore'], { stdio: 'inherit' });
@@ -149,6 +209,7 @@ const RESETS = {
   repairdesk: resetRepairdesk,
   odoo: resetOdoo,
   grafana: resetGrafana,
+  kanboard: resetKanboard,
 };
 
 export const RESET_TARGETS = Object.keys(RESETS);

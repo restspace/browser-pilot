@@ -33,4 +33,9 @@ export const APP_DEFAULTS = {
     APP_EMAIL: 'admin',
     APP_PASSWORD: 'admin',
   },
+  kanboard: {
+    APP_URL: 'http://127.0.0.1:8085/',
+    APP_EMAIL: 'admin',
+    APP_PASSWORD: 'admin',
+  },
 };

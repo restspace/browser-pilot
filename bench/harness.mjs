@@ -122,6 +122,13 @@ const TARGETS = {
     notReadyHint:
       'Start it with: docker compose -f bench/thirdparty/odoo/docker-compose.yml up -d (then seed.sh once)',
   },
+  kanboard: {
+    task: 'tasks/kanboard-board-flow.md',
+    defaults: APP_DEFAULTS.kanboard,
+    // Reset is also the idempotent seed — see resetKanboard.
+    reset: () => resetTarget('kanboard'),
+    notReadyHint: 'Start it with: docker compose -f bench/thirdparty/kanboard/docker-compose.yml up -d',
+  },
   grafana: {
     task: 'tasks/grafana-dashboard-flow.md',
     defaults: APP_DEFAULTS.grafana,

@@ -1,0 +1,34 @@
+# Third-party benchmark target: Kanboard (real production app we did not write).
+#
+# Widens the matrix by CLIENT TECHNOLOGY, per the selection principle from the
+# 2026-08-24 shakedown: every defect so far came from DOM idioms we had not
+# seen, never from a task we had not tried. Kanboard is the quadrant the
+# retired shakedown set left uncovered — classic server-rendered PHP with
+# jQuery, full-page reloads, form POSTs — plus one interaction no matrix row
+# exercises at all: drag-and-drop between kanban columns.
+#
+# Single container: SQLite inside the data volume, no install wizard, default
+# admin/admin. The mounted config.php pins the API token so seed/reset/verify
+# can use the JSON-RPC application API without scraping it from the UI.
+#
+#   up:    docker compose -f bench/thirdparty/kanboard/docker-compose.yml up -d
+#   reset: node bench/reset-app.mjs --target kanboard   (idempotent: seeds too)
+#   web:   http://127.0.0.1:8085   (admin / admin)
+#   api:   POST /jsonrpc.php, Basic jsonrpc:bench-api-token
+services:
+  kanboard:
+    image: kanboard/kanboard:v1.2.45
+    ports:
+      - "127.0.0.1:8085:80"
+    volumes:
+      - kanboard-data:/var/www/app/data
+      - ./config.php:/var/www/app/config.php:ro
+    healthcheck:
+      # busybox wget; the login page always carries the product name.
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1/ | grep -qi kanboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  kanboard-data:
