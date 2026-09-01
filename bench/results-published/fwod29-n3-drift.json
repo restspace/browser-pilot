@@ -1,0 +1,53 @@
+[
+  {
+    "flow": "fwod29",
+    "step": "02-create",
+    "skill": "s_1dec89",
+    "atStep": "3",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.locator('header > nav > div:nth-of-type(3) > div:nth-of-type(4) > button > span')",
+    "fallbackUsed": "page.getByText('6', { exact: true })",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod29",
+    "step": "02-create",
+    "skill": "s_082737",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('option', { name: 'fwod29-n3 Bench Customer' }).nth(0)",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod29",
+    "step": "02-create",
+    "skill": "s_082737",
+    "atStep": "6",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByRole('option', { name: 'Conference Chair' }).nth(0)",
+    "fallbackUsed": "page.locator('#autocomplete_0_0')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod29",
+    "step": "08-report",
+    "skill": "s_8abca6",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_8abca6 stopped at step 5 — wait_for failed: wait_for text_contains timed out after 5000ms (last: text=\"\") — value never changed from text=\"\", so this condition may be unsatisfiable (e.g. count against a virtualised list renders only visible rows); assert on a stable indicator instead",
+    "reason": "wait_for failed: wait_for text_contains timed out after 5000ms (last: text=\"\") — value never changed from text=\"\", so this condition may be unsatisfiable (e.g. count against a virtualised list renders only visible rows); assert on a stable indicator instead",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+  }
+]

@@ -1,0 +1,116 @@
+
+[sweep] run 1/3: fwrd38-n1 (store: /home/user/browser-pilot/bench/results/fwrd38-skills)
+[harness] repairdesk: defaulting APP_URL
+[harness] repairdesk: defaulting APP_EMAIL
+[harness] repairdesk: defaulting APP_PASSWORD
+[reset] repairdesk: reloaded seed via http://127.0.0.1:4180/__reset
+[harness] repairdesk responded 200 at http://127.0.0.1:4180/
+stopped: fwrd38-n1
+  flow "fwrd38" saved: 6 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwrd38.json
+  warning: note: dropped 23 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: 37 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[4].instruction: "Ready" (output) in "On the detail view of ticket '{{runid}} RD Bench Ticket' (reference {{01-open.ticket_reference}}, currently status {{01-open.ticket_status}}), change the ticket"
+  s_6df416.steps[7].expect.addedContains[3]: "Draft" (output) in "- combobox \"All statuses Draft {{v4}} Closed\": all"
+  s_4b037c.reportTemplate.summary: "RD-1015" (output) in "Signed in successfully with {{v3}}, created a new ticket titled \"{{v5}}\". The ticket appeared at the top of the ticket list with reference RD-1015, status \"Draf"
+  s_4b037c.reportTemplate.summary: "Draft" (output) in "Signed in successfully with {{v3}}, created a new ticket titled \"{{v5}}\". The ticket appeared at the top of the ticket list with reference RD-1015, status \"Draf"
+  s_4b037c.reportTemplate.values.ticket_reference: "RD-1015" (output) in "RD-1015"
+  s_4b037c.reportTemplate.values.ticket_status: "Draft" (output) in "Draft"
+  s_7850b6.steps[0].expect.addedContains[1]: "Ready" (output) in "- button \"Mark Ready\""
+  s_aa7909.reportTemplate.summary: "$125.00" (output) in "Opened ticket {{v3}}, clicked \"Add part\", and created a part named \"{{v4}}\" with cost ${{v5}}.00 and markup {{v6}}%. The part appears in the detail view's table"
+  s_aa7909.reportTemplate.values.part_price: "$125.00" (output) in "$125.00"
+  s_082133.reportTemplate.summary: "$125.00" (output) in "Added a second part \"{{v2}} RD Part B\" with cost ${{v5}}.00 and markup {{v6}}% to ticket {{v3}}. The app computed its price as $250.00. Both parts (A: $125.00, "
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwrd38-n1 stop=completed
+turns=7 wall=603.1s
+commands=6 cmdTime=567.4s cmdBytes=7504 timeouts=0
+orchestrator in=11182 cw=0 cr=16100 out=2227
+inner prompt=977255 cached=795392 completion=9985
+spend=$0.0493 maxUsd=2
+learn: A_n=0 replayed=0/6 full=0 repaired=0 compiled=6 variants=0
+-> /home/user/browser-pilot/bench/results/fwrd38-n1-browser-pilot-result.json
+
+=== fwrd38-n1 === (run self-reported: completed)
+  obj 1  PASS  seq 1: ticket t15 (RD-1015) "fwrd38-n1 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  ok — run reported 125.00, app recorded 125.00
+  claim 3  ok — run reported 250.00, app recorded 250.00
+  claim 4  ok — run reported 187.50, app recorded 187.50
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
+
+[sweep] run 2/3: fwrd38-n2 (replay flow fwrd38, no orchestrator)
+[reset] repairdesk: reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwrd38-n2: 1 drift ticket(s) → fwrd38-n2-drift.json
+
+=== fwrd38-n2 === (run self-reported: no result file)
+  note: no result file in /home/user/browser-pilot/bench/results — objectives are still scored from the log,
+        but the run's claimed prices cannot be cross-checked.
+  obj 1  PASS  seq 1: ticket t15 (RD-1016) "fwrd38-n2 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  no claim parsed from the run's final report
+  claim 3  no claim parsed from the run's final report
+  claim 4  no claim parsed from the run's final report
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
+
+[sweep] run 3/3: fwrd38-n3 (replay flow fwrd38, no orchestrator)
+[reset] repairdesk: reloaded seed via http://127.0.0.1:4180/__reset
+[sweep] fwrd38-n3: 1 drift ticket(s) → fwrd38-n3-drift.json
+
+=== fwrd38-n3 === (run self-reported: no result file)
+  note: no result file in /home/user/browser-pilot/bench/results — objectives are still scored from the log,
+        but the run's claimed prices cannot be cross-checked.
+  obj 1  PASS  seq 1: ticket t15 (RD-1017) "fwrd38-n3 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  no claim parsed from the run's final report
+  claim 3  no claim parsed from the run's final report
+  claim 4  no claim parsed from the run's final report
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
+
+Learning sweep fwrd38 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwrd38-n1' │ '7/7'    │ 'completed' │ 7     │ 6    │ 0.0493    │ 0   │ '0/6'        │ 603    │
+│ 1       │ 2 │ 'fwrd38-n2' │ '7/7'    │ 'success'   │ 0     │ 6    │ 0         │ 1   │ '6/6 (flow)' │ 27     │
+│ 2       │ 3 │ 'fwrd38-n3' │ '7/7'    │ 'success'   │ 0     │ 6    │ 0         │ 1   │ '6/6 (flow)' │ 27     │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:4180
+  s_e8ecf7  validated    2 steps  5/5 (100%)
+           Open {{v2}} and sign in with email {{v3}} and password {{v4}}. Then create a ticket titled '{{v5}}', filling i…
+  s_7850b6  validated    1 steps  5/5 (100%)
+           Open the ticket '{{v1}}' (reference {{v3}}) in the repair-desk app. On its detail view, add a part named '{{v4…
+  s_6df416  validated    8 steps  5/5 (100%)
+           On the detail view of ticket '{{v1}}' (reference {{v3}}, status {{v4}}), remove/delete both parts: '{{v5}}' an…
+  s_a5f095  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with email {{v3}} and password {{v4}}. Then create a ticket titled '{{v5}}', filling i…
+  s_4b037c  validated    6 steps  3/3 (100%)
+           Open {{v2}} and sign in with email {{v3}} and password {{v4}}. Then create a ticket titled '{{v5}}', filling i…
+  s_aa7909  validated    9 steps  3/3 (100%)
+           Open the ticket '{{v1}}' (reference {{v3}}) in the repair-desk app. On its detail view, add a part named '{{v4…
+  s_082133  validated    7 steps  3/3 (100%)
+           On the detail view of ticket '{{v1}}' (reference {{v3}}), which already has a part '{{v4}}', add a second part…
+  s_644c2d  validated    7 steps  3/3 (100%)
+           On the detail view of ticket '{{v1}}' (reference {{v3}}), edit the part '{{v4}}' (currently cost 00.00, markup…
+  s_5c5068  validated    9 steps  3/3 (100%)
+           On the detail view of ticket '{{v1}}' (reference {{v3}}, currently status {{v4}}), change the ticket's status …
+  s_538ccb  validated    5 steps  3/3 (100%)
+           On the detail view of ticket '{{v1}}' (reference {{v3}}, status {{v4}}), remove/delete both parts: '{{v5}}' an…
+store: /home/user/browser-pilot/bench/results/fwrd38-skills
+
+summary: /home/user/browser-pilot/bench/results/fwrd38-sweep.json

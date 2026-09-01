@@ -1,0 +1,146 @@
+
+[sweep] run 1/3: fwgr18-n1 (store: /home/user/browser-pilot/bench/results/fwgr18-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+stopped: fwgr18-n1
+  flow "fwgr18" saved: 9 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwgr18.json
+  warning: note: dropped 11 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: note: 1 step(s) adopted from non-success instruction(s) whose work the session continued from (03-open) — they replay model-first with doubled budget, and a non-success there does not halt the flow
+  warning: warning: 106 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[1].instruction: "TestData" (output) in "Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{runid}} Availability', and set its data source / query"
+  flow.steps[1].instruction: "Stat" (output) in "Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{runid}} Availability', and set its data source / query"
+  flow.steps[2].instruction: "bench" (output) in "Open the existing dashboard '{{runid}} Bench Dashboard' (URL http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard). Add a NEW Text panel to it"
+  flow.steps[2].instruction: "Text" (output) in "Open the existing dashboard '{{runid}} Bench Dashboard' (URL http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard). Add a NEW Text panel to it"
+  flow.steps[3].instruction: "bench" (output) in "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard and report the titles of all panels currently visible on it, exactl"
+  flow.steps[3].params.v2: "bench" (output) in "{{runid}}-bench-dashboard"
+  flow.steps[4].instruction: "bench" (output) in "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard. There is a {{04-open.panel_1_type}} panel currently titled '{{04-o"
+  flow.steps[4].params.v2: "bench" (output) in "{{runid}}-bench-dashboard"
+  flow.steps[5].instruction: "Last 6 hours" (output) in "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard. Do two things: (1) Open the dashboard settings (gear icon) and add"
+  flow.steps[5].instruction: "bench" (output) in "Open the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard. Do two things: (1) Open the dashboard settings (gear icon) and add"
+  warning: {{04-open.panel_1_type}} (used by 05-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwgr18-n1 stop=completed
+turns=10 wall=1520.9s
+commands=9 cmdTime=1400.8s cmdBytes=9816 timeouts=0
+orchestrator in=17975 cw=0 cr=27392 out=5045
+inner prompt=5111310 cached=4509920 completion=31355
+spend=$0.5407 maxUsd=2
+learn: A_n=0 replayed=0/9 full=0 repaired=0 compiled=8 variants=0
+-> /home/user/browser-pilot/bench/results/fwgr18-n1-browser-pilot-result.json
+
+fwgr18-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid efwy2zfee08aob reported
+
+[sweep] run 2/3: fwgr18-n2 (replay flow fwgr18, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr18-n1 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr18-n2: 10 drift ticket(s) → fwgr18-n2-drift.json
+
+fwgr18-n2: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid efwy5bfghnvggb reported
+
+[sweep] run 3/3: fwgr18-n3 (replay flow fwgr18, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr18-n2 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr18-n3: 12 drift ticket(s) → fwgr18-n3-drift.json
+
+fwgr18-n3: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid afwy80ow98dmoc reported
+
+Learning sweep fwgr18 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr18-n1' │ '6/6'    │ 'completed' │ 10    │ 9    │ 0.5407    │ 0   │ '0/9'        │ 1521   │
+│ 1       │ 2 │ 'fwgr18-n2' │ '6/6'    │ 'success'   │ 211   │ 9    │ 0.5768    │ 1   │ '9/9 (flow)' │ 1805   │
+│ 2       │ 3 │ 'fwgr18-n3' │ '6/6'    │ 'success'   │ 150   │ 9    │ 0.3981    │ 1   │ '9/9 (flow)' │ 899    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_8b577d  validated    9 steps  3/4 (75%)
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. Set the dashboard's auto-refresh interval to '1m'…
+  s_6c3413  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (skip any 'change password' prompt if it ap…
+  s_6956d2  demoted      4 steps  1/3 (33%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (skip any 'change password' prompt if it ap…
+  s_e4a029  validated    8 steps  3/3 (100%)
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_e6b634  demoted     10 steps  1/3 (33%)
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_5df8a8  validated    5 steps  3/3 (100%)
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}} and report the titles of all panels currently visi…
+  s_bd14a4  demoted      9 steps  1/3 (33%)
+           Open the dashboard at {{v5}} fresh (reload the page). Verify and report all of the following from the page: (1…
+  s_347407  provisional 11 steps  1/2 (50%)
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. Do two things: (1) Open the dashboard settings (g…
+  s_e55cb5  validated   15 steps  2/2 (100%)
+           Open the existing dashboard '{{v1}} Bench Dashboard' (URL http://127.0.0.1:3000/d/{{v2}}/{{v3}}). Add a NEW {{…
+  s_23b925  validated    5 steps  2/2 (100%)
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. There is a panel currently titled '{{v4}}' (it sh…
+  s_3ff8e8  provisional 11 steps  1/2 (50%)  variant of s_347407
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. Do two things: (1) Open the dashboard settings (g…
+  s_4246b2  validated    8 steps  2/2 (100%)  variant of s_504088
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. Enter edit mode for the panel titled '{{v3}} Avai…
+  s_504088  demoted      8 steps  1/2 (50%)
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. Enter edit mode for the panel titled '{{v5}}' and…
+  s_0434bd  provisional  2 steps  1/1 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (skip any 'change password' prompt if it ap…
+  s_1c5a5a  provisional  5 steps  1/1 (100%)
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_2423a0  provisional  4 steps  1/1 (100%)
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_792703  provisional  7 steps  1/1 (100%)
+           Open {{v1}} and sign in with username 'admin' and password 'admin' (skip any 'change password' prompt if it ap…
+  s_30e509  provisional  9 steps  1/1 (100%)
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. There is a {{v4}} panel currently titled '{{v5}}'…
+  s_1dfe0f  provisional  4 steps  1/1 (100%)  variant of s_6956d2
+           Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (skip any 'change password'…
+  s_9a097d  provisional  2 steps  1/1 (100%)  variant of s_6956d2
+           Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (skip any 'change password'…
+  s_90b2aa  provisional  8 steps  1/1 (100%)  variant of s_6956d2
+           Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (skip any 'change password'…
+  s_b489e2  provisional  1 steps  1/1 (100%)  variant of s_e6b634
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_0924dc  provisional 15 steps  1/1 (100%)  variant of s_e6b634
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_d9b615  provisional  3 steps  1/1 (100%)  variant of s_e6b634
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_d46978  provisional  9 steps  1/1 (100%)  variant of s_bd14a4
+           Open the dashboard at {{v4}} fresh (reload the page). Verify and report all of the following from the page: (1…
+  s_aecb29  provisional  3 steps  1/1 (100%)  variant of s_bd14a4
+           Open the dashboard at {{v4}} fresh (reload the page). Verify and report all of the following from the page: (1…
+  s_f6d3c1  provisional  6 steps  1/1 (100%)  variant of s_bd14a4
+           Open the dashboard at {{v4}} fresh (reload the page). Verify and report all of the following from the page: (1…
+  s_2e41e4  provisional  4 steps  1/1 (100%)  variant of s_6956d2
+           Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (skip any 'change password'…
+  s_29c93b  provisional  2 steps  1/1 (100%)  variant of s_6956d2
+           Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (skip any 'change password'…
+  s_07c5aa  provisional  4 steps  1/1 (100%)  variant of s_6956d2
+           Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (skip any 'change password'…
+  s_0a7f02  provisional  1 steps  1/1 (100%)  variant of s_e6b634
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_a6d8bf  provisional 15 steps  1/1 (100%)  variant of s_e6b634
+           Create a NEW dashboard in Grafana. Add a panel with the 'Stat' visualization, set its title to exactly '{{v2}}…
+  s_d43a78  provisional 11 steps  1/1 (100%)  variant of s_3ff8e8
+           Open the dashboard at http://127.0.0.1:3000/d/{{v1}}/{{v2}}. Do two things: (1) Open the dashboard settings (g…
+  s_0dcf1d  provisional 14 steps  1/1 (100%)  variant of s_bd14a4
+           Open the dashboard at {{v4}} fresh (reload the page). Verify and report all of the following from the page: (1…
+store: /home/user/browser-pilot/bench/results/fwgr18-skills
+
+summary: /home/user/browser-pilot/bench/results/fwgr18-sweep.json

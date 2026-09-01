@@ -1,0 +1,98 @@
+{
+  "arm": "browser-pilot",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "5847446"
+  },
+  "mutationLogPath": "/home/user/browser-pilot/bench/results/fwrd38-n1-browser-pilot-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd38-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 603058,
+  "orchestrator": {
+    "input": 11182,
+    "cacheWrite": 0,
+    "cacheRead": 16100,
+    "output": 2227
+  },
+  "inner": {
+    "promptTokens": 977255,
+    "cachedTokens": 795392,
+    "completionTokens": 9985,
+    "instructions": 6,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 977255,
+        "completionTokens": 9985,
+        "cachedTokens": 795392,
+        "instructions": 6
+      }
+    },
+    "skills": {
+      "instructions": 6,
+      "offered": 3,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 71,
+      "compiled": 6,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 567390,
+  "commandBytes": 7504,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwrd38-skills",
+    "instructions": 6,
+    "offered": 3,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 71,
+    "compiled": 6,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Fireworks",
+    "Modal",
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.028,
+  "maxUsd": 2,
+  "spendUsd": 0.0493,
+  "finalText": "All objectives completed. Final report:\n\n1. **DONE** — Ticket `fwrd38-n1 RD Bench Ticket` created; the app assigned it reference **RD-1015**, initial status **Draft**.\n\n2. **DONE** — Part `fwrd38-n1 RD Part A` added with cost $100.00 and markup 25%. The app computed a price of **$125.00**.\n\n3. **DONE** — Part `fwrd38-n1 RD Part B` added with cost $200.00 and markup 25%. The app computed a price of **$250.00** (parts total at that point: $375.00).\n\n4. **DONE** — Part A's cost changed from $100.00 to $150.00 (markup kept at 25%). The app then computed a price of **$187.50** (parts total updated to $437.50).\n\n5. **DONE** — Status changed to **Ready**. The app initially refused with the alert: *\"Ticket is not ready — Part 'fwrd38-n1 RD Part A' has no supplier — Part 'fwrd38-n1 RD Part B' has no supplier.\"* The precondition was that **every part on the ticket must have a supplier assigned**. I set both parts' supplier to \"ACME Supplies\", after which \"Mark Ready\" succeeded and the status showed **Ready** (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n6. **DONE** — Both parts were deleted (each via \"Delete part\" with a confirmation modal; the detail view then showed \"No parts on this ticket yet.\"). The ticket was then archived — \"Archive ticket\" succeeded with no precondition error, the button changed to \"Unarchive ticket\", and the list shows RD-1015 with an **\"Archived\"** badge, status Ready, and **0 parts**. Nothing from this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwrd38-n1-browser-pilot-transcript.jsonl"
+}
