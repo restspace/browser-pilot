@@ -1,0 +1,228 @@
+{
+  "name": "fwkb2",
+  "origin": "http://127.0.0.1:8085",
+  "startUrl": "http://127.0.0.1:8085/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8085/ and sign in with username admin and password admin. Then find the project named 'Bench Board' and open its board. Report the names of the board's columns in their left-to-right order, exactly as shown on the board page.",
+      "skill": "s_3cd5e0",
+      "params": {
+        "v1": "http://127.0.0.1:8085/"
+      },
+      "outputs": [
+        "columns",
+        "column_ready",
+        "column_work_in_progress",
+        "column_done"
+      ],
+      "recorded": {
+        "columns": "Backlog, Ready, Work in progress, Done",
+        "column_ready": "Ready",
+        "column_work_in_progress": "Work in progress",
+        "column_done": "Done"
+      },
+      "outputEvidence": {
+        "column_ready": {
+          "same": 1,
+          "differed": 0
+        },
+        "column_work_in_progress": {
+          "same": 1,
+          "differed": 0
+        },
+        "column_done": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "On the 'Bench Board' project board, create a new task titled exactly '{{runid}} Bench Task' with a description that includes the text '{{runid}}' (e.g. 'Bench task for run {{runid}}'). Fill any required fields and submit. Then report the task's numeric ID as displayed (Kanboard shows it as #<number> on the card or task page) and confirm the task appears on the board.",
+      "skill": "s_3e387d",
+      "params": {
+        "v2": "{{runid}} Bench Task",
+        "v1": "{{runid}}",
+        "v3": "Bench task for run {{runid}}"
+      },
+      "outputs": [
+        "task_id",
+        "task_title",
+        "column"
+      ],
+      "recorded": {
+        "task_id": "4",
+        "task_title": "fwkb2-n1 Bench Task",
+        "column": "Backlog"
+      },
+      "outputEvidence": {
+        "task_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "column": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "03-verify",
+      "instruction": "On the 'Bench Board' project board, move the task titled '{{runid}} Bench Task' (task #4) into the '{{01-open.column_work_in_progress}}' column. You can drag the card to that column, or use the task page's move action — whichever works. Do not modify or move any tasks whose titles start with 'Seed:'. Afterwards, verify on the board that the card '{{runid}} Bench Task' is now inside the '{{01-open.column_work_in_progress}}' column and report which column it is in.",
+      "skill": "s_cc2d57",
+      "params": {
+        "v1": "{{runid}} Bench Task",
+        "v3": "{{01-open.column_work_in_progress}}",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "task_id",
+        "current_column",
+        "task_title"
+      ],
+      "recorded": {
+        "task_id": "4",
+        "current_column": "Work in progress",
+        "task_title": "fwkb2-n1 Bench Task"
+      },
+      "outputEvidence": {
+        "current_column": {
+          "same": 0,
+          "differed": 1
+        },
+        "task_title": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open the task page for task #4 titled '{{runid}} Bench Task' in the 'Bench Board' project. Add a comment to the task whose text includes the runid '{{runid}}' (e.g. 'Comment for run {{runid}}'). Submit the comment and verify it appears in the task's comments section. Report the comment text that is displayed.",
+      "skill": "s_43e9e5",
+      "params": {
+        "v1": "{{runid}} Bench Task",
+        "v2": "{{runid}}",
+        "v3": "Comment for run {{runid}}"
+      },
+      "outputs": [
+        "comment_text",
+        "task_id",
+        "task_title"
+      ],
+      "recorded": {
+        "comment_text": "Comment for run fwkb2-n1",
+        "task_id": "4",
+        "task_title": "fwkb2-n1 Bench Task"
+      },
+      "outputEvidence": {
+        "comment_text": {
+          "same": 0,
+          "differed": 1
+        },
+        "task_title": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "05-set",
+      "instruction": "On the task page for task #4 titled '{{runid}} Bench Task' in the 'Bench Board' project, set the task's due date to 2026-12-31 (December 31, 2026). Use the task page's edit/details form or the due-date field (a date picker may appear). Save the change and verify the due date is displayed as 2026-12-31 (or Dec 31, 2026) on the task page. Report the due date value shown.",
+      "skill": "s_9aedee",
+      "params": {
+        "v1": "{{runid}} Bench Task"
+      },
+      "outputs": [
+        "due_date_displayed",
+        "due_date_label"
+      ],
+      "recorded": {
+        "due_date_displayed": "12/31/2026 17:40",
+        "due_date_label": "Due date: 12/31/2026 17:40"
+      },
+      "outputEvidence": {
+        "due_date_displayed": {
+          "same": 0,
+          "differed": 1
+        },
+        "due_date_label": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "Do a final verification on the 'Bench Board' project: (1) open the board and report the column names left-to-right and which column contains the card '{{runid}} Bench Task'; (2) open that task's page and report its numeric ID as displayed (the #number), whether its description contains '{{runid}}', whether it has a comment containing '{{runid}}' (quote it), and its due date as displayed. Do not change anything — read only.",
+      "skill": "s_161d89",
+      "params": {
+        "v1": "{{runid}} Bench Task",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "columns",
+        "task_column",
+        "task_id",
+        "description_contains_fwkb2_n1",
+        "comment_contains_fwkb2_n1",
+        "due_date_displayed",
+        "due_date_label",
+        "task_position",
+        "task_dates_summary",
+        "task_page_column_label"
+      ],
+      "recorded": {
+        "columns": "Backlog, Ready, Work in progress, Done",
+        "task_column": "Work in progress",
+        "task_id": "4",
+        "description_contains_fwkb2_n1": "true",
+        "comment_contains_fwkb2_n1": "Comment for run fwkb2-n1",
+        "due_date_displayed": "12/31/2026 17:40",
+        "due_date_label": "Due date: 12/31/2026 17:40",
+        "task_position": "Position: 1",
+        "task_dates_summary": "Due date: 12/31/2026 17:40\nStarted: Start now\nCreated: 09/01/2026 17:36\nModified: 09/01/2026 17:40\nMoved: 09/01/2026 17:36",
+        "task_page_column_label": "Column:"
+      },
+      "outputEvidence": {
+        "task_column": {
+          "same": 1,
+          "differed": 0
+        },
+        "comment_contains_fwkb2_n1": {
+          "same": 0,
+          "differed": 1
+        },
+        "due_date_displayed": {
+          "same": 0,
+          "differed": 1
+        },
+        "due_date_label": {
+          "same": 0,
+          "differed": 1
+        },
+        "task_position": {
+          "same": 1,
+          "differed": 0
+        },
+        "task_dates_summary": {
+          "same": 0,
+          "differed": 1
+        },
+        "task_page_column_label": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwkb2-n1",
+    "created": "2026-09-01T17:41:12.621Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

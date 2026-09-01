@@ -1,0 +1,84 @@
+
+[sweep] run 1/3: fwkb2-n1 (store: /home/user/browser-pilot/bench/results/fwkb2-skills)
+[harness] kanboard: defaulting APP_URL
+[harness] kanboard: defaulting APP_EMAIL
+[harness] kanboard: defaulting APP_PASSWORD
+[reset] kanboard: no leftover bench tasks
+[harness] kanboard responded 302 at http://127.0.0.1:8085/
+stopped: fwkb2-n1
+  flow "fwkb2" saved: 6 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwkb2.json
+  warning: note: dropped 3 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: 42 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  s_3e387d.reportTemplate.summary: "Backlog" (output) in "Created task titled '{{v2}}' with description '{{v3}}' in the Backlog column of the Bench Board. The task was created successfully with numeric ID #4 and is con"
+  s_3e387d.reportTemplate.values.column: "Backlog" (output) in "Backlog"
+  s_cc2d57.reportTemplate.summary: "Backlog" (output) in "Dragged task #4 '{{v1}}' from the Backlog column to the '{{v3}}' column on the Bench Board. Verified via the board's live DOM that task #4 is now inside the '{{"
+  s_3cd5e0.reportTemplate.summary: "Work in progress" (output) in "Signed in as admin/admin, navigated to the 'Bench Board' project board. The board has 4 columns in left-to-right order: **Backlog**, **Ready**, **Work in progre"
+  s_3cd5e0.reportTemplate.summary: "Backlog" (output) in "Signed in as admin/admin, navigated to the 'Bench Board' project board. The board has 4 columns in left-to-right order: **Backlog**, **Ready**, **Work in progre"
+  s_3cd5e0.reportTemplate.summary: "Ready" (output) in "Signed in as admin/admin, navigated to the 'Bench Board' project board. The board has 4 columns in left-to-right order: **Backlog**, **Ready**, **Work in progre"
+  s_3cd5e0.reportTemplate.summary: "Done" (output) in "Signed in as admin/admin, navigated to the 'Bench Board' project board. The board has 4 columns in left-to-right order: **Backlog**, **Ready**, **Work in progre"
+  s_3cd5e0.reportTemplate.values.columns: "Backlog, Ready, Work in progress, Done" (output) in "Backlog, Ready, Work in progress, Done"
+  s_3cd5e0.reportTemplate.values.columns: "Work in progress" (output) in "Backlog, Ready, Work in progress, Done"
+  s_3cd5e0.reportTemplate.values.columns: "Backlog" (output) in "Backlog, Ready, Work in progress, Done"
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwkb2-n1 stop=completed
+turns=7 wall=398.5s
+commands=6 cmdTime=376.7s cmdBytes=3181 timeouts=0
+orchestrator in=11599 cw=0 cr=9920 out=1526
+inner prompt=877793 cached=657920 completion=11699
+spend=$0.046 maxUsd=2
+learn: A_n=0 replayed=0/6 full=0 repaired=0 compiled=6 variants=0
+-> /home/user/browser-pilot/bench/results/fwkb2-n1-browser-pilot-result.json
+
+fwkb2-n1: objectives passed 6/6
+  obj 1: PASS — all 4 column names reported (Backlog | Ready | Work in progress | Done)
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: PASS — task id 4 reported
+
+[sweep] run 2/3: fwkb2-n2 (replay flow fwkb2, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+
+fwkb2-n2: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+[sweep] run 3/3: fwkb2-n3 (replay flow fwkb2, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+
+fwkb2-n3: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+Learning sweep fwkb2 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwkb2-n1' │ '6/6'    │ 'completed' │ 7     │ 6    │ 0.046     │ 0   │ '0/6'        │ 398    │
+│ 1       │ 2 │ 'fwkb2-n2' │ '4/4'    │ 'success'   │ 0     │ 6    │ 0         │ 1   │ '6/6 (flow)' │ 19     │
+│ 2       │ 3 │ 'fwkb2-n3' │ '4/4'    │ 'success'   │ 0     │ 6    │ 0         │ 1   │ '6/6 (flow)' │ 19     │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8085
+  s_3cd5e0  validated   12 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin. Then find the project named 'Bench Board' and …
+  s_3e387d  validated    6 steps  3/3 (100%)
+           On the 'Bench Board' project board, create a new task titled exactly '{{v2}}' with a description that includes…
+  s_cc2d57  validated    3 steps  3/3 (100%)
+           On the 'Bench Board' project board, move the task titled '{{v1}}' (task #4) into the '{{v3}}' column. You can …
+  s_43e9e5  validated    6 steps  3/3 (100%)
+           Open the task page for task #4 titled '{{v1}}' in the 'Bench Board' project. Add a comment to the task whose t…
+  s_9aedee  validated    6 steps  3/3 (100%)
+           On the task page for task #4 titled '{{v1}}' in the 'Bench Board' project, set the task's due date to 2026-12-…
+  s_161d89  validated    9 steps  3/3 (100%)
+           Do a final verification on the 'Bench Board' project: (1) open the board and report the column names left-to-r…
+store: /home/user/browser-pilot/bench/results/fwkb2-skills
+
+summary: /home/user/browser-pilot/bench/results/fwkb2-sweep.json
