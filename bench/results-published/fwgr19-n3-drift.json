@@ -1,0 +1,76 @@
+[
+  {
+    "flow": "fwgr19",
+    "step": "02-create",
+    "skill": "s_8fc03f",
+    "atStep": "17",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('div[role=\"dialog\"]')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+  },
+  {
+    "flow": "fwgr19",
+    "step": "03-add",
+    "skill": "s_807dd1",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.89,
+    "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+    "fallbackUsed": "page.getByRole('button', { name: 'Edit' })",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwyqhn06kidcb/:id"
+  },
+  {
+    "flow": "fwgr19",
+    "step": "03-add",
+    "skill": "s_807dd1",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.89,
+    "missedLocator": "page.locator('button:has-text(\"Add\")')",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+    "fallbackIndex": 4,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwyqhn06kidcb/:id"
+  },
+  {
+    "flow": "fwgr19",
+    "step": "04-add",
+    "skill": "s_045e02",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.986,
+    "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwyqhn06kidcb/:id"
+  },
+  {
+    "flow": "fwgr19",
+    "step": "05-set",
+    "skill": "s_7bff3b",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.896,
+    "missedLocator": "page.getByTestId('data-testid RefreshPicker interval button')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwyqhn06kidcb/:id"
+  },
+  {
+    "flow": "fwgr19",
+    "step": "06-change",
+    "skill": "s_0f5111",
+    "atStep": "17",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByTestId('data-testid Panel menu item Edit')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/efwyqhn06kidcb/:id"
+  }
+]
