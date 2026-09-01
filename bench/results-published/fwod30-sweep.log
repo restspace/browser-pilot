@@ -1,0 +1,167 @@
+
+[sweep] run 1/3: fwod30-n1 (store: /home/user/browser-pilot/bench/results/fwod30-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod30-n1
+  flow "fwod30" saved: 8 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwod30.json
+  warning: note: dropped 4 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: note: 1 step(s) adopted from non-success instruction(s) whose work the session continued from (01-open) — they replay model-first with doubled budget, and a non-success there does not halt the flow
+  warning: warning: 94 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "Benchville" (output) in "Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Contacts app and create a new contact (individual/com"
+  flow.steps[1].instruction: "Benchville" (output) in "Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of http://127.0.0.1:8069/web#action=135&model=res.partner&view_type=kanban&cids"
+  flow.steps[1].params.v6: "Benchville" (output) in "Benchville"
+  flow.steps[5].instruction: "Sales Order" (output) in "In Odoo Sales, open the existing quotation {{03-open.quotation_reference}} for customer '{{runid}} Bench Customer' (via Sales > Quotations). Confirm the quotati"
+  flow.steps[5].params.v4: "Sales Order" (output) in "Sales Order"
+  flow.steps[6].instruction: "Cancelled" (output) in "In Odoo Sales, open the sales order {{03-open.quotation_reference}} for customer '{{runid}} Bench Customer' (via Sales > Orders, or Sales > Quotations). Cancel "
+  s_222b70.steps[2].expect.urlPattern: "ir.module.module" (url) in "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+  s_ca9f7e.preconditions.urlPattern: "ir.module.module" (url) in "http://127.0.0.1:8069/web#action={{d1}}&cids=:id&menu_id={{d2}}&model=ir.module.module&view_type=kanban"
+  s_ca9f7e.steps[0].expect.urlPattern: "ir.module.module" (url) in "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+  s_ca9f7e.steps[1].expect.urlPattern: "ir.module.module" (url) in "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban"
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwod30-n1 stop=completed
+turns=10 wall=1827.0s
+commands=9 cmdTime=1423.8s cmdBytes=8022 timeouts=0
+orchestrator in=23302 cw=0 cr=20288 out=4020
+inner prompt=4455642 cached=3859072 completion=45409
+spend=$0.5707 maxUsd=2
+learn: A_n=0 replayed=0/8 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/browser-pilot/bench/results/fwod30-n1-browser-pilot-result.json
+
+fwod30-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod30-n2 (replay flow fwod30, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod30-n2: 4 drift ticket(s) → fwod30-n2-drift.json
+
+fwod30-n2: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00022
+
+[sweep] run 3/3: fwod30-n3 (replay flow fwod30, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 2 leftover bench customer(s)
+[sweep] fwod30-n3: 3 drift ticket(s) → fwod30-n3-drift.json
+
+fwod30-n3: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod30 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod30-n1' │ '6/6'    │ 'completed' │ 10    │ 9    │ 0.5707    │ 0   │ '0/8'        │ 1827   │
+│ 1       │ 2 │ 'fwod30-n2' │ '6/6'    │ 'success'   │ 182   │ 8    │ 0.4918    │ 1   │ '8/8 (flow)' │ 1215   │
+│ 2       │ 3 │ 'fwod30-n3' │ '6/6'    │ 'success'   │ 121   │ 8    │ 0.0449    │ 1   │ '8/8 (flow)' │ 598    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_36c124  validated    2 steps  3/3 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_7d7c7c  validated   11 steps  3/3 (100%)
+           Verification only, no changes: In Odoo Sales, open the record {{v1}} (customer '{{v2}}'). Report exactly what …
+  s_6739a5  provisional  3 steps  1/2 (50%)
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_543a48  validated    8 steps  2/2 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}}' (via Sales > Quotations). Click Edit, …
+  s_b6d9f5  provisional 24 steps  1/2 (50%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}}' (via Sales > Quotations). Confirm the …
+  s_28e548  provisional  4 steps  1/2 (50%)
+           In Odoo Sales, open the sales order {{v1}} for customer '{{v2}}' (via Sales > Orders, or Sales > Quotations). …
+  s_dc6b82  validated    3 steps  2/2 (100%)
+           Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Con…
+  s_a8dd7d  validated    1 steps  2/2 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_a320b3  validated    3 steps  2/2 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_65a32b  validated    2 steps  2/2 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_142027  validated    2 steps  2/2 (100%)  variant of s_6739a5
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_5ff5da  provisional  2 steps  1/2 (50%)  variant of s_6739a5
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_ca4ffb  validated   15 steps  2/2 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}} Bench Customer' (find it via Sales > Qu…
+  s_a26b06  validated   16 steps  2/2 (100%)  variant of s_b6d9f5
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Quotations…
+  s_33b0b8  validated    7 steps  2/2 (100%)  variant of s_28e548
+           In Odoo Sales, open the sales order {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Orders, or Sales …
+  s_7d0494  provisional  2 steps  1/2 (50%)  variant of s_28e548
+           In Odoo Sales, open the sales order {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Orders, or Sales …
+  s_222b70  provisional  3 steps  1/1 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_ca9f7e  provisional  4 steps  1/1 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_48196e  provisional  2 steps  1/1 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_1eb499  provisional  2 steps  1/1 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_6d8f7f  provisional  3 steps  1/1 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_dbe81d  provisional  2 steps  1/1 (100%)
+           Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of {{v2}} and wait for a Cont…
+  s_53c22b  provisional  1 steps  1/1 (100%)
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_259e4a  provisional  1 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}}' (find it via Sales > Quotations list, …
+  s_f954d5  provisional  2 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}}' (find it via Sales > Quotations list, …
+  s_c90a4c  provisional  7 steps  1/1 (100%)
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_7c2af1  provisional 18 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}}' (find it via Sales > Quotations list, …
+  s_12c1dd  provisional  4 steps  1/1 (100%)
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_dcc630  provisional  1 steps  1/1 (100%)
+           Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Con…
+  s_d9a4ad  provisional  2 steps  1/1 (100%)
+           Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Con…
+  s_c0701a  provisional  4 steps  1/1 (100%)
+           Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Con…
+  s_6c3d9e  provisional  3 steps  1/1 (100%)
+           Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Con…
+  s_ae7031  provisional 35 steps  1/1 (100%)  variant of s_6739a5
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_35d40f  provisional  7 steps  1/1 (100%)  variant of s_6739a5
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_877421  provisional  3 steps  1/1 (100%)  variant of s_28e548
+           In Odoo Sales, open the sales order {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Orders, or Sales …
+  s_1e80e8  provisional  1 steps  1/1 (100%)  variant of s_5ff5da
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_b54683  provisional  1 steps  1/1 (100%)  variant of s_5ff5da
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_b10ca6  provisional  4 steps  1/1 (100%)  variant of s_5ff5da
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_815c13  provisional  5 steps  1/1 (100%)  variant of s_5ff5da
+           In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the…
+  s_d6c50e  provisional  4 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Quotations…
+  s_c26db5  provisional  2 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Quotations…
+  s_e008b5  provisional  3 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Quotations…
+  s_318a61  provisional  9 steps  1/1 (100%)
+           In Odoo Sales, open the existing quotation {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Quotations…
+  s_0736f1  provisional  1 steps  1/1 (100%)  variant of s_7d0494
+           In Odoo Sales, open the sales order {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Orders, or Sales …
+  s_0c3eb6  provisional 12 steps  1/1 (100%)  variant of s_7d0494
+           In Odoo Sales, open the sales order {{v1}} for customer '{{v2}} Bench Customer' (via Sales > Orders, or Sales …
+store: /home/user/browser-pilot/bench/results/fwod30-skills
+
+summary: /home/user/browser-pilot/bench/results/fwod30-sweep.json
