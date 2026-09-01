@@ -86,8 +86,22 @@ export interface ProviderConfig {
    * about — e.g. OpenRouter's {"provider":{"only":["Baidu"]}} backend pin.
    * Set via BROWSER_PILOT_EXTRA_BODY as a JSON object; it is spread LAST, so
    * it can override anything, deliberately.
+   *
+   * It is MAIN-MODEL calibration: a routing pin is chosen for one model's
+   * price/latency, and a different model inherits only its downside. The
+   * bench's Baidu pin (measured for deepseek-v4-flash) rode onto the glm-5.3
+   * escalation tier and turned a 3.9s relabel call into 25s+, which is what
+   * aborted the pass on 3 of 4 live runs. Providers built for the fallback
+   * model take `fallbackExtraBody` instead.
    */
   extraBody?: Record<string, unknown>;
+  /**
+   * Extra body for providers built for the FALLBACK model (escalation, flow
+   * recovery, relabel). Set via BROWSER_PILOT_FALLBACK_EXTRA_BODY; unset
+   * means the fallback tier sends no extra fields — it does NOT inherit
+   * `extraBody`.
+   */
+  fallbackExtraBody?: Record<string, unknown>;
   /** Env vars that were consulted for the key — for error messages. */
   keyEnvVars: string[];
 }
@@ -227,12 +241,13 @@ export function resolveProviderConfig(overrides: ProviderOverrides = {}): Provid
     ),
     apiKey,
     temperature: overrides.temperature ?? 0,
-    extraBody: parseExtraBody(process.env.BROWSER_PILOT_EXTRA_BODY),
+    extraBody: parseExtraBody(process.env.BROWSER_PILOT_EXTRA_BODY, 'BROWSER_PILOT_EXTRA_BODY'),
+    fallbackExtraBody: parseExtraBody(process.env.BROWSER_PILOT_FALLBACK_EXTRA_BODY, 'BROWSER_PILOT_FALLBACK_EXTRA_BODY'),
     keyEnvVars,
   };
 }
 
-function parseExtraBody(raw: string | undefined): Record<string, unknown> | undefined {
+function parseExtraBody(raw: string | undefined, envVar: string): Record<string, unknown> | undefined {
   if (!raw || !raw.trim()) return undefined;
   try {
     const parsed = JSON.parse(raw);
@@ -244,7 +259,7 @@ function parseExtraBody(raw: string | undefined): Record<string, unknown> | unde
   }
   // A malformed value silently ignored would defeat the point of setting it:
   // the caller believes a routing pin is in force when it is not.
-  throw new Error('BROWSER_PILOT_EXTRA_BODY must be a JSON object');
+  throw new Error(`${envVar} must be a JSON object`);
 }
 
 function normalizeFallback(value: string | undefined): string | undefined {

@@ -206,7 +206,9 @@ ${describeLeaks(leaks.slice(0, 6))}`);
   ): Provider | null {
     const config = resolveProviderConfig(overrides);
     if (!config.fallbackModel || config.fallbackModel === primary?.model) return null;
-    return build({ ...config, model: config.fallbackModel });
+    // A different model must not inherit the main model's extraBody: routing
+    // pins are per-model calibration (see ProviderConfig.extraBody).
+    return build({ ...config, model: config.fallbackModel, extraBody: config.fallbackExtraBody });
   }
 
   /**
@@ -219,7 +221,12 @@ ${describeLeaks(leaks.slice(0, 6))}`);
   private recoveryProvider(overrideModel?: string): Provider {
     const config = resolveProviderConfig();
     const model = overrideModel || (config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model);
-    return build({ ...config, model });
+    // Same rule as fallbackProvider: extraBody is main-model calibration, so
+    // a recovery built for a different model takes fallbackExtraBody. This is
+    // what aborted relabel on 3 of 4 live runs — the bench's Baidu pin
+    // (chosen for deepseek-v4-flash) forced glm-5.3 through a slow upstream:
+    // 25.5s measured with the pin vs 3.9s without, against a 75s timebox.
+    return build({ ...config, model, ...(model !== config.model ? { extraBody: config.fallbackExtraBody } : {}) });
   }
 
   async listen(): Promise<void> {

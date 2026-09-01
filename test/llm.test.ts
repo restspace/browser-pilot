@@ -14,6 +14,8 @@ const ENV_VARS = [
   'BROWSER_PILOT_PROVIDER',
   'BROWSER_PILOT_MODEL',
   'BROWSER_PILOT_BASE_URL',
+  'BROWSER_PILOT_EXTRA_BODY',
+  'BROWSER_PILOT_FALLBACK_EXTRA_BODY',
   'BROWSER_PILOT_API_KEY',
   'GLM_API_KEY',
   'ZHIPU_API_KEY',
@@ -66,6 +68,24 @@ describe('provider resolution', () => {
 
   it('presets without an escalation tier leave fallbackModel unset', () => {
     expect(resolveProviderConfig({ provider: 'zhipu' }).fallbackModel).toBeUndefined();
+  });
+
+  it('extraBody is main-model calibration: the fallback tier reads its own env var', () => {
+    // The bench's Baidu routing pin was measured for deepseek-v4-flash; when
+    // the glm-5.3 escalation tier inherited it, a 3.9s relabel call became
+    // 25.5s and blew the 75s timebox on 3 of 4 live runs. So the two tiers
+    // read separate env vars and neither inherits the other's.
+    process.env.BROWSER_PILOT_EXTRA_BODY = '{"provider":{"order":["Baidu"]}}';
+    const cfg = resolveProviderConfig();
+    expect(cfg.extraBody).toEqual({ provider: { order: ['Baidu'] } });
+    expect(cfg.fallbackExtraBody).toBeUndefined();
+    process.env.BROWSER_PILOT_FALLBACK_EXTRA_BODY = '{"provider":{"order":["Novita"]}}';
+    expect(resolveProviderConfig().fallbackExtraBody).toEqual({ provider: { order: ['Novita'] } });
+  });
+
+  it('a malformed fallback extra body fails loudly, naming its own env var', () => {
+    process.env.BROWSER_PILOT_FALLBACK_EXTRA_BODY = 'not json';
+    expect(() => resolveProviderConfig()).toThrow('BROWSER_PILOT_FALLBACK_EXTRA_BODY');
   });
 
   it('fallback model follows the same flag > env > file > preset precedence', () => {

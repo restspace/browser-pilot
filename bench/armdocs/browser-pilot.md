@@ -64,6 +64,9 @@ Environment:
   BROWSER_PILOT_PROVIDER        provider preset name
   BROWSER_PILOT_MODEL           model id override
   BROWSER_PILOT_FALLBACK_MODEL  escalation model for blocked instructions ("none" disables)
+  BROWSER_PILOT_EXTRA_BODY      JSON merged into MAIN-model requests only (e.g. an OpenRouter
+                                provider pin); the fallback tier does not inherit it
+  BROWSER_PILOT_FALLBACK_EXTRA_BODY  same, for the fallback/recovery tier
   BROWSER_PILOT_BASE_URL        any OpenAI-compatible base URL
   BROWSER_PILOT_API_KEY         API key (works with any provider)
   BROWSER_PILOT_CHANNEL         browser channel (default chrome, falls back to msedge)
