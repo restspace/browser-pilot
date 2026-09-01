@@ -1,0 +1,104 @@
+{
+  "arm": "browser-pilot",
+  "target": "kanboard",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "0152c2c"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwkb1-n1",
+  "task": "bench/tasks/kanboard-board-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 6,
+  "wallMs": 560119,
+  "orchestrator": {
+    "input": 10488,
+    "cacheWrite": 0,
+    "cacheRead": 11584,
+    "output": 1402
+  },
+  "inner": {
+    "promptTokens": 1658943,
+    "cachedTokens": 1380672,
+    "completionTokens": 16194,
+    "instructions": 6,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1116289,
+        "completionTokens": 13064,
+        "cachedTokens": 885760,
+        "instructions": 5
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 542654,
+        "completionTokens": 3130,
+        "cachedTokens": 494912,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 5,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 61,
+      "compiled": 5,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 5,
+  "subcommands": {
+    "do": 5
+  },
+  "invocationCount": 5,
+  "commandMs": 531921,
+  "commandBytes": 7575,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwkb1-skills",
+    "instructions": 5,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 61,
+    "compiled": 5,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Together",
+    "Modal",
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.0225,
+  "maxUsd": 2,
+  "spendUsd": 0.2568,
+  "finalText": "All objectives completed and verified on the live pages.\n\n1. DONE — Board columns of `Bench Board`, left to right: **Backlog, Ready, Work in progress, Done**.\n2. DONE — Task `fwkb1-n1 Bench Task` exists on Bench Board; description reads \"Bench task for run fwkb1-n1\" (includes the runid).\n3. DONE — The task card sits in the **Work in progress** column (verified on the board; the three `Seed:` tasks were left untouched in Backlog).\n4. DONE — Comment on the task: \"Comment for run fwkb1-n1\" (author «redacted»).\n5. DONE — Due date set to 2026-12-31; the task page displays \"Due date: 12/31/2026 14:09\".\n6. DONE — Task ID displayed by the app: **#4**.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwkb1-n1-browser-pilot-transcript.jsonl"
+}

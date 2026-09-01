@@ -1,0 +1,138 @@
+{
+  "flow": "fwkb1",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_77b37d; observed table_tr_first_child_th=Ready , table_tr_first_child_th_2=Work in progress , table_tr_first_child_th_3=Done .",
+      "values": {
+        "table_tr_first_child_th": "Ready ",
+        "table_tr_first_child_th_2": "Work in progress ",
+        "table_tr_first_child_th_3": "Done "
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_434799; observed task_title=fwkb1-n3 Bench Task.",
+      "values": {
+        "task_title": "fwkb1-n3 Bench Task"
+      },
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-verify",
+      "status": "success",
+      "summary": "Task #4 'fwkb1-n3 Bench Task' was moved from the Backlog column to the Ready column on the Bench Board. Verified on the board view that the card sits under the 'Ready' column header. The three Seed: tasks (triage inbox, order missing parts, ship repaired device) remain untouched in Backlog.",
+      "values": {
+        "current_column": "Ready",
+        "task_title": "fwkb1-n3 Bench Task",
+        "destination_column": "Ready  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1)"
+      },
+      "tier": "B",
+      "replayed": "5/11",
+      "repaired": true,
+      "turns": 18
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On task #4 'fwkb1-n3 Bench Task', added the comment \"Comment for run fwkb1-n3\" (verified on the task page under the comment section) and set the due date to 12/31/2026 (verified as \"Due date: 12/31/2026 14:18\" on the task page). Both changes saved correctly.",
+      "values": {
+        "comment_text": "Comment for run fwkb1-n3",
+        "due_date_displayed": "12/31/2026 14:18",
+        "strong": "Due date:"
+      },
+      "tier": "A",
+      "replayed": "7/10",
+      "repaired": false,
+      "turns": 30
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Final verification of Bench Board project completed. (a) Board columns left-to-right: Backlog, Ready, Work in progress, Done. (b) Task #4 'fwkb1-n3 Bench Task' sits in the 'Ready' column. (c) Description includes 'fwkb1-n3': \"Bench task for run fwkb1-n3\". (d) Comment contains 'fwkb1-n3': \"Comment for run fwkb1-n3\". (e) Due date displayed: \"12/31/2026 14:18\". (f) Task ID: #4.",
+      "values": {
+        "column_names": "Backlog, Ready, Work in progress, Done",
+        "task_column": "Ready",
+        "description_contains_fwkb1n3": "Bench task for run fwkb1-n3",
+        "comment_text": "Comment for run fwkb1-n3",
+        "due_date_displayed": "12/31/2026 14:18",
+        "task_id": "#4",
+        "due_date_displayed_2": "Due date: 12/31/2026 14:18",
+        "description_text": "Started: Start now",
+        "comment_texts": "A\nadmin Created at: 09/01/2026 14:16 Updated at: 09/01/2026 14:16 Visibility: Standard users\n\nComment for run fwkb1-n3"
+      },
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 8
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwkb1",
+      "step": "03-verify",
+      "skill": "s_b5e84a",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.column, 01-open.column_3, 01-open.column_3, 02-create.column, 01-open.column_3",
+      "reason": "after step 6 the page did not show \"- combobox \\\"Backlog Ready Ready Done\\\": 1\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    },
+    {
+      "flow": "fwkb1",
+      "step": "04-open",
+      "skill": "s_a576c8",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_a576c8 stopped at step 8 — after step 8 none of the 1 recorded page change(s) appeared (e.g. \"- textbox \\\"09/01/2026 14:12\\\": 2026-12-31\") — the step ran but did not have its recorded effect",
+      "reason": "after step 8 none of the 1 recorded page change(s) appeared (e.g. \"- textbox \\\"09/01/2026 14:12\\\": 2026-12-31\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    },
+    {
+      "flow": "fwkb1",
+      "step": "05-open",
+      "skill": "s_28ba73",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('td:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(3) > a')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    }
+  ],
+  "wallMs": 296646,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 803549,
+    "completionTokens": 10626,
+    "cachedTokens": 624640
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 803549,
+      "completionTokens": 10626,
+      "cachedTokens": 624640
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
