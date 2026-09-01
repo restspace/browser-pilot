@@ -72,9 +72,16 @@ export interface LedgerEntry {
  * The url's own vocabulary settles what a shape cannot: a query/hash param
  * NAMED id holds a record id. Only all-digit values qualify — a param named
  * `id` carrying a word is some app's routing, not a record number.
+ *
+ * Exactly `id`, not `.*_id`. The wider match was speculation beyond the
+ * evidence (fwod27's leak was `#id=44`), and fwod29 showed what it costs:
+ * odoo's `menu_id=181` — a routing constant every run shares — banked as a
+ * run-made record id and flunked verify-artifacts' navigation check on a
+ * clean 8/8 sweep. An app calls its record pointer `id`; a `<thing>_id`
+ * param in a url is that thing's ADDRESS in the app's chrome.
  */
 export function idPositionPart(part: { label: string; value: string }): boolean {
-  return /^q\.(id|.*_id)$/.test(part.label) && /^\d{1,10}$/.test(part.value);
+  return part.label === 'q.id' && /^\d{1,10}$/.test(part.value);
 }
 
 export function identifierLike(value: string): boolean {
@@ -172,6 +179,13 @@ export class RunLedger {
     const out: LedgerEntry[] = [];
     for (const part of parts) {
       if (!identifierLike(part.value) && !idPositionPart(part)) continue;
+      // A pure-digit QUERY param the app does not call `id` is routing
+      // vocabulary, not a record: fwod29 banked odoo's `action=315` and
+      // `action=126` (window-action numbers, identical on every run) and the
+      // navigation check flagged 16 "leaks" on a clean sweep. A digit run in
+      // a PATH position (`/tickets/315`) still banks — there the position is
+      // the app saying "this is the record".
+      if (/^\d+$/.test(part.value) && part.label.startsWith('q.') && !idPositionPart(part)) continue;
       const entry = this.add(
         part.value,
         { from: 'url', step, label: part.label },

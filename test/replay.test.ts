@@ -439,6 +439,43 @@ d('ancestor-anchored fallback candidate (fixture page)', () => {
   }, 30_000);
 });
 
+d('interactive-ancestor retargeting (fixture page)', () => {
+  it('a click on an inert span inside a testid button records the BUTTON', async () => {
+    const { describeTarget, candidateExpr } = await import('../src/daemon/recorder.js');
+    const { snapshot } = await import('../src/daemon/refs.js');
+    const session = new BrowserSession({ session: 'ancestorclick', persist: false });
+    try {
+      const page = await session.getPage();
+      // fwgr18's TimePicker shape: the visible text lives in nested spans whose
+      // structure churns between renders; the button carries the identity.
+      await page.setContent(`
+        <button data-testid="TimePicker Open Button" aria-label="Time range picker">
+          <div><span><span>Last 6 hours</span></span></div>
+        </button>`);
+      const snap = await snapshot(page, { full: true } as any);
+      const ref = /text: Last 6 hours \[(@e\d+)\]/.exec(snap) ?? /"Last 6 hours" \[(@e\d+)\]/.exec(snap);
+      // The snapshot may fold the text into the button; click the inner span
+      // via a raw handle path instead when no separate ref exists.
+      let described;
+      if (ref) {
+        described = await describeTarget(page, ref[1], true);
+      } else {
+        // Address the innermost span directly and go through the same
+        // describe path a recorded click takes.
+        const { describeLocator } = await import('../src/daemon/recorder.js');
+        described = await describeLocator(page, page.locator('button span span'), 'button span span', true);
+      }
+      const exprs = described.chain!.map((c: any) => candidateExpr(c));
+      // The chain leads with the CONTROL's identity, not the span's path.
+      expect(exprs[0]).toContain('TimePicker Open Button');
+      // The span's structural path survives as the last-resort fallback.
+      expect(exprs.some((e) => /span/.test(e))).toBe(true);
+    } finally {
+      await session.close();
+    }
+  }, 30_000);
+});
+
 d('read-back synthesis (fixture page)', () => {
   it('captures a durable NON-value locator for a reported value, so it can be re-read', async () => {
     const { captureReadBack } = await import('../src/daemon/recorder.js');

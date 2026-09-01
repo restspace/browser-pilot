@@ -1,0 +1,119 @@
+{
+  "flow": "fwrd38",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in successfully with bench@example.com, created a new ticket titled \"fwrd38-n3 RD Bench Ticket\". The ticket appeared at the top of the ticket list with reference RD-1017, status \"Draft\", customer \"Not recorded\", and 0 parts. No explicit confirmation message was shown besides the ticket appearing in the list.",
+      "values": {
+        "ticket_reference": "RD-1017",
+        "ticket_status": "Draft",
+        "ticket_title": "fwrd38-n3 RD Bench Ticket"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened ticket RD-1017, clicked \"Add part\", and created a part named \"fwrd38-n3 RD Part A\" with cost $100.00 and markup 25%. The part appears in the detail view's table: cost $100.00, markup 25%, qty 1, price $125.00, and the total row also shows $125.00. No supplier was entered.",
+      "values": {
+        "part_name": "fwrd38-n3 RD Part A",
+        "part_cost": "$100.00",
+        "part_markup": "25%",
+        "part_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a second part \"fwrd38-n3 RD Part B\" with cost $200.00 and markup 25% to ticket RD-1017. The app computed its price as $250.00. Both parts (A: $125.00, B: $250.00) are visible in the table, and the parts total shows $375.00.",
+      "values": {
+        "part_b_price": "$250.00",
+        "parts_total": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited part \"fwrd38-n3 RD Part A\" on ticket RD-1017, changing its cost from $100.00 to $150.00 while keeping markup at 25%. After saving, the part's row shows cost $150.00, markup 25%, and the computed price $187.50. The parts total updated from $375.00 to $437.50 ($187.50 + $250.00).",
+      "values": {
+        "part_a_edited_cost": "$150.00",
+        "part_a_edited_markup": "25%",
+        "part_a_edited_price": "$187.50",
+        "parts_total_updated": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Clicked \"Mark Ready\" on ticket RD-1017 but the app showed an alert: \"Ticket is not ready Part 'fwrd38-n3 RD Part A' has no supplier Part 'fwrd38-n3 RD Part B' has no supplier\". To satisfy this precondition, I edited both parts to set their supplier to \"ACME Supplies\". After that, clicking \"Mark Ready\" succeeded and the status updated from Draft to Ready. The button set changed to \"Mark Draft\" and \"Mark Closed\", confirming the ticket is now Ready.",
+      "values": {
+        "final_status": "Ready"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-remove",
+      "status": "success",
+      "summary": "Deleted both parts from ticket RD-1017 (each via \"Delete part\" button and confirming in the modal), then clicked \"Archive ticket\" which succeeded immediately with no precondition error — the button changed to \"Unarchive ticket\". Returning to the ticket list with \"Show archived\" enabled, RD-1017 displays an \"Archived\" badge, status \"Ready\", parts count 0, confirming the ticket is archived with no parts remaining.",
+      "values": {
+        "ticket_reference_archive": "RD-1017",
+        "ticket_status_archived": "Ready",
+        "parts_count_archived": "0",
+        "archived_badge": "Archived"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwrd38",
+      "step": "06-remove",
+      "skill": "s_538ccb",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByText('Ready', { exact: true })",
+      "fallbackUsed": "page.locator('#ticket-rows > tr:nth-of-type(1) > td:nth-of-type(4)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    }
+  ],
+  "wallMs": 26971,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

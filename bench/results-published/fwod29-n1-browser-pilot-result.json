@@ -1,0 +1,104 @@
+{
+  "arm": "browser-pilot",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "5847446"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod29-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 1588954,
+  "orchestrator": {
+    "input": 18487,
+    "cacheWrite": 0,
+    "cacheRead": 25216,
+    "output": 3782
+  },
+  "inner": {
+    "promptTokens": 3780313,
+    "cachedTokens": 3246016,
+    "completionTokens": 29171,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3469135,
+        "completionTokens": 21941,
+        "cachedTokens": 2997248,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 311178,
+        "completionTokens": 7230,
+        "cachedTokens": 248768,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 90,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 1307456,
+  "commandBytes": 6128,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwod29-skills",
+    "instructions": 8,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 90,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "AkashML",
+    "DeepInfra",
+    "Friendli"
+  ],
+  "orReportedCostUsd": 0.0433,
+  "maxUsd": 2,
+  "spendUsd": 0.2938,
+  "finalText": "All six objectives are complete and verified. Final report:\n\n**1. DONE** — Customer `fwod29-n1 Bench Customer` created with City = `Benchville`. Verified on the live contact form: name combobox reads \"fwod29-n1 Bench Customer\", City field reads \"Benchville\".\n\n**2. DONE** — Quotation `S00021` created for that customer with one order line: product **Conference Chair** (E-COM12, Steel), quantity 3.00, unit price auto-filled at **£33.00**, untaxed amount computed as **£99.00** (total £118.80 with 20% tax).\n\n**3. DONE** — Second order line added with a different product: **Customizable Desk**, quantity 2.00, unit price **£750.00**. New untaxed amount for the quotation: **£1,599.00** (£99.00 + £1,500.00). Confirmed exactly two order lines.\n\n**4. DONE** — First line's quantity changed from 3 to 5 (Conference Chair subtotal became £165.00; second line unchanged at 2.00 / £1,500.00). Untaxed amount afterwards: **£1,665.00**.\n\n**5. DONE** — Quotation confirmed via the Confirm button. Order reference: **S00021**. Status shown: **\"Sales Order\"** (active in the statusbar). Untaxed amount still £1,665.00.\n\n**6. DONE** — Order cancelled via the Cancel button (the \"Cancel Sales Order\" modal's \"Send and cancel\" action; the first attempt's clicks appeared unresponsive but had in fact gone through). Status shown after cancelling: **\"Cancelled\"** — verified on the live page as the selected status, with the order no longer in an active state.\n\nNote: the first cancel attempt reported failure because the modal buttons appeared unresponsive, but a follow-up verification confirmed the cancellation had actually succeeded; the final read-only check re-confirmed status \"Cancelled\" and untaxed amount £1,665.00. Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwod29-n1-browser-pilot-transcript.jsonl"
+}

@@ -78,6 +78,14 @@ export function compileSkills(input: CompileInput): Skill[] {
 
   const slots = discoverSlots(input.instruction, steps, input.knownValues);
   const sub = (s: string) => substitute(s, slots);
+  /** Slots whose value the ledger banked from a `q.id` url position — the only
+   *  slots substituteUrlId may write into a navigation arg's `id=`. */
+  const idOriginValues = new Set(
+    Object.entries(input.knownValues ?? {})
+      .filter(([k]) => /:q\.id$/.test(k))
+      .map(([, v]) => String(v ?? '').trim()),
+  );
+  const urlIdSlots = new Map([...slots].filter(([, v]) => idOriginValues.has(v)));
   /** The caller's values for THIS run — a runid, a record it vouched for. */
   const runValues = Object.values(input.knownValues ?? {})
     .map((v) => String(v ?? '').trim())
@@ -164,6 +172,12 @@ export function compileSkills(input: CompileInput): Skill[] {
       const mintedBefore = mintedMap((m) => m.keptIndex < g);
       const mintedHere = mintedMap((m) => m.keptIndex <= g);
       const args = substituteDeep(substituteDeep(step.args, slots), mintedBefore) as Record<string, unknown>;
+      // substitute() deliberately refuses to rewrite a number after `=` (the
+      // nth=25 guard), which is exactly where a navigation url carries its
+      // record id. Rewrite `id=<value>` structurally, and only for slots whose
+      // value the ledger banked from a q.id url position — a cost of "21"
+      // coinciding with a record id must not bind the url to the cost.
+      if (typeof args.url === 'string' && urlIdSlots.size) args.url = substituteUrlId(args.url, urlIdSlots);
       const locators: Record<string, LocatorCandidate[]> = {};
       for (const [key, loc] of Object.entries(step.locators)) {
         const filled = (loc.chain ?? []).map((c) => substituteDeep(substituteDeep(c, slots), mintedBefore) as LocatorCandidate);
@@ -509,11 +523,44 @@ export function discoverSlots(
     .map((v) => ({ v, at: instruction.indexOf(v) }))
     .sort((a, b) => a.at - b.at || b.v.length - a.v.length)
     .slice(0, Math.max(0, MAX_SLOT_VALUES - knownVals.length));
+  // Third slot source, exempt from instruction anchoring: a navigation arg's
+  // `id=` value that the ledger already banked from an EARLIER instruction's
+  // url. The armdoc rightly forbids instructions naming database ids, so this
+  // value can never anchor in prose — but its ORIGIN is known (a `url:iN:q.id`
+  // binding), and slots bind by origin when the template cannot supply them.
+  // fwod29 is the cost of the gap: three downstream skills carried
+  // `...&id=21` literally, every replay navigated to the recording run's
+  // deleted order, saw an empty page, and paid ~20 recovery turns.
+  const urlIdVals: string[] = [];
+  const knownIdOrigins = new Set(
+    Object.entries(known)
+      .filter(([k]) => /:q\.id$/.test(k))
+      .map(([, v]) => String(v ?? '').trim()),
+  );
+  for (const step of steps) {
+    if (typeof step.args.url !== 'string') continue;
+    for (const part of urlParts(step.args.url)) {
+      if (part.label !== 'q.id' || !/^\d{1,10}$/.test(part.value)) continue;
+      if (!knownIdOrigins.has(part.value) || urlIdVals.includes(part.value)) continue;
+      if (knownVals.includes(part.value) || values.has(part.value)) continue;
+      urlIdVals.push(part.value);
+    }
+  }
   const slots = new Map<string, string>();
   // Known values first so a cap can never cut them: they are the slots that
   // decide whether the skill survives past the run that recorded it.
-  [...knownVals, ...ordered.map(({ v }) => v)].forEach((v, i) => slots.set(`v${i + 1}`, v));
+  [...knownVals, ...ordered.map(({ v }) => v), ...urlIdVals].forEach((v, i) => slots.set(`v${i + 1}`, v));
   return slots;
+}
+
+/** Rewrite `id=<value>` url params to slot markers — see the call site. */
+export function substituteUrlId(url: string, slots: Map<string, string>): string {
+  let out = url;
+  for (const [name, value] of slots) {
+    if (!/^\d{1,10}$/.test(value)) continue;
+    out = out.replace(new RegExp(`([?&#]id=)${escapeRe(value)}(?=[&#]|$)`, 'g'), `$1{{${name}}}`);
+  }
+  return out;
 }
 
 /** How many times `value` stands as a whole token in `text`. */

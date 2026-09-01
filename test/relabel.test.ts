@@ -129,3 +129,36 @@ describe('applyRelabelToSkills', () => {
     expect(sk.steps[0].label).toBe('h1'); // label untouched: not this skill's rename
   });
 });
+
+describe('persisting the renamed skill (the fwkb1 no-op-put bug)', () => {
+  it('SkillStore.get returns a fresh disk read, so the persist must put the object applyRelabelToSkills MUTATED', async () => {
+    const fs = await import('node:fs');
+    const os = await import('node:os');
+    const path = await import('node:path');
+    const { SkillStore } = await import('../src/skills/store.js');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-relabel-store-'));
+    try {
+      const store = new SkillStore(tmp);
+      const sk = {
+        id: 's_kb1', origin: 'http://x', template: 'open the board', params: {},
+        preconditions: {}, steps: [{ tool: 'read', args: {}, locators: {}, label: 'table_tr_first_child_th' }],
+        stats: { uses: 1 }, status: 'candidate', provenance: { session: 's', instruction: 'x', created: 'now' },
+      } as unknown as Skill;
+      store.put(sk);
+      const plan = new Map([[1, { table_tr_first_child_th: 'column_2' }]]);
+      const skills = [store.get('s_kb1')!];
+      const changed = applyRelabelToSkills(skills, plan, new Map([['s_kb1', 1]]));
+      expect(changed).toEqual(['s_kb1']);
+      // The trap: get() re-reads from disk, so re-fetching here hands back the
+      // PRISTINE skill and putting it discards the rename — which is exactly
+      // what exportFlow did, and why fwkb1's flow said {{01-open.column_3}}
+      // while its skill kept publishing table_tr_first_child_th.
+      expect(store.get('s_kb1')!.steps[0].label).toBe('table_tr_first_child_th');
+      // The fix: put the mutated object itself.
+      store.put(skills[0]);
+      expect(store.get('s_kb1')!.steps[0].label).toBe('column_2');
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});

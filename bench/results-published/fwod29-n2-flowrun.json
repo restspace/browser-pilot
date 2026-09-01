@@ -1,0 +1,209 @@
+{
+  "flow": "fwod29",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Odoo 17 (admin/admin) — the session was already authenticated from the earlier attempt, landing on the backend. Navigated via the app drawer to Sales → Orders → Customers (res.partner kanban), clicked \"New\", filled Name = \"fwod29-n2 Bench Customer\" and City = \"Benchville\" (Company type was preselected; no other required fields blocked saving), then clicked \"Save manually\". The record saved as id=44 — the URL changed to .../res.partner&view_type=form&id=44 and the page title became \"Odoo - fwod29-n2 Bench Customer\". Verified on the live form: the name combobox value reads \"fwod29-n2 Bench Customer\" and the City textbox reads \"Benchville\". Screenshot captured at /root/.browser-pilot/sessions/fwod29-n2/screenshots/shot-1788274755076.jpg.",
+      "values": {
+        "city": "Benchville",
+        "contact_name": "fwod29-n2 Bench Customer",
+        "page_title": "Odoo - fwod29-n2 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "33/33",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Resumed on the already-saved quotation form (id=21). Verified from the live saved page: quotation reference S00022 for customer 'fwod29-n2 Bench Customer' (Benchville), with exactly one order line — product 'Conference Chair' [E-COM12] Conference Chair (Steel), quantity 3.00, unit price £33.00 auto-filled, 20% tax, untaxed amount £99.00, total £118.80. The customer and product were both selected from their autocomplete dropdowns in the previous session (confirmed by the record's saved state). Screenshot captured at /root/.browser-pilot/sessions/{{v2}}/screenshots/shot-1788275109613.jpg.",
+      "values": {
+        "ref": "S00022"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened existing draft quotation S00022 for customer fwod29-n2 Bench Customer. Added a second order line with product 'Customizable Desk' (selected from the autocomplete dropdown) at quantity 2. The unit price auto-filled at £750.00 (with 20% tax). After saving, the quotation shows exactly two order lines: Conference Chair (3 × £33.00 = £99.00) and Customizable Desk (2 × £750.00 = £1,500.00), with a total untaxed amount of £1,599.00. All verified from the saved page.",
+      "values": {
+        "second_line_product": "Customizable Desk",
+        "second_line_unit_price": "750.00",
+        "total_untaxed": "£ 1,599.00",
+        "ref": "S00022"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened existing draft quotation S00022. Changed line 1's quantity from 3 to 5. After save, verified from the saved page: (a) line 1 (Conference Chair) quantity = 5.00 with subtotal £165.00, (b) line 2 (Customizable Desk) quantity = 2.00 (unchanged) with subtotal £1,500.00, (c) total untaxed amount = £1,665.00. Screenshot captured.",
+      "values": {
+        "line1_qty": "5.00",
+        "line2_qty": "2.00",
+        "line1_subtotal": "£ 165.00",
+        "line2_subtotal": "£ 1,500.00",
+        "total_untaxed": "£ 1,665.00",
+        "ref": "S00022"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed draft quotation S00022 (fwod29-n2 Bench Customer) by clicking the Confirm button — no dialog appeared. After confirmation the statusbar shows \"Sales Order\" as the active status. The untaxed amount remains £1,665.00 (confirmed from the order lines table). Screenshot captured.",
+      "values": {
+        "status_label": "Sales Order\nQuotation Sent\nQuotation",
+        "ref": "S00022"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled sales order S00022 for fwod29-n2 Bench Customer. Clicked Cancel which triggered a native confirm dialog (\"Are you sure you want to cancel this order?\") — accepted it. After confirmation, the statusbar shows \"Cancelled\" as the active/checked radio, with the other stages (Sales Order, Quotation Sent, Quotation) disabled. The order reference is S00022. The order is no longer in an active state.",
+      "values": {
+        "order_reference": "S00022",
+        "status_label": "Cancelled",
+        "status_label_2": "Sales Order\nQuotation Sent\nQuotation",
+        "status_label_3": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "The sales order S00022 (fwod29-n2 Bench Customer) is now in Cancelled status — the statusbar shows \"Cancelled\" as the selected radio button, with \"Sales Order\", \"Quotation Sent\", and \"Quotation\" as inactive downstream states. The order reference reads \"S00022\". The previous attempt's dialog interactions must have actually succeeded on one of its attempts (the order is no longer active). Verified from the live saved page.",
+      "values": {
+        "status_label": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00022"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-report",
+      "status": "success",
+      "summary": "Verified both records read-only:\n1. Customer contact 'fwod29-n2 Bench Customer' — Name field: \"fwod29-n2 Bench Customer\", City field: \"Benchville\".\n2. Sales order S00022 — Reference: \"S00022\", Status: \"Cancelled\" (checked/active radio in the statusbar, with Sales Order/Quotation Sent/Quotation inactive), Customer: \"fwod29-n2 Bench Customer\", Untaxed Amount: \"£ 1,665.00\".",
+      "values": {
+        "customer_name": "fwod29-n2 Bench Customer",
+        "customer_city": "Benchville",
+        "so_reference": "S00022",
+        "so_status": "Cancelled",
+        "so_customer": "fwod29-n2 Bench Customer",
+        "so_untaxed": "£ 1,665.00",
+        "so_status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "so_customer_2": "fwod29-n2 Bench Customer\nBenchville",
+        "so_untaxed_2": "Untaxed Amount\t£ 1,665.00"
+      },
+      "tier": "A",
+      "replayed": "4/6",
+      "repaired": false,
+      "turns": 6
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwod29",
+      "step": "02-create",
+      "skill": "s_1dec89",
+      "atStep": "3",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('header > nav > div:nth-of-type(3) > div:nth-of-type(4) > button > span')",
+      "fallbackUsed": "page.getByText('6', { exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod29",
+      "step": "02-create",
+      "skill": "s_082737",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('option', { name: 'fwod29-n2 Bench Customer' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod29",
+      "step": "02-create",
+      "skill": "s_082737",
+      "atStep": "6",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('option', { name: 'Conference Chair' }).nth(0)",
+      "fallbackUsed": "page.locator('#autocomplete_0_0')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod29",
+      "step": "06-open",
+      "skill": "s_facf33",
+      "similarity": 0.996,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "the flow step has no pinned skill",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod29",
+      "step": "08-report",
+      "skill": "s_8abca6",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_8abca6 stopped at step 5 — wait_for failed: wait_for text_contains timed out after 5000ms (last: text=\"\") — value never changed from text=\"\", so this condition may be unsatisfiable (e.g. count against a virtualised list renders only visible rows); assert on a stable indicator instead",
+      "reason": "wait_for failed: wait_for text_contains timed out after 5000ms (last: text=\"\") — value never changed from text=\"\", so this condition may be unsatisfiable (e.g. count against a virtualised list renders only visible rows); assert on a stable indicator instead",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+  ],
+  "wallMs": 203037,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 446621,
+    "completionTokens": 7015,
+    "cachedTokens": 331776
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 446621,
+      "completionTokens": 7015,
+      "cachedTokens": 331776
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

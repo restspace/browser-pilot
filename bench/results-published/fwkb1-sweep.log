@@ -1,0 +1,92 @@
+
+[sweep] run 1/3: fwkb1-n1 (store: /home/user/browser-pilot/bench/results/fwkb1-skills)
+[harness] kanboard: defaulting APP_URL
+[harness] kanboard: defaulting APP_EMAIL
+[harness] kanboard: defaulting APP_PASSWORD
+[reset] kanboard: no leftover bench tasks
+[harness] kanboard responded 302 at http://127.0.0.1:8085/
+stopped: fwkb1-n1
+  flow "fwkb1" saved: 5 step(s), vars runid → /home/user/browser-pilot/bench/results/flows/fwkb1.json
+  warning: note: dropped 1 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: 53 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "admin" (output) in "Open http://127.0.0.1:8085/ and sign in with username admin and password admin. Then navigate to the project named 'Bench Board' and open its board. Report the "
+  flow.steps[3].instruction: "2026-12-31" (output) in "Open task #4 ('{{runid}} Bench Task') in the Bench Board project. Add a comment to the task whose text includes '{{runid}}' (e.g. 'Comment for run {{runid}}'). "
+  s_434799.reportTemplate.summary: "Backlog" (output) in "Created a new task with title \"{{v2}}\" and description \"{{v3}}\" in the Backlog column of Bench Board. The app assigned task ID #4, visible on the task card and "
+  s_434799.reportTemplate.values.column: "Backlog" (output) in "Backlog"
+  s_b5e84a.steps[5].expect.addedContains[2]: "Ready" (output) in "- combobox \"{{v3}} Ready {{v4}} Done\": 1"
+  s_b5e84a.steps[5].expect.addedContains[2]: "Done" (output) in "- combobox \"{{v3}} Ready {{v4}} Done\": 1"
+  s_b5e84a.steps[6].expect.addedContains[0]: "Ready" (output) in "- combobox \"{{v3}} Ready {{v4}} Done\": 3"
+  s_b5e84a.steps[6].expect.addedContains[0]: "Done" (output) in "- combobox \"{{v3}} Ready {{v4}} Done\": 3"
+  s_5b12b5.template: "2026-12-31" (output) in "Open task #4 ('{{v1}}') in the Bench Board project. Add a comment to the task whose text includes '{{v2}}' (e.g. '{{v3}}'). Then set the task's due date to 2026"
+  s_5b12b5.steps[7].args.value: "2026-12-31" (output) in "2026-12-31"
+  warning: {{02-create.column}} (used by 03-verify) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+  warning: {{01-open.column_3}} (used by 03-verify) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+arm=browser-pilot model=z-ai/glm-5.3 runid=fwkb1-n1 stop=completed
+turns=6 wall=560.1s
+commands=5 cmdTime=531.9s cmdBytes=7575 timeouts=0
+orchestrator in=10488 cw=0 cr=11584 out=1402
+inner prompt=1658943 cached=1380672 completion=16194
+spend=$0.2568 maxUsd=2
+learn: A_n=0 replayed=0/5 full=0 repaired=0 compiled=5 variants=0
+-> /home/user/browser-pilot/bench/results/fwkb1-n1-browser-pilot-result.json
+
+fwkb1-n1: objectives passed 6/6
+  obj 1: PASS — all 4 column names reported (Backlog | Ready | Work in progress | Done)
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: PASS — task id 4 reported
+
+[sweep] run 2/3: fwkb1-n2 (replay flow fwkb1, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+[sweep] fwkb1-n2: 3 drift ticket(s) → fwkb1-n2-drift.json
+
+fwkb1-n2: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+[sweep] run 3/3: fwkb1-n3 (replay flow fwkb1, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+[sweep] fwkb1-n3: 3 drift ticket(s) → fwkb1-n3-drift.json
+
+fwkb1-n3: objectives passed 3/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: FAIL — column=Ready
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+Learning sweep fwkb1 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwkb1-n1' │ '6/6'    │ 'completed' │ 6     │ 5    │ 0.2568    │ 0   │ '0/5'        │ 560    │
+│ 1       │ 2 │ 'fwkb1-n2' │ '4/4'    │ 'success'   │ 46    │ 5    │ 0.0781    │ 1   │ '5/5 (flow)' │ 287    │
+│ 2       │ 3 │ 'fwkb1-n3' │ '3/4'    │ 'success'   │ 56    │ 5    │ 0.0177    │ 1   │ '5/5 (flow)' │ 297    │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8085
+  s_77b37d  validated   10 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin. Then navigate to the project named 'Bench Boar…
+  s_434799  validated    5 steps  3/3 (100%)
+           On the Bench Board project board, create a new task with title exactly '{{v2}}' and a description that include…
+  s_b5e84a  validated   11 steps  2/3 (67%)
+           On the Bench Board board, move the task '{{v1}}' (task {{v5}}) from the {{v3}} column into the '{{v4}}' column…
+  s_28ba73  validated    5 steps  3/3 (100%)
+           Final verification on the Bench Board project: open the board and confirm (a) the left-to-right column names, …
+  s_5b12b5  provisional 26 steps  1/2 (50%)
+           Open task #4 ('{{v1}}') in the Bench Board project. Add a comment to the task whose text includes '{{v2}}' (e.…
+  s_a576c8  provisional 10 steps  1/2 (50%)  variant of s_5b12b5
+           Open task #4 ('{{v2}}') in the Bench Board project. Add a comment to the task whose text includes '{{v1}}' (e.…
+  s_8a68f3  provisional 14 steps  1/1 (100%)  variant of s_b5e84a
+           On the Bench Board board, move the task '{{v1}} Bench Task' (task {{v2}}) from the column into the '' column (…
+  s_778a5d  provisional 19 steps  1/1 (100%)  variant of s_a576c8
+           Open task #4 ('{{v2}}') in the Bench Board project. Add a comment to the task whose text includes '{{v1}}' (e.…
+store: /home/user/browser-pilot/bench/results/fwkb1-skills
+
+summary: /home/user/browser-pilot/bench/results/fwkb1-sweep.json

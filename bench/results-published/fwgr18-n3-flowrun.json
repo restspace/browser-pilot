@@ -1,0 +1,304 @@
+{
+  "flow": "fwgr18",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (skipped any change-password prompt via the replayed stored procedure). Using dashboard search, found and opened the 'Service health' dashboard. The dashboard contains 3 panels with titles exactly as shown on screen: **Request rate**, **Error count**, and **Latency by endpoint**.",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 15
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard in Grafana with a Stat panel titled 'fwgr18-n3 Availability' using the TestData data source, and saved it as 'fwgr18-n3 Bench Dashboard'. Verified on the saved dashboard: the visualization picker (aria-label \"Change Visualization\") shows \"Stat\", the panel title input contains \"fwgr18-n3 Availability\", and query A's data source header shows \"A (TestData)\". The save was confirmed by the \"Dashboard saved\" alert and the URL change to /d/afwy80ow98dmoc/fwgr18-n3-bench-dashboard.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/10",
+      "repaired": false,
+      "turns": 60
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel to the 'fwgr18-n3 Bench Dashboard' with title 'fwgr18-n3 Notes' and text content 'Notes for run fwgr18-n3'. Saved the dashboard explicitly, confirmed by the 'Dashboard saved' alert. Panel title, text content, and visualization type (Text) were verified from the live page.",
+      "values": {
+        "dashboard_title": "fwgr18-n3 Bench Dashboard",
+        "panel_title": "fwgr18-n3 Notes",
+        "panel_text_content": "Notes for run fwgr18-n3",
+        "panel_visualization": "Text"
+      },
+      "tier": "B",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 2,
+      "repinned": "s_e55cb5"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_5df8a8; observed panel_titles=Panel Title, fwgr18-n3 Availability, panel_1_title=fwgr18-n3 Notes, panel_2_title=fwgr18-n3 Notes, panel_1_text_content=Notes for run fwgr18-n3, panel_2_value=Notes for run fwgr18-n3.",
+      "values": {
+        "panel_titles": "Panel Title, fwgr18-n3 Availability",
+        "panel_1_title": "fwgr18-n3 Notes",
+        "panel_2_title": "fwgr18-n3 Notes",
+        "panel_1_text_content": "Notes for run fwgr18-n3",
+        "panel_2_value": "Notes for run fwgr18-n3"
+      },
+      "tier": "A",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "The panel 'fwgr18-n3 Notes' already had the correct title (no change needed — it was already 'fwgr18-n3 Notes'). Text content remained 'Notes for run fwgr18-n3'. The save dialog confirmed 'No changes to save'. Verified from the live page: heading shows 'fwgr18-n3 Notes' and the paragraph content reads 'Notes for run fwgr18-n3'.",
+      "values": {
+        "panel_title": "fwgr18-n3 Notes",
+        "panel_text_content": "Notes for run fwgr18-n3"
+      },
+      "tier": "B",
+      "replayed": "5/5",
+      "repaired": false,
+      "turns": 9,
+      "repinned": "s_23b925"
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened dashboard settings (gear icon), added the tag 'bench' to the dashboard (verified in settings: tag chip 'bench' with remove button present). The time range was already set to 'Last 6 hours' (confirmed by the picker showing 'Last 6 hours'). Saved the dashboard explicitly (Save dashboard button > Save dialog confirmed 'Update default time range' checked, 'Dashboard saved' alert appeared). Final verification from live page: tags include 'bench', time range picker shows 'Last 6 hours'.",
+      "values": {
+        "time_range": "Last 6 hours",
+        "dashboard_tags_1": "bench"
+      },
+      "tier": "A",
+      "replayed": "0/11",
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8b577d; observed refresh_interval=1m.",
+      "values": {
+        "refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Reloaded the dashboard and verified all six items from the live page: (1) Dashboard title in breadcrumb: 'fwgr18-n3 Bench Dashboard'; (2) Panel titles: 'fwgr18-n3 Notes' (Text panel showing 'Notes for run fwgr18-n3') and 'fwgr18-n3 Availability' (Stat panel showing A-series value 31.1); (3) Time range picker: 'Last 6 hours'; (4) Auto-refresh interval picker: '1m'; (5) Tags in dashboard settings (opened via Edit → Settings gear): 'bench' (shown as a tag chip with a 'Remove bench tag' button); (6) Full URL: http://127.0.0.1:3000/d/afwy80ow98dmoc/fwgr18-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m. Nothing was changed — I entered edit mode only to reach the Settings page, then exited edit mode without saving.",
+      "values": {
+        "dashboard_title": "fwgr18-n3 Bench Dashboard",
+        "panel_titles": "fwgr18-n3 Notes, fwgr18-n3 Availability",
+        "refresh_interval": "1m",
+        "tags": "bench",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "1/9",
+      "repaired": false,
+      "turns": 43
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_4246b2; observed visualization_type=Stat, panel_title=fwgr18-n3 Availability.",
+      "values": {
+        "visualization_type": "Stat",
+        "panel_title": "fwgr18-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_4246b2"
+    }
+  ],
+  "passed": 9,
+  "total": 9,
+  "repinned": 3,
+  "drift": 12,
+  "driftTickets": [
+    {
+      "flow": "fwgr18",
+      "step": "01-open",
+      "skill": "s_6956d2",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_6956d2 stopped at step 4 — after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "02-create",
+      "skill": "s_e4a029",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('[data-testid=\"data-testid TimePicker Open Button\"] span')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1) > div > span > span:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "02-create",
+      "skill": "s_e4a029",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('[data-testid=\"data-testid TimePicker Open Button\"] span')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1) > div > span > span:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "02-create",
+      "skill": "s_e6b634",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('div:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(3) > div:nth-of-type(1) > div')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "03-open",
+      "skill": "s_e55cb5",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "the flow step has no pinned skill",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "04-open",
+      "skill": "s_5df8a8",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.933,
+      "missedLocator": "page.locator('[id=\"_rgl_\"]')",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "04-open",
+      "skill": "s_5df8a8",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.933,
+      "missedLocator": "page.getByRole('heading', { name: 'fwgr18-n3 Availability' })",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2')",
+      "fallbackIndex": 3,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "04-open",
+      "skill": "s_5df8a8",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 0.933,
+      "missedLocator": "page.locator('[data-testid=\"data-testid panel content\"] span')",
+      "fallbackUsed": "page.locator('div > div > div:nth-of-type(1) > div > div > span').nth(1)",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "05-open",
+      "skill": "s_23b925",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 04-open.panel_1_type, 04-open.panel_1_type",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "06-open",
+      "skill": "s_3ff8e8",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_3ff8e8 stopped at step 1 — after step 1 the page did not show \"- heading \\\"{{v3}} Availability\\\"\" / \"- button \\\"Menu for panel with title {{v3}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 1 the page did not show \"- heading \\\"{{v3}} Availability\\\"\" / \"- button \\\"Menu for panel with title {{v3}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "08-open",
+      "skill": "s_bd14a4",
+      "similarity": 0.997,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_bd14a4 stopped at step 1 — the page at http://127.0.0.1:3000/d/afwy80ow98dmoc/:id does not show \"fwgr18-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/afwy80ow98dmoc/:id does not show \"fwgr18-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    },
+    {
+      "flow": "fwgr18",
+      "step": "09-open",
+      "skill": "s_4246b2",
+      "atStep": "8",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('[id=\"_r2u_\"]')",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2').nth(1)",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwy80ow98dmoc/:id"
+    }
+  ],
+  "wallMs": 898699,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3307916,
+    "completionTokens": 28770,
+    "cachedTokens": 2931520
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2401040,
+      "completionTokens": 19487,
+      "cachedTokens": 2094592
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 906876,
+      "completionTokens": 9283,
+      "cachedTokens": 836928
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

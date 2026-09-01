@@ -19,6 +19,7 @@ import path from 'node:path';
 import { RunLedger, scanForLeaks, fatal, describeLeaks, identifierLike } from '../dist/skills/ledger.js';
 import { publishedOutputs } from '../dist/skills/learn.js';
 import { positionalExpr } from '../dist/daemon/recorder.js';
+import { urlParts } from '../dist/skills/compile.js';
 
 const args = process.argv.slice(2);
 const tag = args.find((a) => !a.startsWith('--'));
@@ -99,19 +100,14 @@ function recordingLedger() {
   // without it the navigation-target check below is decorative: seeding the
   // ledger from the compiled `args.url` it then scans would make every url id
   // match itself. Only available when the sweep published the session log.
+  // ONE url parser — the daemon's own urlParts — so the labels this ledger
+  // sees are the labels idPositionPart and the numeric-query exclusion were
+  // written against. The hand-rolled parser here labeled odoo's hash params
+  // `menu_id`/`action` instead of `q.menu_id`/`q.action`, so the ledger
+  // narrowing that fixed fwod29's 16 false navigation leaks never applied to
+  // this script's own reconstruction, and the FAIL survived the fix.
   for (const url of sessionUrls()) {
-    try {
-      const u = new URL(url);
-      const parts = [];
-      u.pathname.split('/').filter(Boolean).forEach((v, i) => parts.push({ label: `p${i}`, value: decodeURIComponent(v) }));
-      u.hash.replace(/^#\/?/, '').split(/[/&]/).filter(Boolean).forEach((seg, i) => {
-        const [k, v] = seg.includes('=') ? seg.split('=') : [`h${i}`, seg];
-        parts.push({ label: k, value: decodeURIComponent(v ?? '') });
-      });
-      l.addUrlIds(url, 'recorded', parts);
-    } catch {
-      continue;
-    }
+    l.addUrlIds(url, 'recorded', urlParts(url));
   }
   // Prefer the flow's `recorded` values; without a flow (a refused export) fall
   // back to the session recording, which holds the same report entries. A
@@ -132,16 +128,8 @@ function recordingLedger() {
   for (const sk of store) {
     const text = `${sk.provenance?.instruction ?? ''} ${sk.preconditions?.urlPattern ?? ''}`;
     for (const url of text.match(/https?:\/\/[^\s'")]+/g) ?? []) {
-      const parts = [];
-      try {
-        const u = new URL(url);
-        u.pathname.split('/').filter(Boolean).forEach((v, i) => parts.push({ label: `p${i}`, value: decodeURIComponent(v) }));
-        u.hash.replace(/^#\/?/, '').split('/').filter(Boolean).forEach((v, i) => parts.push({ label: `h${i}`, value: decodeURIComponent(v) }));
-      } catch {
-        continue;
-      }
       // A stored pattern's own {{v3}} marker is not a value.
-      l.addUrlIds(url, 'recorded', parts.filter((p) => !p.value.includes('{{')));
+      l.addUrlIds(url, 'recorded', urlParts(url).filter((p) => !p.value.includes('{{')));
     }
   }
   return l;

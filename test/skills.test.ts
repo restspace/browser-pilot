@@ -40,6 +40,58 @@ function step(tool: string, args: Record<string, unknown>, chain: RecordedStep['
 }
 
 /** A recording of the add-part instruction as the agent would have produced it. */
+describe('cross-instruction url record-id slotting (fwod29)', () => {
+  it("slots a goto url's id= when an earlier instruction's url minted it, binding by origin", () => {
+    // The armdoc forbids instructions naming database ids, so this value can
+    // never anchor in prose. fwod29 compiled three skills with `...&id=21`
+    // literal; every replay navigated to the recording run's deleted order.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Open the sales order S00021 and report its state.', url: `${ORIGIN}/web` } as RecordedEntry,
+      step('goto', { url: `${ORIGIN}/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=21` }, [], {
+        diff: { url: `${ORIGIN}/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=21`, alerts: [], added: ['- heading "S00021"'] },
+      }),
+      step('read', { target: '@e5', what: 'text' }, [{ kind: 'css', selector: 'h1' }], { result: '"S00021"' }),
+    ];
+    const [skill] = compileSkills({
+      entries,
+      instruction: 'Open the sales order S00021 and report its state.',
+      report: { status: 'success', summary: 'opened', evidence: { values: { reference: 'S00021' } } },
+      session: 's',
+      knownValues: { 'var:runid': 'x7', 'url:i2:q.id': '21' },
+    });
+    expect(skill).toBeTruthy();
+    const gotoStep = skill.steps.find((st) => st.tool === 'goto')!;
+    const slotName = Object.entries(skill.params).find(([, p]) => p.binding === 'url:i2:q.id')?.[0];
+    expect(slotName).toBeTruthy();
+    expect(String(gotoStep.args.url)).toContain(`id={{${slotName}}}`);
+    expect(String(gotoStep.args.url)).not.toContain('id=21');
+    // Routing constants stay literal — they are the app's, not the run's.
+    expect(String(gotoStep.args.url)).toContain('menu_id=181');
+    expect(String(gotoStep.args.url)).toContain('action=315');
+  });
+
+  it('a coinciding non-id slot value never rewrites a url id=', () => {
+    // A cost of "21" must not bind the navigation to the cost.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Set the cost to 21 on the open order.', url: `${ORIGIN}/web` } as RecordedEntry,
+      step('fill', { target: '@e2', value: '21' }, [{ kind: 'label', label: 'Cost' }]),
+      step('goto', { url: `${ORIGIN}/web#model=sale.order&id=21` }, [], {
+        diff: { url: `${ORIGIN}/web#model=sale.order&id=21`, alerts: [], added: [] },
+      }),
+    ];
+    const [skill] = compileSkills({
+      entries,
+      instruction: 'Set the cost to 21 on the open order.',
+      report: { status: 'success', summary: 'set' },
+      session: 's',
+      knownValues: {},
+    });
+    expect(skill).toBeTruthy();
+    const gotoStep = skill.steps.find((st) => st.tool === 'goto')!;
+    expect(String(gotoStep.args.url)).toContain('id=21');
+  });
+});
+
 function recording(): RecordedEntry[] {
   return [
     { k: 'instruction', text: INSTRUCTION, url: `${ORIGIN}/#/tickets/t15`, fingerprint: [1, 0, 0] },

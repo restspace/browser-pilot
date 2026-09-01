@@ -393,7 +393,9 @@ async function main(): Promise<void> {
         // read "flow was never saved" and SKIPPED both replays, while the
         // detached daemon finished writing a perfectly good flow seconds
         // later. Reachable-and-working must be allowed to finish.
-        const stopTimeout = flags.get('save-flow') ? 120_000 : 20_000;
+        // 150s: the relabel pass inside stop may ride out a full OpenRouter
+    // rate-limit wait (its own 100s timebox) and the export still needs room.
+    const stopTimeout = flags.get('save-flow') ? 150_000 : 20_000;
         const res = await request(conn, 'stop', { saveFlow: flags.get('save-flow') || undefined }, undefined, stopTimeout);
         const data = res.data as { preempted?: boolean; videos?: string[]; flow?: { path?: string; name?: string; steps?: number; vars?: string[]; warnings?: string[]; error?: string } } | undefined;
         console.log(`stopped: ${name}${data?.preempted ? ' (interrupted a running instruction)' : ''}`);

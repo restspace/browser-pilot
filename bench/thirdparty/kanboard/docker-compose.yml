@@ -24,8 +24,11 @@ services:
       - kanboard-data:/var/www/app/data
       - ./config.php:/var/www/app/config.php:ro
     healthcheck:
-      # busybox wget; the login page always carries the product name.
-      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1/ | grep -qi kanboard"]
+      # busybox wget, exit status only: fwkb1 showed the login page's HTML
+      # never contains the literal "kanboard" (title is just "Login"), so the
+      # grep variant failed forever while the app worked fine. A successful
+      # fetch (302 -> login, wget follows) is the liveness signal.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
       interval: 5s
       timeout: 5s
       retries: 30

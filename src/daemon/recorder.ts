@@ -853,6 +853,27 @@ async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: stri
         await link.dispose().catch(() => {});
       }
     }
+    // A click on an INERT element inside a control belongs to the control. The
+    // agent clicks whatever the snapshot handed it — often a text span inside
+    // a button — and the span's inner structure is the most volatile DOM in
+    // the app: fwgr18 recorded grafana's time-picker as `[testid] span > span`,
+    // the span nesting changed once a range was set, and every replay fell to
+    // a bare structural path (4 of the sweep's 11 fallthroughs). The BUTTON
+    // has the testid and the stable identity; a click on it lands the same.
+    const control = await interactiveAncestorOf(handle).catch(() => null);
+    if (control) {
+      try {
+        const controlInfo = (await control.evaluate(describeInPage)) as ElementInfo;
+        const { winner, chain } = await verifiedChain(page, controlInfo, control);
+        if (winner) {
+          const selfInfo = (await handle.evaluate(describeInPage)) as ElementInfo;
+          const fallback: LocatorCandidate = { kind: 'css', selector: selfInfo.cssPath };
+          return { expr: candidateExpr(winner), verified: true, raw, chain: [...chain, fallback] };
+        }
+      } finally {
+        await control.dispose().catch(() => {});
+      }
+    }
   }
   const info = (await handle.evaluate(describeInPage)) as ElementInfo;
   const { winner, chain } = await verifiedChain(page, info, handle);
@@ -860,6 +881,36 @@ async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: stri
   // Nothing resolved back to this element — hand over the structural path and
   // let the generated script flag it, rather than inventing something clean.
   return { expr: `page.locator(${q(info.cssPath)})`, verified: false, raw, chain };
+}
+
+/**
+ * If `handle` is an inert presentational element (a span, an icon) sitting
+ * inside an interactive control a few hops up, return the control — the
+ * element whose identity (testid, role, accessible name) survives the app
+ * restyling its innards. Null when the element is itself interactive or no
+ * control encloses it.
+ */
+async function interactiveAncestorOf(handle: ElementHandle<Node>): Promise<ElementHandle<Element> | null> {
+  const found = await handle.evaluateHandle((el) => {
+    const node = el as Element;
+    const interactive = (n: Element): boolean => {
+      if (/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY|LABEL)$/.test(n.tagName)) return true;
+      const role = n.getAttribute('role');
+      if (role && /^(button|link|menuitem|menuitemcheckbox|menuitemradio|tab|option|checkbox|radio|switch)$/.test(role)) return true;
+      return n.hasAttribute('tabindex') && n.getAttribute('tabindex') !== '-1';
+    };
+    if (!/^(SPAN|I|EM|B|STRONG|SVG|PATH|USE|IMG|SMALL|SUP|SUB)$/.test(node.tagName) || interactive(node)) return null;
+    for (let cur = node.parentElement, hops = 0; cur && hops < 4; cur = cur.parentElement, hops++) {
+      if (interactive(cur)) return cur;
+    }
+    return null;
+  });
+  const el = found.asElement();
+  if (!el) {
+    await found.dispose().catch(() => {});
+    return null;
+  }
+  return el as ElementHandle<Element>;
 }
 
 /**
@@ -1030,6 +1081,11 @@ export function isStableId(id: string): boolean {
   if (!id || id.length > 64) return false;
   if (/^[:\d]/.test(id)) return false;
   if (/[0-9a-f]{8,}/i.test(id)) return false;
+  // React's useId with the colons swapped for underscores (grafana does
+  // this): `_rgl_`, `_r2u_`. Re-minted every render pass, so a primary built
+  // on one misses on every replay — fwgr18 recorded `[id="_rgl_"]` and
+  // `[id="_r2u_"]` as primaries and both were dead chains at replay time.
+  if (/^_r[0-9a-z]{1,4}_$/i.test(id)) return false;
   return !/^(radix|headlessui|mui|react-aria)[-:]/i.test(id);
 }
 

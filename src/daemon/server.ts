@@ -608,23 +608,26 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         // Time-boxed: this runs inside `stop`, whose caller is waiting. A
         // slow model costs a bounded wait and the flow exports with the names
         // it has; it must never cost the export (see the CLI's stop timeout,
-        // 120s with --save-flow). 30s proved too tight in practice — fwod28's
-        // pass aborted before glm-5.3 answered, its trace reading
-        // {"(error)":"LLM request aborted"} on both live outings.
+        // 150s with --save-flow). 30s proved too tight (fwod28 aborted on
+        // both outings), and 75s still lost fwod29-n1 — the un-pinned call
+        // itself takes ~4s, so what 75s cannot absorb is ONE 429 whose
+        // Retry-After hint runs to 65s. 100s covers a full rate-limit wait
+        // plus the retry.
         const { plan, dropped } = await requestRelabelPlan(this.recoveryProvider(), cases, {
-          signal: AbortSignal.timeout(75_000),
+          signal: AbortSignal.timeout(100_000),
         });
         if (dropped.length) console.error(`[relabel] dropped ${dropped.length} unsafe rename(s): ${dropped.join('; ')}`);
         // Leave a trace even when nothing is renamed: fwod27's script showed
         // zero `relabel` fields and could not say whether the pass proposed
         // nothing or never ran — this daemon's stderr goes nowhere.
-        if (!plan.size) {
+        const emptyTrace = (): void => {
           const last = [...entries].reverse().find((e) => e.k === 'report' && e.status === 'success');
           if (last && last.k === 'report') {
             last.relabel = {};
-            this.browser.script.persist();
+            this.browser.script?.persist();
           }
-        }
+        };
+        if (!plan.size) emptyTrace();
         if (plan.size) {
           const applied = applyRelabelToEntries(entries, plan);
           // A skill may be the head of a segment chain whose LATER segment
@@ -638,12 +641,26 @@ ${describeLeaks(leaks.slice(0, 6))}`);
             for (const s of chain) skillIndex.set(s.id, c.index);
           }
           const skills = [...skillIndex.keys()].map((id) => store.get(id)).filter((s): s is NonNullable<typeof s> => Boolean(s));
+          // Persist the objects applyRelabelToSkills MUTATED. The first cut
+          // re-fetched with store.get(id) here — but get() re-reads from disk
+          // every call, so it handed back pristine copies and the put was a
+          // no-op. The skill-side rename silently never persisted on ANY run:
+          // fwkb1's flow said {{01-open.column_3}} while its skill kept
+          // publishing table_tr_first_child_th_2, both replays hit unresolved
+          // refs, and n3's recovery — destination blanked — invented "Ready"
+          // and reported success. One dead-reference bug in a new costume,
+          // exactly as relabel.ts's doc comment warned.
+          const byId = new Map(skills.map((s) => [s.id, s]));
           for (const id of applyRelabelToSkills(skills, plan, skillIndex)) {
-            const sk = store.get(id);
+            const sk = byId.get(id);
             if (sk) store.put(sk);
           }
           this.browser.script.persist();
           console.error(`[relabel] renamed ${applied} value(s) across ${plan.size} instruction(s)`);
+          // A plan whose every rename missed its report (validator survivors
+          // that matched no existing key) writes no per-report trace at all —
+          // fwrd38-n1's silence. Ran-but-changed-nothing must still say so.
+          if (applied === 0) emptyTrace();
         }
       }
     } catch (err) {
@@ -851,6 +868,18 @@ ${describeLeaks(leaks.slice(0, 10))}`);
             resetNote = `\n\n[replay] The browser is showing a different record than this step needs (${direct.wrongRecord}). Navigate to the record this instruction names before doing anything else.`;
           }
         }
+        // A soft-resolved instruction has BLANKS where its references were.
+        // fwkb1-n3 is what an unguarded blank costs: "move the task into the
+        // '' column" left the destination to the model's imagination, it
+        // picked "Ready", moved the card there, verified ITS OWN choice and
+        // reported success — a wrong outcome delivered confidently. Guessing
+        // a detail (which button opens a form) is recovery working; guessing
+        // the GOAL is not.
+        const blankNote = unresolved
+          ? `\n\n[replay] One or more details in this instruction could not be resolved and appear blank or missing. ` +
+            `Work them out from the page when the goal itself is clear — but if a blank leaves the goal ambiguous ` +
+            `(a destination, a target record, a value to set), STOP and report blocked instead of guessing.`
+          : '';
         const route = recoveryRoute(step, unresolved);
         const primary = route.easy ? opts.provider : opts.recovery;
         const escalation = route.easy && opts.recovery.model !== opts.provider.model ? opts.recovery : null;
@@ -870,7 +899,7 @@ ${describeLeaks(leaks.slice(0, 10))}`);
             this.state,
             (direct.prelude ? `${recoveryText}
 
-${direct.prelude}` : recoveryText) + resetNote,
+${direct.prelude}` : recoveryText) + blankNote + resetNote,
             {
               maxTurns: budget.maxTurns,
               timeoutMs: budget.timeoutMs,

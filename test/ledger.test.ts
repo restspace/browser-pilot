@@ -229,7 +229,11 @@ describe('id-position url parts', () => {
   it('a q.id part is an identifier by position, whatever its length', async () => {
     const { idPositionPart, RunLedger } = await import('../src/skills/ledger.js');
     expect(idPositionPart({ label: 'q.id', value: '44' })).toBe(true);
-    expect(idPositionPart({ label: 'q.res_id', value: '7' })).toBe(true);
+    // Exactly `id` — a `<thing>_id` param addresses app chrome, not a record.
+    // fwod29 banked odoo's menu_id=181 (identical every run) under the wider
+    // `.*_id` match and flunked the navigation check on a clean 8/8 sweep.
+    expect(idPositionPart({ label: 'q.res_id', value: '7' })).toBe(false);
+    expect(idPositionPart({ label: 'q.menu_id', value: '181' })).toBe(false);
     // shape still matters when the label is not an id slot
     expect(idPositionPart({ label: 'q.view_type', value: '44' })).toBe(false);
     // and an id-named param carrying a word is routing, not a record number
@@ -242,5 +246,23 @@ describe('id-position url parts', () => {
       { label: 'q.model', value: 'res.partner' },
     ]);
     expect(banked.map((b) => b.value)).toEqual(['44']);
+  });
+
+  it('does not bank a pure-digit query param the app names something other than id', async () => {
+    const { RunLedger } = await import('../src/skills/ledger.js');
+    // fwod29's false alarm: odoo's window-action and menu numbers are routing
+    // constants shared by every run, but `action=315` passed identifierLike
+    // and banked as a run-made identifier. The app's own vocabulary decides:
+    // a numeric QUERY param not named `id` is chrome; a digit run in a PATH
+    // position (/tickets/315) is still the record it points at.
+    const ledger = new RunLedger();
+    const banked = ledger.addUrlIds('http://x/web#cids=1&menu_id=181&action=315', 'i1', [
+      { label: 'q.cids', value: '1' },
+      { label: 'q.menu_id', value: '181' },
+      { label: 'q.action', value: '315' },
+    ]);
+    expect(banked).toEqual([]);
+    const pathBanked = ledger.addUrlIds('http://x/tickets/315', 'i2', [{ label: 'p1', value: '315' }]);
+    expect(pathBanked.map((b) => b.value)).toEqual(['315']);
   });
 });

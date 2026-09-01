@@ -1,0 +1,9948 @@
+[
+ {
+  "id": "s_6a0981",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact '{{v1}} Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order {{v2}} and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n2",
+    "usedIn": [
+     9
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "S00022",
+    "usedIn": [
+     7
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_city_value",
+     "target": "@e4218",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "label": "customer_city",
+    "via": {
+     "skill": "s_8abca6",
+     "step": 2
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_name_value",
+     "target": "@e4205",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "label": "customer_name",
+    "via": {
+     "skill": "s_8abca6",
+     "step": 3
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=21"
+    },
+    "locators": {},
+    "via": {
+     "skill": "s_8abca6",
+     "step": 4
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_name_value",
+     "target": "@e589",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "label": "customer_name"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_city_value",
+     "target": "@e602",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "label": "customer_city"
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=22"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "so_reference",
+     "target": "@e774",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "so_reference"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "so_status",
+     "target": "@e771",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "radiogroup",
+       "name": "Statusbar"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div"
+      }
+     ]
+    },
+    "label": "so_status_2"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "so_customer",
+     "target": "@e783",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v1}} Bench Customer Benchville"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a"
+      }
+     ]
+    },
+    "label": "so_customer_2"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "so_untaxed",
+     "target": "@e925",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div > div > table > tbody > tr:nth-of-type(1)",
+       "nth": 1
+      }
+     ]
+    },
+    "label": "so_untaxed_2"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "so_untaxed"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Verified both records read-only:\n1. Customer contact '{{v1}} Bench Customer' — Name field: \"{{v1}} Bench Customer\", City field: \"Benchville\".\n2. Sales order {{v2}} — Reference: \"{{v2}}\", Status: \"Cancelled\" (checked/active radio in the statusbar, with Sales Order/Quotation Sent/Quotation inactive), Customer: \"{{v1}} Bench Customer\", Untaxed Amount: \"£ 1,665.00\".",
+   "values": {
+    "customer_name": "{{v1}} Bench Customer",
+    "customer_city": "Benchville",
+    "so_reference": "{{v2}}",
+    "so_status": "Cancelled",
+    "so_customer": "{{v1}} Bench Customer",
+    "so_untaxed": "£ 1,665.00",
+    "so_status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+    "so_customer_2": "{{v1}} Bench Customer\nBenchville",
+    "so_untaxed_2": "Untaxed Amount\t£ 1,665.00"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-01T15:23:36.838Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "variantOf": "s_8abca6",
+  "provenance": {
+   "session": "fwod29-n2",
+   "instruction": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact 'fwod29-n2 Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order S00022 and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:23:36.838Z"
+  }
+ },
+ {
+  "id": "s_ea2d56",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web/login"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e15",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Password"
+      },
+      {
+       "kind": "id",
+       "selector": "#password"
+      },
+      {
+       "kind": "css",
+       "selector": "#password"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web/login",
+     "addedContains": [
+      "- textbox \"Password\": admin"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e17"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Log in"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > form > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.cids"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#cids=:id",
+     "addedContains": [
+      "- button \"Home Menu\"",
+      "- button \"{{d1}}\"",
+      "- button \"\"",
+      "- button \"YourCompany\"",
+      "- button \"\""
+     ]
+    }
+   }
+  ],
+  "derived": {
+   "d1": {
+    "step": 2,
+    "at": "q.cids",
+    "example": "1"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:23:44.913Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 1,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_83d229",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#cids={{d1}}",
+   "fingerprint": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.183,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.365,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.183,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.183,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0.091,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.183,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.091,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0.639,
+    0,
+    0.183,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.137,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0.137,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.046,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id",
+     "addedContains": [
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:23:45.617Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 2,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_dd97e9",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d2}}&cids={{d1}}&menu_id={{d3}}"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#cids=1&menu_id=91&action=126"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e79"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(5)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=:var&view_type=:var",
+     "addedContains": [
+      "- button \"Apps\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:23:46.865Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 3,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_7a6104",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d4}}&cids={{d1}}&menu_id={{d5}}&model=mail.activity&view_type=list"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#cids=1&menu_id=107&action=126"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.menu_id"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=mail.activity&view_type=list",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e275"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=mail.activity&view_type=list",
+     "addedContains": [
+      "- menuitem \"Main Apps\"",
+      "- menuitem \"Theme Store\"",
+      "- menuitem \"Third-Party Apps\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e272"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Apps",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=:var&view_type=:var",
+     "addedContains": [
+      "- button \"Remove\"",
+      "- heading \"Sales\"",
+      "- button \"Learn More\"",
+      "- button \"Dropdown menu\"",
+      "- heading \"Restaurant\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#cids=1&menu_id=81&action=126"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=mail.activity&view_type=list",
+     "addedContains": [
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#cids=1&menu_id=107&action=126"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e675"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(5)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=:var&view_type=:var",
+     "addedContains": [
+      "- button \"Apps\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.{{d1}}:8069/web#cids=1&menu_id=107&action=126"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=mail.activity&view_type=list",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e871"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=mail.activity&view_type=list",
+     "addedContains": [
+      "- menuitem \"Main Apps\"",
+      "- menuitem \"Theme Store\"",
+      "- menuitem \"Third-Party Apps\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1068"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Main Apps"
+      },
+      {
+       "kind": "css",
+       "selector": "header > nav > div:nth-of-type(2) > div > div > a:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=:var&view_type=:var",
+     "addedContains": [
+      "- button \"Remove\"",
+      "- heading \"Sales\"",
+      "- button \"Learn More\"",
+      "- button \"Dropdown menu\"",
+      "- heading \"Restaurant\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Sales\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:23:53.576Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 4,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_6512a8",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d7}}&cids={{d1}}&menu_id={{d8}}&model=ir.module.module&view_type=kanban"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1967"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=ir.module.module&view_type=kanban",
+     "addedContains": [
+      "- button \"Orders\"",
+      "- button \"To Invoice\"",
+      "- button \"Products\"",
+      "- button \"Reporting\"",
+      "- button \"Configuration\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1974"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Orders"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(2) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- menuitem \"Quotations\"",
+      "- menuitem \"Orders\"",
+      "- menuitem \"Sales Teams\"",
+      "- menuitem \"Customers\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:23:54.880Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 5,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_acdaf5",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids={{d1}}&menu_id=:id&model=sale.order&view_type=list"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2341"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1974"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Orders"
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(2) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- menuitem \"Quotations\"",
+      "- menuitem \"Orders\"",
+      "- menuitem \"Sales Teams\"",
+      "- menuitem \"Customers\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2350"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Customers"
+      },
+      {
+       "kind": "css",
+       "selector": "header > nav > div:nth-of-type(2) > div:nth-of-type(1) > div > a:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=:var&view_type=:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2357"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- link \"Customers\"",
+      "- button \"Save manually\"",
+      "- button \"Discard changes\"",
+      "- button \"0 Sales\"",
+      "- button \"0.00 Invoiced\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:23:57.752Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 6,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_a99241",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids={{d1}}&menu_id=:id&model=res.partner&view_type=form",
+   "fingerprint": [
+    0,
+    0.041,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.069,
+    0,
+    0,
+    0,
+    0.014,
+    0.041,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0.096,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0,
+    0.069,
+    0,
+    0.028,
+    0.014,
+    0.014,
+    0,
+    0.096,
+    0.055,
+    0.014,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0,
+    0.028,
+    0.014,
+    0,
+    0.014,
+    0,
+    0,
+    0.014,
+    0.193,
+    0.014,
+    0,
+    0,
+    0.014,
+    0,
+    0.083,
+    0,
+    0.028,
+    0.055,
+    0.041,
+    0,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.055,
+    0.028,
+    0.055,
+    0.028,
+    0,
+    0,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.041,
+    0.041,
+    0.028,
+    0,
+    0,
+    0,
+    0.083,
+    0.055,
+    0,
+    0.028,
+    0,
+    0,
+    0.028,
+    0.11,
+    0.055,
+    0.055,
+    0.028,
+    0.014,
+    0.014,
+    0.055,
+    0.041,
+    0,
+    0,
+    0.069,
+    0,
+    0.041,
+    0.028,
+    0.028,
+    0.028,
+    0,
+    0,
+    0.124,
+    0.028,
+    0,
+    0,
+    0.041,
+    0.083,
+    0,
+    0.028,
+    0.028,
+    0.083,
+    0,
+    0,
+    0,
+    0.193,
+    0,
+    0.028,
+    0,
+    0.041,
+    0.028,
+    0.041,
+    0,
+    0.055,
+    0.028,
+    0.055,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.014,
+    0.014,
+    0,
+    0,
+    0.041,
+    0,
+    0.028,
+    0.041,
+    0,
+    0,
+    0.055,
+    0,
+    0.028,
+    0.083,
+    0,
+    0,
+    0.041,
+    0.028,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.055,
+    0.11,
+    0,
+    0.014,
+    0.041,
+    0.028,
+    0.055,
+    0,
+    0,
+    0.028,
+    0.028,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0.041,
+    0.028,
+    0.014,
+    0.014,
+    0.014,
+    0.041,
+    0,
+    0.124,
+    0,
+    0.041,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.014,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0.028,
+    0.014,
+    0.11,
+    0.028,
+    0.165,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.014,
+    0.083,
+    0,
+    0,
+    0,
+    0.041,
+    0.014,
+    0,
+    0.041,
+    0,
+    0.083,
+    0.028,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.041,
+    0.014,
+    0.041,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.055,
+    0.028,
+    0.014,
+    0.041,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0.041,
+    0.055,
+    0,
+    0.028,
+    0.041,
+    0,
+    0.041,
+    0.055,
+    0,
+    0.028,
+    0.014,
+    0.028,
+    0,
+    0.014,
+    0.014,
+    0.028,
+    0,
+    0.028,
+    0.055,
+    0.041,
+    0,
+    0.041,
+    0,
+    0,
+    0.028,
+    0.069,
+    0.055,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.014,
+    0,
+    0,
+    0.028,
+    0.014,
+    0.041,
+    0.055,
+    0.041,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0,
+    0,
+    0.468,
+    0.138,
+    0.014,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0.028,
+    0,
+    0.014,
+    0.055,
+    0,
+    0.014,
+    0.083,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.041,
+    0.014,
+    0,
+    0,
+    0.069,
+    0,
+    0.028,
+    0.124,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0.069,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.028,
+    0,
+    0.028,
+    0.041,
+    0.193,
+    0,
+    0.028,
+    0.014,
+    0,
+    0.028,
+    0.055,
+    0,
+    0,
+    0,
+    0.028,
+    0.11,
+    0,
+    0.041,
+    0.014,
+    0,
+    0.041,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0,
+    0.014,
+    0,
+    0.028,
+    0.193,
+    0.028,
+    0.014,
+    0,
+    0.028,
+    0.055,
+    0.028,
+    0,
+    0.028,
+    0.041,
+    0.041,
+    0.138,
+    0,
+    0.028,
+    0,
+    0,
+    0.014,
+    0,
+    0.083,
+    0,
+    0.083,
+    0.028,
+    0.041,
+    0.041,
+    0,
+    0.041,
+    0,
+    0.028,
+    0.014,
+    0,
+    0.193,
+    0.138,
+    0.055,
+    0.028,
+    0.028,
+    0.041,
+    0,
+    0,
+    0.055,
+    0,
+    0,
+    0.014,
+    0.055,
+    0.028,
+    0,
+    0.041,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0.069,
+    0.041,
+    0.055,
+    0.11,
+    0,
+    0.028,
+    0,
+    0,
+    0.028,
+    0.055,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0.041,
+    0,
+    0,
+    0,
+    0.028,
+    0.028,
+    0.028,
+    0.041,
+    0.096,
+    0,
+    0,
+    0.028,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.041,
+    0.041,
+    0.041,
+    0.055,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0.083,
+    0,
+    0.014,
+    0.028,
+    0.055,
+    0.028,
+    0,
+    0.028,
+    0.041,
+    0.055,
+    0,
+    0.014,
+    0.028,
+    0,
+    0,
+    0,
+    0.041,
+    0,
+    0.014,
+    0.014,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.028,
+    0.028,
+    0.014,
+    0.028
+   ]
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2507",
+     "value": "{{v1}} Bench Customer"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- combobox \"e.g. Lumber Inc\": {{v1}} Bench Customer"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2520",
+     "value": "Benchville"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- textbox \"City\": Benchville"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2466"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.{{d1}}:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- button \"£ 0.00 Invoiced\"",
+      "- button \"Previous\"",
+      "- button \"Next\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "city",
+     "target": "@e2520",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "label": "city"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "contact_name",
+     "target": "@e2507",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "label": "contact_name"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "page_title",
+     "target": "title",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "title"
+      },
+      {
+       "kind": "css",
+       "selector": "html > head > title"
+      }
+     ]
+    },
+    "label": "page_title"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Signed in to Odoo 17 (admin/admin) — the session was already authenticated from the earlier attempt, landing on the backend. Navigated via the app drawer to Sales → Orders → Customers (res.partner kanban), clicked \"New\", filled Name = \"{{v1}} Bench Customer\" and City = \"Benchville\" (Company type was preselected; no other required fields blocked saving), then clicked \"Save manually\". The record saved as id=44 — the URL changed to .../res.partner&view_type=form&id=44 and the page title became \"Odoo - {{v1}} Bench Customer\". Verified on the live form: the name combobox value reads \"{{v1}} Bench Customer\" and the City textbox reads \"Benchville\". Screenshot captured at /root/.browser-pilot/sessions/{{v1}}/screenshots/shot-1788274755076.jpg.",
+   "values": {
+    "city": "Benchville",
+    "contact_name": "{{v1}} Bench Customer",
+    "page_title": "Odoo - {{v1}} Bench Customer"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:24:00.785Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 7,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_40cd5b",
+  "origin": "http://127.0.0.1:8069",
+  "template": "Sign in to Odoo 17 at {{v2}} with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly '{{v1}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name '{{v1}} Bench Customer' and City 'Benchville'. Report what you observed.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "http://127.0.0.1:8069/",
+    "usedIn": [
+     1
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v2}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e12",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Email"
+      },
+      {
+       "kind": "label",
+       "label": "Email"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Email"
+      },
+      {
+       "kind": "id",
+       "selector": "#login"
+      },
+      {
+       "kind": "css",
+       "selector": "#login"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web/login",
+     "addedContains": [
+      "- textbox \"Email\": admin"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 5,
+   "successes": 5,
+   "partial": 0,
+   "created": "2026-09-01T14:59:17.636Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:24:00.795Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_3b2621",
+   "index": 0,
+   "of": 8
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (do not wait for network idle, the app long-polls; wait for concrete page state instead). Then create a new customer contact named exactly 'fwod29-n1 Bench Customer' with the City field set to 'Benchville' (fill any other required fields as needed). Save it and verify the record shows the name 'fwod29-n1 Bench Customer' and City 'Benchville'. Report what you observed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T14:59:17.636Z"
+  }
+ },
+ {
+  "id": "s_346de8",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), go to Sales -> Orders -> Quotations and create a NEW quotation for the customer '{{v1}}' (the customer field is an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), set the quantity to 3. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app auto-filled for that line, (c) the untaxed amount the app computed, and (d) the quotation reference/name (e.g. S00042). Verify these values from the saved page before reporting.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d1}}&cids=:id&menu_id={{d2}}&model=sale.order&view_type=list",
+   "fingerprint": [
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.052,
+    0,
+    0,
+    0.097,
+    0.052,
+    0.026,
+    0.006,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0.045,
+    0.013,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0.045,
+    0.175,
+    0.026,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.104,
+    0.013,
+    0.006,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.039,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.097,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.039,
+    0.091,
+    0.156,
+    0,
+    0.006,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.013,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0.013,
+    0.013,
+    0,
+    0.013,
+    0,
+    0.013,
+    0.019,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.058,
+    0.013,
+    0,
+    0.013,
+    0,
+    0,
+    0.006,
+    0.143,
+    0,
+    0.052,
+    0,
+    0,
+    0,
+    0.058,
+    0,
+    0,
+    0,
+    0.006,
+    0.019,
+    0,
+    0,
+    0,
+    0.026,
+    0,
+    0,
+    0.026,
+    0,
+    0.006,
+    0.169,
+    0,
+    0.006,
+    0.026,
+    0,
+    0.091,
+    0.006,
+    0.013,
+    0.013,
+    0.045,
+    0,
+    0,
+    0.091,
+    0.045,
+    0.039,
+    0.078,
+    0,
+    0,
+    0.006,
+    0.104,
+    0,
+    0.013,
+    0,
+    0.058,
+    0.052,
+    0,
+    0.019,
+    0,
+    0.071,
+    0.058,
+    0.026,
+    0,
+    0,
+    0.071,
+    0.006,
+    0.006,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0.058,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0.006,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0.052,
+    0,
+    0.013,
+    0,
+    0.117,
+    0.045,
+    0,
+    0,
+    0.013,
+    0.019,
+    0,
+    0,
+    0.065,
+    0.097,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.045,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.091,
+    0.058,
+    0.013,
+    0.006,
+    0.013,
+    0.013,
+    0,
+    0.045,
+    0,
+    0,
+    0,
+    0.013,
+    0.006,
+    0.006,
+    0.013,
+    0.013,
+    0,
+    0.013,
+    0.013,
+    0.019,
+    0,
+    0.026,
+    0.013,
+    0,
+    0.013,
+    0.013,
+    0,
+    0,
+    0,
+    0.091,
+    0.006,
+    0,
+    0.013,
+    0.013,
+    0.006,
+    0.006,
+    0,
+    0.117,
+    0,
+    0.013,
+    0.019,
+    0.006,
+    0.026,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.091,
+    0.045,
+    0.097,
+    0,
+    0.006,
+    0.006,
+    0.013,
+    0,
+    0.032,
+    0.091,
+    0.013,
+    0,
+    0,
+    0,
+    0.052,
+    0.013,
+    0.006,
+    0,
+    0.052,
+    0.013,
+    0.006,
+    0.006,
+    0.11,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0.013,
+    0,
+    0.084,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.006,
+    0,
+    0.045,
+    0.013,
+    0,
+    0.006,
+    0,
+    0,
+    0.013,
+    0.091,
+    0,
+    0.136,
+    0.006,
+    0.091,
+    0.006,
+    0,
+    0.019,
+    0.006,
+    0.019,
+    0,
+    0,
+    0.006,
+    0.013,
+    0,
+    0,
+    0,
+    0.052,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.052,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.084,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.071,
+    0,
+    0,
+    0,
+    0.013,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0.013,
+    0.013,
+    0.006,
+    0.013,
+    0,
+    0.006,
+    0.013,
+    0,
+    0,
+    0,
+    0.026,
+    0,
+    0.006,
+    0,
+    0.026,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.052,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.208,
+    0.019,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0.065,
+    0.013,
+    0,
+    0.013,
+    0.039,
+    0.026,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0.071,
+    0.026,
+    0.032,
+    0,
+    0.006,
+    0.006,
+    0.013,
+    0.065,
+    0.052,
+    0.013,
+    0.013,
+    0.019,
+    0.091,
+    0.006,
+    0,
+    0,
+    0.013,
+    0,
+    0.006,
+    0,
+    0.013,
+    0.006,
+    0,
+    0.013,
+    0.013,
+    0.065,
+    0.052,
+    0,
+    0.058,
+    0,
+    0.019,
+    0.006,
+    0,
+    0.013,
+    0.013,
+    0.104,
+    0.104,
+    0.286,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.006,
+    0.123,
+    0,
+    0,
+    0,
+    0.026,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.013,
+    0.013,
+    0,
+    0.006,
+    0,
+    0.052,
+    0,
+    0.065,
+    0.013,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.013,
+    0.026,
+    0,
+    0,
+    0.026,
+    0.136,
+    0,
+    0,
+    0.006,
+    0.013,
+    0.013,
+    0.006,
+    0,
+    0.045,
+    0,
+    0.006,
+    0,
+    0.006,
+    0,
+    0.013,
+    0.013,
+    0.552,
+    0.052,
+    0.006,
+    0.013
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2656"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3051"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a customer..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a customer..."
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- option \"Acme Corporation\"",
+      "- option \"Azure Interior\"",
+      "- option \"{{v1}}\"",
+      "- option \"Acme Corporation, Addison Olson\"",
+      "- option \"Acme Corporation, Douglas Fletcher\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T15:05:12.166Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:24:05.040Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_214c15",
+   "index": 1,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), go to Sales -> Orders -> Quotations and create a NEW quotation for the customer 'fwod29-n1 Bench Customer' (the customer field is an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), set the quantity to 3. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app auto-filled for that line, (c) the untaxed amount the app computed, and (d) the quotation reference/name (e.g. S00042). Verify these values from the saved page before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:05:12.166Z"
+  }
+ },
+ {
+  "id": "s_082737",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), go to Sales -> Orders -> Quotations and create a NEW quotation for the customer '{{v1}}' (the customer field is an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), set the quantity to 3. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app auto-filled for that line, (c) the untaxed amount the app computed, and (d) the quotation reference/name (e.g. S00042). Verify these values from the saved page before reporting.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [
+     1,
+     2
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action={{d1}}&cids=:id&menu_id={{d2}}&model=sale.order&view_type=form",
+   "requireText": [
+    "{{v1}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e3051",
+     "text": "{{v1}}",
+     "delay_ms": 50
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a customer..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a customer..."
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a customer...\": {{v1}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3210"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "option",
+       "name": "{{v1}}",
+       "nth": 0
+      },
+      {
+       "kind": "id",
+       "selector": "#autocomplete_0_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#autocomplete_0_0"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- button \"Internal link\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3132"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add a product"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > a:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\"",
+      "- textbox \"\"",
+      "- textbox \"\": 1.00",
+      "- textbox \"\": 0.00"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3228"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- option \"[FURN_6666] Acoustic Bloc Screens\"",
+      "- option \"[E-COM11] Cabinet with Doors\"",
+      "- option \"Chair floor protection\"",
+      "- option \"Conference Chair\"",
+      "- option \"[FURN_1118] Corner Desk Left Sit\""
+     ]
+    }
+   },
+   {
+    "tool": "type",
+    "args": {
+     "delay_ms": 30,
+     "target": "@e3228",
+     "text": "Conference Chair"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a product...\": Conference Chair"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3253"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "option",
+       "name": "Conference Chair",
+       "nth": 0
+      },
+      {
+       "kind": "id",
+       "selector": "#autocomplete_0_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#autocomplete_0_0"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- dialog \"\"",
+      "- heading \"Configure your product\"",
+      "- button \"Close\"",
+      "- button \"Cancel\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3304"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add one"
+      },
+      {
+       "kind": "css",
+       "selector": "table:nth-of-type(1) > tbody > tr:nth-of-type(1) > td:nth-of-type(3) > div > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- spinbutton \"\": 2",
+      "- row \"Total: £ 66.00\"",
+      "- cell \"Total: £ 66.00\"",
+      "- heading \"Total: £ 66.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3304"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add one"
+      },
+      {
+       "kind": "css",
+       "selector": "table:nth-of-type(1) > tbody > tr:nth-of-type(1) > td:nth-of-type(3) > div > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- spinbutton \"\": 3",
+      "- row \"Total: £ 99.00\"",
+      "- cell \"Total: £ 99.00\"",
+      "- heading \"Total: £ 99.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3268"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Confirm",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "#dialog_0 > div > div > div > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"Conference Chair [E-COM12] Conference Chair (Steel) 3.00 33.00 20% £ 99.00\"",
+      "- cell \"Conference Chair\"",
+      "- cell \"[E-COM12] Conference Chair (Steel)\"",
+      "- cell \"3.00\"",
+      "- cell \"33.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3023"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span"
+      }
+     ]
+    },
+    "label": "ref"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Resumed on the already-saved quotation form (id=21). Verified from the live saved page: quotation reference S00021 for customer '{{v1}}' (Benchville), with exactly one order line — product 'Conference Chair' [E-COM12] Conference Chair (Steel), quantity 3.00, unit price £33.00 auto-filled, 20% tax, untaxed amount £99.00, total £118.80. The customer and product were both selected from their autocomplete dropdowns in the previous session (confirmed by the record's saved state). Screenshot captured at /root/.browser-pilot/sessions/{{v2}}/screenshots/shot-1788275109613.jpg.",
+   "values": {
+    "ref": "S00021"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T15:05:12.166Z",
+   "failedAtStep": {},
+   "fallthroughs": 4,
+   "lastUsed": "2026-09-01T15:24:11.728Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_214c15",
+   "index": 2,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), go to Sales -> Orders -> Quotations and create a NEW quotation for the customer 'fwod29-n1 Bench Customer' (the customer field is an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), set the quantity to 3. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app auto-filled for that line, (c) the untaxed amount the app computed, and (d) the quotation reference/name (e.g. S00042). Verify these values from the saved page before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:05:12.166Z"
+  }
+ },
+ {
+  "id": "s_1dec89",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), go to Sales -> Orders -> Quotations and create a NEW quotation for the customer '{{v1}}' (the customer field is an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), set the quantity to 3. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app auto-filled for that line, (c) the untaxed amount the app computed, and (d) the quotation reference/name (e.g. S00042). Verify these values from the saved page before reporting.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+   "fingerprint": [
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.067,
+    0.027,
+    0,
+    0,
+    0.013,
+    0.067,
+    0,
+    0,
+    0,
+    0.013,
+    0.054,
+    0.094,
+    0,
+    0.054,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0,
+    0.013,
+    0,
+    0.027,
+    0.013,
+    0.013,
+    0,
+    0.094,
+    0.054,
+    0.013,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0.027,
+    0.013,
+    0,
+    0.013,
+    0,
+    0,
+    0.013,
+    0.188,
+    0.013,
+    0,
+    0,
+    0.013,
+    0,
+    0.081,
+    0,
+    0.027,
+    0.054,
+    0.04,
+    0,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.054,
+    0.054,
+    0.054,
+    0.027,
+    0,
+    0,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.04,
+    0.04,
+    0.027,
+    0,
+    0,
+    0,
+    0.081,
+    0.054,
+    0,
+    0.027,
+    0,
+    0,
+    0.027,
+    0.108,
+    0.054,
+    0.054,
+    0.027,
+    0.013,
+    0.013,
+    0.054,
+    0.04,
+    0,
+    0,
+    0.067,
+    0,
+    0.04,
+    0.027,
+    0.027,
+    0,
+    0,
+    0,
+    0.121,
+    0.027,
+    0,
+    0,
+    0.04,
+    0.081,
+    0,
+    0.027,
+    0.027,
+    0.067,
+    0,
+    0,
+    0,
+    0.188,
+    0,
+    0.027,
+    0,
+    0.04,
+    0.013,
+    0.04,
+    0,
+    0.054,
+    0.027,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.013,
+    0.013,
+    0,
+    0,
+    0.04,
+    0,
+    0.027,
+    0.04,
+    0.013,
+    0,
+    0.054,
+    0,
+    0.027,
+    0.081,
+    0,
+    0,
+    0.04,
+    0.027,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0.054,
+    0.108,
+    0,
+    0.013,
+    0.04,
+    0.027,
+    0.081,
+    0,
+    0,
+    0.027,
+    0.027,
+    0.027,
+    0,
+    0.013,
+    0,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0.013,
+    0.013,
+    0.04,
+    0,
+    0.121,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.027,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0.027,
+    0.04,
+    0.108,
+    0.027,
+    0.161,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.067,
+    0.081,
+    0,
+    0,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.067,
+    0,
+    0.081,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0.054,
+    0.013,
+    0.04,
+    0,
+    0.027,
+    0.054,
+    0,
+    0.054,
+    0.027,
+    0.067,
+    0.04,
+    0,
+    0.04,
+    0.027,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.04,
+    0.054,
+    0,
+    0.027,
+    0.04,
+    0,
+    0.04,
+    0.054,
+    0,
+    0.027,
+    0.013,
+    0.027,
+    0,
+    0.013,
+    0.013,
+    0.027,
+    0,
+    0.027,
+    0.054,
+    0.04,
+    0.013,
+    0.04,
+    0,
+    0,
+    0.027,
+    0.067,
+    0.054,
+    0.027,
+    0.027,
+    0,
+    0,
+    0,
+    0.054,
+    0.013,
+    0,
+    0,
+    0.027,
+    0.013,
+    0.04,
+    0.054,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.04,
+    0,
+    0.027,
+    0,
+    0.457,
+    0.148,
+    0.013,
+    0,
+    0,
+    0.054,
+    0,
+    0,
+    0.027,
+    0,
+    0.013,
+    0.054,
+    0,
+    0.013,
+    0.081,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.04,
+    0.027,
+    0.013,
+    0,
+    0.067,
+    0,
+    0.027,
+    0.094,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.081,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.013,
+    0.013,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.04,
+    0.188,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.027,
+    0.054,
+    0,
+    0,
+    0,
+    0.027,
+    0.134,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.04,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0,
+    0.013,
+    0,
+    0.027,
+    0.188,
+    0.027,
+    0,
+    0,
+    0.027,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0.04,
+    0.04,
+    0.148,
+    0.013,
+    0.027,
+    0,
+    0,
+    0.013,
+    0,
+    0.054,
+    0,
+    0.081,
+    0.054,
+    0.067,
+    0.04,
+    0,
+    0.04,
+    0,
+    0.027,
+    0.013,
+    0,
+    0.188,
+    0.134,
+    0.054,
+    0.027,
+    0.027,
+    0.04,
+    0,
+    0,
+    0.054,
+    0,
+    0,
+    0.013,
+    0.054,
+    0.027,
+    0.013,
+    0.013,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0.067,
+    0.04,
+    0.054,
+    0.108,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.027,
+    0.054,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0.027,
+    0.027,
+    0.027,
+    0.04,
+    0.094,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.04,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0.04,
+    0.04,
+    0.04,
+    0.054,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.081,
+    0,
+    0.013,
+    0.027,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0.013,
+    0.054,
+    0,
+    0.013,
+    0.04,
+    0,
+    0.027,
+    0,
+    0.04,
+    0,
+    0.013,
+    0.013,
+    0,
+    0.027,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0
+   ],
+   "requireText": [
+    "{{v1}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e6"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > button > i"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e12"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "header > nav > div:nth-of-type(3) > div:nth-of-type(4) > button > span"
+      },
+      {
+       "kind": "text",
+       "text": "6"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- tab \"All\"",
+      "- tab \"Chats\"",
+      "- tab \"Channels\"",
+      "- button \"New Message\"",
+      "- button \"OdooBot has a suggestion Come here often? Install Odoo on your device! Install\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- menuitem \"Discuss\"",
+      "- menuitem \"Dashboards\"",
+      "- menuitem \"Invoicing\"",
+      "- menuitem \"Apps\"",
+      "- menuitem \"Settings\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2645"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.action"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- button \"Remove\"",
+      "- searchbox \"Search...\"",
+      "- link \"Close the onboarding panel\"",
+      "- button \"Company Data\"",
+      "- heading \"Company Data\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 5,
+   "successes": 5,
+   "partial": 0,
+   "created": "2026-09-01T15:05:12.166Z",
+   "failedAtStep": {},
+   "fallthroughs": 8,
+   "lastUsed": "2026-09-01T15:24:11.735Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_214c15",
+   "index": 0,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), go to Sales -> Orders -> Quotations and create a NEW quotation for the customer 'fwod29-n1 Bench Customer' (the customer field is an autocomplete dropdown - you must actually select the option from the dropdown, not just type). Add exactly ONE order line: pick any product from the product catalogue (again, select from the autocomplete dropdown options), set the quantity to 3. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app auto-filled for that line, (c) the untaxed amount the app computed, and (d) the quotation reference/name (e.g. S00042). Verify these values from the saved page before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:05:12.166Z"
+  }
+ },
+ {
+  "id": "s_9f9032",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), open the existing draft quotation {{v1}} for customer '{{v2}}' (Sales -> Orders -> Quotations). It currently has ONE order line: product 'Conference Chair', quantity 3. Add a SECOND order line with a DIFFERENT product (must be a different product than Conference Chair; select it from the product autocomplete dropdown options, not just typed) with quantity 2. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name of the new second line, (b) its unit price, (c) the total untaxed amount the app now computes for the whole quotation, and (d) confirm the quotation now has exactly two order lines. Verify these from the saved page before reporting.",
+  "params": {
+   "v1": {
+    "example": "S00021",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0.09,
+    0.003,
+    0.006,
+    0.009,
+    0.012,
+    0.006,
+    0,
+    0.009,
+    0.045,
+    0.03,
+    0.006,
+    0.021,
+    0.003,
+    0.024,
+    0.015,
+    0,
+    0.024,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.021,
+    0.006,
+    0.048,
+    0.012,
+    0.048,
+    0.09,
+    0.024,
+    0.006,
+    0,
+    0.015,
+    0,
+    0,
+    0.003,
+    0.006,
+    0.018,
+    0.042,
+    0.039,
+    0.012,
+    0.033,
+    0.012,
+    0.066,
+    0.042,
+    0.024,
+    0.021,
+    0.003,
+    0,
+    0.09,
+    0.006,
+    0.006,
+    0.003,
+    0.036,
+    0.021,
+    0.003,
+    0,
+    0,
+    0.012,
+    0.191,
+    0,
+    0.012,
+    0.006,
+    0.03,
+    0.012,
+    0.006,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.066,
+    0.012,
+    0.015,
+    0.012,
+    0.015,
+    0,
+    0.009,
+    0.036,
+    0.066,
+    0,
+    0.024,
+    0,
+    0.018,
+    0.102,
+    0.036,
+    0.012,
+    0.048,
+    0,
+    0.009,
+    0,
+    0.072,
+    0.012,
+    0.006,
+    0.042,
+    0.009,
+    0,
+    0.039,
+    0.027,
+    0.009,
+    0.027,
+    0.036,
+    0,
+    0.033,
+    0.012,
+    0.006,
+    0.012,
+    0.003,
+    0.015,
+    0,
+    0.012,
+    0.045,
+    0.009,
+    0,
+    0,
+    0,
+    0.099,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.021,
+    0.009,
+    0.012,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.051,
+    0.009,
+    0.012,
+    0.003,
+    0.003,
+    0.009,
+    0,
+    0.018,
+    0.006,
+    0.054,
+    0.024,
+    0.021,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.03,
+    0.06,
+    0.048,
+    0,
+    0.06,
+    0.012,
+    0.003,
+    0.006,
+    0.006,
+    0.015,
+    0.027,
+    0.003,
+    0.006,
+    0.03,
+    0.015,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.012,
+    0.033,
+    0.006,
+    0.003,
+    0.066,
+    0,
+    0,
+    0.006,
+    0.123,
+    0,
+    0.036,
+    0.045,
+    0.009,
+    0.006,
+    0.009,
+    0.021,
+    0,
+    0.018,
+    0.033,
+    0.006,
+    0.006,
+    0.015,
+    0.006,
+    0,
+    0.006,
+    0.096,
+    0.009,
+    0.024,
+    0.018,
+    0,
+    0.03,
+    0,
+    0.042,
+    0,
+    0,
+    0.003,
+    0.009,
+    0.024,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.03,
+    0,
+    0.003,
+    0.018,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.018,
+    0.006,
+    0.006,
+    0.018,
+    0.015,
+    0.018,
+    0,
+    0.069,
+    0.006,
+    0.018,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.176,
+    0.138,
+    0.057,
+    0.006,
+    0,
+    0.015,
+    0.033,
+    0.006,
+    0.006,
+    0.003,
+    0.003,
+    0.006,
+    0.144,
+    0.03,
+    0.081,
+    0.009,
+    0.012,
+    0.009,
+    0.027,
+    0.003,
+    0,
+    0.036,
+    0.012,
+    0.018,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.024,
+    0.003,
+    0.06,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.015,
+    0.015,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.009,
+    0.003,
+    0.06,
+    0.033,
+    0.003,
+    0,
+    0.021,
+    0.006,
+    0,
+    0.015,
+    0.006,
+    0.018,
+    0.003,
+    0.012,
+    0.012,
+    0.09,
+    0,
+    0.009,
+    0.003,
+    0,
+    0.021,
+    0.075,
+    0,
+    0.018,
+    0.003,
+    0.039,
+    0.051,
+    0,
+    0.015,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.021,
+    0.018,
+    0,
+    0.027,
+    0.06,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.012,
+    0.024,
+    0,
+    0.006,
+    0.012,
+    0.03,
+    0.039,
+    0.063,
+    0.003,
+    0.006,
+    0,
+    0.033,
+    0,
+    0.009,
+    0.03,
+    0.045,
+    0.045,
+    0.003,
+    0.006,
+    0.021,
+    0.054,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.015,
+    0.003,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0,
+    0.003,
+    0.006,
+    0.033,
+    0.012,
+    0.006,
+    0.012,
+    0,
+    0.027,
+    0.012,
+    0.003,
+    0.042,
+    0.012,
+    0.006,
+    0.018,
+    0.03,
+    0.009,
+    0.015,
+    0.015,
+    0.009,
+    0.081,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.012,
+    0.009,
+    0.006,
+    0.015,
+    0,
+    0.018,
+    0.057,
+    0.012,
+    0.018,
+    0.003,
+    0,
+    0.054,
+    0.03,
+    0.03,
+    0.006,
+    0.006,
+    0.024,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.045,
+    0.003,
+    0.015,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.027,
+    0.003,
+    0.012,
+    0.045,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.009,
+    0.039,
+    0.009,
+    0.003,
+    0,
+    0.027,
+    0.042,
+    0.078,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.09,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.009,
+    0,
+    0.117,
+    0.012,
+    0.67,
+    0.039,
+    0,
+    0.036,
+    0.015,
+    0.045,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.042,
+    0.003,
+    0,
+    0.012,
+    0.006,
+    0.033,
+    0.006,
+    0.006,
+    0.015,
+    0.033,
+    0.006,
+    0.006,
+    0.051,
+    0,
+    0,
+    0.009,
+    0.018,
+    0.069,
+    0.003,
+    0.015,
+    0.012,
+    0.015,
+    0.027,
+    0.006,
+    0.347,
+    0,
+    0.018,
+    0.018,
+    0.021,
+    0.006,
+    0.015,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3132"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add a product"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > a:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\"",
+      "- textbox \"\"",
+      "- textbox \"\": 1.00",
+      "- textbox \"\": 0.00"
+     ]
+    }
+   },
+   {
+    "tool": "type",
+    "args": {
+     "target": "@e3416",
+     "text": "Desk",
+     "delay_ms": 50
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Type to find a product..."
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Type to find a product..."
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(2) > div > div:nth-of-type(1) > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- combobox \"Type to find a product...\": Desk",
+      "- option \"[FURN_1118] Corner Desk Left Sit\"",
+      "- option \"[E-COM06] Corner Desk Right Sit\"",
+      "- option \"Customizable Desk\"",
+      "- option \"[FURN_7800] Desk Combination\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3447"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "id",
+       "selector": "#autocomplete_0_2"
+      },
+      {
+       "kind": "css",
+       "selector": "#autocomplete_0_2"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"£ 0.00\"",
+      "- combobox \"Type to find a product...\": Customizable Desk",
+      "- dialog \"\"",
+      "- heading \"Configure your product\"",
+      "- button \"Close\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3471"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Confirm",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "#dialog_1 > div > div > div > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- cell \"Customizable Desk\"",
+      "- cell \"[FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.\"",
+      "- cell \"1.00\"",
+      "- cell \"750.00\"",
+      "- row \"Untaxed Amount £ 849.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3421"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "1.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 750.00\"",
+      "- combobox \"Type to find a product...\": Customizable Desk",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.",
+      "- textbox \"\": 1.00"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e3589",
+     "value": "2"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(2) > td:nth-of-type(4) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 1,500.00\"",
+      "- textbox \"\": 2.00",
+      "- cell \"£ 1,500.00\"",
+      "- row \"Untaxed Amount £ 1,599.00\"",
+      "- cell \"£ 1,599.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3023"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- cell \"Customizable Desk\"",
+      "- cell \"[FURN_0096] Customizable Desk (Steel, White) 160x80cm, with large legs.\"",
+      "- cell \"2.00\"",
+      "- cell \"750.00\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "second_line_product",
+     "target": "@e3626",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > div > span"
+      }
+     ]
+    },
+    "label": "second_line_product"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "second_line_unit_price",
+     "target": "@e3630",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(5)"
+      }
+     ]
+    },
+    "label": "second_line_unit_price"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "total_untaxed",
+     "target": "@e3640",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)",
+       "nth": 1
+      }
+     ]
+    },
+    "label": "total_untaxed"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span"
+      }
+     ]
+    },
+    "label": "ref"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Opened existing draft quotation {{v1}} for customer {{v2}}. Added a second order line with product 'Customizable Desk' (selected from the autocomplete dropdown) at quantity 2. The unit price auto-filled at £750.00 (with 20% tax). After saving, the quotation shows exactly two order lines: Conference Chair (3 × £33.00 = £99.00) and Customizable Desk (2 × £750.00 = £1,500.00), with a total untaxed amount of £1,599.00. All verified from the saved page.",
+   "values": {
+    "second_line_product": "Customizable Desk",
+    "second_line_unit_price": "750.00",
+    "total_untaxed": "£ 1,599.00",
+    "ref": "{{v1}}"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T15:06:38.122Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:24:17.741Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), open the existing draft quotation S00021 for customer 'fwod29-n1 Bench Customer' (Sales -> Orders -> Quotations). It currently has ONE order line: product 'Conference Chair', quantity 3. Add a SECOND order line with a DIFFERENT product (must be a different product than Conference Chair; select it from the product autocomplete dropdown options, not just typed) with quantity 2. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the product name of the new second line, (b) its unit price, (c) the total untaxed amount the app now computes for the whole quotation, and (d) confirm the quotation now has exactly two order lines. Verify these from the saved page before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:06:38.122Z"
+  }
+ },
+ {
+  "id": "s_ebba06",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), open the existing draft quotation {{v1}} for customer '{{v2}}'. It has two order lines: line 1 = 'Conference Chair' quantity 3, line 2 = '{{v4}}' quantity 2. Change ONLY the first line's quantity from 3 to 5 (leave the second line untouched). Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the quantity shown on line 1 after saving, (b) the quantity shown on line 2 (should still be 2), and (c) the total untaxed amount the app now computes for the whole quotation. Verify these from the saved page before reporting.",
+  "params": {
+   "v1": {
+    "example": "S00021",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "Customizable Desk",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0.089,
+    0.003,
+    0.006,
+    0.009,
+    0.012,
+    0.012,
+    0,
+    0.009,
+    0.045,
+    0.03,
+    0.006,
+    0.021,
+    0.003,
+    0.024,
+    0.015,
+    0,
+    0.024,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.021,
+    0.006,
+    0.048,
+    0.012,
+    0.048,
+    0.089,
+    0.024,
+    0.006,
+    0,
+    0.015,
+    0,
+    0,
+    0.003,
+    0.012,
+    0.018,
+    0.042,
+    0.039,
+    0.012,
+    0.033,
+    0.012,
+    0.065,
+    0.042,
+    0.024,
+    0.021,
+    0.003,
+    0,
+    0.089,
+    0.006,
+    0.006,
+    0.003,
+    0.036,
+    0.021,
+    0.003,
+    0,
+    0,
+    0.012,
+    0.19,
+    0,
+    0.012,
+    0.006,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.065,
+    0.012,
+    0.015,
+    0.012,
+    0.015,
+    0,
+    0.009,
+    0.036,
+    0.065,
+    0,
+    0.027,
+    0,
+    0.024,
+    0.101,
+    0.036,
+    0.012,
+    0.048,
+    0,
+    0.009,
+    0,
+    0.071,
+    0.012,
+    0.006,
+    0.042,
+    0.009,
+    0,
+    0.039,
+    0.027,
+    0.009,
+    0.027,
+    0.036,
+    0,
+    0.033,
+    0.012,
+    0.006,
+    0.012,
+    0.003,
+    0.018,
+    0,
+    0.012,
+    0.048,
+    0.009,
+    0,
+    0,
+    0,
+    0.098,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.021,
+    0.009,
+    0.012,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.045,
+    0.009,
+    0.018,
+    0.003,
+    0.003,
+    0.009,
+    0,
+    0.018,
+    0.006,
+    0.053,
+    0.024,
+    0.021,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.03,
+    0.059,
+    0.048,
+    0,
+    0.059,
+    0.012,
+    0.003,
+    0.006,
+    0.012,
+    0.015,
+    0.027,
+    0.003,
+    0.012,
+    0.03,
+    0.015,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.015,
+    0.033,
+    0.006,
+    0.003,
+    0.065,
+    0,
+    0,
+    0.006,
+    0.122,
+    0,
+    0.036,
+    0.045,
+    0.009,
+    0.006,
+    0.009,
+    0.021,
+    0,
+    0.018,
+    0.033,
+    0.006,
+    0.006,
+    0.015,
+    0.006,
+    0,
+    0.006,
+    0.095,
+    0.009,
+    0.024,
+    0.018,
+    0,
+    0.03,
+    0,
+    0.042,
+    0,
+    0,
+    0.003,
+    0.009,
+    0.03,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.03,
+    0,
+    0.003,
+    0.018,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.018,
+    0.006,
+    0.006,
+    0.018,
+    0.015,
+    0.018,
+    0,
+    0.068,
+    0.006,
+    0.018,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.175,
+    0.137,
+    0.056,
+    0.006,
+    0,
+    0.015,
+    0.033,
+    0.006,
+    0.009,
+    0.003,
+    0.003,
+    0.006,
+    0.143,
+    0.03,
+    0.08,
+    0.009,
+    0.012,
+    0.009,
+    0.021,
+    0.003,
+    0,
+    0.036,
+    0.012,
+    0.018,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.024,
+    0.003,
+    0.059,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.015,
+    0.015,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.012,
+    0.003,
+    0.059,
+    0.033,
+    0.003,
+    0,
+    0.021,
+    0.006,
+    0,
+    0.021,
+    0.006,
+    0.018,
+    0.003,
+    0.012,
+    0.012,
+    0.089,
+    0,
+    0.009,
+    0.003,
+    0,
+    0.021,
+    0.074,
+    0,
+    0.018,
+    0.003,
+    0.039,
+    0.05,
+    0,
+    0.015,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.003,
+    0,
+    0.009,
+    0.012,
+    0,
+    0.021,
+    0.018,
+    0,
+    0.027,
+    0.059,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.012,
+    0.024,
+    0,
+    0.006,
+    0.012,
+    0.03,
+    0.039,
+    0.062,
+    0.003,
+    0.006,
+    0,
+    0.033,
+    0,
+    0.009,
+    0.03,
+    0.045,
+    0.045,
+    0.003,
+    0.006,
+    0.021,
+    0.053,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.015,
+    0.003,
+    0.012,
+    0.006,
+    0,
+    0.006,
+    0,
+    0.003,
+    0.006,
+    0.036,
+    0.012,
+    0.006,
+    0.012,
+    0,
+    0.027,
+    0.012,
+    0.003,
+    0.042,
+    0.012,
+    0.006,
+    0.018,
+    0.03,
+    0.009,
+    0.021,
+    0.015,
+    0.009,
+    0.089,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.012,
+    0.009,
+    0.006,
+    0.015,
+    0,
+    0.018,
+    0.056,
+    0.015,
+    0.018,
+    0.006,
+    0,
+    0.059,
+    0.03,
+    0.036,
+    0.006,
+    0.006,
+    0.024,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.045,
+    0.003,
+    0.015,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.027,
+    0.003,
+    0.012,
+    0.045,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.009,
+    0.039,
+    0.009,
+    0.003,
+    0,
+    0.027,
+    0.042,
+    0.098,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.086,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.009,
+    0,
+    0.116,
+    0.018,
+    0.665,
+    0.036,
+    0,
+    0.036,
+    0.015,
+    0.045,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.042,
+    0.003,
+    0,
+    0.012,
+    0.006,
+    0.033,
+    0.006,
+    0.006,
+    0.015,
+    0.033,
+    0.006,
+    0.006,
+    0.092,
+    0,
+    0,
+    0.009,
+    0.018,
+    0.068,
+    0.003,
+    0.015,
+    0.012,
+    0.015,
+    0.027,
+    0.006,
+    0.345,
+    0,
+    0.018,
+    0.018,
+    0.021,
+    0.006,
+    0.015,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3610"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "3.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 99.00\"",
+      "- combobox \"Type to find a product...\": Conference Chair",
+      "- button \"Edit Configuration\"",
+      "- textbox \"\": [E-COM12] Conference Chair (Steel)",
+      "- textbox \"\": 3.00"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e3656",
+     "value": "5"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "table > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"20% £ 165.00\"",
+      "- textbox \"\": 5.00",
+      "- cell \"£ 165.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3045"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Customer"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > label"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "addedContains": [
+      "- row \"Conference Chair [E-COM12] Conference Chair (Steel) 5.00 33.00 20% £ 165.00\"",
+      "- cell \"Conference Chair\"",
+      "- cell \"[E-COM12] Conference Chair (Steel)\"",
+      "- cell \"5.00\"",
+      "- cell \"33.00\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3040"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "key": "Escape"
+    },
+    "locators": {},
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "key": "Control+s"
+    },
+    "locators": {},
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3023"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save manually"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(3) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "line1_qty",
+     "target": "@e3690",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "label": "line1_qty"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "line2_qty",
+     "target": "@e3709",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4)"
+      }
+     ]
+    },
+    "label": "line2_qty"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "line1_subtotal",
+     "target": "@e3697",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(7)"
+      }
+     ]
+    },
+    "label": "line1_subtotal"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "line2_subtotal",
+     "target": "@e3716",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "£ 1,500.00"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(7)"
+      }
+     ]
+    },
+    "label": "line2_subtotal"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "total_untaxed",
+     "target": "@e3676",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)",
+       "nth": 1
+      }
+     ]
+    },
+    "label": "total_untaxed"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span"
+      }
+     ]
+    },
+    "label": "ref"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Opened existing draft quotation {{v1}}. Changed line 1's quantity from 3 to 5. After save, verified from the saved page: (a) line 1 (Conference Chair) quantity = 5.00 with subtotal £165.00, (b) line 2 ({{v4}}) quantity = 2.00 (unchanged) with subtotal £1,500.00, (c) total untaxed amount = £1,665.00. Screenshot captured.",
+   "values": {
+    "line1_qty": "5.00",
+    "line2_qty": "2.00",
+    "line1_subtotal": "£ 165.00",
+    "line2_subtotal": "£ 1,500.00",
+    "total_untaxed": "£ 1,665.00",
+    "ref": "{{v1}}"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T15:09:48.817Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:24:23.856Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), open the existing draft quotation S00021 for customer 'fwod29-n1 Bench Customer'. It has two order lines: line 1 = 'Conference Chair' quantity 3, line 2 = 'Customizable Desk' quantity 2. Change ONLY the first line's quantity from 3 to 5 (leave the second line untouched). Do not wait for network idle (the app long-polls); wait for concrete page state instead. Save the quotation. Then report: (a) the quantity shown on line 1 after saving, (b) the quantity shown on line 2 (should still be 2), and (c) the total untaxed amount the app now computes for the whole quotation. Verify these from the saved page before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:09:48.817Z"
+  }
+ },
+ {
+  "id": "s_106c02",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), open the existing draft quotation {{v1}} for customer '{{v2}}' and CONFIRM it so it becomes a sales order (use the Confirm button on the quotation form; if a confirmation dialog appears, accept it). Do not wait for network idle (the app long-polls); wait for concrete page state instead. After confirming, report: (a) the order reference/name shown (e.g. {{v1}}), (b) the status the app now shows for the order (the exact status label text, e.g. 'Sales Order'), and (c) confirm the untaxed amount still reads £1,665.00. Verify these from the page after confirmation before reporting.",
+  "params": {
+   "v1": {
+    "example": "S00021",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.012,
+    0.003,
+    0,
+    0.006,
+    0.089,
+    0.003,
+    0.006,
+    0.009,
+    0.012,
+    0.012,
+    0,
+    0.009,
+    0.045,
+    0.03,
+    0.006,
+    0.021,
+    0.003,
+    0.024,
+    0.015,
+    0,
+    0.024,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.021,
+    0.006,
+    0.048,
+    0.012,
+    0.048,
+    0.089,
+    0.024,
+    0.006,
+    0,
+    0.015,
+    0,
+    0,
+    0.003,
+    0.012,
+    0.018,
+    0.042,
+    0.039,
+    0.012,
+    0.033,
+    0.012,
+    0.065,
+    0.042,
+    0.024,
+    0.021,
+    0.003,
+    0,
+    0.089,
+    0.006,
+    0.006,
+    0.003,
+    0.036,
+    0.021,
+    0.003,
+    0,
+    0,
+    0.012,
+    0.19,
+    0,
+    0.012,
+    0.006,
+    0.03,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.065,
+    0.012,
+    0.015,
+    0.012,
+    0.015,
+    0,
+    0.009,
+    0.036,
+    0.065,
+    0,
+    0.027,
+    0,
+    0.024,
+    0.101,
+    0.036,
+    0.012,
+    0.048,
+    0,
+    0.009,
+    0,
+    0.071,
+    0.012,
+    0.006,
+    0.042,
+    0.009,
+    0,
+    0.039,
+    0.027,
+    0.009,
+    0.027,
+    0.036,
+    0,
+    0.033,
+    0.012,
+    0.006,
+    0.012,
+    0.003,
+    0.018,
+    0,
+    0.012,
+    0.048,
+    0.009,
+    0,
+    0,
+    0,
+    0.098,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.021,
+    0.009,
+    0.012,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.045,
+    0.009,
+    0.018,
+    0.003,
+    0.003,
+    0.009,
+    0,
+    0.018,
+    0.006,
+    0.053,
+    0.024,
+    0.021,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.03,
+    0.059,
+    0.048,
+    0,
+    0.059,
+    0.012,
+    0.003,
+    0.006,
+    0.012,
+    0.015,
+    0.027,
+    0.003,
+    0.012,
+    0.03,
+    0.015,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.015,
+    0.033,
+    0.006,
+    0.003,
+    0.065,
+    0,
+    0,
+    0.006,
+    0.122,
+    0,
+    0.036,
+    0.045,
+    0.009,
+    0.006,
+    0.009,
+    0.021,
+    0,
+    0.018,
+    0.033,
+    0.006,
+    0.006,
+    0.015,
+    0.006,
+    0,
+    0.006,
+    0.095,
+    0.009,
+    0.024,
+    0.018,
+    0,
+    0.03,
+    0,
+    0.042,
+    0,
+    0,
+    0.003,
+    0.009,
+    0.03,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.03,
+    0,
+    0.003,
+    0.018,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.018,
+    0.006,
+    0.006,
+    0.018,
+    0.015,
+    0.018,
+    0,
+    0.068,
+    0.006,
+    0.018,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.175,
+    0.137,
+    0.056,
+    0.006,
+    0,
+    0.015,
+    0.033,
+    0.006,
+    0.009,
+    0.003,
+    0.003,
+    0.006,
+    0.143,
+    0.03,
+    0.08,
+    0.009,
+    0.012,
+    0.009,
+    0.021,
+    0.003,
+    0,
+    0.036,
+    0.012,
+    0.018,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.024,
+    0.003,
+    0.059,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.015,
+    0.015,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.012,
+    0.003,
+    0.059,
+    0.033,
+    0.003,
+    0,
+    0.021,
+    0.006,
+    0,
+    0.021,
+    0.006,
+    0.018,
+    0.003,
+    0.012,
+    0.012,
+    0.089,
+    0,
+    0.009,
+    0.003,
+    0,
+    0.021,
+    0.074,
+    0,
+    0.018,
+    0.003,
+    0.039,
+    0.05,
+    0,
+    0.015,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.003,
+    0,
+    0.009,
+    0.012,
+    0,
+    0.021,
+    0.018,
+    0,
+    0.027,
+    0.059,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.012,
+    0.024,
+    0,
+    0.006,
+    0.012,
+    0.03,
+    0.039,
+    0.062,
+    0.003,
+    0.006,
+    0,
+    0.033,
+    0,
+    0.009,
+    0.03,
+    0.045,
+    0.045,
+    0.003,
+    0.006,
+    0.021,
+    0.053,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.015,
+    0.003,
+    0.012,
+    0.006,
+    0,
+    0.006,
+    0,
+    0.003,
+    0.006,
+    0.036,
+    0.012,
+    0.006,
+    0.012,
+    0,
+    0.027,
+    0.012,
+    0.003,
+    0.042,
+    0.012,
+    0.006,
+    0.018,
+    0.03,
+    0.009,
+    0.021,
+    0.015,
+    0.009,
+    0.089,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.012,
+    0.009,
+    0.006,
+    0.015,
+    0,
+    0.018,
+    0.056,
+    0.015,
+    0.018,
+    0.006,
+    0,
+    0.059,
+    0.03,
+    0.036,
+    0.006,
+    0.006,
+    0.024,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.045,
+    0.003,
+    0.015,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.027,
+    0.003,
+    0.012,
+    0.045,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.009,
+    0.039,
+    0.009,
+    0.003,
+    0,
+    0.027,
+    0.042,
+    0.098,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.086,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.009,
+    0,
+    0.116,
+    0.018,
+    0.665,
+    0.036,
+    0,
+    0.036,
+    0.015,
+    0.045,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.042,
+    0.003,
+    0,
+    0.012,
+    0.006,
+    0.033,
+    0.006,
+    0.006,
+    0.015,
+    0.033,
+    0.006,
+    0.006,
+    0.092,
+    0,
+    0,
+    0.009,
+    0.018,
+    0.068,
+    0.003,
+    0.015,
+    0.012,
+    0.015,
+    0.027,
+    0.006,
+    0.345,
+    0,
+    0.018,
+    0.018,
+    0.021,
+    0.006,
+    0.015,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3033"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Confirm"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "status_label",
+     "target": ".o_field_statusbar",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": ".o_field_statusbar"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+       "nth": 0
+      }
+     ]
+    },
+    "label": "status_label"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span"
+      }
+     ]
+    },
+    "label": "ref"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Confirmed draft quotation {{v1}} ({{v2}}) by clicking the Confirm button — no dialog appeared. After confirmation the statusbar shows \"Sales Order\" as the active status. The untaxed amount remains £1,665.00 (confirmed from the order lines table). Screenshot captured.",
+   "values": {
+    "status_label": "Sales Order\nQuotation Sent\nQuotation",
+    "ref": "{{v1}}"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T15:11:25.209Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:24:25.547Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), open the existing draft quotation S00021 for customer 'fwod29-n1 Bench Customer' and CONFIRM it so it becomes a sales order (use the Confirm button on the quotation form; if a confirmation dialog appears, accept it). Do not wait for network idle (the app long-polls); wait for concrete page state instead. After confirming, report: (a) the order reference/name shown (e.g. S00021), (b) the status the app now shows for the order (the exact status label text, e.g. 'Sales Order'), and (c) confirm the untaxed amount still reads £1,665.00. Verify these from the page after confirmation before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:11:25.209Z"
+  }
+ },
+ {
+  "id": "s_acf54e",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), open the confirmed sales order {{v1}} for customer '{{v2}} Bench Customer' (it currently shows status 'Sales Order') and CANCEL it (use the Cancel action on the order form; if a confirmation dialog appears, accept it). Do not wait for network idle (the app long-polls); wait for concrete page state instead. After cancelling, report: (a) the exact status the app now shows for the order (the status label text, e.g. 'Cancelled'), (b) the order reference/name, and (c) confirm the order is no longer in an active state. Verify these from the page after cancelling before reporting.",
+  "params": {
+   "v1": {
+    "example": "S00023",
+    "usedIn": [
+     10
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "fwod29-n3",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.003,
+    0.003,
+    0,
+    0.006,
+    0.088,
+    0.006,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.009,
+    0.05,
+    0.029,
+    0.006,
+    0.021,
+    0.003,
+    0.023,
+    0.015,
+    0,
+    0.023,
+    0.029,
+    0.018,
+    0.012,
+    0.006,
+    0.006,
+    0.021,
+    0,
+    0.047,
+    0.006,
+    0.047,
+    0.094,
+    0.029,
+    0.006,
+    0,
+    0.015,
+    0,
+    0,
+    0.006,
+    0.012,
+    0.029,
+    0.041,
+    0.038,
+    0.012,
+    0.026,
+    0.012,
+    0.064,
+    0.047,
+    0.023,
+    0.023,
+    0.003,
+    0,
+    0.082,
+    0.006,
+    0.006,
+    0.003,
+    0.035,
+    0.026,
+    0.003,
+    0,
+    0,
+    0.012,
+    0.187,
+    0,
+    0.012,
+    0.012,
+    0.035,
+    0.018,
+    0.006,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.064,
+    0.012,
+    0.015,
+    0.012,
+    0.015,
+    0,
+    0.009,
+    0.035,
+    0.064,
+    0,
+    0.026,
+    0,
+    0.029,
+    0.1,
+    0.029,
+    0.018,
+    0.047,
+    0,
+    0.012,
+    0,
+    0.07,
+    0.009,
+    0,
+    0.041,
+    0.009,
+    0,
+    0.041,
+    0.026,
+    0.009,
+    0.026,
+    0.035,
+    0,
+    0.029,
+    0.006,
+    0.006,
+    0.012,
+    0.003,
+    0.018,
+    0,
+    0.006,
+    0.053,
+    0.006,
+    0,
+    0,
+    0,
+    0.105,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.021,
+    0.003,
+    0.012,
+    0.006,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.038,
+    0.009,
+    0.018,
+    0.012,
+    0.003,
+    0.009,
+    0,
+    0.018,
+    0.006,
+    0.053,
+    0.018,
+    0.021,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.032,
+    0.059,
+    0.047,
+    0,
+    0.059,
+    0.012,
+    0.006,
+    0.006,
+    0.012,
+    0.021,
+    0.029,
+    0.003,
+    0.012,
+    0.029,
+    0.018,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.015,
+    0.032,
+    0.006,
+    0.003,
+    0.064,
+    0,
+    0,
+    0.006,
+    0.123,
+    0,
+    0.018,
+    0.056,
+    0.018,
+    0.009,
+    0.009,
+    0.023,
+    0,
+    0.018,
+    0.038,
+    0.006,
+    0.006,
+    0.015,
+    0.006,
+    0.003,
+    0.012,
+    0.094,
+    0.009,
+    0.023,
+    0.006,
+    0,
+    0.029,
+    0,
+    0.047,
+    0.006,
+    0,
+    0.003,
+    0.009,
+    0.023,
+    0,
+    0.006,
+    0.015,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.032,
+    0,
+    0.003,
+    0.015,
+    0.012,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0.012,
+    0.006,
+    0.006,
+    0.006,
+    0.023,
+    0.012,
+    0.006,
+    0.018,
+    0.018,
+    0.018,
+    0,
+    0.067,
+    0.006,
+    0.018,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.173,
+    0.135,
+    0.07,
+    0.006,
+    0,
+    0.021,
+    0.032,
+    0.006,
+    0.009,
+    0.003,
+    0.003,
+    0.006,
+    0.141,
+    0.041,
+    0.079,
+    0.015,
+    0.012,
+    0.006,
+    0.021,
+    0.003,
+    0,
+    0.041,
+    0.012,
+    0.018,
+    0.006,
+    0.006,
+    0.018,
+    0.006,
+    0.029,
+    0.003,
+    0.059,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.015,
+    0.018,
+    0,
+    0.012,
+    0.012,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.012,
+    0.003,
+    0.059,
+    0.032,
+    0.003,
+    0,
+    0.026,
+    0.012,
+    0,
+    0.021,
+    0.006,
+    0.018,
+    0.003,
+    0.018,
+    0.012,
+    0.088,
+    0.003,
+    0.009,
+    0,
+    0,
+    0.015,
+    0.073,
+    0,
+    0.018,
+    0.003,
+    0.038,
+    0.05,
+    0,
+    0.015,
+    0,
+    0.006,
+    0.009,
+    0,
+    0.003,
+    0,
+    0.009,
+    0.012,
+    0,
+    0.026,
+    0.026,
+    0,
+    0.026,
+    0.059,
+    0,
+    0.012,
+    0,
+    0.006,
+    0,
+    0.012,
+    0.029,
+    0,
+    0.006,
+    0.012,
+    0.029,
+    0.038,
+    0.062,
+    0.003,
+    0.006,
+    0,
+    0.032,
+    0,
+    0.009,
+    0.029,
+    0.044,
+    0.047,
+    0.003,
+    0.006,
+    0.015,
+    0.047,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.026,
+    0.003,
+    0.006,
+    0.012,
+    0,
+    0.009,
+    0,
+    0.003,
+    0.006,
+    0.035,
+    0.012,
+    0.006,
+    0.012,
+    0,
+    0.021,
+    0.012,
+    0.003,
+    0.041,
+    0.012,
+    0.006,
+    0.015,
+    0.029,
+    0.009,
+    0.021,
+    0.003,
+    0.009,
+    0.091,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.015,
+    0.012,
+    0.012,
+    0.012,
+    0.009,
+    0.006,
+    0.021,
+    0,
+    0.018,
+    0.056,
+    0.015,
+    0.018,
+    0.006,
+    0,
+    0.059,
+    0.041,
+    0.035,
+    0.006,
+    0.012,
+    0.023,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.044,
+    0.003,
+    0.015,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.026,
+    0.003,
+    0.012,
+    0.044,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.015,
+    0.038,
+    0.009,
+    0.003,
+    0,
+    0.026,
+    0.053,
+    0.108,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.085,
+    0.018,
+    0,
+    0,
+    0.018,
+    0.012,
+    0,
+    0.114,
+    0.018,
+    0.656,
+    0.038,
+    0,
+    0.035,
+    0.015,
+    0.044,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.041,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.032,
+    0.006,
+    0.006,
+    0.015,
+    0.032,
+    0.006,
+    0.006,
+    0.114,
+    0,
+    0,
+    0.009,
+    0.018,
+    0.067,
+    0.003,
+    0.018,
+    0.006,
+    0.015,
+    0.026,
+    0.006,
+    0.346,
+    0.006,
+    0.018,
+    0.029,
+    0.026,
+    0.006,
+    0.015,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e75"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(4)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+     "alertContains": "Are you sure you want to cancel this order?",
+     "addedContains": [
+      "- dialog \"\"",
+      "- heading \"Cancel Sales Order\"",
+      "- button \"Close\"",
+      "- button \"Send and cancel\"",
+      "- button \"Discard\""
+     ]
+    }
+   },
+   {
+    "tool": "dialog_expect",
+    "args": {
+     "action": "accept"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e334"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Send and cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > footer > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "dialog_expect",
+    "args": {
+     "action": "accept"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e334"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Send and cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > footer > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Send and cancel\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Send and cancel\")"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Send and cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > footer > footer > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e77",
+     "what": "text",
+     "label": "status_label"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "radiogroup",
+       "name": "Statusbar"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div"
+      }
+     ]
+    },
+    "label": "status_label"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e80",
+     "what": "text",
+     "label": "order_reference"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v1}}"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "order_reference"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e255",
+     "what": "text",
+     "label": "untaxed_amount"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)",
+       "nth": 1
+      }
+     ]
+    },
+    "label": "untaxed_amount"
+   },
+   {
+    "tool": "read_all",
+    "args": {
+     "target": "[role=\"radio\"][disabled]",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[role=\"radio\"][disabled]"
+      }
+     ]
+    },
+    "label": "active_checked_status"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Cancelled sales order {{v1}} ({{v2}} Bench Customer). The Cancel button triggered a native \"Are you sure you want to cancel this order?\" alert which was accepted, then a \"Cancel Sales Order\" modal appeared with a \"Send and cancel\" button — a programmatic click on that button dismissed the modal. After completion: (a) the statusbar shows \"Cancelled\" as the active/checked status, (b) the order reference is {{v1}}, (c) the order is clearly no longer active — the status is \"Cancelled\", and the untaxed amount still reads £1,665.00. Screenshot captured.",
+   "values": {
+    "status_label": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+    "order_reference": "{{v1}}",
+    "active_checked_status": "Cancelled",
+    "untaxed_amount": "£ 1,665.00",
+    "role_radio_disabled": "Sales Order"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-01T15:26:28.955Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "provenance": {
+   "session": "fwod29-n3",
+   "instruction": "In Odoo 17 (already signed in as admin), open the confirmed sales order S00023 for customer 'fwod29-n3 Bench Customer' (it currently shows status 'Sales Order') and CANCEL it (use the Cancel action on the order form; if a confirmation dialog appears, accept it). Do not wait for network idle (the app long-polls); wait for concrete page state instead. After cancelling, report: (a) the exact status the app now shows for the order (the status label text, e.g. 'Cancelled'), (b) the order reference/name, and (c) confirm the order is no longer in an active state. Verify these from the page after cancelling before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:26:28.955Z"
+  }
+ },
+ {
+  "id": "s_facf33",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), the sales order {{v1}} for customer '{{v2}}' is currently in status 'Sales Order' and must be CANCELLED. A previous attempt clicked the Cancel button which opened a 'Cancel Sales Order' modal dialog containing a 'Send and cancel' button and a 'Close' button, but the buttons seemed unresponsive. Approach it carefully: open the order, click Cancel to open the modal, then WAIT for the modal to fully render (do not wait for network idle - the app long-polls; instead wait for the modal's button to be visible and enabled). If the modal contains a checkbox (e.g. about sending an email to the customer), leave it in its default state. Then click the primary confirm button ('Send and cancel' or similar) using a normal click; if a native browser alert/confirm dialog 'Are you sure you want to cancel this order?' appears, ACCEPT it. If the modal buttons still do not respond, try alternative routes: the Cancel action under the order's Action/Other menu, or the Cancel button in the list view, or pressing Escape to close the modal and retry. The goal is the order ends in a cancelled state. Afterwards report: (a) the exact status label the app now shows for the order, (b) the order reference, and (c) whether the order is no longer active. Verify from the page before reporting.",
+  "params": {
+   "v1": {
+    "example": "S00021",
+    "usedIn": [
+     2
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.003,
+    0.003,
+    0,
+    0.006,
+    0.087,
+    0.012,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.009,
+    0.061,
+    0.029,
+    0.017,
+    0.02,
+    0.003,
+    0.035,
+    0.014,
+    0,
+    0.023,
+    0.029,
+    0.017,
+    0.012,
+    0.006,
+    0.014,
+    0.02,
+    0,
+    0.046,
+    0.006,
+    0.046,
+    0.087,
+    0.049,
+    0.012,
+    0,
+    0.014,
+    0,
+    0,
+    0.012,
+    0,
+    0.017,
+    0.041,
+    0.038,
+    0.012,
+    0.026,
+    0.012,
+    0.064,
+    0.049,
+    0.032,
+    0.017,
+    0.003,
+    0,
+    0.087,
+    0.006,
+    0.006,
+    0.003,
+    0.035,
+    0.043,
+    0.003,
+    0.003,
+    0,
+    0.012,
+    0.185,
+    0,
+    0.012,
+    0.012,
+    0.052,
+    0.017,
+    0.006,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.064,
+    0.012,
+    0.014,
+    0.012,
+    0.014,
+    0,
+    0.009,
+    0.041,
+    0.064,
+    0,
+    0.02,
+    0,
+    0.029,
+    0.098,
+    0.029,
+    0.029,
+    0.046,
+    0,
+    0.017,
+    0,
+    0.069,
+    0.009,
+    0,
+    0.041,
+    0.009,
+    0,
+    0.046,
+    0.026,
+    0.009,
+    0.026,
+    0.035,
+    0,
+    0.035,
+    0.006,
+    0.006,
+    0.012,
+    0.003,
+    0.017,
+    0,
+    0.009,
+    0.064,
+    0.003,
+    0,
+    0,
+    0,
+    0.116,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.02,
+    0.009,
+    0.017,
+    0.012,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.038,
+    0.009,
+    0.017,
+    0.017,
+    0.003,
+    0.006,
+    0,
+    0.017,
+    0.006,
+    0.052,
+    0.023,
+    0.02,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.032,
+    0.058,
+    0.046,
+    0,
+    0.058,
+    0.012,
+    0.009,
+    0.006,
+    0.012,
+    0.014,
+    0.029,
+    0.003,
+    0.012,
+    0.029,
+    0.023,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.014,
+    0.032,
+    0.006,
+    0.003,
+    0.064,
+    0,
+    0,
+    0.006,
+    0.122,
+    0,
+    0.017,
+    0.043,
+    0.035,
+    0.009,
+    0.009,
+    0.023,
+    0,
+    0.017,
+    0.032,
+    0.006,
+    0.006,
+    0.014,
+    0.006,
+    0.006,
+    0.023,
+    0.093,
+    0.009,
+    0.023,
+    0.006,
+    0,
+    0.029,
+    0,
+    0.052,
+    0.006,
+    0,
+    0.003,
+    0.009,
+    0.023,
+    0,
+    0.006,
+    0.014,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.029,
+    0,
+    0.003,
+    0.02,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0.02,
+    0.006,
+    0.006,
+    0.006,
+    0.035,
+    0.017,
+    0.006,
+    0.017,
+    0.02,
+    0.017,
+    0,
+    0.067,
+    0.006,
+    0.017,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.171,
+    0.133,
+    0.069,
+    0.006,
+    0,
+    0.017,
+    0.032,
+    0.006,
+    0.009,
+    0.003,
+    0.003,
+    0.006,
+    0.142,
+    0.029,
+    0.078,
+    0.026,
+    0.012,
+    0.006,
+    0.02,
+    0.003,
+    0,
+    0.029,
+    0.012,
+    0.017,
+    0.006,
+    0.006,
+    0.026,
+    0.006,
+    0.035,
+    0.003,
+    0.058,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.014,
+    0.023,
+    0,
+    0.012,
+    0.012,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.012,
+    0.003,
+    0.069,
+    0.035,
+    0.003,
+    0,
+    0.02,
+    0.023,
+    0,
+    0.009,
+    0.006,
+    0.017,
+    0.003,
+    0.029,
+    0.012,
+    0.087,
+    0.006,
+    0.012,
+    0,
+    0,
+    0.014,
+    0.067,
+    0,
+    0.017,
+    0.003,
+    0.038,
+    0.049,
+    0,
+    0.014,
+    0,
+    0.006,
+    0.009,
+    0,
+    0.003,
+    0,
+    0.003,
+    0.012,
+    0.006,
+    0.02,
+    0.038,
+    0,
+    0.026,
+    0.058,
+    0,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.012,
+    0.041,
+    0,
+    0.006,
+    0.017,
+    0.029,
+    0.038,
+    0.061,
+    0.003,
+    0.006,
+    0,
+    0.035,
+    0,
+    0.009,
+    0.035,
+    0.043,
+    0.052,
+    0.003,
+    0.006,
+    0.014,
+    0.046,
+    0.006,
+    0,
+    0.012,
+    0,
+    0.049,
+    0.003,
+    0.006,
+    0.017,
+    0,
+    0.009,
+    0,
+    0.009,
+    0.006,
+    0.035,
+    0.012,
+    0.006,
+    0.006,
+    0,
+    0.02,
+    0.017,
+    0.003,
+    0.041,
+    0.012,
+    0.006,
+    0.012,
+    0.029,
+    0.009,
+    0.009,
+    0.003,
+    0.009,
+    0.075,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.026,
+    0.012,
+    0.012,
+    0.012,
+    0.009,
+    0.006,
+    0.032,
+    0,
+    0.017,
+    0.055,
+    0.014,
+    0.017,
+    0.006,
+    0,
+    0.058,
+    0.052,
+    0.023,
+    0.006,
+    0.012,
+    0.023,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.043,
+    0.003,
+    0.014,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.026,
+    0.003,
+    0.014,
+    0.043,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.026,
+    0.038,
+    0.009,
+    0.003,
+    0,
+    0.026,
+    0.041,
+    0.101,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.084,
+    0.02,
+    0,
+    0,
+    0.017,
+    0.017,
+    0,
+    0.113,
+    0.017,
+    0.648,
+    0.043,
+    0,
+    0.035,
+    0.014,
+    0.043,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.041,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.032,
+    0.006,
+    0.006,
+    0.014,
+    0.032,
+    0.006,
+    0.006,
+    0.09,
+    0,
+    0,
+    0.009,
+    0.017,
+    0.067,
+    0.006,
+    0.017,
+    0.006,
+    0.014,
+    0.026,
+    0.017,
+    0.353,
+    0.006,
+    0.023,
+    0.017,
+    0.041,
+    0.006,
+    0.014,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "label": "status_label",
+     "target": "@e3036",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "radiogroup",
+       "name": "Statusbar"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div"
+      }
+     ]
+    },
+    "label": "status_label"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "order_reference",
+     "target": "@e3358",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v1}}"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "order_reference"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "The sales order {{v1}} ({{v2}}) is now in Cancelled status — the statusbar shows \"Cancelled\" as the selected radio button, with \"Sales Order\", \"Quotation Sent\", and \"Quotation\" as inactive downstream states. The order reference reads \"{{v1}}\". The previous attempt's dialog interactions must have actually succeeded on one of its attempts (the order is no longer active). Verified from the live saved page.",
+   "values": {
+    "status_label": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+    "order_reference": "{{v1}}"
+   }
+  },
+  "stats": {
+   "uses": 4,
+   "successes": 4,
+   "partial": 0,
+   "created": "2026-09-01T15:17:00.103Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:26:29.805Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), the sales order S00021 for customer 'fwod29-n1 Bench Customer' is currently in status 'Sales Order' and must be CANCELLED. A previous attempt clicked the Cancel button which opened a 'Cancel Sales Order' modal dialog containing a 'Send and cancel' button and a 'Close' button, but the buttons seemed unresponsive. Approach it carefully: open the order, click Cancel to open the modal, then WAIT for the modal to fully render (do not wait for network idle - the app long-polls; instead wait for the modal's button to be visible and enabled). If the modal contains a checkbox (e.g. about sending an email to the customer), leave it in its default state. Then click the primary confirm button ('Send and cancel' or similar) using a normal click; if a native browser alert/confirm dialog 'Are you sure you want to cancel this order?' appears, ACCEPT it. If the modal buttons still do not respond, try alternative routes: the Cancel action under the order's Action/Other menu, or the Cancel button in the list view, or pressing Escape to close the modal and retry. The goal is the order ends in a cancelled state. Afterwards report: (a) the exact status label the app now shows for the order, (b) the order reference, and (c) whether the order is no longer active. Verify from the page before reporting.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:17:00.103Z"
+  }
+ },
+ {
+  "id": "s_6b029b",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact '{{v1}}' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order {{v3}} and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "S00021",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+   "fingerprint": [
+    0.009,
+    0.003,
+    0.003,
+    0,
+    0.006,
+    0.087,
+    0.012,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.009,
+    0.061,
+    0.029,
+    0.017,
+    0.02,
+    0.003,
+    0.035,
+    0.014,
+    0,
+    0.023,
+    0.029,
+    0.017,
+    0.012,
+    0.006,
+    0.014,
+    0.02,
+    0,
+    0.046,
+    0.006,
+    0.046,
+    0.087,
+    0.049,
+    0.012,
+    0,
+    0.014,
+    0,
+    0,
+    0.012,
+    0,
+    0.017,
+    0.041,
+    0.038,
+    0.012,
+    0.026,
+    0.012,
+    0.064,
+    0.049,
+    0.032,
+    0.017,
+    0.003,
+    0,
+    0.087,
+    0.006,
+    0.006,
+    0.003,
+    0.035,
+    0.043,
+    0.003,
+    0.003,
+    0,
+    0.012,
+    0.185,
+    0,
+    0.012,
+    0.012,
+    0.052,
+    0.017,
+    0.006,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.064,
+    0.012,
+    0.014,
+    0.012,
+    0.014,
+    0,
+    0.009,
+    0.041,
+    0.064,
+    0,
+    0.02,
+    0,
+    0.029,
+    0.098,
+    0.029,
+    0.029,
+    0.046,
+    0,
+    0.017,
+    0,
+    0.069,
+    0.009,
+    0,
+    0.041,
+    0.009,
+    0,
+    0.046,
+    0.026,
+    0.009,
+    0.026,
+    0.035,
+    0,
+    0.035,
+    0.006,
+    0.006,
+    0.012,
+    0.003,
+    0.017,
+    0,
+    0.009,
+    0.064,
+    0.003,
+    0,
+    0,
+    0,
+    0.116,
+    0,
+    0.006,
+    0.006,
+    0.009,
+    0.02,
+    0.009,
+    0.017,
+    0.012,
+    0.006,
+    0.006,
+    0.009,
+    0.006,
+    0.038,
+    0.009,
+    0.017,
+    0.017,
+    0.003,
+    0.006,
+    0,
+    0.017,
+    0.006,
+    0.052,
+    0.023,
+    0.02,
+    0.006,
+    0.003,
+    0.006,
+    0.006,
+    0.032,
+    0.058,
+    0.046,
+    0,
+    0.058,
+    0.012,
+    0.009,
+    0.006,
+    0.012,
+    0.014,
+    0.029,
+    0.003,
+    0.012,
+    0.029,
+    0.023,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0.012,
+    0,
+    0.006,
+    0.014,
+    0.032,
+    0.006,
+    0.003,
+    0.064,
+    0,
+    0,
+    0.006,
+    0.122,
+    0,
+    0.017,
+    0.043,
+    0.035,
+    0.009,
+    0.009,
+    0.023,
+    0,
+    0.017,
+    0.032,
+    0.006,
+    0.006,
+    0.014,
+    0.006,
+    0.006,
+    0.023,
+    0.093,
+    0.009,
+    0.023,
+    0.006,
+    0,
+    0.029,
+    0,
+    0.052,
+    0.006,
+    0,
+    0.003,
+    0.009,
+    0.023,
+    0,
+    0.006,
+    0.014,
+    0,
+    0.006,
+    0.012,
+    0,
+    0.003,
+    0.003,
+    0.006,
+    0.029,
+    0,
+    0.003,
+    0.02,
+    0.012,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0.02,
+    0.006,
+    0.006,
+    0.006,
+    0.035,
+    0.017,
+    0.006,
+    0.017,
+    0.02,
+    0.017,
+    0,
+    0.067,
+    0.006,
+    0.017,
+    0.009,
+    0,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.171,
+    0.133,
+    0.069,
+    0.006,
+    0,
+    0.017,
+    0.032,
+    0.006,
+    0.009,
+    0.003,
+    0.003,
+    0.006,
+    0.142,
+    0.029,
+    0.078,
+    0.026,
+    0.012,
+    0.006,
+    0.02,
+    0.003,
+    0,
+    0.029,
+    0.012,
+    0.017,
+    0.006,
+    0.006,
+    0.026,
+    0.006,
+    0.035,
+    0.003,
+    0.058,
+    0.012,
+    0.006,
+    0.009,
+    0.009,
+    0.014,
+    0.023,
+    0,
+    0.012,
+    0.012,
+    0.006,
+    0.006,
+    0.009,
+    0,
+    0.012,
+    0.003,
+    0.069,
+    0.035,
+    0.003,
+    0,
+    0.02,
+    0.023,
+    0,
+    0.009,
+    0.006,
+    0.017,
+    0.003,
+    0.029,
+    0.012,
+    0.087,
+    0.006,
+    0.012,
+    0,
+    0,
+    0.014,
+    0.067,
+    0,
+    0.017,
+    0.003,
+    0.038,
+    0.049,
+    0,
+    0.014,
+    0,
+    0.006,
+    0.009,
+    0,
+    0.003,
+    0,
+    0.003,
+    0.012,
+    0.006,
+    0.02,
+    0.038,
+    0,
+    0.026,
+    0.058,
+    0,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.012,
+    0.041,
+    0,
+    0.006,
+    0.017,
+    0.029,
+    0.038,
+    0.061,
+    0.003,
+    0.006,
+    0,
+    0.035,
+    0,
+    0.009,
+    0.035,
+    0.043,
+    0.052,
+    0.003,
+    0.006,
+    0.014,
+    0.046,
+    0.006,
+    0,
+    0.012,
+    0,
+    0.049,
+    0.003,
+    0.006,
+    0.017,
+    0,
+    0.009,
+    0,
+    0.009,
+    0.006,
+    0.035,
+    0.012,
+    0.006,
+    0.006,
+    0,
+    0.02,
+    0.017,
+    0.003,
+    0.041,
+    0.012,
+    0.006,
+    0.012,
+    0.029,
+    0.009,
+    0.009,
+    0.003,
+    0.009,
+    0.075,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.026,
+    0.012,
+    0.012,
+    0.012,
+    0.009,
+    0.006,
+    0.032,
+    0,
+    0.017,
+    0.055,
+    0.014,
+    0.017,
+    0.006,
+    0,
+    0.058,
+    0.052,
+    0.023,
+    0.006,
+    0.012,
+    0.023,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.043,
+    0.003,
+    0.014,
+    0.006,
+    0.003,
+    0.009,
+    0.006,
+    0.006,
+    0.003,
+    0.006,
+    0,
+    0.006,
+    0.003,
+    0.026,
+    0.003,
+    0.014,
+    0.043,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.026,
+    0.038,
+    0.009,
+    0.003,
+    0,
+    0.026,
+    0.041,
+    0.101,
+    0.006,
+    0.003,
+    0.012,
+    0.012,
+    0,
+    0.003,
+    0.084,
+    0.02,
+    0,
+    0,
+    0.017,
+    0.017,
+    0,
+    0.113,
+    0.017,
+    0.648,
+    0.043,
+    0,
+    0.035,
+    0.014,
+    0.043,
+    0.003,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.041,
+    0.003,
+    0,
+    0.006,
+    0.006,
+    0.032,
+    0.006,
+    0.006,
+    0.014,
+    0.032,
+    0.006,
+    0.006,
+    0.09,
+    0,
+    0,
+    0.009,
+    0.017,
+    0.067,
+    0.006,
+    0.017,
+    0.006,
+    0.014,
+    0.026,
+    0.017,
+    0.353,
+    0.006,
+    0.023,
+    0.017,
+    0.041,
+    0.006,
+    0.014,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v3}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "label": "so_status",
+     "target": "@e3036",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "radiogroup",
+       "name": "Statusbar"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div"
+      }
+     ]
+    },
+    "label": "so_status"
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3721"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a"
+      }
+     ]
+    },
+    "mints": {
+     "at": "q.id"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#cids=:id&id=:id&menu_id=:id&model=res.partner&view_type=form",
+     "addedContains": [
+      "- link \"{{v3}}\"",
+      "- button \"1 Sales\"",
+      "- button \"£ 0.00 Invoiced\"",
+      "- button \"Edit\"",
+      "- radio \"\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-01T15:18:51.159Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:26:30.876Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_6c5e1d",
+   "index": 0,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact 'fwod29-n1 Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order S00021 and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:18:51.159Z"
+  }
+ },
+ {
+  "id": "s_8abca6",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact '{{v1}}' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order {{v3}} and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n1 Bench Customer",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "S00021",
+    "usedIn": [
+     5
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#cids=:id&id={{d1}}&menu_id=:id&model=res.partner&view_type=form",
+   "fingerprint": [
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.067,
+    0.027,
+    0,
+    0,
+    0.013,
+    0.067,
+    0,
+    0,
+    0,
+    0.013,
+    0.054,
+    0.094,
+    0,
+    0.054,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0,
+    0.013,
+    0,
+    0.027,
+    0.013,
+    0.013,
+    0,
+    0.094,
+    0.054,
+    0.013,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0.027,
+    0.013,
+    0,
+    0.013,
+    0,
+    0,
+    0.013,
+    0.187,
+    0.013,
+    0,
+    0,
+    0.013,
+    0,
+    0.08,
+    0,
+    0.027,
+    0.054,
+    0.04,
+    0,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.054,
+    0.054,
+    0.054,
+    0.027,
+    0,
+    0,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.04,
+    0.04,
+    0.027,
+    0,
+    0,
+    0,
+    0.08,
+    0.054,
+    0,
+    0.027,
+    0,
+    0,
+    0.027,
+    0.107,
+    0.054,
+    0.054,
+    0.027,
+    0.013,
+    0.013,
+    0.054,
+    0.04,
+    0,
+    0,
+    0.067,
+    0,
+    0.04,
+    0.027,
+    0.027,
+    0,
+    0,
+    0,
+    0.121,
+    0.027,
+    0,
+    0,
+    0.04,
+    0.08,
+    0,
+    0.027,
+    0.027,
+    0.067,
+    0,
+    0,
+    0,
+    0.187,
+    0,
+    0.027,
+    0,
+    0.04,
+    0.013,
+    0.04,
+    0,
+    0.054,
+    0.027,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.013,
+    0.013,
+    0,
+    0,
+    0.04,
+    0,
+    0.027,
+    0.04,
+    0.013,
+    0,
+    0.054,
+    0,
+    0.027,
+    0.08,
+    0,
+    0,
+    0.04,
+    0.027,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0.054,
+    0.107,
+    0,
+    0.013,
+    0.04,
+    0.027,
+    0.08,
+    0,
+    0,
+    0.027,
+    0.027,
+    0.027,
+    0,
+    0.013,
+    0,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0.013,
+    0.013,
+    0.04,
+    0,
+    0.121,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.027,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0.027,
+    0.04,
+    0.107,
+    0.027,
+    0.161,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.067,
+    0.08,
+    0,
+    0,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.067,
+    0,
+    0.08,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0,
+    0.054,
+    0.013,
+    0.04,
+    0,
+    0.027,
+    0.054,
+    0,
+    0.054,
+    0.027,
+    0.067,
+    0.04,
+    0,
+    0.04,
+    0.027,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.04,
+    0.054,
+    0,
+    0.027,
+    0.04,
+    0,
+    0.04,
+    0.054,
+    0,
+    0.027,
+    0.013,
+    0.027,
+    0,
+    0.013,
+    0.013,
+    0.027,
+    0,
+    0.027,
+    0.054,
+    0.04,
+    0.013,
+    0.04,
+    0,
+    0,
+    0.027,
+    0.067,
+    0.054,
+    0.027,
+    0.027,
+    0,
+    0,
+    0,
+    0.054,
+    0.013,
+    0,
+    0,
+    0.027,
+    0.013,
+    0.04,
+    0.054,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.04,
+    0,
+    0.027,
+    0,
+    0.455,
+    0.147,
+    0.013,
+    0,
+    0,
+    0.054,
+    0,
+    0,
+    0.027,
+    0,
+    0.013,
+    0.054,
+    0,
+    0.013,
+    0.08,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.027,
+    0.04,
+    0.027,
+    0.013,
+    0,
+    0.094,
+    0,
+    0.027,
+    0.094,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.08,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.027,
+    0,
+    0,
+    0,
+    0.013,
+    0.013,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.04,
+    0.187,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.027,
+    0.054,
+    0,
+    0,
+    0,
+    0.027,
+    0.134,
+    0,
+    0.04,
+    0.013,
+    0,
+    0.04,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0,
+    0.013,
+    0,
+    0.027,
+    0.187,
+    0.027,
+    0,
+    0,
+    0.027,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0.04,
+    0.04,
+    0.147,
+    0.013,
+    0.054,
+    0,
+    0,
+    0.013,
+    0,
+    0.054,
+    0,
+    0.08,
+    0.054,
+    0.067,
+    0.04,
+    0,
+    0.04,
+    0,
+    0.027,
+    0.013,
+    0,
+    0.187,
+    0.134,
+    0.054,
+    0.027,
+    0.027,
+    0.04,
+    0,
+    0,
+    0.054,
+    0,
+    0,
+    0.027,
+    0.054,
+    0.027,
+    0.013,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0.067,
+    0.04,
+    0.054,
+    0.107,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.027,
+    0.054,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0.027,
+    0.027,
+    0.027,
+    0.04,
+    0.094,
+    0,
+    0,
+    0.027,
+    0.027,
+    0,
+    0.04,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0.04,
+    0.04,
+    0.04,
+    0.054,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0.08,
+    0,
+    0.013,
+    0.027,
+    0.054,
+    0.027,
+    0,
+    0.027,
+    0.013,
+    0.054,
+    0,
+    0.013,
+    0.04,
+    0,
+    0.027,
+    0,
+    0.04,
+    0,
+    0.013,
+    0.013,
+    0,
+    0.027,
+    0,
+    0.027,
+    0,
+    0.027,
+    0.027,
+    0.013,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v3}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_city",
+     "target": "@e8",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > div:nth-of-type(3)"
+      }
+     ]
+    },
+    "label": "customer_city"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_city_value",
+     "target": "@e4218",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "label": "customer_city_value"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_name_value",
+     "target": "@e4205",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "label": "customer_name_value"
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=21"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "wait_for",
+    "args": {
+     "state": "text_contains",
+     "target": "h1, .o_form_title",
+     "text": "{{v3}}",
+     "timeout_ms": 5000
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "h1, .o_form_title"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span"
+      }
+     ]
+    },
+    "label": "ref"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Verified two records read-only: (1) Customer contact '{{v1}}' — Name field: \"{{v1}}\" (read from the name combobox value), City field: \"Benchville\". (2) Sales order {{v3}} — reference/name: \"{{v3}}\", statusbar: \"Cancelled\" (checked, disabled radio), customer: \"{{v1}}\" (with \"Benchville\" beside it), untaxed amount: \"£ 1,665.00\" (as shown in the order totals). All values verified from the live pages.",
+   "values": {
+    "so_status": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+    "customer_city": "7\n3\nYourCompany",
+    "customer_city_value": "Benchville",
+    "customer_name_value": "{{v1}}",
+    "ref": "{{v3}}"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 1,
+   "partial": 2,
+   "created": "2026-09-01T15:18:51.159Z",
+   "failedAtStep": {
+    "5": 2
+   },
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-01T15:26:59.611Z",
+   "lastFailedAt": 5
+  },
+  "status": "demoted",
+  "seq": {
+   "chain": "s_6c5e1d",
+   "index": 1,
+   "of": 2
+  },
+  "provenance": {
+   "session": "fwod29-n1",
+   "instruction": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact 'fwod29-n1 Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order S00021 and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:18:51.159Z"
+  }
+ },
+ {
+  "id": "s_6e8428",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact '{{v1}} Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order {{v2}} and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n3",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "S00023",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_city_value",
+     "target": "@e4218",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "City"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "City"
+      },
+      {
+       "kind": "id",
+       "selector": "#city_0"
+      },
+      {
+       "kind": "css",
+       "selector": "#city_0"
+      }
+     ]
+    },
+    "label": "customer_city",
+    "via": {
+     "skill": "s_8abca6",
+     "step": 2
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_name_value",
+     "target": "@e4205",
+     "what": "value"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "e.g. Lumber Inc"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > h1 > div > div > input"
+      }
+     ]
+    },
+    "label": "customer_name",
+    "via": {
+     "skill": "s_8abca6",
+     "step": 3
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "http://127.0.0.1:8069/web#cids=1&menu_id=181&action=315&model=sale.order&view_type=form&id=21"
+    },
+    "locators": {},
+    "via": {
+     "skill": "s_8abca6",
+     "step": 4
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e7"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Sales"
+      },
+      {
+       "kind": "css",
+       "selector": "html > body > header > nav > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- button \"Remove\"",
+      "- searchbox \"Search...\"",
+      "- link \"Close the onboarding panel\"",
+      "- button \"Company Data\"",
+      "- heading \"Company Data\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-01T15:26:59.622Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_bfe748",
+   "index": 0,
+   "of": 2
+  },
+  "variantOf": "s_8abca6",
+  "provenance": {
+   "session": "fwod29-n3",
+   "instruction": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact 'fwod29-n3 Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order S00023 and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:26:59.622Z"
+  }
+ },
+ {
+  "id": "s_79e160",
+  "origin": "http://127.0.0.1:8069",
+  "template": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact '{{v1}} Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order {{v2}} and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+  "params": {
+   "v1": {
+    "example": "fwod29-n3",
+    "usedIn": [
+     4
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "S00023",
+    "usedIn": [
+     1,
+     2
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+   "fingerprint": [
+    0,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.05,
+    0,
+    0,
+    0.106,
+    0.05,
+    0.025,
+    0.006,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0.05,
+    0.012,
+    0.012,
+    0,
+    0,
+    0,
+    0,
+    0.043,
+    0.192,
+    0.025,
+    0,
+    0,
+    0.012,
+    0,
+    0,
+    0.012,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0.025,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0.093,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.037,
+    0.099,
+    0.149,
+    0,
+    0.006,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.012,
+    0,
+    0,
+    0,
+    0.025,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0.012,
+    0,
+    0.012,
+    0.019,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.062,
+    0.012,
+    0,
+    0.025,
+    0,
+    0,
+    0.006,
+    0.149,
+    0,
+    0.05,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0.006,
+    0.019,
+    0,
+    0,
+    0,
+    0.025,
+    0,
+    0,
+    0.025,
+    0,
+    0.006,
+    0.161,
+    0,
+    0.006,
+    0.025,
+    0,
+    0.087,
+    0.093,
+    0.012,
+    0.025,
+    0.043,
+    0,
+    0,
+    0.087,
+    0.05,
+    0.037,
+    0.075,
+    0,
+    0,
+    0.006,
+    0.099,
+    0,
+    0.012,
+    0,
+    0.056,
+    0.05,
+    0.012,
+    0.019,
+    0,
+    0.075,
+    0.062,
+    0.025,
+    0,
+    0.012,
+    0.075,
+    0.012,
+    0.006,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0,
+    0.062,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.087,
+    0.006,
+    0.012,
+    0,
+    0,
+    0,
+    0,
+    0.05,
+    0,
+    0.025,
+    0,
+    0.112,
+    0.05,
+    0,
+    0,
+    0.012,
+    0.019,
+    0,
+    0,
+    0.062,
+    0.093,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0.05,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.099,
+    0.056,
+    0.012,
+    0.006,
+    0.025,
+    0.012,
+    0,
+    0.05,
+    0,
+    0,
+    0,
+    0.012,
+    0.006,
+    0.006,
+    0.012,
+    0.012,
+    0,
+    0.025,
+    0.012,
+    0.019,
+    0,
+    0.025,
+    0.012,
+    0,
+    0.012,
+    0.012,
+    0,
+    0,
+    0,
+    0.087,
+    0,
+    0,
+    0.012,
+    0.012,
+    0.006,
+    0.006,
+    0,
+    0.112,
+    0,
+    0.012,
+    0.019,
+    0.006,
+    0.031,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0.087,
+    0.056,
+    0.093,
+    0,
+    0.006,
+    0.006,
+    0.012,
+    0,
+    0.037,
+    0.087,
+    0.012,
+    0,
+    0,
+    0,
+    0.05,
+    0.012,
+    0.006,
+    0,
+    0.056,
+    0.012,
+    0.006,
+    0.012,
+    0.118,
+    0.012,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.012,
+    0,
+    0,
+    0.081,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0.006,
+    0,
+    0.05,
+    0.012,
+    0.012,
+    0.006,
+    0,
+    0,
+    0.012,
+    0.087,
+    0,
+    0.137,
+    0.006,
+    0.087,
+    0.006,
+    0,
+    0.019,
+    0.006,
+    0.019,
+    0,
+    0,
+    0.006,
+    0.012,
+    0,
+    0,
+    0,
+    0.05,
+    0.019,
+    0,
+    0,
+    0.075,
+    0,
+    0,
+    0.05,
+    0,
+    0.012,
+    0,
+    0.025,
+    0.012,
+    0.012,
+    0,
+    0.087,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.075,
+    0,
+    0,
+    0,
+    0.012,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.087,
+    0,
+    0.012,
+    0.025,
+    0.006,
+    0.012,
+    0,
+    0.006,
+    0.012,
+    0,
+    0,
+    0,
+    0.025,
+    0,
+    0.019,
+    0,
+    0.025,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0.05,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0.217,
+    0.019,
+    0,
+    0.012,
+    0,
+    0.006,
+    0,
+    0.062,
+    0.012,
+    0,
+    0.012,
+    0.043,
+    0.025,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0,
+    0.087,
+    0.068,
+    0.025,
+    0.031,
+    0,
+    0.006,
+    0.006,
+    0,
+    0.05,
+    0.05,
+    0.012,
+    0.012,
+    0.019,
+    0.099,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0.006,
+    0.012,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.062,
+    0.05,
+    0,
+    0.062,
+    0,
+    0.031,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.112,
+    0.099,
+    0.31,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0.006,
+    0.137,
+    0.012,
+    0,
+    0,
+    0.025,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0.006,
+    0,
+    0.05,
+    0,
+    0.062,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.012,
+    0.012,
+    0.025,
+    0.012,
+    0,
+    0.025,
+    0.13,
+    0,
+    0,
+    0.006,
+    0.012,
+    0.012,
+    0.012,
+    0,
+    0.05,
+    0,
+    0.019,
+    0.025,
+    0.006,
+    0,
+    0.012,
+    0.012,
+    0.528,
+    0.056,
+    0.006,
+    0.012
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e890"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+     "addedContains": [
+      "- link \"Quotations\"",
+      "- button \"Save manually\"",
+      "- button \"Discard changes\"",
+      "- button \"Preview\"",
+      "- button \"Set to Quotation\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "order_reference",
+     "target": "@e1156",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1"
+      }
+     ]
+    },
+    "label": "order_reference"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "statusbar_text",
+     "target": "@e1153",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "radiogroup",
+       "name": "Statusbar"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div"
+      }
+     ]
+    },
+    "label": "statusbar_text"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "customer_text",
+     "target": "@e1165",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v1}} Bench Customer Benchville"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a"
+      }
+     ]
+    },
+    "label": "customer_text"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "untaxed_amount",
+     "target": "@e1310",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)",
+       "nth": 1
+      }
+     ]
+    },
+    "label": "untaxed_amount_2"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a > span:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "customer_name"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div > a > span:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "customer_city"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "label": "untaxed_amount"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Read-only verification of two records completed successfully: (1) Customer contact '{{v1}} Bench Customer' — Name = \"{{v1}} Bench Customer\", City = \"Benchville\". (2) Sales order {{v2}} — Reference/Name = \"{{v2}}\", Statusbar shows \"Cancelled\" as the active (checked) status with \"Sales Order\", \"Quotation Sent\", \"Quotation\" disabled downstream; Customer = \"{{v1}} Bench Customer\" with \"Benchville\" appended; Untaxed Amount = £1,665.00. The order is no longer active (current status is Cancelled).",
+   "values": {
+    "customer_name": "{{v1}} Bench Customer",
+    "customer_city": "Benchville",
+    "order_reference": "{{v2}}",
+    "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+    "customer_text": "{{v1}} Bench Customer\nBenchville",
+    "untaxed_amount": "£ 1,665.00",
+    "untaxed_amount_2": "£ 1,665.00"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-01T15:26:59.622Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_bfe748",
+   "index": 1,
+   "of": 2
+  },
+  "variantOf": "s_8abca6",
+  "provenance": {
+   "session": "fwod29-n3",
+   "instruction": "In Odoo 17 (already signed in as admin), do a read-only verification (do NOT modify or save anything) of two records and report the facts: (1) Open the customer contact 'fwod29-n3 Bench Customer' (Sales -> Orders -> Customers, search for it) and report its Name and City field values exactly as shown. (2) Open the sales order S00023 and report its reference/name, the status label shown in the statusbar, the customer, and the untaxed amount. Do not wait for network idle (the app long-polls); wait for concrete page state instead. Report only what you actually see on the pages.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-01T15:26:59.622Z"
+  }
+ }
+]
