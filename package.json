@@ -1,9 +1,25 @@
 {
-  "name": "browser-pilot",
-  "version": "0.2.0",
-  "description": "Agent-in-the-loop Playwright CLI: one natural-language instruction in, one concise structured result out.",
+  "name": "sleep-walker",
+  "version": "0.3.0",
+  "description": "Sleep-walker: an agent-in-the-loop Playwright CLI that learns a flow once, then replays it with the model asleep \u2014 zero-LLM, deterministic, verified.",
+  "keywords": [
+    "playwright",
+    "browser-automation",
+    "llm-agent",
+    "e2e-testing",
+    "record-replay",
+    "deterministic-replay",
+    "cli"
+  ],
+  "homepage": "https://sleep-walker.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/restspace/sleep-walker.git"
+  },
+  "license": "MIT",
   "type": "module",
   "bin": {
+    "sleep-walker": "bin/browser-pilot.js",
     "browser-pilot": "bin/browser-pilot.js"
   },
   "files": [
@@ -30,6 +46,5 @@
     "@types/node": "^24.0.0",
     "typescript": "^5.8.0",
     "vitest": "^3.0.0"
-  },
-  "license": "MIT"
+  }
 }

@@ -1,0 +1,104 @@
+{
+  "flow": "fwkb2",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3cd5e0; observed column_ready=Ready , column_work_in_progress=Work in progress , column_done=Done .",
+      "values": {
+        "column_ready": "Ready ",
+        "column_work_in_progress": "Work in progress ",
+        "column_done": "Done "
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created task titled 'fwkb2-n2 Bench Task' with description 'Bench task for run fwkb2-n2' in the Backlog  \nTask count\n4  (\nTotal number of tasks in this column across all swimlanes\n4) column of the Bench Board. The task was created successfully with numeric ID #4 and is confirmed visible on the board in the Backlog  \nTask count\n4  (\nTotal number of tasks in this column across all swimlanes\n4) column.",
+      "values": {
+        "task_title": "fwkb2-n2 Bench Task",
+        "column": "Backlog  \nTask count\n4  (\nTotal number of tasks in this column across all swimlanes\n4)"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-verify",
+      "status": "success",
+      "summary": "Replayed stored procedure s_cc2d57; observed task_title=fwkb2-n2 Bench Task, current_column=Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1).",
+      "values": {
+        "task_title": "fwkb2-n2 Bench Task",
+        "current_column": "Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1)"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened the task page for task #4 'fwkb2-n2 Bench Task' in the Bench Board project. Added a comment with text 'Comment for run fwkb2-n2' and submitted it. The comment appears in the Comments section with the exact text 'Comment for run fwkb2-n2' and a success message 'Comment added successfully' was displayed.",
+      "values": {
+        "comment_text": "Comment for run fwkb2-n2",
+        "task_title": "fwkb2-n2 Bench Task"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Opened the edit form for task #4, set the due date to 2026-12-31, and saved. The task page now displays 'Due date: 12/31/2026 17:41' (December 31, 2026) confirming the change was saved successfully. A 'Task updated successfully' message was also shown.",
+      "values": {
+        "due_date_label": "Due date: 12/31/2026 17:41",
+        "due_date_displayed": "12/31/2026 17:41"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_161d89; observed due_date_label=Due date: 12/31/2026 17:41, task_position=Position: 1, task_dates_summary=Due date: 12/31/2026 17:41\nStarted: Start now\nCreated: 09/01/2026 17:41\nModified: 09/01/2026 17:41\nMoved: 09/01/2026 17:41, task_page_column_label=Column:, task_column=Work in progress, comment_contains_fwkb2_n1=Comment for run fwkb2-n2, due_date_displayed=12/31/2026 17:41.",
+      "values": {
+        "due_date_label": "Due date: 12/31/2026 17:41",
+        "task_position": "Position: 1",
+        "task_dates_summary": "Due date: 12/31/2026 17:41\nStarted: Start now\nCreated: 09/01/2026 17:41\nModified: 09/01/2026 17:41\nMoved: 09/01/2026 17:41",
+        "task_page_column_label": "Column:",
+        "task_column": "Work in progress",
+        "comment_contains_fwkb2_n1": "Comment for run fwkb2-n2",
+        "due_date_displayed": "12/31/2026 17:41"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 19037,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

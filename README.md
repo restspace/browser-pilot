@@ -1,7 +1,16 @@
-# browser-pilot
+# sleep-walker
 
-An agent-in-the-loop Playwright CLI. One natural-language instruction in, one concise structured
-result out — instead of 4–6 selector-aware, quoting-aware, wait-aware CLI calls per logical step.
+An agent-in-the-loop Playwright CLI that **learns a flow once, then replays it with the model
+asleep** — zero-LLM, deterministic, verified against what the app actually persisted.
+
+One natural-language instruction in, one concise structured result out — instead of 4–6
+selector-aware, quoting-aware, wait-aware CLI calls per logical step. Record a flow once and every
+later run replays it from compiled skills: on converged flows the replay makes **zero model calls
+and costs $0.00**, falling back to cheap model recovery only where the app has drifted.
+
+> **Naming:** the package is `sleep-walker`; the CLI installs both the `sleep-walker` command and
+> its original name `browser-pilot` as an alias — every example below works with either. Session
+> state lives under `~/.browser-pilot/` and env vars are `BROWSER_PILOT_*`.
 
 An internal LLM agent (default **GLM 5.2** via Z.ai's OpenAI-compatible API) translates each
 instruction into typed, in-process Playwright tool calls against a persistent browser, then reports
@@ -28,8 +37,14 @@ e.g. `click` needing a fallback when an element is covered — not a bespoke app
 ## Install
 
 ```sh
+npm install -g sleep-walker    # puts `sleep-walker` (and alias `browser-pilot`) on PATH
+```
+
+Or from a checkout:
+
+```sh
 npm install        # builds via prepare
-npm link           # optional: puts `browser-pilot` on PATH
+npm link           # optional: puts `sleep-walker` / `browser-pilot` on PATH
 ```
 
 Requires Node 20+, an installed Chrome or Edge (or set `BROWSER_PILOT_EXECUTABLE`), and an API key

@@ -1,0 +1,144 @@
+{
+  "flow": "fwgr19",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8f9ac5; observed h2=Request rate, h2_2=Error count, h2_3=Latency by endpoint.",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created new dashboard 'fwgr19-n2 Bench Dashboard' with a Stat panel titled 'fwgr19-n2 Availability' using the TestData data source (grafana-testdata-datasource). Saved successfully — the panel displays \"95.2\" value from TestData's default scenario. confirmed.",
+      "values": {
+        "panel_title": "fwgr19-n2 Availability",
+        "data_source": "TestData",
+        "dashboard_url": "http://127.0.0.1:3000/d/bfwypr8m8ugowb/fwgr19-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&showCategory=Panel%20options",
+        "button": "Stat"
+      },
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a Text panel titled 'fwgr19-n2 Notes' with markdown content '# Bench run fwgr19-n2 — notes panel.' to the dashboard. Saved the dashboard successfully (confirmed by 'Dashboard saved' alert). The dashboard now shows two panels: 'fwgr19-n2 Availability' (Stat) and 'fwgr19-n2 Notes' (Text). The notes panel renders the heading 'Bench run fwgr19-n2 — notes panel.' as visible content, which includes the required runid 'fwgr19-n2'.",
+      "values": {
+        "dashboard_url": "http://127.0.0.1:3000/d/bfwypr8m8ugowb/fwgr19-n2-bench-dashboard",
+        "notes_panel_title": "fwgr19-n2 Notes",
+        "notes_content_rendered": "Bench run fwgr19-n2 — notes panel.",
+        "availability_panel_title": "fwgr19-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_045e02; observed time_range=Last 6 hours.",
+      "values": {
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to 1m by opening the refresh dropdown in the top bar and selecting '1m' (1 minute). Opened the save dialog, checked 'Update default refresh value', and clicked Save. Confirmed success via the 'Dashboard saved' alert. The top bar now shows the refresh button with '1m' selected and the tooltip 'Choose refresh time interval with current interval 1 minute selected'. Dashboard settings also confirm the persisted refresh interval.",
+      "values": {
+        "auto_refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Verification complete on fresh load of http://127.0.0.1:3000/d/bfwypr8m8ugowb/fwgr19-n2-bench-dashboard. (1) Breadcrumb title: 'fwgr19-n2 Bench Dashboard'. (2) Panels visible: 'fwgr19-n2 Notes' and 'fwgr19-n2 Availability'. (3) Time range in top bar: 'Last 6 hours'. (4) Auto-refresh interval: '1m' (1 minute). (5) Settings > General: dashboard name 'fwgr19-n2 Bench Dashboard', tags: 'bench'. (6) Panel query editor for 'fwgr19-n2 Availability' shows data source 'TestData' (grafana-testdata-datasource, with TestData logo and Random Walk scenario); editor closed without saving. Dashboard UID: bfwypr8m8ugowb.",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "breadcrumb_title": "fwgr19-n2 Bench Dashboard",
+        "dashboard_name": "fwgr19-n2 Bench Dashboard",
+        "dashboard_uid": "bfwypr8m8ugowb",
+        "data_source": "TestData",
+        "panel_titles": "fwgr19-n2 Notes, fwgr19-n2 Availability",
+        "tags": "bench",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "1/31",
+      "repaired": false,
+      "turns": 45
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "06-change",
+      "skill": "s_0f5111",
+      "similarity": 0.997,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_0f5111 stopped at step 1 — the page at http://127.0.0.1:3000/d/bfwypr8m8ugowb/:id does not show \"fwgr19-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/bfwypr8m8ugowb/:id does not show \"fwgr19-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfwypr8m8ugowb/:id"
+    }
+  ],
+  "wallMs": 583091,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1096353,
+    "completionTokens": 15284,
+    "cachedTokens": 881248
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 819259,
+      "completionTokens": 11790,
+      "cachedTokens": 637440
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 277094,
+      "completionTokens": 3494,
+      "cachedTokens": 243808
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

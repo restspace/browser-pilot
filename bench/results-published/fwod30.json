@@ -1,0 +1,303 @@
+{
+  "name": "fwod30",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8069/ and sign in to Odoo with username 'admin' and password 'admin'. Then go to the Contacts app and create a new contact (individual/company, type Customer) named exactly '{{runid}} Bench Customer' with the City field set to 'Benchville' (fill any other required fields minimally). Save it, then verify by reopening the record and report the Name and City values shown on the page. Important: this app long-polls and is never network-idle, so never wait for network idle; wait for concrete page state (e.g. specific elements/text) instead.",
+      "outputs": [],
+      "recorded": {},
+      "adopted": true,
+      "skill": "s_dc6b82"
+    },
+    {
+      "id": "02-change",
+      "instruction": "Get to the Odoo Contacts app: first try a full page load (goto, not hash change) of http://127.0.0.1:8069/web#action=135&model=res.partner&view_type=kanban&cids=1&menu_id=71 and wait for a Contacts kanban view of contacts to appear; if that still shows Discuss, click the hamburger/apps button at the top-left of the navigation bar to open the apps drawer and click the Contacts app tile there. Once in Contacts, create a new contact named exactly '{{runid}} Bench Customer' with City set to 'Benchville' (type Customer, fill only required fields). Save, then reopen/verify the record and report the Name and City values shown. Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_36c124",
+      "params": {
+        "v2": "http://127.0.0.1:8069/web#action=135&model=res.partner&view_type=kanban&cids=1&menu_id=71",
+        "v4": "contacts",
+        "v5": "{{runid}} Bench Customer",
+        "v6": "Benchville"
+      },
+      "outputs": [
+        "contact_name",
+        "contact_city"
+      ],
+      "recorded": {
+        "contact_name": "fwod30-n1 Bench Customer",
+        "contact_city": "Benchville"
+      },
+      "outputEvidence": {
+        "contact_name": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "In Odoo, go to the Sales app (open the apps drawer via the top-left hamburger button if needed, then click the Sales app tile; or load http://127.0.0.1:8069/web#action=sale.action_quotations_with_onboarding or the Sales > Quotations menu). Create a new quotation for the customer '{{runid}} Bench Customer' — the customer field is an autocomplete dropdown, so type the name and actually select the matching option from the dropdown. Then add exactly ONE order line: pick any product from the product catalogue (again an autocomplete dropdown — select an actual option, don't just type), set the quantity to 3. Let the app fill in the unit price automatically. Save the quotation and report: (a) the product name you chose, (b) the unit price the app filled in, and (c) the untaxed amount the app computes (shown in the order line totals / Untaxed Amount field). Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_6739a5",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "product_name",
+        "unit_price",
+        "untaxed_amount",
+        "untaxed_amount_2",
+        "quotation_reference"
+      ],
+      "recorded": {
+        "product_name": "Chair floor protection",
+        "unit_price": "12.00",
+        "untaxed_amount": "£ 36.00",
+        "untaxed_amount_2": "£ 36.00",
+        "quotation_reference": "S00021"
+      },
+      "outputEvidence": {
+        "product_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "unit_price": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "quotation_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount_2": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "In Odoo Sales, open the existing quotation {{03-open.quotation_reference}} for customer '{{runid}} Bench Customer' (find it via Sales > Quotations list, or search for {{03-open.quotation_reference}}). Click Edit to make it editable, then add a SECOND order line (a new line, keeping the existing '{{03-open.product_name}}' line with quantity 3 untouched): choose a DIFFERENT product from the catalogue (the product field is an autocomplete dropdown — type and actually select an option from the dropdown), set its quantity to 2. Let the app fill the unit price. Save the quotation and report: (a) the name of the second product you chose, and (b) the new total Untaxed Amount the app computes for the whole quotation (should reflect both lines). Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_259e4a",
+      "params": {
+        "v1": "{{03-open.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-open.product_name}}",
+        "v5": "{{03-open.url.q.id}}"
+      },
+      "outputs": [
+        "second_product",
+        "second_product_unit_price",
+        "second_product_quantity",
+        "second_line_amount",
+        "untaxed_amount_total",
+        "first_line_untouched",
+        "quotation_reference"
+      ],
+      "recorded": {
+        "second_product": "Customizable Desk",
+        "second_product_unit_price": "750.00",
+        "second_product_quantity": "2.00",
+        "second_line_amount": "£ 1,500.00",
+        "untaxed_amount_total": "£ 1,536.00",
+        "first_line_untouched": "Chair floor protection, qty 3.00, £ 36.00",
+        "quotation_reference": "S00021"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "In Odoo Sales, open the existing quotation {{03-open.quotation_reference}} for customer '{{runid}} Bench Customer' (via Sales > Quotations). Click Edit, then change the quantity of the FIRST order line (the product '{{03-open.product_name}}') from 3 to 5. Do not touch the second line ('{{04-open.second_product}}', quantity 2). Save the quotation and report the new total Untaxed Amount the app computes for the whole quotation after this change. Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_543a48",
+      "params": {
+        "v1": "{{03-open.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{03-open.product_name}}",
+        "v5": "{{04-open.second_product}}"
+      },
+      "outputs": [
+        "new_untaxed_amount",
+        "first_line_quantity",
+        "first_line_amount",
+        "second_line_unchanged",
+        "new_untaxed_amount_2",
+        "quotation_reference"
+      ],
+      "recorded": {
+        "new_untaxed_amount": "£ 1,560.00",
+        "first_line_quantity": "5.00",
+        "first_line_amount": "£ 60.00",
+        "second_line_unchanged": "2.00 x £750.00 = £1,500.00",
+        "new_untaxed_amount_2": "£ 1,560.00",
+        "quotation_reference": "S00021"
+      },
+      "outputEvidence": {
+        "new_untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "first_line_quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "first_line_amount": {
+          "same": 0,
+          "differed": 1
+        },
+        "new_untaxed_amount_2": {
+          "same": 0,
+          "differed": 2
+        },
+        "quotation_reference": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "In Odoo Sales, open the existing quotation {{03-open.quotation_reference}} for customer '{{runid}} Bench Customer' (via Sales > Quotations). Confirm the quotation by clicking the Confirm button (e.g. 'Confirm' / 'Confirm Order') so it becomes a sales order. If a confirmation dialog appears, accept it. Then report: (a) the order reference/name shown on the record (e.g. {{03-open.quotation_reference}}), and (b) the status the app now shows on the sales order (e.g. 'Sales Order' / 'Confirmed' — report the exact status text visible on the page). Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_b6d9f5",
+      "params": {
+        "v1": "{{03-open.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "Sales Order",
+        "v5": "{{03-open.url.q.id}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "In Odoo Sales, open the sales order {{03-open.quotation_reference}} for customer '{{runid}} Bench Customer' (via Sales > Orders, or Sales > Quotations). Cancel this sales order by clicking the Cancel button (there should be a Cancel button in the header; if a confirmation dialog appears, accept/confirm it). Then report the exact status the app shows on the record after cancelling (e.g. 'Cancelled' — report the exact status text visible on the page, and confirm the Cancel action succeeded). Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_28e548",
+      "params": {
+        "v1": "{{03-open.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "order_reference",
+        "status_after_cancel"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status_after_cancel": "Cancelled"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "status_after_cancel": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "Verification only, no changes: In Odoo Sales, open the record {{03-open.quotation_reference}} (customer '{{runid}} Bench Customer'). Report exactly what the page shows: the order reference/name, the current status shown in the statusbar, the customer name, the two order lines (product names and quantities), and the Untaxed Amount. Do not click any buttons that change state. Note: the app long-polls and is never network-idle — never wait for network idle; wait for concrete elements/text instead.",
+      "skill": "s_7d7c7c",
+      "params": {
+        "v1": "{{03-open.quotation_reference}}",
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "order_reference",
+        "current_status",
+        "customer_name",
+        "order_line_1_product",
+        "order_line_1_quantity",
+        "order_line_2_product",
+        "order_line_2_quantity",
+        "untaxed_amount",
+        "customer_name_with_city",
+        "untaxed_amount_2",
+        "statusbar_text"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "current_status": "Cancelled",
+        "customer_name": "fwod30-n1 Bench Customer",
+        "order_line_1_product": "Chair floor protection",
+        "order_line_1_quantity": "5.00",
+        "order_line_2_product": "Customizable Desk",
+        "order_line_2_quantity": "2.00",
+        "untaxed_amount": "£ 1,560.00",
+        "customer_name_with_city": "fwod30-n1 Bench Customer\nBenchville",
+        "untaxed_amount_2": "£ 1,560.00",
+        "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "current_status": {
+          "same": 2,
+          "differed": 0
+        },
+        "customer_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_line_1_product": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_line_1_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_line_2_product": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_line_2_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "customer_name_with_city": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount_2": {
+          "same": 0,
+          "differed": 2
+        },
+        "statusbar_text": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod30-n1",
+    "created": "2026-09-01T18:05:22.580Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

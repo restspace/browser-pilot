@@ -1,0 +1,135 @@
+{
+  "flow": "fwrd39",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in and created ticket 'fwrd39-n3 RD Bench Ticket'. The earlier replay's steps 1-4 (click New ticket, fill Title, fill Customer, click Create ticket) already created it — it shows in the list as **RD-1017**, title \"fwrd39-n3 RD Bench Ticket\", customer \"Bench Test Co\", status \"Draft\", created 2026-09-01. Required fields in the form: **Title** (marked with * — required), **Customer** (optional). No confirmation toast/notification appeared after submission; the ticket simply appeared in the list. Screenshot taken of the list showing it.",
+      "values": {
+        "ticket_reference": "RD-1017",
+        "ticket_title": "fwrd39-n3 RD Bench Ticket",
+        "customer_name": "Bench Test Co",
+        "ticket_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "4/10",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened ticket RD-1017 / \"fwrd39-n3 RD Bench Ticket\". Added part \"fwrd39-n3 RD Part A\" with Cost=$100, Markup=25% and default Quantity=1 (no supplier). The dialog showed required fields: Part name*, Cost*, and Markup %*. After submitting, the dialog closed and the detail view refreshed with the new row. The app computed Price = **$125.00** ($100 cost + 25% markup).",
+      "values": {
+        "part_name": "fwrd39-n3 RD Part A",
+        "part_a_cost": "$100.00",
+        "part_a_markup": "25%",
+        "part_a_supplier": "No supplier",
+        "part_a_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added second part \"fwrd39-n3 RD Part B\" with Cost=$200 and Markup=25% (Quantity=1, No supplier). After submission the detail view refreshed with both parts listed: Part A ($100.00 cost, 25% markup, $125.00 price) and Part B ($200.00 cost, 25% markup, $250.00 price). The total shown is $375.00 ($125 + $250). The app computes Part B's price as **$250.00**.",
+      "values": {
+        "part_b_name": "fwrd39-n3 RD Part B",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_supplier": "No supplier",
+        "part_b_price": "$250.00",
+        "part_a_price": "$125.00",
+        "parts_total": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Edited part \"fwrd39-n3 RD Part A\" in ticket RD-1017: changed Cost from $100 to $150 while keeping Markup at 25%. The detail view refreshed immediately. Part A now shows Cost=$150.00, Markup=25%, Price=$187.50 (was $125.00). The new parts total is **$437.50** (Part A $187.50 + Part B $250.00).",
+      "values": {
+        "part_a_cost": "$150.00",
+        "part_a_markup": "25%",
+        "part_a_supplier": "No supplier",
+        "part_a_price": "$187.50",
+        "part_b_price": "$250.00",
+        "parts_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Clicked \"Mark Ready\" on ticket RD-1017. The app showed an alert: \"Ticket is not ready - Part 'fwrd39-n3 RD Part A' has no supplier - Part 'fwrd39-n3 RD Part B' has no supplier\". The precondition was: **every part must have a Supplier assigned**. I edited each part (Part A and Part B) and set their Supplier field to \"Bench Supplier Co\". After saving both, I clicked \"Mark Ready\" again and the status changed from \"Draft\" to \"Ready\". The buttons changed to \"Mark Draft\" and \"Mark Closed\", confirming the new status. The final status is **Ready**.",
+      "values": {
+        "ticket_status": "Ready",
+        "part_a_supplier": "Bench Supplier Co",
+        "parts_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Deleted both parts and archived the ticket. For each part, clicked the delete button which triggered a custom \"Confirm\" dialog with \"Cancel\" and \"Delete part\" buttons — accepted the confirmation by clicking \"Delete part\". Part A and Part B both disappeared from the parts table (showing \"No parts on this ticket yet\"). Then clicked \"Archive ticket\" (no dialog appeared; the button changed to \"Unarchive ticket\"). Went to the tickets list — RD-1017 is absent from the active list. Clicked \"Show archived\" and found it listed: title \"fwrd39-n3 RD Bench Ticket Archived\", status Ready, Parts 0. Everything is cleaned up.",
+      "values": {
+        "archived_status": "Ready",
+        "ticket_reference": "RD-1017",
+        "archived_title": "fwrd39-n3 RD Bench Ticket Archived",
+        "archived_customer": "Bench Test Co"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwrd39",
+      "step": "01-open",
+      "skill": "s_858281",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_858281 stopped at step 5 — wait_for failed: wait_for text_contains timed out after 10000ms (last: text=\"\") — value never changed from text=\"\", so this condition may be unsatisfiable (e.g. count against a virtualised list renders only visible rows); assert on a stable indicator instead",
+      "reason": "wait_for failed: wait_for text_contains timed out after 10000ms (last: text=\"\") — value never changed from text=\"\", so this condition may be unsatisfiable (e.g. count against a virtualised list renders only visible rows); assert on a stable indicator instead",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+    }
+  ],
+  "wallMs": 83337,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 125764,
+    "completionTokens": 2872,
+    "cachedTokens": 93440
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 125764,
+      "completionTokens": 2872,
+      "cachedTokens": 93440
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
