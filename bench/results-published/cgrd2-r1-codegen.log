@@ -1,0 +1,77 @@
+[ok] 1 goto 28ms
+[ok] 2 fill 58ms
+[ok] 3 fill 12ms
+[ok] 4 click 49ms
+[ok] 5 click 68ms
+[ok] 6 fill 10ms
+[ok] 7 fill 12ms
+[ok] 8 click 42ms
+[ok] 9 wait_for 768ms
+[read] 11 ["RD-1015","cgrd2-r1 RD Bench Ticket","Bench Test Co","Draft","0","2026-09-01"]
+[read] 12 "RD-1015"
+[read] 13 "cgrd2-r1 RD Bench Ticket"
+[read] 14 "Bench Test Co"
+[read] 15 "2026-09-01"
+[ok] 16 click 25ms
+[ok] 17 click 68ms
+[ok] 18 fill 6ms
+[ok] 19 fill 7ms
+[ok] 20 fill 7ms
+[ok] 21 click 43ms
+[read] 22 []
+[read] 24 "cgrd2-r1 RD Part A"
+[read] 25 "$100.00"
+[read] 26 "25%"
+[read] 27 "No supplier"
+[read] 28 "$125.00"
+[ok] 29 click 17ms
+[ok] 30 fill 6ms
+[ok] 31 fill 7ms
+[ok] 32 fill 8ms
+[ok] 33 click 45ms
+[read] 35 "cgrd2-r1 RD Part B"
+[read] 36 "$200.00"
+[read] 37 "25%"
+[read] 38 "No supplier"
+[read] 39 "$250.00"
+[read] 40 "$125.00"
+[read] 41 "$375.00"
+[ok] 42 click 28ms
+[ok] 43 fill 9ms
+[ok] 44 click 40ms
+[read] 46 "$100.00"
+[read] 47 "25%"
+[read] 48 "No supplier"
+[read] 49 "$125.00"
+[read] 50 "$250.00"
+[read] 51 "$437.50"
+[ok] 52 click 46ms
+[ok] 53 click 51ms
+[ok] 54 type 170ms
+[ok] 55 click 28ms
+[ok] 56 type 108ms
+[ok] 57 fill 9ms
+[ok] 58 fill 7ms
+[ok] 59 fill 7ms
+[ok] 60 click 36ms
+[ok] 61 click 101ms
+[ok] 62 fill 10ms
+[ok] 63 click 38ms
+[ok] 64 dialog_expect 1ms
+[ok] 65 click 80ms
+[read] 68 "Draft"
+[read] 69 ""
+[read] 70 "$437.50"
+[ok] 71 dialog_expect 1ms
+[ok] 72 click 78ms
+[ok] 73 click 32ms
+[ok] 74 wait_for 801ms
+[ok] 75 click 32ms
+[ok] 76 click 34ms
+[ok] 77 wait_for 801ms
+[ok] 78 dialog_expect 0ms
+[ok] 79 click 34ms
+[ok] 80 goto 4ms
+[FATAL] 81 click locator.click: Timeout 30000ms exceeded.
+[script aborted at gesture 81]
+RESULT {"runid":"cgrd2-r1","gestures":[{"i":1,"tool":"goto","ok":true,"ms":28},{"i":2,"tool":"fill","ok":true,"ms":58},{"i":3,"tool":"fill","ok":true,"ms":12},{"i":4,"tool":"click","ok":true,"ms":49},{"i":5,"tool":"click","ok":true,"ms":68},{"i":6,"tool":"fill","ok":true,"ms":10},{"i":7,"tool":"fill","ok":true,"ms":12},{"i":8,"tool":"click","ok":true,"ms":42},{"i":9,"tool":"wait_for","ok":true,"ms":768},{"i":16,"tool":"click","ok":true,"ms":25},{"i":17,"tool":"click","ok":true,"ms":68},{"i":18,"tool":"fill","ok":true,"ms":6},{"i":19,"tool":"fill","ok":true,"ms":7},{"i":20,"tool":"fill","ok":true,"ms":7},{"i":21,"tool":"click","ok":true,"ms":43},{"i":29,"tool":"click","ok":true,"ms":17},{"i":30,"tool":"fill","ok":true,"ms":6},{"i":31,"tool":"fill","ok":true,"ms":7},{"i":32,"tool":"fill","ok":true,"ms":8},{"i":33,"tool":"click","ok":true,"ms":45},{"i":42,"tool":"click","ok":true,"ms":28},{"i":43,"tool":"fill","ok":true,"ms":9},{"i":44,"tool":"click","ok":true,"ms":40},{"i":52,"tool":"click","ok":true,"ms":46},{"i":53,"tool":"click","ok":true,"ms":51},{"i":54,"tool":"type","ok":true,"ms":170},{"i":55,"tool":"click","ok":true,"ms":28},{"i":56,"tool":"type","ok":true,"ms":108},{"i":57,"tool":"fill","ok":true,"ms":9},{"i":58,"tool":"fill","ok":true,"ms":7},{"i":59,"tool":"fill","ok":true,"ms":7},{"i":60,"tool":"click","ok":true,"ms":36},{"i":61,"tool":"click","ok":true,"ms":101},{"i":62,"tool":"fill","ok":true,"ms":10},{"i":63,"tool":"click","ok":true,"ms":38},{"i":64,"tool":"dialog_expect","ok":true,"ms":1},{"i":65,"tool":"click","ok":true,"ms":80},{"i":71,"tool":"dialog_expect","ok":true,"ms":1},{"i":72,"tool":"click","ok":true,"ms":78},{"i":73,"tool":"click","ok":true,"ms":32},{"i":74,"tool":"wait_for","ok":true,"ms":801},{"i":75,"tool":"click","ok":true,"ms":32},{"i":76,"tool":"click","ok":true,"ms":34},{"i":77,"tool":"wait_for","ok":true,"ms":801},{"i":78,"tool":"dialog_expect","ok":true,"ms":0},{"i":79,"tool":"click","ok":true,"ms":34},{"i":80,"tool":"goto","ok":true,"ms":4},{"i":81,"tool":"click","ok":false,"ms":30003,"error":"locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('show-archived')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"checkbox\" class=\"checkbox\" id=\"show-archived\" data-testid=\"show-archived\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to b"}],"reads":[{"i":11,"ok":true,"value":["RD-1015","cgrd2-r1 RD Bench Ticket","Bench Test Co","Draft","0","2026-09-01"]},{"i":12,"ok":true,"value":"RD-1015"},{"i":13,"ok":true,"value":"cgrd2-r1 RD Bench Ticket"},{"i":14,"ok":true,"value":"Bench Test Co"},{"i":15,"ok":true,"value":"2026-09-01"},{"i":22,"ok":true,"value":[]},{"i":24,"ok":true,"value":"cgrd2-r1 RD Part A"},{"i":25,"ok":true,"value":"$100.00"},{"i":26,"ok":true,"value":"25%"},{"i":27,"ok":true,"value":"No supplier"},{"i":28,"ok":true,"value":"$125.00"},{"i":35,"ok":true,"value":"cgrd2-r1 RD Part B"},{"i":36,"ok":true,"value":"$200.00"},{"i":37,"ok":true,"value":"25%"},{"i":38,"ok":true,"value":"No supplier"},{"i":39,"ok":true,"value":"$250.00"},{"i":40,"ok":true,"value":"$125.00"},{"i":41,"ok":true,"value":"$375.00"},{"i":46,"ok":true,"value":"$100.00"},{"i":47,"ok":true,"value":"25%"},{"i":48,"ok":true,"value":"No supplier"},{"i":49,"ok":true,"value":"$125.00"},{"i":50,"ok":true,"value":"$250.00"},{"i":51,"ok":true,"value":"$437.50"},{"i":68,"ok":true,"value":"Draft"},{"i":69,"ok":true,"value":""},{"i":70,"ok":true,"value":"$437.50"}],"fatal":81}
