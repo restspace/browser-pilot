@@ -1,4 +1,4 @@
-import { candidateExpr, makeLocator, type LocatorCandidate } from '../daemon/recorder.js';
+import { candidateExpr, makeLocator, positionalExpr, type LocatorCandidate } from '../daemon/recorder.js';
 import type { Page } from 'playwright-core';
 import { newSkillId, type Skill, type SkillStore } from './store.js';
 
@@ -80,11 +80,15 @@ export function triage(tickets: DriftTicket[]): TriageAction[] {
       out.push({ kind: 're-record', ticket: t, why: `similarity ${t.similarity} < ${LOCALIZED_SIMILARITY}: the page template changed too much to patch selectors` });
       continue;
     }
-    if (t.fallbackUsed !== null) {
+    if (t.fallbackUsed !== null && !positionalExpr(t.fallbackUsed)) {
       out.push({ kind: 'promote-fallback', ticket: t });
       continue;
     }
     if (t.missedLocator !== null) {
+      // A POSITIONAL fallback that worked is a symptom, not a self-heal:
+      // promoting it would put "wherever sorted into that slot" first in the
+      // chain and enshrine exactly what verify-artifacts flags (fwgr17-n3's
+      // 03-open). The semantic locator moved — re-derive it.
       out.push({ kind: 'patch-segment', ticket: t });
       continue;
     }

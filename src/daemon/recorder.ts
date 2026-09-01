@@ -112,6 +112,22 @@ export function candidateExpr(c: LocatorCandidate): string {
 }
 
 /**
+ * candidateExpr's judgement at the EXPRESSION level, for consumers that only
+ * have the string (drift tickets, verify-artifacts, repair triage): does this
+ * locator find its element by where it sits rather than by what it is? One
+ * function, because replay, repair triage and the artifact gate disagreeing
+ * on what "positional" means is how a repair promotes what the gate flags.
+ *
+ * An identity-scoped expression is NOT positional even when it ends in a
+ * positional cell selector: `locator('#rows tr', { hasText: 'x7' })
+ * .locator('td:nth-of-type(2)')` names the record first.
+ */
+export function positionalExpr(expr: string): boolean {
+  if (/hasText:/.test(expr)) return false;
+  return /nth-of-type|nth-child|>>\s*nth=|\.nth\(/.test(expr) || (expr.match(/>/g) ?? []).length > 2;
+}
+
+/**
  * A durable Playwright locator expression for one element the agent acted on,
  * resolved from the live page at record time. `verified` means the expression
  * was replayed against the page and resolved to exactly the element that was
@@ -527,6 +543,16 @@ interface ElementInfo {
    * identity-scoped candidate — see LocatorCandidate's 'scoped'.
    */
   row: { container: string; text: string; inner: string; cells: string[] } | null;
+  /**
+   * The nearest ANCESTOR carrying a testid, for the anchored fallback rung
+   * between the element's own semantics and the bare positional path. cssPath
+   * can break at an ancestor #id but never at a testid, so a testid-rich app
+   * (grafana) whose input's own semantics drift used to fall straight from
+   * `role` to `div:nth-of-type(1) > … > input` — position from the document
+   * root, the wrong-record shape. `[ancestor-testid] input` survives the
+   * input's own attributes churning while still naming a REGION.
+   */
+  anchor: { attr: string; value: string } | null;
 }
 
 interface Candidate {
@@ -939,6 +965,16 @@ function candidatesFor(info: ElementInfo): Candidate[] {
     out.push(cand({ kind: 'id', selector: sel }));
   }
   if (info.text && !info.role) out.push(cand({ kind: 'text', text: info.text }));
+  // The anchored rung between the element's own semantics and the bare
+  // positional path: `[ancestor-testid] input` names a region and then the
+  // element's kind within it. The chain walker verifies it against the live
+  // element and adds `nth` only when the region holds several — which
+  // structural() then honestly reports as positional. Without this rung a
+  // testid-rich app whose input's own semantics drift falls straight to
+  // position from the document root (fwgr17-n3's panel-title fill).
+  if (info.anchor) {
+    out.push(cand({ kind: 'css', selector: `[${info.anchor.attr}=${JSON.stringify(info.anchor.value)}] ${info.tag}` }));
+  }
   out.push(cand({ kind: 'css', selector: info.cssPath }));
   return out;
 }
@@ -1006,9 +1042,17 @@ function describeInPage(node: Node): ElementInfo {
     return t && t.length <= 80 ? t : null;
   };
 
-  const testidAttr = ['data-testid', 'data-test-id', 'data-test', 'data-qa', 'data-cy'].find((a) =>
-    el.getAttribute(a),
-  );
+  const TESTID_ATTRS = ['data-testid', 'data-test-id', 'data-test', 'data-qa', 'data-cy'];
+  const testidAttr = TESTID_ATTRS.find((a) => el.getAttribute(a));
+
+  // Nearest testid-carrying ANCESTOR — see ElementInfo.anchor.
+  const anchorOf = (): { attr: string; value: string } | null => {
+    for (let cur = el.parentElement, hops = 0; cur && hops < 10; cur = cur.parentElement, hops++) {
+      const a = TESTID_ATTRS.find((x) => cur!.getAttribute(x));
+      if (a) return { attr: a, value: cur.getAttribute(a)! };
+    }
+    return null;
+  };
   const tag = el.tagName.toLowerCase();
   const type = (attr('type') || '').toLowerCase();
 
@@ -1145,6 +1189,7 @@ function describeInPage(node: Node): ElementInfo {
     text: clean(tag === 'input' ? null : (el as HTMLElement).innerText),
     cssPath: cssPath(),
     row: rowOf(),
+    anchor: anchorOf(),
   };
 }
 

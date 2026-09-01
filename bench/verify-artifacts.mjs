@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { RunLedger, scanForLeaks, fatal, describeLeaks, identifierLike } from '../dist/skills/ledger.js';
 import { publishedOutputs } from '../dist/skills/learn.js';
+import { positionalExpr } from '../dist/daemon/recorder.js';
 
 const args = process.argv.slice(2);
 const tag = args.find((a) => !a.startsWith('--'));
@@ -265,8 +266,7 @@ if (navLeaks.length) {
 //    inside THAT row. Eyeballing drift files for "nth-of-type" flags every one
 //    of those, which is how a clean repairdesk run first read as two
 //    regressions.
-const anchored = (expr) => /hasText:/.test(expr);
-const positional = (expr) => !anchored(expr) && (/nth-of-type|nth-child|>>\s*nth=/.test(expr) || (expr.match(/>/g) ?? []).length > 2);
+const positional = positionalExpr; // ONE judgement, shared with repair triage — see recorder.ts
 let positionalHits = 0;
 for (const f of fs.readdirSync(dir).filter((n) => n.startsWith(`${tag}-n`) && n.endsWith('-drift.json'))) {
   for (const t of read(path.join(dir, f))) {

@@ -1,0 +1,123 @@
+{
+  "flow": "fwgr17",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin/admin, skipped the change-password prompt, navigated to the 'Service health' dashboard, and found 3 panels with the following titles: \"Request rate\", \"Request rate\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Error count",
+        "h2_2": "Request rate",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_891b4a; observed dashboard_title=fwgr17-n3 Bench Dashboard, panel_title=fwgr17-n3 Availability, panel_value=78.5.",
+      "values": {
+        "dashboard_title": "fwgr17-n3 Bench Dashboard",
+        "panel_title": "fwgr17-n3 Availability",
+        "panel_value": "78.5"
+      },
+      "tier": "A",
+      "replayed": "19/19",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Resumed the interrupted edit: the Text visualization had been searched but not yet selected, so I clicked the \"Text\" option, set the panel title to \"fwgr17-n3 Notes\" and the text content to \"Notes for run fwgr17-n3\", applied the edit, and saved the dashboard. The save succeeded (\"Dashboard saved\" alert confirmed). The dashboard now shows two panels: \"fwgr17-n3 Notes\" (with content \"Notes for run fwgr17-n3\") and \"fwgr17-n3 Availability\" (value 78.5). The Availability panel's data source was verified as TestData earlier in the replayed procedure.",
+      "values": {
+        "dashboard_title": "fwgr17-n3 Bench Dashboard",
+        "panel_titles": "fwgr17-n3 Notes, fwgr17-n3 Availability",
+        "notes_panel_content": "Notes for run fwgr17-n3",
+        "availability_panel_value": "78.5",
+        "save_confirmation": "Dashboard saved"
+      },
+      "tier": "A",
+      "replayed": "16/24",
+      "repaired": false,
+      "turns": 41
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On the 'fwgr17-n3 Bench Dashboard' (UID afwxc4qra08aod): added the tag 'bench' via Dashboard settings (verified in Settings → Tags field showing \"bench\"), set the time range to 'Last 6 hours' and the auto-refresh interval to '1m' via the top-bar time picker, and saved the dashboard. The save succeeded — the previous save persisted all changes (a subsequent save attempt showed \"No changes to save\"), and the top bar now shows: time range \"Last 6 hours\", refresh interval \"1m\". The dashboard displays both panels: \"{{v2}} Availability\" (Stat, A-series value 63.4) and \"{{v2}} Notes\" (Text, \"Notes for run {{v2}}\").",
+      "values": {
+        "dashboard_uid": "afwxc4qra08aod",
+        "tag": "bench",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "dashboard_title": "fwgr17-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "25/25",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-report",
+      "status": "success",
+      "summary": "Final verification of 'fwgr17-n3 Bench Dashboard' (UID afwxc4qra08aod) after fresh reload: (a) Dashboard title shown: \"fwgr17-n3 Bench Dashboard\"; (b) Panel titles shown: \"fwgr17-n3 Notes\" and \"fwgr17-n3 Availability\"; (c) Time range: \"Last 6 hours\", Refresh interval: \"1m\" (both shown in the top bar); (d) Tag 'bench' confirmed visible in Dashboard Settings → Tags section; (e) Full URL: http://127.0.0.1:3000/d/afwxc4qra08aod/fwgr17-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "panel_titles": "fwgr17-n3 Notes, fwgr17-n3 Availability",
+        "tag": "bench",
+        "dashboard_title": "fwgr17-n3 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_5f6975"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "repinned": 1,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr17",
+      "step": "03-open",
+      "skill": "s_618f72",
+      "atStep": "17",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Panel editor option pane field input Title')",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afwxc4qra08aod/:id"
+    }
+  ],
+  "wallMs": 326350,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 589621,
+    "completionTokens": 9531,
+    "cachedTokens": 540864
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 402513,
+      "completionTokens": 7979,
+      "cachedTokens": 380928
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 187108,
+      "completionTokens": 1552,
+      "cachedTokens": 159936
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -396,6 +396,49 @@ d('record-link retargeting (fixture page)', () => {
   }, 30_000);
 });
 
+d('ancestor-anchored fallback candidate (fixture page)', () => {
+  it("captures [ancestor-testid] input between the element's own semantics and the bare path", async () => {
+    const { describeTarget, positionalExpr, candidateExpr } = await import('../src/daemon/recorder.js');
+    const { snapshot } = await import('../src/daemon/refs.js');
+    const session = new BrowserSession({ session: 'anchorcand', persist: false });
+    try {
+      const page = await session.getPage();
+      // The grafana panel-title shape: an input whose own semantics can drift,
+      // inside a stable testid-bearing pane, deep in anonymous divs.
+      await page.setContent(`
+        <div data-testid="options pane">
+          <div><div><div>
+            <input data-testid="field input Title" aria-label="Panel Title" value="" />
+          </div></div></div>
+        </div>`);
+      const snap = await snapshot(page, { full: true } as any);
+      const ref = /textbox "[^"]*" \[(@e\d+)\]/.exec(snap)![1];
+      const described = await describeTarget(page, ref);
+      const exprs = described.chain!.map((c: any) => candidateExpr(c));
+      const anchoredIdx = exprs.findIndex((e) => e.includes('[data-testid="options pane"] input'));
+      expect(anchoredIdx).toBeGreaterThan(0); // present, behind the element's own semantics
+      expect(positionalExpr(exprs[anchoredIdx])).toBe(false); // and NOT judged positional
+      // It sits ahead of the bare structural path, so a drift in the input's
+      // own attributes falls to the anchored rung, not to position from root.
+      const bareIdx = exprs.findIndex((e) => positionalExpr(e));
+      if (bareIdx !== -1) expect(anchoredIdx).toBeLessThan(bareIdx);
+      // Simulate the drift fwgr17-n3 hit: the input's own testid and name are
+      // gone. The anchored candidate still resolves the element.
+      await page.evaluate(() => {
+        const input = document.querySelector('input')!;
+        input.removeAttribute('data-testid');
+        input.removeAttribute('aria-label');
+      });
+      const { resolveChain } = await import('../src/skills/replay.js');
+      const hit = await resolveChain(page, described.chain! as any, {});
+      expect(hit).toBeTruthy();
+      expect(candidateExpr(hit!.candidate)).toContain('[data-testid="options pane"] input');
+    } finally {
+      await session.close();
+    }
+  }, 30_000);
+});
+
 d('read-back synthesis (fixture page)', () => {
   it('captures a durable NON-value locator for a reported value, so it can be re-read', async () => {
     const { captureReadBack } = await import('../src/daemon/recorder.js');
@@ -939,4 +982,36 @@ d('identity-scoped locators (fixture page)', () => {
     expect(hit?.index).toBe(1);
     expect(await hit!.locator.first().innerText()).toContain('Part Two');
   }, 30_000);
+});
+
+// Pure functions — no browser needed, always run.
+describe('positionalExpr — one judgement of "found by position" shared with repair and verify-artifacts', () => {
+  it('flags structural chains, nth selections, and deep child paths', async () => {
+    const { positionalExpr } = await import('../src/daemon/recorder.js');
+    expect(positionalExpr("page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')")).toBe(true);
+    expect(positionalExpr("page.getByRole('button', { name: 'Edit' }).nth(1)")).toBe(true);
+    expect(positionalExpr("page.locator('#view > div > section > button')")).toBe(true);
+  });
+  it('accepts semantic locators, anchored-region selectors, and identity-scoped chains', async () => {
+    const { positionalExpr } = await import('../src/daemon/recorder.js');
+    expect(positionalExpr("page.getByTestId('save-button')")).toBe(false);
+    expect(positionalExpr("page.locator('[data-testid=\"options pane\"] input')")).toBe(false);
+    expect(positionalExpr("page.locator('#rows tr', { hasText: 'x7 Ticket' }).locator('td:nth-of-type(2)')")).toBe(false);
+  });
+});
+
+describe('consequentialExpectations — a fill echo is no evidence the RIGHT element changed', () => {
+  it('drops echo lines when consequential ones exist (fwgr17-n3 panel-title shape)', async () => {
+    const { consequentialExpectations, isEchoLine } = await import('../src/skills/replay.js');
+    const lines = ['- heading "My Title"', '- button "Menu for panel with title My Title"', '- textbox "": My Title'];
+    expect(isEchoLine('- textbox "": My Title', 'My Title')).toBe(true);
+    expect(isEchoLine('- heading "My Title"', 'My Title')).toBe(false);
+    expect(consequentialExpectations(lines, 'My Title')).toEqual(lines.slice(0, 2));
+  });
+  it('keeps the echo when it is all the recording has (a lone search-box fill)', async () => {
+    const { consequentialExpectations } = await import('../src/skills/replay.js');
+    const only = ['- searchbox "Search": widgets'];
+    expect(consequentialExpectations(only, 'widgets')).toEqual(only);
+    expect(consequentialExpectations(only, undefined)).toEqual(only);
+  });
 });

@@ -1,0 +1,121 @@
+{
+  "flow": "fwgr17",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin/admin, skipped the change-password prompt, navigated to the 'Service health' dashboard, and found 3 panels with the following titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_891b4a; observed dashboard_title=fwgr17-n2 Bench Dashboard, panel_title=fwgr17-n2 Availability, panel_value=65.3.",
+      "values": {
+        "dashboard_title": "fwgr17-n2 Bench Dashboard",
+        "panel_title": "fwgr17-n2 Availability",
+        "panel_value": "65.3"
+      },
+      "tier": "A",
+      "replayed": "19/19",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Resumed the interrupted run: the previous attempt had typed \"Text\" into the panel options search instead of the visualization picker, so the Text viz was never selected. I opened the real visualization picker, searched \"Text\", selected the Text visualization, set the panel title to \"fwgr17-n2 Notes\" and content \"Notes for run fwgr17-n2\", applied the edit, and saved the dashboard — the \"Dashboard saved\" alert appeared. The dashboard now shows two panels: \"fwgr17-n2 Availability\" (Stat, TestData, value 65.3) and \"fwgr17-n2 Notes\" (Text, \"Notes for run fwgr17-n2\"). The Availability panel's data source was verified as TestData earlier in the session (per the prior attempt's record) and its value still renders.",
+      "values": {
+        "dashboard_title": "fwgr17-n2 Bench Dashboard",
+        "panel_titles": "fwgr17-n2 Availability; fwgr17-n2 Notes",
+        "notes_panel_content": "Notes for run fwgr17-n2",
+        "availability_panel_value": "65.3",
+        "save_confirmation": "Dashboard saved"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 56
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On the 'fwgr17-n2 Bench Dashboard' (UID efwxbfsvpfv28e): added the tag 'bench' via Dashboard settings (verified in Settings → Tags field showing \"bench\"), set the time range to 'Last 6 hours' and the auto-refresh interval to '1m' via the top-bar time picker, and saved the dashboard. The save succeeded — the previous save persisted all changes (a subsequent save attempt showed \"No changes to save\"), and the top bar now shows: time range \"Last 6 hours\", refresh interval \"1m\". The dashboard displays both panels: \"{{v2}} Availability\" (Stat, A-series value 63.4) and \"{{v2}} Notes\" (Text, \"Notes for run {{v2}}\").",
+      "values": {
+        "dashboard_uid": "efwxbfsvpfv28e",
+        "tag": "bench",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "dashboard_title": "fwgr17-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "25/25",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-report",
+      "status": "success",
+      "summary": "Final verification of 'fwgr17-n2 Bench Dashboard' (UID efwxbfsvpfv28e) after fresh reload: (a) Dashboard title shown: \"fwgr17-n2 Bench Dashboard\"; (b) Panel titles shown: \"fwgr17-n2 Notes\" and \"fwgr17-n2 Availability\"; (c) Time range: \"Last 6 hours\", Refresh interval: \"1m\" (both shown in the top bar); (d) Tag 'bench' confirmed visible in Dashboard Settings → Tags section; (e) Full URL: http://127.0.0.1:3000/d/efwxbfsvpfv28e/fwgr17-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "dashboard_title": "fwgr17-n2 Bench Dashboard",
+        "panel_titles": "fwgr17-n2 Notes, fwgr17-n2 Availability",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "tag": "bench"
+      },
+      "tier": "A",
+      "replayed": "1/8",
+      "repaired": false,
+      "turns": 11
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr17",
+      "step": "05-report",
+      "skill": "s_da7bcd",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_da7bcd stopped at step 1 — the page at http://127.0.0.1:3000/d/efwxbfsvpfv28e/:id does not show \"fwgr17-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/efwxbfsvpfv28e/:id does not show \"fwgr17-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efwxbfsvpfv28e/:id"
+    }
+  ],
+  "wallMs": 463015,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 918825,
+    "completionTokens": 9555,
+    "cachedTokens": 690432
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 548527,
+      "completionTokens": 5651,
+      "cachedTokens": 349952
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 370298,
+      "completionTokens": 3904,
+      "cachedTokens": 340480
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

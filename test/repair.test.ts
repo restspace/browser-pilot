@@ -46,6 +46,24 @@ describe('triage', () => {
     const t = ticket({ fallbackUsed: 'css=#submit', fallbackIndex: 1 });
     expect(triage([t, { ...t }, { ...t, flow: 'other-run' }])).toHaveLength(1);
   });
+
+  it('never promotes a POSITIONAL fallback — that is a symptom, not a self-heal', () => {
+    // fwgr17-n3's exact shape: the testid missed and a bare structural chain
+    // took the step. Promoting it would put "wherever sorted into that slot"
+    // first in the chain — enshrining what verify-artifacts flags.
+    const t = ticket({
+      missedLocator: "page.getByTestId('data-testid Panel editor option pane field input Title')",
+      fallbackUsed: "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+      fallbackIndex: 2,
+    });
+    expect(triage([t])[0].kind).toBe('patch-segment');
+    // .nth() is position too, even on a semantic base.
+    const nth = ticket({ atStep: '9', fallbackUsed: "page.getByRole('button', { name: 'Edit' }).nth(1)", fallbackIndex: 1 });
+    expect(triage([nth])[0].kind).toBe('patch-segment');
+    // An identity-scoped fallback names the record first: still a self-heal.
+    const scoped = ticket({ atStep: '10', fallbackUsed: "page.locator('#rows tr', { hasText: 'x7 Ticket' }).locator('td:nth-of-type(2)')", fallbackIndex: 1 });
+    expect(triage([scoped])[0].kind).toBe('promote-fallback');
+  });
 });
 
 describe('promoteFallback', () => {

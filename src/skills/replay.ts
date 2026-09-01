@@ -257,6 +257,11 @@ export async function replaySkill(
     // Resolve every target through its chain before touching the page.
     const resolved: Record<string, Locator> = {};
     let resolveError: string | null = null;
+    // Whether ANY target of this step resolved through a structural candidate
+    // — position, not identity. Sharpens the effect gate below: a positional
+    // resolution must be corroborated by a consequential page change, not by
+    // the fill's own echo.
+    let positionalResolution = false;
     for (const key of ['target', 'source']) {
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
@@ -274,6 +279,7 @@ export async function replaySkill(
         break;
       }
       resolved[key] = hit.locator;
+      if (structural(hit.candidate)) positionalResolution = true;
       // Evidence ONLY from a pass whose winner names something. When a
       // structural path won, that is precisely the resolution we distrust —
       // it may have acted on whatever sorted into that position — and banking
@@ -443,8 +449,18 @@ export async function replaySkill(
       if (step.expect.addedContains?.length) {
         const seen = outcome.diff.added.join('\n');
         const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
-        const parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
+        let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
         const plain = step.expect.addedContains.filter((l) => !isParam(l));
+        // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
+        // change: its own echo in a same-role element is what the wrong
+        // element produces too (see consequentialExpectations). When the echo
+        // is all the recording has, the old gate stands and we say so.
+        if (positionalResolution && parameterised.length && typeof args.value === 'string' && args.value) {
+          const value = args.value;
+          const consequential = parameterised.filter((l) => !isEchoLine(l, value));
+          if (consequential.length) parameterised = consequential;
+          else res.warnings.push(`step ${tag}: resolved positionally and its only recorded effect is the fill's own echo — the effect gate cannot tell right element from wrong here`);
+        }
         if (parameterised.length && !parameterised.some((w) => seen.includes(w)) && !(await presentOnPage(page, parameterised))) {
           res.failedAt = failIndex;
           res.reason = `after step ${tag} the page did not show ${parameterised.map((w) => JSON.stringify(w)).join(' / ')} as it did when recorded — the step ran but probably acted on the wrong element`;
@@ -643,6 +659,28 @@ export function structural(c: LocatorCandidate): boolean {
   if (c.nth !== undefined) return true;
   if (c.kind !== 'css') return false;
   return /[>+~]|:nth-/.test(c.selector);
+}
+
+/**
+ * The expectation lines that could tell a right-element fill from a
+ * wrong-element one. A recorded added-line that merely restates the fill in a
+ * same-role element — `textbox "": {{v4}}` — is an ECHO: the WRONG textbox
+ * produces it too, so it is no evidence at all. fwgr17-n3's 03-open passed
+ * its effect gate on exactly that line after a positional fallback took the
+ * step. When consequential lines exist (the heading that renders the typed
+ * title, the menu button named after it), only those count; when the echo is
+ * all the recording has, it is returned unchanged — a lone search-box fill
+ * legitimately shows nothing else, and the caller warns instead.
+ */
+export function isEchoLine(line: string, filledValue: string): boolean {
+  const escaped = filledValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^-?\\s*(textbox|searchbox|spinbutton|combobox)\\b[^:]*:\\s*${escaped}\\s*$`).test(line.trim());
+}
+
+export function consequentialExpectations(lines: string[], filledValue: string | undefined): string[] {
+  if (!filledValue) return lines;
+  const rest = lines.filter((l) => !isEchoLine(l, filledValue));
+  return rest.length ? rest : lines;
 }
 
 export function specOf(chain: LocatorCandidate[]): ElementSpec {

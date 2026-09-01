@@ -1,0 +1,224 @@
+{
+  "name": "fwgr17",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip the change-password prompt if it appears). Then find the provisioned dashboard named 'Service health' (use the search/dashboards feature), open it, and report the exact titles of all its panels as shown on the dashboard.",
+      "skill": "s_530195",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "panel_titles",
+        "panel_title_1",
+        "panel_title_2",
+        "panel_title_3"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "panel_title_1": "Request rate",
+        "panel_title_2": "Error count",
+        "panel_title_3": "Latency by endpoint"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Grafana, create a NEW dashboard. Add a 'Stat' visualization panel, set its title to exactly '{{runid}} Availability', and set its data source/query to the 'TestData' data source (the default test data source). Apply the panel edit, then save the dashboard with the title exactly '{{runid}} Bench Dashboard'. Confirm the save succeeded and report what the dashboard shows (panel title and data source name visible).",
+      "skill": "s_4cecc3",
+      "params": {
+        "v2": "{{runid}} Availability",
+        "v3": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "dashboard_title",
+        "dashboard_uid",
+        "panel_title",
+        "availability_panel_value",
+        "availability_panel_series",
+        "data_source"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr17-n1 Bench Dashboard",
+        "dashboard_uid": "dfwx9rb1eg54wb",
+        "panel_title": "fwgr17-n1 Availability",
+        "availability_panel_value": "99.9",
+        "availability_panel_series": "A-series",
+        "data_source": "TestData (set in editor, not visible in saved view - unverified in final check)"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "panel_title": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open the dashboard '{{runid}} Bench Dashboard' (UID {{02-create.url.p1}}). First, open the panel editor for the panel titled '{{runid}} Availability' and verify its data source is 'TestData' (if it is not, change it to TestData). Then, still in the same dashboard, add a NEW panel with the 'Text' visualization, set its title to exactly '{{runid}} Notes', and set its text content to include the text '{{runid}}' (e.g. 'Notes for run {{runid}}'). Apply the edit, then SAVE the dashboard. Report the panel titles visible on the dashboard and confirm the save succeeded.",
+      "skill": "s_f5161e",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-create.url.p1}}",
+        "v4": "{{runid}} Availability",
+        "v5": "{{runid}} Notes",
+        "v2": "{{runid}}",
+        "v6": "Notes for run {{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "dashboard_uid",
+        "panel_titles",
+        "availability_panel_datasource",
+        "availability_panel_value",
+        "notes_panel_content",
+        "save_confirmation"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr17-n1 Bench Dashboard",
+        "dashboard_uid": "dfwx9rb1eg54wb",
+        "panel_titles": "fwgr17-n1 Availability, fwgr17-n1 Notes",
+        "availability_panel_datasource": "TestData",
+        "availability_panel_value": "99.9 (A-series)",
+        "notes_panel_content": "Notes for run fwgr17-n1",
+        "save_confirmation": "Dashboard saved alert displayed"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "panel_titles": {
+          "same": 0,
+          "differed": 2
+        },
+        "availability_panel_value": {
+          "same": 0,
+          "differed": 2
+        },
+        "notes_panel_content": {
+          "same": 0,
+          "differed": 2
+        },
+        "save_confirmation": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (UID {{02-create.url.p1}}): (1) open Dashboard settings and add the tag 'bench' to the dashboard; (2) set the dashboard's time range to 'Last 6 hours' (use the time picker in the top bar); (3) set the auto-refresh interval to '1m' (in the time picker's refresh-rate dropdown); then SAVE the dashboard and confirm the save succeeded. Report the tag shown, the time range shown in the top bar, and the refresh interval shown in the top bar.",
+      "skill": "s_4fa8bb",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-create.url.p1}}",
+        "v4": "bench"
+      },
+      "outputs": [
+        "dashboard_title",
+        "dashboard_uid",
+        "tag",
+        "time_range",
+        "refresh_interval",
+        "save_confirmation",
+        "panel_titles"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr17-n1 Bench Dashboard",
+        "dashboard_uid": "dfwx9rb1eg54wb",
+        "tag": "bench",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "save_confirmation": "Save succeeded (subsequent save showed 'No changes to save', confirming all changes persisted)",
+        "panel_titles": "fwgr17-n1 Availability, fwgr17-n1 Notes"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "dashboard_uid": {
+          "same": 0,
+          "differed": 2
+        },
+        "tag": {
+          "same": 2,
+          "differed": 0
+        },
+        "time_range": {
+          "same": 2,
+          "differed": 0
+        },
+        "refresh_interval": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "05-report",
+      "instruction": "Do a final verification: reload http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-{{04-open.tag}}-dashboard fresh in the browser and report: (a) the dashboard title shown, (b) the panel titles shown, (c) the time range and refresh interval shown in the top bar, (d) the tag '{{04-open.tag}}' visible (e.g. in dashboard settings or the search listing), and (e) the full URL of the page. Do not change anything.",
+      "skill": "s_5f6975",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard",
+        "v4": "{{04-open.tag}}",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "time_range",
+        "refresh_interval",
+        "tag",
+        "availability_panel_value",
+        "notes_panel_content"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr17-n1 Bench Dashboard",
+        "panel_titles": "fwgr17-n1 Availability, fwgr17-n1 Notes",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "tag": "bench",
+        "availability_panel_value": "65.2 (A-series)",
+        "notes_panel_content": "Notes for run fwgr17-n1"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "panel_titles": {
+          "same": 0,
+          "differed": 2
+        },
+        "time_range": {
+          "same": 2,
+          "differed": 0
+        },
+        "refresh_interval": {
+          "same": 2,
+          "differed": 0
+        },
+        "tag": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr17-n1",
+    "created": "2026-09-01T08:37:44.994Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
