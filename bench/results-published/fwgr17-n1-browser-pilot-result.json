@@ -1,0 +1,102 @@
+{
+  "arm": "browser-pilot",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "browser-pilot — agent-in-the-loop Playwright CLI",
+    "commit": "198620a"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwgr17-n1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 6,
+  "wallMs": 1575130,
+  "orchestrator": {
+    "input": 4667,
+    "cacheWrite": 0,
+    "cacheRead": 15520,
+    "output": 1176
+  },
+  "inner": {
+    "promptTokens": 2935220,
+    "cachedTokens": 2244480,
+    "completionTokens": 22504,
+    "instructions": 8,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 2112338,
+        "completionTokens": 13637,
+        "cachedTokens": 1492224,
+        "instructions": 5
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 822882,
+        "completionTokens": 8867,
+        "cachedTokens": 752256,
+        "instructions": 3
+      }
+    },
+    "skills": {
+      "instructions": 5,
+      "offered": 2,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 62,
+      "compiled": 5,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 5,
+  "subcommands": {
+    "do": 5
+  },
+  "invocationCount": 5,
+  "commandMs": 1553056,
+  "commandBytes": 5736,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/browser-pilot/bench/results/fwgr17-skills",
+    "instructions": 5,
+    "offered": 2,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 62,
+    "compiled": 5,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.0139,
+  "maxUsd": 2,
+  "spendUsd": 0.4009,
+  "finalText": "All objectives completed and verified on a fresh reload.\n\n1. **DONE** — Panels on the provisioned `Service health` dashboard: **Request rate**, **Error count**, **Latency by endpoint**.\n2. **DONE** — New dashboard **fwgr17-n1 Bench Dashboard** exists, containing a Stat panel titled **fwgr17-n1 Availability** whose query uses the **TestData** data source (verified in the panel editor as \"A (TestData)\"). Saved.\n3. **DONE** — The dashboard also contains a Text panel titled **fwgr17-n1 Notes** with content \"Notes for run fwgr17-n1\" (includes the runid). Saved.\n4. **DONE** — Dashboard tag **bench** confirmed in Dashboard Settings → Tags; time range **Last 6 hours** shown in the top bar. Saved.\n5. **DONE** — Auto-refresh interval **1m** shown in the top bar. Saved.\n6. **DONE** — Dashboard URL: **http://127.0.0.1:3000/d/dfwx9rb1eg54wb/fwgr17-n1-bench-dashboard** (UID: **dfwx9rb1eg54wb**).\n\nFinal fresh-reload verification confirmed the dashboard title, both panel titles, \"Last 6 hours\" / \"1m\" in the top bar, and the `bench` tag all persisted after save.",
+  "transcriptPath": "/home/user/browser-pilot/bench/results/fwgr17-n1-browser-pilot-transcript.jsonl"
+}
