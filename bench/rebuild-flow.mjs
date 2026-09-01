@@ -305,6 +305,7 @@ for (const { runid, file } of sessions()) {
       const text = JSON.stringify(flow);
       run.flow = {
         steps: flow.steps.length,
+        adopted: flow.steps.filter((s) => s.adopted).map((s) => s.id),
         refs: histogram(text.match(/\{\{[^}]*\}\}/g) ?? []),
         crossStepRefs: (text.match(/\{\{\d\d-[^}]*\}\}/g) ?? []).length,
         outputs: Object.fromEntries(flow.steps.map((s) => [s.id, s.outputs ?? []])),
@@ -341,7 +342,7 @@ for (const run of report.runs) {
     }
   }
   if (run.flow) {
-    console.log(`  flow: ${run.flow.steps} step(s), ${run.flow.crossStepRefs} cross-step reference(s)`);
+    console.log(`  flow: ${run.flow.steps} step(s), ${run.flow.crossStepRefs} cross-step reference(s)` + (run.flow.adopted.length ? `, adopted [${run.flow.adopted.join(',')}]` : ''));
     console.log(`  refs: ${JSON.stringify(run.flow.refs)}`);
     for (const [id, outs] of Object.entries(run.flow.outputs)) console.log(`    ${id} publishes [${outs.join(',')}]`);
     for (const w of run.flow.lint) console.log(`  lint: ${w}`);
@@ -360,6 +361,11 @@ const summary = {
     wouldAsk: r.instructions.filter((i) => i.wouldAsk.length).length,
     crossStepRefs: r.flow?.crossStepRefs ?? null,
     stepsPublishing: r.flow ? Object.values(r.flow.outputs).filter((o) => o.length).length : null,
+    // A flow's step COUNT is part of what a recording compiles to: adoption
+    // (resolveGroups) exists precisely to change it, and a silent gain or loss
+    // of a step is the kind of move this gate is for.
+    flowSteps: r.flow?.steps ?? null,
+    adoptedSteps: r.flow ? r.flow.adopted.length : null,
   })),
 };
 console.log(`\n${JSON.stringify(summary, null, 2)}`);
@@ -382,7 +388,7 @@ if (writeBaseline && baselineFile) {
       console.log(`  ${w.runid}: missing`);
       continue;
     }
-    for (const k of ['instructions', 'withModelNames', 'wouldAsk', 'crossStepRefs', 'stepsPublishing']) {
+    for (const k of ['instructions', 'withModelNames', 'wouldAsk', 'crossStepRefs', 'stepsPublishing', 'flowSteps', 'adoptedSteps']) {
       if (w[k] !== g[k]) console.log(`  ${w.runid}.${k}: ${w[k]} -> ${g[k]}`);
     }
   }

@@ -709,6 +709,13 @@ ${describeLeaks(leaks.slice(0, 10))}`);
     // runs against a clean app.
     for (const w of staleInstructionIds(entries, flow).reverse()) warnings.unshift(`warning: ${w}`);
     for (const m of unbankedMutations(entries).reverse()) warnings.unshift(`warning: ${m}`);
+    const adopted = flow.steps.filter((s) => s.adopted);
+    if (adopted.length) {
+      warnings.unshift(
+        `note: ${adopted.length} step(s) adopted from non-success instruction(s) whose work the session continued from ` +
+          `(${adopted.map((s) => s.id).join(', ')}) — they replay model-first with doubled budget, and a non-success there does not halt the flow`,
+      );
+    }
     if (stripped) warnings.unshift(`note: dropped ${stripped} locator candidate(s) carrying a value this run minted (known only by export time)`);
     if (prior) warnings.unshift(`warning: ignored ${prior} entr${prior === 1 ? 'y' : 'ies'} from an earlier take in session '${this.opts.session}' — this flow covers only what this daemon recorded`);
     return { path: file, name: flow.name, steps: flow.steps.length, vars: flow.vars, ...(warnings.length ? { warnings } : {}) };
@@ -841,6 +848,13 @@ ${describeLeaks(leaks.slice(0, 10))}`);
         const primary = route.easy ? opts.provider : opts.recovery;
         const escalation = route.easy && opts.recovery.model !== opts.provider.model ? opts.recovery : null;
         opts.progress(`[flow ${flow.name}] ${step.id}: ${route.cause} — recovering on ${primary.model}${escalation ? ` (escalates to ${escalation.model})` : ''}`);
+        // An adopted step is known-hard: at record time it exhausted one full
+        // budget on the cheap model AND one on the escalation. One budget will
+        // not do it now either, so double it rather than replay the recorded
+        // stall.
+        const budget = step.adopted
+          ? { maxTurns: opts.maxTurns * 2, timeoutMs: opts.timeoutMs * 2 }
+          : { maxTurns: opts.maxTurns, timeoutMs: opts.timeoutMs };
         try {
           result = await runEscalatingInstruction(
             primary,
@@ -851,8 +865,8 @@ ${describeLeaks(leaks.slice(0, 10))}`);
 
 ${direct.prelude}` : recoveryText) + resetNote,
             {
-              maxTurns: opts.maxTurns,
-              timeoutMs: opts.timeoutMs,
+              maxTurns: budget.maxTurns,
+              timeoutMs: budget.timeoutMs,
               ...(opts.turnTimeoutMs ? { turnTimeoutMs: opts.turnTimeoutMs } : {}),
               screenshotDir,
               signal: opts.signal,
@@ -1004,8 +1018,17 @@ ${direct.prelude}` : recoveryText) + resetNote,
         ...(repinned ? { repinned } : {}),
       });
       if (result.report.status !== 'success') {
-        halted = true;
-        break;
+        // An adopted step does not halt the flow: the recording's own path
+        // continued from this instruction's partial state (that continuation
+        // is why it was adopted at all), so a replay that got as far as the
+        // recording did is no worse off. If the work genuinely did not stick,
+        // the NEXT step fails on its own terms and halts honestly.
+        if (step.adopted) {
+          opts.progress(`[flow ${flow.name}] ${step.id}: adopted step ended ${result.report.status} — continuing, as the recording's own path did`);
+        } else {
+          halted = true;
+          break;
+        }
       }
     }
 

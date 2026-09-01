@@ -1,0 +1,26 @@
+[
+  {
+    "flow": "fwgr16",
+    "step": "01-open",
+    "skill": "s_3caa90",
+    "atStep": "2",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByTestId('data-testid Username input field')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/"
+  },
+  {
+    "flow": "fwgr16",
+    "step": "02-open",
+    "skill": "s_f85e5c",
+    "similarity": 0.946,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "every candidate refused — s_f85e5c: not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at http://127.0.0.1:3000/d/bench-service-health/service-health) — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/dashboard/new does not show \"fwgr16-n2 Availability\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+  }
+]

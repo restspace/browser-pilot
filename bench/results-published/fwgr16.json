@@ -1,0 +1,110 @@
+{
+  "name": "fwgr16",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ and sign in with username admin and password admin (skip/change-password prompt if it appears). Then find the provisioned dashboard named 'Service health' (use search or the Dashboards browse page), open it, and report the exact titles of all its panels as shown on the page.",
+      "skill": "s_83e9d9",
+      "params": {
+        "v1": "http://127.0.0.1:3000/",
+        "v2": "Service health"
+      },
+      "outputs": [
+        "panel_titles",
+        "request_rate_panel_title",
+        "error_count_panel_title",
+        "latency_by_endpoint_panel_title"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "request_rate_panel_title": "Request rate",
+        "error_count_panel_title": "Error count",
+        "latency_by_endpoint_panel_title": "Latency by endpoint"
+      },
+      "outputEvidence": {
+        "panel_titles": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-open",
+      "instruction": "On the currently open unsaved new dashboard (which already has a Stat panel '{{runid}} Availability'): 1) delete the leftover default 'Panel Title' panel; 2) add a Text panel titled '{{runid}} Notes' whose text content includes the string '{{runid}}'; 3) save the dashboard with the title '{{runid}} Bench Dashboard' (confirm any save prompt). Report the panel titles visible after saving and the dashboard URL.",
+      "skill": "s_f85e5c",
+      "params": {
+        "v1": "unsaved new dashboard",
+        "v2": "{{runid}} Availability",
+        "v4": "{{runid}} Notes",
+        "v3": "{{runid}}",
+        "v5": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "panel_titles",
+        "text_panel_content_verified",
+        "dashboard_title",
+        "notes_panel_title",
+        "availability_panel_title"
+      ],
+      "recorded": {
+        "panel_titles": "fwgr16-n1 Notes, fwgr16-n1 Availability",
+        "text_panel_content_verified": "This panel contains notes about fwgr16-n1. (contains 'fwgr16-n1')",
+        "dashboard_title": "fwgr16-n1 Bench Dashboard",
+        "notes_panel_title": "fwgr16-n1 Notes",
+        "availability_panel_title": "fwgr16-n1 Availability"
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "On the open dashboard '{{runid}} Bench Dashboard': 1) add the tag 'bench' to the dashboard (via dashboard settings > General, or the save dialog's tags field); 2) set the dashboard time range to 'Last 6 hours' (use the time picker in the top bar); 3) set the dashboard auto-refresh interval to '1m' (time picker's refresh interval dropdown); 4) save the dashboard and confirm the save. Report the tag, the time range, and the refresh interval shown on the page after saving.",
+      "skill": "s_72344f",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "bench"
+      },
+      "outputs": [
+        "tag",
+        "time_range",
+        "refresh_interval"
+      ],
+      "recorded": {
+        "tag": "bench",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m"
+      }
+    },
+    {
+      "id": "04-verify",
+      "instruction": "Reload the dashboard '{{runid}} Bench Dashboard' (URL /d/{{02-open.url.p1}}/{{runid}}-{{03-open.tag}}-dashboard) fresh and verify persisted state: report the panel titles shown, the time range shown on the time picker, the refresh interval shown, and whether the tag '{{03-open.tag}}' appears in dashboard settings > General. Report exactly what is displayed.",
+      "skill": "s_498a58",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-open.url.p1}}",
+        "v4": "{{runid}}-bench-dashboard",
+        "v5": "{{03-open.tag}}"
+      },
+      "outputs": [
+        "panel_titles",
+        "time_range",
+        "refresh_interval",
+        "tag_bench_present_in_settings"
+      ],
+      "recorded": {
+        "panel_titles": "fwgr16-n1 Notes, fwgr16-n1 Availability",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "tag_bench_present_in_settings": "true"
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr16-n1",
+    "created": "2026-08-31T22:14:17.917Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

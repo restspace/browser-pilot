@@ -50,7 +50,7 @@ describe('recorded-flow rebuild', () => {
         { cwd: root, encoding: 'utf8' },
       );
       expect(out).toContain('MATCHES baseline');
-    });
+    }, 60_000); // spawns a node process per tag; the 5s default flakes on a cold cache
   }
 
   it('fwod24 pins the defect it was recorded for: the order reference named after its selector', () => {

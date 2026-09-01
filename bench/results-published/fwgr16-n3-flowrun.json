@@ -1,0 +1,70 @@
+{
+  "flow": "fwgr16",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana with admin/admin, located the provisioned \"Service health\" dashboard via search, opened it, and found 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 9
+    },
+    {
+      "id": "02-open",
+      "status": "failure",
+      "summary": "Could not complete the instruction within the turn cap. The original unsaved dashboard (with Stat panel 'fwgr16-n3 Availability') was lost when the previous attempt navigated away and accepted the beforeunload dialog. I recreated the equivalent state from scratch on a fresh new dashboard: a Stat panel titled 'fwgr16-n3 Availability' and a leftover default 'Panel Title' panel are both present and verified in the live DOM. However, the three required operations — deleting the 'Panel Title' panel, adding a Text panel 'fwgr16-n3 Notes' containing 'fwgr16-n3', and saving as 'fwgr16-n3 Bench Dashboard' — were NOT completed, so there is no saved dashboard URL to report.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 58
+    }
+  ],
+  "passed": 1,
+  "total": 4,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr16",
+      "step": "01-open",
+      "skill": "s_3caa90",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_3caa90 stopped at step 3 — after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 3 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    }
+  ],
+  "wallMs": 678415,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 755471,
+    "completionTokens": 13509,
+    "cachedTokens": 631552
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 396426,
+      "completionTokens": 8387,
+      "cachedTokens": 314368
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 359045,
+      "completionTokens": 5122,
+      "cachedTokens": 317184
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

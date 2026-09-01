@@ -675,6 +675,41 @@ describe('work the recording did that the flow does not contain', () => {
     expect(unbankedMutations(entries)).toEqual([]);
   });
 
+  it('stays silent about blocked work the session continued from — it is adopted into the flow', () => {
+    // fwgr14's real shape: the create blocked, and the very next (successful)
+    // instruction was issued ON the page the create left behind and carried
+    // straight on. resolveGroups adopts that group as a flow step, so its
+    // work IS in the flow and the warning would be false.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create a NEW dashboard and add a Stat panel.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {}, diff: { url: `${ORIGIN}/dashboard/new?editPanel=1` } },
+      { k: 'step', tool: 'fill', args: { target: '@e2', value: 'x' }, locators: {} },
+      { k: 'report', status: 'blocked', summary: 'turn cap', values: {} },
+      { k: 'instruction', text: 'The browser is on an unsaved new dashboard. Save it.', url: `${ORIGIN}/dashboard/new?editPanel=1` },
+      { k: 'step', tool: 'click', args: { target: '@e3' }, locators: {}, diff: { url: `${ORIGIN}/d/abc/x` } },
+      { k: 'report', status: 'success', summary: 'saved', values: {} },
+    ];
+    expect(unbankedMutations(entries)).toEqual([]);
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    expect(flow.steps.map((s) => Boolean(s.adopted))).toEqual([true, false]);
+  });
+
+  it('still drops (and warns about) an observe-only blocked group even when the session continued from its page', () => {
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Read the totals.', url: `${ORIGIN}/orders/7` },
+      { k: 'step', tool: 'read', args: { target: '@e1' }, locators: {}, result: 'x', diff: { url: `${ORIGIN}/orders/7` } },
+      { k: 'report', status: 'blocked', summary: 'turn cap', values: {} },
+      { k: 'instruction', text: 'Confirm the order.', url: `${ORIGIN}/orders/7` },
+      { k: 'step', tool: 'click', args: { target: '@e2' }, locators: {} },
+      { k: 'report', status: 'success', summary: 'confirmed', values: {} },
+    ];
+    // Nothing mutating was lost, so there is no warning AND no adoption.
+    expect(unbankedMutations(entries)).toEqual([]);
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    expect(flow.steps).toHaveLength(1);
+    expect(flow.steps[0].adopted).toBeUndefined();
+  });
+
   it('reports an instruction whose report never arrived at all', () => {
     // A truncated recording: the daemon died mid-instruction. The work is just
     // as absent from the flow as a blocked one's.
@@ -690,15 +725,18 @@ describe('work the recording did that the flow does not contain', () => {
 describe('instruction prose quoting a run-minted database id', () => {
   it('warns when a flow instruction carries an id no guard can otherwise see', async () => {
     const { staleInstructionIds } = await import('../src/skills/flow.js');
-    // fwod27's shape: the contact is created in a BLOCKED instruction (so no
-    // flow step produces the value), then the next instruction quotes its
-    // database id in prose. Every locator/navigation guard passes; both
-    // replays navigated to the recording's deleted record and halted.
+    // fwod27's shape with the WORKAROUND variant: the contact is created in a
+    // BLOCKED instruction, the successor navigates away first (a `goto`), so
+    // the blocked group is NOT adopted and no flow step produces the value —
+    // yet a later instruction quotes its database id in prose. Every
+    // locator/navigation guard passes; the replays would navigate to the
+    // recording's deleted record.
     const entries: RecordedEntry[] = [
       { k: 'instruction', text: 'Create the contact.', url: `${ORIGIN}/` },
       { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {}, diff: { url: `${ORIGIN}/web#id=44&model=res.partner&view_type=form` } },
       { k: 'report', status: 'blocked', summary: 'timed out', values: {} },
       { k: 'instruction', text: "You are on an Odoo contact form for res.partner id 44. Verify the Name.", url: `${ORIGIN}/web#id=44&model=res.partner` },
+      { k: 'step', tool: 'goto', args: { url: `${ORIGIN}/web#id=44&model=res.partner` }, locators: {}, diff: { url: `${ORIGIN}/web#id=44&model=res.partner` } },
       { k: 'step', tool: 'read', args: { target: '@e2' }, locators: {}, result: '"x"' },
       { k: 'report', status: 'success', summary: 'verified', values: {} },
     ] as unknown as RecordedEntry[];
@@ -707,6 +745,27 @@ describe('instruction prose quoting a run-minted database id', () => {
     expect(warnings).toHaveLength(1);
     expect(warnings[0]).toContain('record id 44');
     expect(warnings[0]).toContain("never by internal id");
+  });
+
+  it('threads the id instead when the blocked create is adopted (fwod27 fixed at the root)', async () => {
+    const { staleInstructionIds } = await import('../src/skills/flow.js');
+    // Same shape, but the successor picks up ON the page the blocked create
+    // ended on (no goto): the create is adopted as a flow step, it mints the
+    // id from its end url, and the prose literal becomes a reference — the
+    // replay follows its OWN run's record.
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text: 'Create the contact.', url: `${ORIGIN}/` },
+      { k: 'step', tool: 'click', args: { target: '@e1' }, locators: {}, diff: { url: `${ORIGIN}/web#id=44&model=res.partner&view_type=form` } },
+      { k: 'report', status: 'blocked', summary: 'timed out', values: {} },
+      { k: 'instruction', text: "You are on an Odoo contact form for res.partner id 44. Verify the Name.", url: `${ORIGIN}/web#id=44&model=res.partner&view_type=form` },
+      { k: 'step', tool: 'read', args: { target: '@e2' }, locators: {}, result: '"x"' },
+      { k: 'report', status: 'success', summary: 'verified', values: {} },
+    ] as unknown as RecordedEntry[];
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    expect(flow.steps).toHaveLength(2);
+    expect(flow.steps[0].adopted).toBe(true);
+    expect(flow.steps[1].instruction).toContain(`id {{${flow.steps[0].id}.url.q.id}}`);
+    expect(staleInstructionIds(entries, flow)).toEqual([]);
   });
 
   it('says nothing about a number that is not a minted id', async () => {

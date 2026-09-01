@@ -42,6 +42,14 @@ export interface FlowStep {
   /** Values observed at record time, kept for reference and as soft assertions. */
   recorded: Record<string, string>;
   /**
+   * This step's recording instruction did NOT report success — it was adopted
+   * because the session's resolved path demonstrably ran through the state it
+   * produced (see resolveGroups). It replays model-first with extra budget,
+   * and a non-success replay of it does not halt the flow: the recording's
+   * own path also continued from this instruction's partial state.
+   */
+  adopted?: boolean;
+  /**
    * Cross-run evidence about this step's outputs: for each output name, how
    * often a later run produced the SAME value here and how often it differed.
    *
@@ -180,7 +188,7 @@ export function buildFlow(
     bind?: (skillId: string, instruction: string) => Record<string, string> | null;
   },
 ): Flow | null {
-  const groups = groupByInstruction(entries);
+  const groups = resolveGroups(groupByInstruction(entries));
   if (!groups.length) return null;
 
   const steps: FlowStep[] = [];
@@ -221,6 +229,7 @@ export function buildFlow(
       ...(params ? { params } : {}),
       outputs,
       recorded: g.report?.values ?? {},
+      ...(g.adopted ? { adopted: true } : {}),
     });
     // Provenance (PLAN-replay-v2): url parts this step MINTED (absent from
     // every earlier url) are outputs too — a later step's recorded literal
@@ -318,6 +327,12 @@ interface Group {
   report?: RecordedReport;
   /** Where the browser ended up after this instruction's last navigation. */
   endUrl?: string;
+  /** How many state-changing tool steps this instruction ran. */
+  mutations: number;
+  /** The tool of this instruction's first recorded step. */
+  firstTool?: string;
+  /** Set by resolveGroups: kept despite a non-success report — see there. */
+  adopted?: boolean;
 }
 
 function groupByInstruction(entries: RecordedEntry[]): Group[] {
@@ -331,37 +346,84 @@ function groupByInstruction(entries: RecordedEntry[]): Group[] {
       // predecessor (truncated recording) stands alone.
       const prev = groups[groups.length - 1];
       if (e.resume && prev?.instruction.text === e.text) continue;
-      groups.push({ instruction: e });
+      groups.push({ instruction: e, mutations: 0 });
     } else if (e.k === 'report' && groups.length) groups[groups.length - 1].report = e;
-    else if (e.k === 'step' && groups.length && e.diff?.url) groups[groups.length - 1].endUrl = e.diff.url;
+    else if (e.k === 'step' && groups.length) {
+      const g = groups[groups.length - 1];
+      if (e.diff?.url) g.endUrl = e.diff.url;
+      if (!g.firstTool) g.firstTool = e.tool;
+      if (MUTATING_TOOLS.has(e.tool)) g.mutations += 1;
+    }
   }
-  // Only steps that ended in a success are worth replaying; a blocked/failed
-  // instruction the caller worked around is not part of the resolved path.
-  return groups.filter((g) => g.report?.status === 'success');
+  return groups;
+}
+
+/** Same page, ignoring query and hash — view state, not location. */
+function samePage(a?: string, b?: string): boolean {
+  if (!a || !b) return false;
+  try {
+    const ua = new URL(a);
+    const ub = new URL(b);
+    return ua.origin === ub.origin && decodeURIComponent(ua.pathname) === decodeURIComponent(ub.pathname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The groups that ARE the resolved path, in order.
+ *
+ * Success groups, obviously. But dropping every other group loses work the
+ * session provably built on: fwgr14's "create a NEW dashboard. Add a Stat
+ * panel..." blocked on the turn budget, then failed on escalation — yet both
+ * attempts HAD created the dashboard, and the very next (successful)
+ * instruction began "The browser is on an unsaved new Grafana dashboard..."
+ * and saved it. The exported flow started on in-memory state no replay could
+ * reach and scored 1/6 on every replay. Same class as fwod27, where the
+ * dropped create meant no step produced the record and its id could not be
+ * referencized.
+ *
+ * So a non-success group is ADOPTED when the recording itself testifies its
+ * work is part of the path:
+ *   1. it changed the app (ran mutating tools) — an observing group that
+ *      blocked contributed nothing a replay needs;
+ *   2. the next kept group picked up exactly where it left off — issued on
+ *      the same page the group ended on, and not opening with a `goto`
+ *      (a successor that navigates away first is the workaround case, where
+ *      the drop is correct).
+ * Scanned right-to-left so a chain of continuations adopts as a chain.
+ *
+ * Marks `adopted` on the group (unbankedMutations reads it) and returns the
+ * kept groups.
+ */
+function resolveGroups(groups: Group[]): Group[] {
+  const kept = groups.map((g) => g.report?.status === 'success');
+  for (let i = groups.length - 2; i >= 0; i--) {
+    if (kept[i]) continue;
+    const g = groups[i];
+    const next = groups[i + 1];
+    if (!g.report || !g.mutations || !kept[i + 1]) continue;
+    if (next.firstTool === 'goto') continue;
+    if (!samePage(g.endUrl, next.instruction.url)) continue;
+    g.adopted = true;
+    kept[i] = true;
+  }
+  return groups.filter((_, i) => kept[i]);
 }
 
 /** Tools that CHANGE the app, as opposed to observing it. */
 const MUTATING_TOOLS = new Set(['click', 'dblclick', 'right_click', 'modifier_click', 'fill', 'type', 'press', 'select', 'check', 'drag', 'upload']);
 
 /**
- * Instructions that CHANGED the app but did not report success, and so
- * contributed nothing to the flow.
+ * Instructions that CHANGED the app but did not report success AND were not
+ * adopted, so their work contributed nothing to the flow.
  *
- * groupByInstruction keeps only successful groups, which is right — a blocked
- * instruction the caller worked around is not part of the resolved path. What
- * is wrong is that the drop is silent, and the work is not always worked
- * around:
- *
- *   fwgr13/fwgr14  "create a NEW dashboard. Add a Stat panel..." ran out of
- *                  budget and reported blocked, then failure. Both attempts
- *                  HAD created the dashboard and the panel; neither became a
- *                  step. The exported flow began "The browser is on an unsaved
- *                  new Grafana dashboard..." with nothing to put it there, and
- *                  scored 1/6 on both replays once the app was reset properly.
- *
- * A flow missing its create step is unusable, and it took two sweeps and a
- * reset fix to notice. The recording knows: the instruction ran mutating
- * tools. Say so at export, while the recording is still in front of someone.
+ * resolveGroups now adopts the fwgr13/fwgr14 shape (the next kept group
+ * carried straight on from the blocked work), so what remains here is the
+ * genuinely dropped case: mutating work the session abandoned or worked
+ * around. That drop is right — but it must not be silent, because whether the
+ * workaround actually replaced the work is a judgement only the person
+ * reading the export can make.
  */
 /**
  * Flow instructions that quote a DATABASE ID this recording minted.
@@ -404,31 +466,17 @@ export function staleInstructionIds(entries: RecordedEntry[], flow: Flow): strin
 }
 
 export function unbankedMutations(entries: RecordedEntry[]): string[] {
+  const groups = groupByInstruction(entries);
+  resolveGroups(groups); // marks `adopted` in place
   const out: string[] = [];
-  let current: RecordedInstruction | null = null;
-  let mutated = 0;
-  const flush = (report?: RecordedReport): void => {
-    if (current && mutated && report?.status !== 'success') {
-      out.push(
-        `instruction "${current.text.slice(0, 70)}${current.text.length > 70 ? '…' : ''}" ran ${mutated} state-changing step(s) ` +
-          `but reported ${report ? report.status : 'nothing'} — its work is NOT in the flow`,
-      );
-    }
-  };
-  for (const e of entries) {
-    if (e.k === 'instruction') {
-      flush(undefined);
-      current = e;
-      mutated = 0;
-    } else if (e.k === 'report') {
-      flush(e);
-      current = null;
-      mutated = 0;
-    } else if (e.k === 'step' && MUTATING_TOOLS.has(e.tool)) {
-      mutated += 1;
-    }
+  for (const g of groups) {
+    if (g.report?.status === 'success' || g.adopted || !g.mutations) continue;
+    const text = g.instruction.text;
+    out.push(
+      `instruction "${text.slice(0, 70)}${text.length > 70 ? '…' : ''}" ran ${g.mutations} state-changing step(s) ` +
+        `but reported ${g.report ? g.report.status : 'nothing'} — its work is NOT in the flow`,
+    );
   }
-  flush(undefined);
   return out;
 }
 
@@ -491,9 +539,10 @@ function replaceToken(text: string, value: string, marker: string): string {
  * priced for. The strong model is still one blocked report away.
  */
 export function recoveryRoute(
-  step: Pick<FlowStep, 'skill'>,
+  step: Pick<FlowStep, 'skill' | 'adopted'>,
   unresolved: boolean,
-): { easy: boolean; cause: 'no-skill' | 'unthreaded-ref' | 'replay-failed' } {
+): { easy: boolean; cause: 'no-skill' | 'unthreaded-ref' | 'replay-failed' | 'adopted' } {
+  if (step.adopted && !step.skill) return { easy: true, cause: 'adopted' };
   if (!step.skill) return { easy: true, cause: 'no-skill' };
   if (unresolved) return { easy: true, cause: 'unthreaded-ref' };
   return { easy: true, cause: 'replay-failed' };

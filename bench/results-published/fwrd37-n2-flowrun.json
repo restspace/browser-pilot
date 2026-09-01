@@ -1,0 +1,154 @@
+{
+  "flow": "fwrd37",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in successfully with bench@example.com, then created a new ticket titled \"fwrd37-n2 RD Bench Ticket\". The only required field was the title (customer was optional). The ticket was saved and is now visible at the top of the ticket list with reference RD-1016, status Draft, no customer assigned, and created on 2026-08-31.",
+      "values": {
+        "ticket_reference": "RD-1016",
+        "ticket_title": "fwrd37-n2 RD Bench Ticket",
+        "ticket_customer": "Not recorded",
+        "created_date": "2026-08-31",
+        "ticket_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_23c4d3; observed part_name=fwrd37-n2 RD Part A, part_cost=$100.00, part_markup=25%, part_price=$125.00.",
+      "values": {
+        "part_name": "fwrd37-n2 RD Part A",
+        "part_cost": "$100.00",
+        "part_markup": "25%",
+        "part_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added \"fwrd37-n2 RD Part B\" to ticket RD-1016 with cost $200.00 and markup 25%. The app computed the price as $250.00 ($200 + 25% markup). The ticket's overall parts total row shows $375.00 ($125.00 from Part A + $250.00 from Part B), correctly summing price × quantity for both parts.",
+      "values": {
+        "part_b_name": "fwrd37-n2 RD Part B",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_price": "$250.00",
+        "overall_total": "$375.00"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited \"fwrd37-n2 RD Part A\" on ticket RD-1016: changed cost from 100 to 150 (markup kept at 25%). The app recomputed the price as $187.50 (cost $150.00 + 25% markup = $187.50). Part B remains at $200.00 cost / $250.00 price. The overall parts total updated from $375.00 to $437.50 ($187.50 + $250.00).",
+      "values": {
+        "part_a_cost": "$150.00",
+        "part_a_markup": "25%",
+        "part_a_price": "$187.50",
+        "overall_total": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3f9269; observed current_status=Draft.",
+      "values": {
+        "current_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-edit",
+      "status": "success",
+      "summary": "Assigned \"Acme Supplies\" as supplier to both parts. Part A already had Acme Supplies from an earlier partial run; Part B was edited via the dialog to also have \"Acme Supplies\". Clicking \"Mark Ready\" succeeded with no error — the status changed from Draft to Ready, and the page now shows \"Status: Ready\" with \"Mark Draft\" and \"Mark Closed\" buttons replacing the \"Mark Ready\" button. No alert was triggered.",
+      "values": {
+        "part_a_supplier": "Acme Supplies",
+        "part_b_supplier": "Acme Supplies",
+        "final_status": "Ready"
+      },
+      "tier": "A",
+      "replayed": "1/5",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "07-remove",
+      "status": "success",
+      "summary": "Deleted both parts from ticket RD-1016. For each part, clicked the Delete button, then confirmed via the \"Delete part\" button in the custom confirmation dialog. After both deletions, the parts table now shows only \"No parts on this ticket yet.\" with no rows and no total price displayed. Ticket status remains Ready.",
+      "values": {
+        "parts_total_2": "NAME\tCOST\tMARKUP\tQTY\tSUPPLIER\tPRICE\tACTIONS\nfwrd37-n2 RD Part B\t$200.00\t25%\t1\tAcme Supplies\t$250.00\tEdit Delete\nTotal (price × quantity)\t$250.00\t",
+        "parts_table_content": "No parts on this ticket yet."
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-archive",
+      "status": "success",
+      "summary": "Archived ticket RD-1016 by clicking the \"Archive ticket\" button on the detail view (no preconditions were enforced — the button was available with status Ready and no parts). The button changed to \"Unarchive ticket\" and the detail page now shows an \"Archived\" badge next to the title. On the main ticket list: with \"Show archived\" unchecked, RD-1016 does not appear (not visible on any page of active tickets). With \"Show archived\" checked, RD-1016 appears with the text \"Archived\" flagged in the title column, status Ready, and 0 parts.",
+      "values": {
+        "list_text_with_archives": "RD-1016 fwrd37-n2 RD Bench Ticket Archived Not recorded Ready 0 2026-08-31",
+        "ref": "RD-1016"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwrd37",
+      "step": "06-edit",
+      "skill": "s_6a154f",
+      "similarity": 0.998,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_6a154f stopped at step 2 — step 2 raised an alert the recording never saw: Ticket is not ready Part \"fwrd37-n2 RD Part B\" has no supplier",
+      "reason": "step 2 raised an alert the recording never saw: Ticket is not ready Part \"fwrd37-n2 RD Part B\" has no supplier",
+      "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+    }
+  ],
+  "wallMs": 134198,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 117889,
+    "completionTokens": 1924,
+    "cachedTokens": 89856
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 117889,
+      "completionTokens": 1924,
+      "cachedTokens": 89856
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
