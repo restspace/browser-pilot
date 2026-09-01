@@ -62,6 +62,27 @@ So: reuse the box, never reuse the state. If a reset fails the sweep now halts
 that run rather than replaying against a dirty app - treat a `reset-failed`
 row as a stop, not a blip.
 
+### One box per TARGET, boxes in parallel (standing pattern, 2026-09-01)
+
+"One box, several sweeps" above is about not re-provisioning between sweeps
+that share a box - it is NOT a reason to serialize independent targets.
+Set 14 ran grafana, odoo and repairdesk back to back on one box: ~4 hours of
+wall clock for ~1.5 hours of actual work per target. The targets share no
+state, every box is its own sandbox, and concurrent routine runs from one
+trigger demonstrably coexist (set 14 and fwkb1 ran side by side).
+
+So the standing pattern for a multi-target set is **one routine run per
+target, launched together**. Each run provisions only its own target
+(`--with-target <t>` once), sweeps it, and publishes its own
+`results/<tag>` branch. The ~10 minutes of per-box setup is the price of
+cutting a set's wall clock to its longest sweep.
+
+The one shared resource is the model API key. Every sweep hammers the same
+OpenRouter account, and 429s have killed replays before (fwgr2). The retry
+logic now honors Retry-After on a minute scale, so parallel sweeps absorb a
+429 instead of dying - but if a parallel set shows 429-driven `blocked` rows,
+stagger the launches by ~20 minutes rather than falling back to one box.
+
 ## 2. Run
 
 Substitute `<ARM>` (`browser-pilot`, `agent-browser`, `playwright-mcp` or
