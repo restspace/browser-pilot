@@ -1,0 +1,162 @@
+{
+  "flow": "fwgr21",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (no change-password prompt appeared), navigated to the \"Service health\" dashboard, and observed all panels. The dashboard displays 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_6c5464"
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_369723; observed panel_title=fwgr21-n3 Availability, dashboard_title=fwgr21-n3 Bench Dashboard.",
+      "values": {
+        "panel_title": "fwgr21-n3 Availability",
+        "dashboard_title": "fwgr21-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_070654; observed panel_titles=fwgr21-n3 Availability, dashboard_title=fwgr21-n3 Bench Dashboard.",
+      "values": {
+        "panel_titles": "fwgr21-n3 Availability",
+        "dashboard_title": "fwgr21-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added a new Text panel \"fwgr21-n3 Notes\" to the dashboard with content \"Bench run fwgr21-n3 — notes panel\". Saved the dashboard successfully (confirmed by \"Dashboard saved\" alert). The dashboard now shows 2 panels: \"fwgr21-n3 Notes\" (Text panel with the specified content) and \"fwgr21-n3 Availability\" (Stat panel).",
+      "values": {
+        "panel_titles": "fwgr21-n3 Notes, fwgr21-n3 Availability",
+        "text_panel_content": "Bench run fwgr21-n3 — notes panel",
+        "h2": "fwgr21-n3 Notes",
+        "h2_2": "fwgr21-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_9e380f"
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_db792f; observed time_range=Last 6 hours.",
+      "values": {
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-set",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to '1m' by opening the time range picker/refresh dropdown and selecting '1 minute'. Saved the dashboard with 'Update default refresh value' checked; a 'Dashboard saved' toast appeared. Then reloaded the page fresh. The auto-refresh control shows '1m' next to the refresh icon (button \"Choose refresh time interval with current interval 1 minute selected\"), and the time range picker shows 'Last 6 hours'.",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8ffa4a; observed dashboard_title=fwgr21-n3 Bench Dashboard, time_range=Last 6 hours, auto_refresh_interval=1m, read9=fwgr21-n3 Notes, read10=fwgr21-n3 Availability.",
+      "values": {
+        "dashboard_title": "fwgr21-n3 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "read9": "fwgr21-n3 Notes",
+        "read10": "fwgr21-n3 Availability"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened 'fwgr21-n3 Availability' panel in edit mode: it is a **Stat** visualization using the **TestData** data source (query dropdown shows \"TestData\", query row labelled \"A (TestData)\"). Clicked Back to return. The 'fwgr21-n3 Notes' panel displays text: \"Bench run fwgr21-n3 — notes panel\".",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 2,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr21",
+      "step": "02-create",
+      "skill": "s_3f84c9",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.985,
+      "missedLocator": "page.locator('[data-testid=\"data-testid Panel editor content\"] div')",
+      "fallbackUsed": "page.locator('div:nth-of-type(3) > div > div:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(3)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx2mgocxb20wd/:id"
+    },
+    {
+      "flow": "fwgr21",
+      "step": "07-open",
+      "skill": "s_8ffa4a",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('#_r2t_')",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2').nth(0)",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx2mgocxb20wd/:id"
+    }
+  ],
+  "wallMs": 109438,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 134231,
+    "completionTokens": 2178,
+    "cachedTokens": 108544
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 134231,
+      "completionTokens": 2178,
+      "cachedTokens": 108544
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

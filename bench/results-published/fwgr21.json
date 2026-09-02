@@ -1,0 +1,266 @@
+{
+  "name": "fwgr21",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Sign in to Grafana at http://127.0.0.1:3000/ with username 'admin' and password 'admin'. If a 'Change password' / 'Update password' prompt appears, skip it (choose 'Skip' or dismiss it). Then navigate to the provisioned dashboard named 'Service health' (use Dashboards search/browse if needed) and report the exact titles of all panels shown on that dashboard, exactly as displayed on screen.",
+      "skill": "s_6c5464",
+      "params": {
+        "v1": "Service health"
+      },
+      "outputs": [
+        "panel_titles",
+        "panel_title_request_rate",
+        "panel_title_error_count",
+        "panel_title_latency_by_endpoint"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count",
+        "panel_title_latency_by_endpoint": "Latency by endpoint"
+      },
+      "outputEvidence": {
+        "panel_titles": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "Create a NEW dashboard in Grafana. Set the dashboard title to exactly '{{runid}} Bench Dashboard'. Add a Stat visualization panel and set its title to exactly '{{runid}} Availability'. For that panel's query, select the 'TestData' data source (a data source literally named 'TestData' or 'TestData DB' — pick the one that exists) and leave the default test data query. Then SAVE the dashboard (click the Save dashboard button in the top bar and confirm). Verify the save succeeded (a 'Dashboard saved' toast or the dashboard is no longer in unsaved state) and report the dashboard's URL/UID and the panel title you see on screen.",
+      "skill": "s_3154ef",
+      "params": {
+        "v2": "{{runid}} Bench Dashboard",
+        "v3": "{{runid}} Availability"
+      },
+      "outputs": [
+        "dashboard_title",
+        "dashboard_uid",
+        "panel_title"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr21-n1 Bench Dashboard",
+        "dashboard_uid": "ffx2k3asqla0wd",
+        "panel_title": "fwgr21-n1 Availability"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "panel_title": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open the dashboard with UID {{02-create.url.p1}} (URL http://127.0.0.1:3000/d/{{02-create.url.p1}}/). Verify and report: (a) the dashboard title shown in the top bar, (b) the title of every panel visible on the dashboard, (c) whether the panel '{{runid}} Availability' is a Stat visualization (open its panel edit view if needed to check the visualization type and the data source name used by its query, then click Back/Cancel without changing anything). Report exactly what you observe.",
+      "skill": "s_070654",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}} Availability",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "visualization_type",
+        "data_source",
+        "query_scenario"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr21-n1 Bench Dashboard",
+        "panel_titles": "fwgr21-n1 Availability",
+        "visualization_type": "Stat",
+        "data_source": "TestData",
+        "query_scenario": "Random Walk"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "panel_titles": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "04-add",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (UID {{02-create.url.p1}}, URL http://127.0.0.1:3000/d/{{02-create.url.p1}}/), add a NEW Text panel. Set the panel title to exactly '{{runid}} Notes' and set the text content to include the runid, e.g. 'Bench run {{runid}} — notes panel'. Then SAVE the dashboard (click the Save dashboard button and confirm) and verify a save confirmation appears. Report the panel titles now visible on the dashboard and the text content shown in the Text panel.",
+      "skill": "s_9e380f",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-create.url.p1}}",
+        "v4": "{{runid}} Notes",
+        "v5": "Bench run {{runid}} — notes panel"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "text_panel_content",
+        "save_confirmation"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr21-n1 Bench Dashboard",
+        "panel_titles": "fwgr21-n1 Notes, fwgr21-n1 Availability",
+        "text_panel_content": "Bench run fwgr21-n1 — notes panel",
+        "save_confirmation": "Dashboard saved"
+      },
+      "outputEvidence": {
+        "panel_titles": {
+          "same": 0,
+          "differed": 2
+        },
+        "text_panel_content": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (UID {{02-create.url.p1}}, URL http://127.0.0.1:3000/d/{{02-create.url.p1}}/), do two things: (1) Open dashboard Settings and add the tag 'bench' to the dashboard's tags (in the General settings section, under Tags, type 'bench' and press Enter), then save the settings. (2) Set the dashboard time range to 'Last 6 hours' using the time range picker in the top bar (choose the 'Last 6 hours' quick range). Then SAVE the dashboard (Save dashboard button) and confirm the save succeeded. Report the tag(s) shown in dashboard settings, the time range shown in the top bar, and whether the save was confirmed.",
+      "skill": "s_db792f",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-create.url.p1}}"
+      },
+      "outputs": [
+        "tags",
+        "time_range",
+        "save_confirmed"
+      ],
+      "recorded": {
+        "tags": "bench",
+        "time_range": "Last 6 hours",
+        "save_confirmed": "true"
+      },
+      "outputEvidence": {
+        "time_range": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-set",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (UID {{02-create.url.p1}}, URL http://127.0.0.1:3000/d/{{02-create.url.p1}}/), set the dashboard's auto-refresh interval to '1m'. Open the time range picker in the top bar, find the 'Auto refresh' section (refresh interval dropdown), and select '1m'. Then SAVE the dashboard (Save dashboard button) making sure 'Update default time range' is checked so the refresh interval is persisted, and confirm the save succeeded. Then reload the dashboard page fresh and report what the time range picker / auto-refresh control shows (e.g. '1m' next to the refresh icon) and the time range shown.",
+      "skill": "s_b5ee39",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{02-create.url.p1}}",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "auto_refresh_interval",
+        "time_range",
+        "save_confirmed"
+      ],
+      "recorded": {
+        "auto_refresh_interval": "1m",
+        "time_range": "Last 6 hours",
+        "save_confirmed": "true"
+      },
+      "outputEvidence": {
+        "auto_refresh_interval": {
+          "same": 2,
+          "differed": 0
+        },
+        "time_range": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "Open a fresh browser tab and load http://127.0.0.1:3000/d/{{02-create.url.p1}}/ (dashboard UID {{02-create.url.p1}}). Wait for it to fully load, then report: (a) the dashboard title in the top bar, (b) the titles of all panels visible, (c) the time range shown in the time range picker, (d) the auto-refresh interval shown next to the refresh icon, (e) open Dashboard Settings > General and report the tags listed, then close settings without changing anything. Also report the full URL of the page. Do not modify anything.",
+      "skill": "s_8ffa4a",
+      "params": {
+        "v2": "http://127.0.0.1:3000/d/{{02-create.url.p1}}/",
+        "v1": "{{02-create.url.p1}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "time_range",
+        "auto_refresh_interval",
+        "tags"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr21-n1 Bench Dashboard",
+        "panel_titles": "fwgr21-n1 Notes, fwgr21-n1 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "time_range": {
+          "same": 2,
+          "differed": 0
+        },
+        "auto_refresh_interval": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "On the dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/, open the panel '{{runid}} Availability' in edit mode (click its panel menu > Edit). Report the visualization type shown in the top-right visualization picker and the data source name shown in the query tab for its query. Then click Back to return without changing anything. Also report the text content displayed inside the '{{runid}} Notes' panel on the dashboard. Do not modify or save anything.",
+      "skill": "s_070654",
+      "outputs": [
+        "dashboard_title",
+        "panel_titles",
+        "time_range",
+        "auto_refresh_interval",
+        "tags",
+        "visualization_type",
+        "data_source",
+        "query_scenario",
+        "text_panel_content"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr21-n1 Bench Dashboard",
+        "panel_titles": "fwgr21-n1 Notes, fwgr21-n1 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench",
+        "visualization_type": "Stat",
+        "data_source": "TestData",
+        "query_scenario": "Random Walk",
+        "text_panel_content": "Bench run fwgr21-n1 — notes panel"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "panel_titles": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr21-n1",
+    "created": "2026-09-02T20:14:29.195Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

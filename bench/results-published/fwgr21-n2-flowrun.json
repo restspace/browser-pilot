@@ -1,0 +1,204 @@
+{
+  "flow": "fwgr21",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (no change-password prompt appeared), navigated to the \"Service health\" dashboard, and observed all panels. The dashboard displays 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_369723; observed panel_title=fwgr21-n2 Availability, dashboard_title=fwgr21-n2 Bench Dashboard.",
+      "values": {
+        "panel_title": "fwgr21-n2 Availability",
+        "dashboard_title": "fwgr21-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_070654; observed panel_titles=fwgr21-n2 Availability, dashboard_title=fwgr21-n2 Bench Dashboard.",
+      "values": {
+        "panel_titles": "fwgr21-n2 Availability",
+        "dashboard_title": "fwgr21-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added a new Text panel \"fwgr21-n2 Notes\" to the dashboard with content \"Bench run fwgr21-n2 — notes panel\". Saved the dashboard successfully (confirmed by \"Dashboard saved\" alert). The dashboard now shows 2 panels: \"fwgr21-n2 Notes\" (Text panel with the specified content) and \"fwgr21-n2 Availability\" (Stat panel).",
+      "values": {
+        "panel_titles": "fwgr21-n2 Notes, fwgr21-n2 Availability",
+        "text_panel_content": "Bench run fwgr21-n2 — notes panel",
+        "save_confirmed": "true",
+        "h2": "fwgr21-n2 Notes",
+        "h2_2": "fwgr21-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "9/18",
+      "repaired": false,
+      "turns": 17
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_db792f; observed time_range=Last 6 hours.",
+      "values": {
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-set",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to '1m' by opening the time range picker/refresh dropdown and selecting '1 minute'. Saved the dashboard with 'Update default refresh value' checked; a 'Dashboard saved' toast appeared. Then reloaded the page fresh. The auto-refresh control shows '1m' next to the refresh icon (button \"Choose refresh time interval with current interval 1 minute selected\"), and the time range picker shows 'Last 6 hours'.",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8ffa4a; observed dashboard_title=fwgr21-n2 Bench Dashboard, time_range=Last 6 hours, auto_refresh_interval=1m, read9=fwgr21-n2 Notes, read10=fwgr21-n2 Availability.",
+      "values": {
+        "dashboard_title": "fwgr21-n2 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "read9": "fwgr21-n2 Notes",
+        "read10": "fwgr21-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened the 'fwgr21-n2 Availability' panel in edit mode. The visualization type shown in the visualization picker is 'Stat', and the data source used by its query is 'TestData'. Clicked Back to return to the dashboard without changes. The 'fwgr21-n2 Notes' panel displays text content: 'Bench run fwgr21-n2 — notes panel'.",
+      "values": {
+        "dashboard_title": "fwgr21-n2 Bench Dashboard",
+        "panel_titles": "fwgr21-n2 Availability, fwgr21-n2 Notes",
+        "availability_viz_type": "Stat",
+        "availability_data_source": "TestData",
+        "notes_panel_content": "Bench run fwgr21-n2 — notes panel"
+      },
+      "tier": "B",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 15
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwgr21",
+      "step": "01-signin",
+      "skill": "s_ee4fc6",
+      "similarity": 0.703,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_ee4fc6 stopped at step 4 — after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr21",
+      "step": "02-create",
+      "skill": "s_3f84c9",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.985,
+      "missedLocator": "page.locator('[data-testid=\"data-testid Panel editor content\"] div')",
+      "fallbackUsed": "page.locator('div:nth-of-type(3) > div > div:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(3)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2m3fhfnlkwe/:id"
+    },
+    {
+      "flow": "fwgr21",
+      "step": "04-add",
+      "skill": "s_25b1dc",
+      "atStep": "10",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2m3fhfnlkwe/:id"
+    },
+    {
+      "flow": "fwgr21",
+      "step": "07-open",
+      "skill": "s_8ffa4a",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.locator('#_r2t_')",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2').nth(0)",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2m3fhfnlkwe/:id"
+    },
+    {
+      "flow": "fwgr21",
+      "step": "08-open",
+      "skill": "s_070654",
+      "atStep": "10",
+      "key": "target",
+      "similarity": 0.991,
+      "missedLocator": "page.locator('#_ram_')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2m3fhfnlkwe/:id"
+    }
+  ],
+  "wallMs": 274163,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 609091,
+    "completionTokens": 8795,
+    "cachedTokens": 474880
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 609091,
+      "completionTokens": 8795,
+      "cachedTokens": 474880
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
