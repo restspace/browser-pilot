@@ -56,7 +56,7 @@ Incumbent = agent-browser, picked on depth-slice medians before breadth ran.
 
 | arm | verified | cost | stop |
 |---|---|---|---|
-| browser-pilot (bgr1, bgr2, bgr4) | 6/6, 6/6, 5/6 | $0.83, $1.10, $0.70 | completed ×3 |
+| browser-pilot (bgr1, bgr2, bgr4) | 6/6, 6/6, 5/6 | $0.83, $1.10, $0.70 | completed Ã—3 |
 | agent-browser (agr1-3) | 6/6, 0/6, 6/6 | $1.53, $2.02, $1.33 | completed, **spend-cap**, completed |
 
 (bgr4's 5/6 is an honest miss: dashboard saved with panels/tags/refresh
