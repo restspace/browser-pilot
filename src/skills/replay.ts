@@ -53,6 +53,17 @@ export interface ReplayResult {
   reason?: string;
   /** Live read-back values, keyed by the step's label or `readN`. */
   values: Record<string, string>;
+  /**
+   * Labels of read-backs whose value merely echoes something the skill itself
+   * put on the page earlier this run — a fill value, or the name of an option
+   * it clicked. Such a read confirms the control still shows what we typed or
+   * chose, NOT that the app persisted it: grafana's top-bar time picker reads
+   * back "Last 6 hours" (the option the skill clicked) whether or not the save
+   * actually stored the range, so the flow reported a persisted time range the
+   * API says was dropped. The caller drops these from the report's confident
+   * values so a replay never claims a persist it only echoed.
+   */
+  echoedValues: string[];
   /** Per-step lines for the tool result. */
   lines: string[];
   /** Soft-expectation misses: logged, never fatal in Stage 1. */
@@ -107,6 +118,10 @@ export interface ReplayResult {
 }
 
 const MAX_LINE = 160;
+// Shortest interacted/read value worth treating as an echo. Below this the
+// coincidence rate is too high (a "1m" refresh, a "3" quantity) — a false echo
+// would wrongly drop a legitimate finding, so only substantial values qualify.
+const MIN_ECHO_LEN = 5;
 
 /** Tools whose miss can be substituted by navigating to the step's recorded
  * destination: plain navigation clicks. modifier_click (new tabs) and loop
@@ -137,6 +152,7 @@ export async function replaySkill(
     stepsRun: 0,
     stepsTotal: skill.steps.length,
     values: {},
+    echoedValues: [],
     lines: [],
     warnings: [],
     fallthroughs: 0,
@@ -149,6 +165,13 @@ export async function replaySkill(
     similarity: null,
     url: page.url(),
   };
+
+  // Values the skill puts on the page as it runs — fill/type values, and the
+  // names of options it clicks. A later read that returns one of these is an
+  // echo (confirming the control, not app persistence); see echoedValues.
+  // Loosely keyed so "Last 6 hours" matches "last 6 hours".
+  const interacted = new Set<string>();
+  const looseKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
   // Copy the caller's bindings: derived ({{dN}}) values minted mid-replay are
   // bound into this map as steps execute, so later steps see them.
@@ -291,12 +314,24 @@ export async function replaySkill(
         res.candidateEvidence.push({ step: tag, key, hit: hit.index, missed: hit.missed });
       }
       sink?.push(`${key}=${candidateExpr(hit.candidate)}`);
+      // Record what this action put on the page (see `interacted`). Only for
+      // non-read steps: a read observes, it does not set. The accessible name
+      // of a clicked option ("Last 6 hours") is the value it selects.
+      if (!isRead) {
+        for (const cand of chain) {
+          const named = (cand as { name?: string; label?: string }).name ?? (cand as { name?: string; label?: string }).label;
+          if (named && named.length >= MIN_ECHO_LEN) interacted.add(looseKey(named));
+        }
+      }
       if (hit.index > 0) {
         res.fallthroughs++;
         res.misses.push({ step: tag, key, primary: candidateExpr(chain[0]), used: candidateExpr(hit.candidate), usedIndex: hit.index });
         res.warnings.push(`step ${tag}: primary locator did not resolve; used fallback #${hit.index + 1} ${candidateExpr(hit.candidate)}`);
       }
     }
+    // A typed/filled value is likewise something the skill put on the page.
+    if (!isRead && typeof args.value === 'string' && args.value.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.value));
+    if (!isRead && typeof args.text === 'string' && args.text.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.text));
     if (resolveError) {
       if (isRead) {
         res.warnings.push(`step ${tag}: skipped read — ${resolveError}`);
@@ -486,7 +521,14 @@ export async function replaySkill(
 
     if (isRead) {
       const key = step.label ?? `read${tag}`;
-      res.values[key] = parseRead(outcome.result);
+      const value = parseRead(outcome.result);
+      res.values[key] = value;
+      // An echo read: this value is only what the skill itself set or chose,
+      // so it confirms the control's display, not that the app persisted it.
+      if (value && value.length >= MIN_ECHO_LEN && interacted.has(looseKey(value))) {
+        res.echoedValues.push(key);
+        res.warnings.push(`step ${tag}: read '${key}' returned a value the skill itself set/selected ('${clip(value, 60)}') — confirms the control, not persistence; dropped from the report's confident values`);
+      }
       res.lines.push(`${head} → ${key} = ${clip(outcome.result, MAX_LINE)}`);
     } else {
       res.lines.push(`${head} → ${clip(outcome.result.split('\n')[0], MAX_LINE)}`);

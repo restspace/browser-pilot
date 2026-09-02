@@ -820,12 +820,43 @@ ${describeLeaks(leaks.slice(0, 10))}`);
     /** Steps whose output evidence this run changed, for the write-back below. */
     let evidenceChanged = 0;
 
+    // Set by a step that recovered on the model: a recovery can end
+    // "successfully" yet leave a blocking dialog open (rpod1-r2: an earlier
+    // recovery left an email composer and an Edit dialog behind, and 06-open
+    // paid 56 turns clearing debris its predecessor left). A clean tier-A
+    // replay ends where the recording ended — at rest — so only a recovery
+    // needs the boundary swept.
+    let prevRecovered = false;
+
     for (const step of flow.steps) {
       if (opts.signal.aborted) {
         stepResults.push({ id: step.id, status: 'blocked', reason: 'run stopped' });
         halted = true;
         break;
       }
+      // Between-step hygiene: at a step boundary the page should be at rest, so
+      // a still-open modal is debris from the previous step's recovery. Clear
+      // it before this step's own skill replay so the debris is not charged to
+      // this step. Gated on prevRecovered (nothing to sweep after a clean
+      // replay) and bounded; uses the ARIA-standard modal signal, never an
+      // app selector. In-skill dialogs are unaffected — this runs only at the
+      // boundary, never mid-skill.
+      if (prevRecovered) {
+        try {
+          const page = await this.browser.getPage();
+          const blockers = page.locator('[role="dialog"], [aria-modal="true"]');
+          for (let i = 0; i < 3 && (await blockers.count()) > 0 && (await blockers.first().isVisible().catch(() => false)); i++) {
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(250);
+          }
+          if ((await blockers.count()) > 0 && (await blockers.first().isVisible().catch(() => false))) {
+            opts.progress(`[flow ${flow.name}] ${step.id}: a blocking dialog from the previous step's recovery would not dismiss — proceeding, the step's own recovery will handle it`);
+          }
+        } catch {
+          /* browser gone or overlay check failed — the step runs anyway */
+        }
+      }
+      prevRecovered = false;
       const { text, missing } = resolveInstruction(step, varsIn, outputs, stable);
       const bound = resolveStepParams(step, varsIn, outputs, stable);
       // A reference that could not be threaded (an output an earlier step did
@@ -1122,6 +1153,8 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
           break;
         }
       }
+      // A recovery may have left a dialog open; sweep it at the next boundary.
+      prevRecovered = recovered;
     }
 
     // Re-pin any repaired steps so the flow file itself gets cheaper next run.
@@ -1272,6 +1305,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       misses: replay.misses.map((m) => ({ ...m, skill: replay!.skill })),
       evidence: replay.candidateEvidence.map((e) => ({ ...e, skill: match!.skill.id })),
       values: { ...replay.values },
+      echoed: [...replay.echoedValues],
       segmentsDone: 0,
     };
     // Values the replay itself minted ({{dN}}): bound in the segment that
@@ -1307,6 +1341,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       // segment's.
       replay.created.push(...r.created);
       Object.assign(agg.values, r.values);
+      agg.echoed.push(...r.echoedValues);
     }
     // The walk records each segment when it advances PAST it, and the
     // instruction-level learning records the head (record.invoked). A chain's
@@ -1355,7 +1390,22 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         why: `${last.id} stopped at step ${replay.failedAt ?? '?'} — ${replay.reason ?? 'no reason recorded'}`,
       };
     }
-    const report = synthesizeReport(last, match.params, agg.values);
+    // Drop echo reads from the report's confident values: a value the skill
+    // only re-read from a control it set itself is not proof the app persisted
+    // it (grafana's time picker — see ReplayResult.echoedValues). A later step
+    // that genuinely needs the value still routes to recovery rather than
+    // trusting an echo, and the flow stops reporting a persist it cannot vouch
+    // for. A value re-observed by a NON-echo read in another segment survives.
+    const confidentValues = { ...agg.values };
+    for (const key of agg.echoed) {
+      if (!Object.keys(agg.values).includes(key)) continue;
+      // Keep it only if some segment read it back WITHOUT it being an echo
+      // there — i.e. it appears in values but the echoed list is not the whole
+      // story. Simplest sound rule: echoed anywhere ⇒ not confident.
+      delete confidentValues[key];
+    }
+    if (agg.echoed.length) progress(`[replay] dropped ${agg.echoed.length} echo read(s) from confident values: ${[...new Set(agg.echoed)].join(', ')}`);
+    const report = synthesizeReport(last, match.params, confidentValues);
     // Keep the conversation coherent for later instructions: the same one-line
     // entry the loop would have written.
     this.state.messages.push({ role: 'user', content: instruction });

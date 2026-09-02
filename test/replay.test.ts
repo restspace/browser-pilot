@@ -147,6 +147,42 @@ d('skill replay (fixture page)', () => {
     session.learn!.remove(nav.id);
   }, 30_000);
 
+  it('an echo read (reads back a value the skill itself set) is flagged and dropped from confident values', async () => {
+    // Record a skill that fills #name and then reads #name back — the read
+    // returns exactly what was typed, confirming the control, not persistence.
+    // This is the shape of grafana's time picker: click 'Last 6 hours', then
+    // read 'Last 6 hours' off the same control.
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    const rec = session.script!;
+    const mark = rec.mark();
+    const instr = "set the name to 'Echoville Boulevard' and read the name field and the banner";
+    rec.beginInstruction(instr, { url: page.url() });
+    const snap = (await run('snapshot', {})).result;
+    const nameRef = /textbox "Name" \[(@e\d+)\]/.exec(snap)![1];
+    await run('fill', { target: nameRef, value: 'Echoville Boulevard' });
+    // Read the same input back — pure echo of the fill value.
+    await run('read', { target: '#name', what: 'value', label: 'name_field' });
+    // A non-echo read for contrast: the fixed heading text.
+    await run('read', { target: 'h1', what: 'text', label: 'heading' });
+    const echoSkill = compileSkill({
+      entries: rec.entriesSince(mark),
+      instruction: instr,
+      report: { status: 'success', summary: 'set name', evidence: { values: { name_field: 'Echoville Boulevard', heading: 'Fixture form' } } },
+      session: 'replay',
+    })!;
+    session.learn!.put(echoSkill);
+
+    await page.goto(fixtureUrl);
+    const out = await run('run_skill', { id: echoSkill.id, params: { v1: 'Replayville Avenue' } });
+    expect(out.replay?.ok).toBe(true);
+    // The name read echoes the fill value → flagged; the heading does not.
+    expect(out.replay?.echoedValues).toContain('name_field');
+    expect(out.replay?.echoedValues).not.toContain('heading');
+    expect(out.replay?.warnings.some((w) => /echo|set\/selected/i.test(w))).toBe(true);
+    session.learn!.remove(echoSkill.id);
+  }, 30_000);
+
   it('refuses to run from the wrong page or with missing params — nothing is touched', async () => {
     const page = await session.getPage();
     await page.goto('about:blank');
