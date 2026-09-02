@@ -7,7 +7,7 @@ import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
+import { buildFlow, consumedUrlOutputs, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
@@ -613,9 +613,14 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         // itself takes ~4s, so what 75s cannot absorb is ONE 429 whose
         // Retry-After hint runs to 65s. 100s covers a full rate-limit wait
         // plus the retry.
+        const relabelStarted = Date.now();
         const { plan, dropped } = await requestRelabelPlan(this.recoveryProvider(), cases, {
           signal: AbortSignal.timeout(100_000),
         });
+        // Instrumented after fwgr19-n1 aborted with the call still pending:
+        // the duration says whether the fix (effort: 'low' in relabel.ts)
+        // holds or the pass is drifting back toward the timebox.
+        console.error(`[relabel] plan returned in ${Date.now() - relabelStarted}ms (${cases.length} case(s))`);
         if (dropped.length) console.error(`[relabel] dropped ${dropped.length} unsafe rename(s): ${dropped.join('; ')}`);
         // Leave a trace even when nothing is renamed: fwod27's script showed
         // zero `relabel` fields and could not say whether the pass proposed
@@ -782,6 +787,10 @@ ${describeLeaks(leaks.slice(0, 10))}`);
 
     const screenshotDir = path.join(ensureSessionDir(this.opts.session), 'screenshots');
     const outputs: Record<string, Record<string, string>> = {};
+    // Which url.* outputs of each step a LATER step consumes — the capture
+    // below waits (bounded) for those to appear in the URL. See
+    // consumedUrlOutputs for the SPA-updates-the-url-late failure this closes.
+    const wantedUrlOuts = consumedUrlOutputs(flow.steps);
     const stepResults: Array<Record<string, unknown>> = [];
     const driftTickets: DriftTicket[] = [];
     const started = Date.now();
@@ -996,8 +1005,25 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       const stepOutputs: Record<string, string> = { ...values };
       try {
         // Whatever this run's browser landed on, published under the same
-        // rule buildFlow used to mint the references — see urlOutputs.
-        for (const [key, value] of Object.entries(urlOutputs((await this.browser.getPage()).url()))) {
+        // rule buildFlow used to mint the references — see urlOutputs. When a
+        // later step is known to consume one of this step's url outputs, wait
+        // (bounded) for the URL to actually carry it: an SPA can update its
+        // URL a beat after the page settles, and a structural replay finishes
+        // inside that beat — fwod30 lost {{03-open.url.q.id}} to a snapshot
+        // taken before Odoo's hash gained the freshly minted id.
+        const flowPage = await this.browser.getPage();
+        let urlOuts = urlOutputs(flowPage.url());
+        const wanted = wantedUrlOuts.get(step.id);
+        if (wanted?.size) {
+          const deadline = Date.now() + 5_000;
+          while ([...wanted].some((k) => !(k in urlOuts)) && Date.now() < deadline) {
+            await new Promise((r) => setTimeout(r, 250));
+            urlOuts = urlOutputs(flowPage.url());
+          }
+          const missing = [...wanted].filter((k) => !(k in urlOuts));
+          if (missing.length) console.error(`[flow] ${step.id}: url output(s) never appeared: ${missing.join(', ')} (url: ${flowPage.url().slice(0, 160)})`);
+        }
+        for (const [key, value] of Object.entries(urlOuts)) {
           if (!(key in stepOutputs)) stepOutputs[key] = value;
         }
       } catch {

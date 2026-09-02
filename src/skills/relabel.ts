@@ -161,7 +161,12 @@ export async function requestRelabelPlan(
   opts: { signal?: AbortSignal } = {},
 ): Promise<{ plan: RelabelPlan; dropped: string[] }> {
   if (!cases.length) return { plan: new Map(), dropped: [] };
-  const done = await provider.complete(relabelMessages(cases), [RENAME_TOOL], { signal: opts.signal });
+  // effort low: the plan is one mechanical tool call, and at default effort a
+  // reasoning model can deliberate past the caller's whole timebox on a large
+  // session — fwgr19-n1 aborted at 100s with the request still pending, on
+  // the same model/endpoint where low effort answers in seconds (see
+  // CompleteOptions.effort for the measurement).
+  const done = await provider.complete(relabelMessages(cases), [RENAME_TOOL], { signal: opts.signal, effort: 'low' });
   const call = (done.toolCalls ?? []).find((t) => t.name === 'rename_values');
   return validateRelabelPlan(call?.args, cases);
 }

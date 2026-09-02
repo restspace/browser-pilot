@@ -62,6 +62,19 @@ export interface CompleteOptions {
    * budget in one uninterruptible request.
    */
   signal?: AbortSignal;
+  /**
+   * Reasoning effort for this one request, for calls whose output is
+   * mechanical (a single structured tool call) rather than deliberative.
+   * Measured on glm-5.3 via OpenRouter (2026-09-02): the same class of
+   * single-shot structured request burned 15.5k reasoning tokens and
+   * returned nothing inside a 16k budget at default effort, and finished in
+   * seconds with 27 reasoning tokens at 'low' — which is what aborted the
+   * relabel pass against its timebox on every large session. Mapped to the
+   * provider's reasoning-control field only where we know the host accepts
+   * it (openrouter); other hosts ignore the option rather than risk a 400
+   * on an unknown key.
+   */
+  effort?: 'low' | 'medium' | 'high';
 }
 
 export interface Provider {
@@ -292,6 +305,8 @@ export class OpenAICompatProvider implements Provider {
         function: { name: t.name, description: t.description, parameters: t.parameters },
       })),
       tool_choice: 'auto',
+      // See CompleteOptions.effort — openrouter-only by design.
+      ...(opts.effort && this.config.provider === 'openrouter' ? { reasoning: { effort: opts.effort } } : {}),
       // Spread last on purpose: extraBody is the caller's explicit override
       // channel (see ProviderConfig.extraBody) and must win over defaults.
       ...this.config.extraBody,

@@ -6,5 +6,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     fileParallelism: process.env.BP_BROWSER_TESTS !== '1',
+    // The repo's tests all live in test/. bench/results-published holds
+    // benchmark ARTIFACTS whose filenames legitimately end in .spec.mjs
+    // (published Playwright scripts from the codegen/authored arms) — the
+    // default include glob would run them as test suites.
+    include: ['test/**/*.test.ts'],
   },
 });

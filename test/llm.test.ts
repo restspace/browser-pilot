@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  OpenAICompatProvider,
   PROVIDER_PRESETS,
   readGlobalConfig,
   resolveProviderConfig,
@@ -145,5 +146,60 @@ describe('global config file', () => {
     fs.mkdirSync(tmpHome, { recursive: true });
     fs.writeFileSync(path.join(tmpHome, 'config.json'), '{not json');
     expect(readGlobalConfig()).toEqual({});
+  });
+});
+
+describe('per-request reasoning effort', () => {
+  const baseConfig = {
+    baseUrl: 'https://example.test/api/v1',
+    apiKey: 'k',
+    model: 'm',
+    keyEnvVars: ['X'],
+    temperature: 0,
+  };
+  const stubFetch = () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    const fetchImpl = async (_url: unknown, init: { body: string }) => {
+      bodies.push(JSON.parse(init.body));
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+      };
+    };
+    return { bodies, fetchImpl };
+  };
+
+  it('openrouter maps effort to the reasoning field; user extraBody still wins', async () => {
+    const { bodies, fetchImpl } = stubFetch();
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = fetchImpl as unknown as typeof fetch;
+    try {
+      const p = new OpenAICompatProvider({ ...baseConfig, provider: 'openrouter' } as never);
+      await p.complete([{ role: 'user', content: 'hi' }], [], { effort: 'low' });
+      expect(bodies[0].reasoning).toEqual({ effort: 'low' });
+      const p2 = new OpenAICompatProvider({
+        ...baseConfig,
+        provider: 'openrouter',
+        extraBody: { reasoning: { max_tokens: 9 } },
+      } as never);
+      await p2.complete([{ role: 'user', content: 'hi' }], [], { effort: 'low' });
+      expect(bodies[1].reasoning).toEqual({ max_tokens: 9 });
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it('other openai-compat hosts never see the field — unknown keys can 400', async () => {
+    const { bodies, fetchImpl } = stubFetch();
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = fetchImpl as unknown as typeof fetch;
+    try {
+      const p = new OpenAICompatProvider({ ...baseConfig, provider: 'novita' } as never);
+      await p.complete([{ role: 'user', content: 'hi' }], [], { effort: 'low' });
+      expect('reasoning' in bodies[0]).toBe(false);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
   });
 });

@@ -3,7 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { buildFlow, lintFlowRefs, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, stableOutputs, unbankedMutations, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
+import {
+  consumedUrlOutputs, buildFlow, lintFlowRefs, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, stableOutputs, unbankedMutations, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, publishedOutputs, synthesizeReport } from '../src/skills/learn.js';
 import type { Skill } from '../src/skills/store.js';
 import { compileSkill } from '../src/skills/compile.js';
@@ -778,5 +779,30 @@ describe('instruction prose quoting a run-minted database id', () => {
     const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
     // no url ever carried id=44, so the 44 in prose is the task's own number
     expect(staleInstructionIds(entries, flow)).toEqual([]);
+  });
+});
+
+describe('consumedUrlOutputs', () => {
+  const step = (id: string, instruction: string, params?: Record<string, string>) =>
+    ({ id, instruction, outputs: [], recorded: {}, ...(params ? { params } : {}) }) as never;
+
+  it('collects only url.* refs consumed by OTHER steps, from instruction and params', () => {
+    const wanted = consumedUrlOutputs([
+      step('03-open', 'create the record'),
+      step('06-open', 'open {{03-open.url.q.id}} and set {{03-open.order_ref}}', {
+        target: 'http://x/#id={{03-open.url.q.id}}&m={{03-open.url.q.menu_id}}',
+      }),
+      step('07-open', 'self ref stays out: {{07-open.url.q.id}}'),
+    ]);
+    expect(wanted.get('03-open')).toEqual(new Set(['url.q.id', 'url.q.menu_id']));
+    expect(wanted.has('07-open')).toBe(false);
+  });
+
+  it('ignores non-url outputs and strips json-path suffixes', () => {
+    const wanted = consumedUrlOutputs([
+      step('01-a', 'x'),
+      step('02-b', 'use {{01-a.ticket_ref}} then {{01-a.url.h1#rows.0}}'),
+    ]);
+    expect(wanted.get('01-a')).toEqual(new Set(['url.h1']));
   });
 });

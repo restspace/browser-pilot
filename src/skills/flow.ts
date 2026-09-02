@@ -612,6 +612,34 @@ export function urlOutputs(url: string): Record<string, string> {
   return out;
 }
 
+/**
+ * Which of each step's `url.*` outputs some OTHER step actually consumes
+ * (`{{03-open.url.q.id}}` in an instruction or a param). The flow runner
+ * captures a step's end-url outputs in one snapshot — but an SPA can update
+ * its URL a beat AFTER the page itself settles, and a structural replay is
+ * fast enough to finish inside that beat. Odoo does exactly this with the
+ * `id=` of a freshly saved record: fwod30's replays finished 03-open before
+ * the hash carried the id, `{{03-open.url.q.id}}` went unresolved, and every
+ * consumer of it fell to full recovery. Knowing which url outputs are
+ * consumed lets the capture wait for them, bounded, instead of snapshotting
+ * whatever the URL happened to say. The whole-url output (`url`) is always
+ * present, so only dotted parts are listed.
+ */
+export function consumedUrlOutputs(steps: FlowStep[]): Map<string, Set<string>> {
+  const wanted = new Map<string, Set<string>>();
+  for (const s of steps) {
+    for (const text of [s.instruction, ...Object.values(s.params ?? {})]) {
+      for (const m of text.matchAll(/\{\{([\w-]+)\.(url\.[\w.-]+?)(#[\w.-]+)?\}\}/g)) {
+        if (m[1] === s.id) continue; // own-step refs resolve after its capture regardless
+        const set = wanted.get(m[1]) ?? new Set<string>();
+        set.add(m[2]);
+        wanted.set(m[1], set);
+      }
+    }
+  }
+  return wanted;
+}
+
 export function lookupOutput(outputs: Record<string, Record<string, string>>, sid: string, out: string): string | undefined {
   const hash = out.indexOf('#');
   if (hash < 0) return outputs[sid]?.[out];
