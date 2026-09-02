@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * The "recording as code" arm: replay a browser-pilot session recording the way
+ * The "recording as code" arm: replay a sleep-walker session recording the way
  * `playwright codegen` output would — one literal Playwright locator per
  * gesture, literal values, Playwright's own auto-waiting, and nothing else.
  * No candidate ladder, no slots, no effect gates, no recovery: when a locator

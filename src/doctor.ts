@@ -6,7 +6,7 @@ import { resolveProviderConfig } from './agent/llm.js';
 import { rootDir } from './shared/paths.js';
 
 /**
- * `browser-pilot doctor`: diagnose a fresh install in one command, without
+ * `sleep-walker doctor`: diagnose a fresh install in one command, without
  * touching the daemon. Three hard checks (node version, home directory
  * writable, a launchable browser) decide the exit code; the provider/key
  * checks are advisory, because open/peek/screenshot work with no API key at
@@ -35,7 +35,7 @@ export async function runDoctor(json: boolean): Promise<number> {
   checks.push({
     name: 'node',
     status: major >= 20 ? 'ok' : 'fail',
-    detail: `v${process.versions.node}${major >= 20 ? '' : ' — browser-pilot needs Node >= 20'}`,
+    detail: `v${process.versions.node}${major >= 20 ? '' : ' — sleep-walker needs Node >= 20'}`,
   });
 
   const home = rootDir();
@@ -51,8 +51,8 @@ export async function runDoctor(json: boolean): Promise<number> {
 
   // Same channel chain the daemon uses (browser.ts), so what doctor proves is
   // what a session will do.
-  const explicit = process.env.BROWSER_PILOT_EXECUTABLE;
-  const channels = explicit ? [undefined] : [process.env.BROWSER_PILOT_CHANNEL || 'chrome', 'msedge', 'chromium'];
+  const explicit = process.env.SLEEP_WALKER_EXECUTABLE;
+  const channels = explicit ? [undefined] : [process.env.SLEEP_WALKER_CHANNEL || 'chrome', 'msedge', 'chromium'];
   let launched: string | null = null;
   let lastErr = '';
   for (const channel of channels) {
@@ -70,7 +70,7 @@ export async function runDoctor(json: boolean): Promise<number> {
     status: launched ? 'ok' : 'fail',
     detail: launched
       ? `launches headless via ${launched}`
-      : `no launchable browser (tried ${explicit ? 'BROWSER_PILOT_EXECUTABLE' : channels.join(' → ')}). ` +
+      : `no launchable browser (tried ${explicit ? 'SLEEP_WALKER_EXECUTABLE' : channels.join(' → ')}). ` +
         `Install Chrome or Edge, or run: npx playwright@${playwrightVersion()} install --with-deps chromium — last error: ${lastErr}`,
   });
 
@@ -98,7 +98,7 @@ export async function runDoctor(json: boolean): Promise<number> {
   } else {
     const mark = { ok: 'OK  ', warn: 'WARN', fail: 'FAIL' } as const;
     for (const c of checks) console.log(`${mark[c.status]}  ${c.name.padEnd(8)} ${c.detail}`);
-    console.log(failed ? '\ndoctor: FAIL — fix the FAIL lines above before using browser-pilot.' : '\ndoctor: ready.');
+    console.log(failed ? '\ndoctor: FAIL — fix the FAIL lines above before using sleep-walker.' : '\ndoctor: ready.');
   }
   return failed ? 2 : 0;
 }

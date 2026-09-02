@@ -60,7 +60,7 @@ for (const runid of runids) {
   for (const f of fs.readdirSync(OUT).filter((f) => f.startsWith(`${runid}-`) && f.endsWith('-result.json'))) {
     try { finalText = JSON.parse(fs.readFileSync(path.join(OUT, f), 'utf8')).finalText ?? null } catch {}
   }
-  // Flow replays (`browser-pilot run`, no orchestrator) have no harness result
+  // Flow replays (`sleep-walker run`, no orchestrator) have no harness result
   // file; their reporting lives in the flowrun's per-step summaries and
   // read-back values. Those are the same claims a finalText would carry, so
   // the report-only objectives are checked against them.

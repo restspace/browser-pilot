@@ -43,7 +43,7 @@ same cloud environment as the v0.1 baseline.
   An unset variable is a hard error, never a literal keystroke.
 
 ### Install & operations
-- `browser-pilot doctor`: one-command install diagnosis (node, home,
+- `sleep-walker doctor`: one-command install diagnosis (node, home,
   launchable browser with the exact fix on failure, provider/key) — no
   daemon, no API key needed.
 - CI: unit suite on Linux/Windows/macOS, the browser-gated suite on

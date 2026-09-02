@@ -1,19 +1,19 @@
-browser-pilot — agent-in-the-loop Playwright CLI
+sleep-walker — agent-in-the-loop Playwright CLI
 
 Usage:
-  browser-pilot do "<instruction>" [--json] [--max-turns N] [--timeout S] [--turn-timeout S] [--provider P] [--model M]
+  sleep-walker do "<instruction>" [--json] [--max-turns N] [--timeout S] [--turn-timeout S] [--provider P] [--model M]
                                    [--fallback-model M | --no-escalate]
-  browser-pilot open <url>
-  browser-pilot brief <file.md> [--append]
-  browser-pilot note "<text>"
-  browser-pilot reset                       # clear the LLM conversation only (browser/cookies/briefing/notes kept)
-  browser-pilot peek [--selector <sel>] [--interactive]
-  browser-pilot script [out.spec.ts] [--title T] [--clear]   # emit a Playwright spec from the recorded actions
-  browser-pilot screenshot [path]
-  browser-pilot session list
-  browser-pilot stop [--all]
-  browser-pilot config                      # show resolved provider/model/paths
-  browser-pilot config set <key> <value>    # persist a default (provider, model, fallbackModel, baseUrl, apiKey)
+  sleep-walker open <url>
+  sleep-walker brief <file.md> [--append]
+  sleep-walker note "<text>"
+  sleep-walker reset                       # clear the LLM conversation only (browser/cookies/briefing/notes kept)
+  sleep-walker peek [--selector <sel>] [--interactive]
+  sleep-walker script [out.spec.ts] [--title T] [--clear]   # emit a Playwright spec from the recorded actions
+  sleep-walker screenshot [path]
+  sleep-walker session list
+  sleep-walker stop [--all]
+  sleep-walker config                      # show resolved provider/model/paths
+  sleep-walker config set <key> <value>    # persist a default (provider, model, fallbackModel, baseUrl, apiKey)
 
 Sizing an instruction:
   One `do` = one logical, verifiable step: a goal plus the check that it worked
@@ -48,7 +48,7 @@ Global flags:
   --record           record the session to webm, one file per tab; paths are printed
                      on stop, which is when Playwright writes them (first call only)
   --script           record every action as a replayable Playwright step (first call
-                     only); write the spec out later with "browser-pilot script"
+                     only); write the spec out later with "sleep-walker script"
   --json             machine-readable output
 
 Providers (presets; each field overridable by flag > env > config file):
@@ -61,17 +61,17 @@ Providers (presets; each field overridable by flag > env > config file):
                      OpenAI-compatible — its own adapter)   key: ANTHROPIC_API_KEY
 
 Environment:
-  BROWSER_PILOT_PROVIDER        provider preset name
-  BROWSER_PILOT_MODEL           model id override
-  BROWSER_PILOT_FALLBACK_MODEL  escalation model for blocked instructions ("none" disables)
-  BROWSER_PILOT_EXTRA_BODY      JSON merged into MAIN-model requests only (e.g. an OpenRouter
+  SLEEP_WALKER_PROVIDER        provider preset name
+  SLEEP_WALKER_MODEL           model id override
+  SLEEP_WALKER_FALLBACK_MODEL  escalation model for blocked instructions ("none" disables)
+  SLEEP_WALKER_EXTRA_BODY      JSON merged into MAIN-model requests only (e.g. an OpenRouter
                                 provider pin); the fallback tier does not inherit it
-  BROWSER_PILOT_FALLBACK_EXTRA_BODY  same, for the fallback/recovery tier
-  BROWSER_PILOT_BASE_URL        any OpenAI-compatible base URL
-  BROWSER_PILOT_API_KEY         API key (works with any provider)
-  BROWSER_PILOT_CHANNEL         browser channel (default chrome, falls back to msedge)
-  BROWSER_PILOT_HEADED=1        headed browser
-  BROWSER_PILOT_RECORD=1        record session video to <session dir>/video
-  BROWSER_PILOT_SCRIPT=1        record actions as a Playwright script (see the script command)
+  SLEEP_WALKER_FALLBACK_EXTRA_BODY  same, for the fallback/recovery tier
+  SLEEP_WALKER_BASE_URL        any OpenAI-compatible base URL
+  SLEEP_WALKER_API_KEY         API key (works with any provider)
+  SLEEP_WALKER_CHANNEL         browser channel (default chrome, falls back to msedge)
+  SLEEP_WALKER_HEADED=1        headed browser
+  SLEEP_WALKER_RECORD=1        record session video to <session dir>/video
+  SLEEP_WALKER_SCRIPT=1        record actions as a Playwright script (see the script command)
 
 Exit codes: 0 instruction succeeded · 1 failed/blocked · 2 infra error

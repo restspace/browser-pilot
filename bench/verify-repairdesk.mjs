@@ -108,7 +108,7 @@ async function getJson(pathname) {
 
 /** The result file may sit under either arm; find whichever this runid produced. */
 function resultFile(runid) {
-  for (const arm of ['browser-pilot', 'agent-browser', 'playwright-mcp', 'browser-use', 'authored']) {
+  for (const arm of ['sleep-walker', 'agent-browser', 'playwright-mcp', 'browser-use', 'authored']) {
     const p = path.join(OUT, `${runid}-${arm}-result.json`)
     if (fs.existsSync(p)) return p
   }

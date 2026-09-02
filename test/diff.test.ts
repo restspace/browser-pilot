@@ -123,7 +123,7 @@ d('post-action state diff (real page)', () => {
   const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, os.tmpdir());
 
   beforeAll(async () => {
-    process.env.BROWSER_PILOT_HOME = path.join(os.tmpdir(), `bp-diff-test-${Date.now()}`);
+    process.env.SLEEP_WALKER_HOME = path.join(os.tmpdir(), `bp-diff-test-${Date.now()}`);
     session = new BrowserSession({ session: 'diff', persist: false });
     await (await session.getPage()).goto(pageUrl);
   }, 60_000);

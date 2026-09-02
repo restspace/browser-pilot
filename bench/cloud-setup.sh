@@ -10,7 +10,7 @@
 # the script sets everything up, verifies it, and prints the command to run.
 #
 # Usage:
-#   bench/cloud-setup.sh                 # browser-pilot arm only
+#   bench/cloud-setup.sh                 # sleep-walker arm only
 #   bench/cloud-setup.sh --with-arm-b    # also install agent-browser
 #   bench/cloud-setup.sh --skip-browser  # a browser is already installed
 #   bench/cloud-setup.sh --port 4181     # run the app somewhere else
@@ -88,15 +88,15 @@ echo "    node $(node --version)"
 # ---------------------------------------------------------------- repo
 
 say "Installing dependencies and building"
-# browser-pilot is TypeScript. Without dist/ the CLI exists but does nothing,
+# sleep-walker is TypeScript. Without dist/ the CLI exists but does nothing,
 # and the failure looks like a broken install rather than a missing build.
 if [ -f package-lock.json ]; then npm ci; else npm install; fi
 npm run build
 [ -d dist ] && echo "    dist/ built" || die "build produced no dist/"
 
-say "Putting browser-pilot on PATH"
-if command -v browser-pilot >/dev/null; then
-  echo "    already on PATH: $(command -v browser-pilot)"
+say "Putting sleep-walker on PATH"
+if command -v sleep-walker >/dev/null; then
+  echo "    already on PATH: $(command -v sleep-walker)"
 else
   # npm link writes to the global prefix, which is root-owned on some images.
   # Falling back to a user-owned prefix is friendlier than telling people to
@@ -108,8 +108,8 @@ else
     npm link
     warn "add this to your shell profile: export PATH=\"\$HOME/.npm-global/bin:\$PATH\""
   fi
-  command -v browser-pilot >/dev/null || die "browser-pilot still not on PATH"
-  echo "    $(command -v browser-pilot)"
+  command -v sleep-walker >/dev/null || die "sleep-walker still not on PATH"
+  echo "    $(command -v sleep-walker)"
 fi
 
 # ---------------------------------------------------------------- browser
@@ -118,9 +118,9 @@ say "Checking for a browser"
 if [ "$SKIP_BROWSER" = "1" ]; then
   echo "    skipped by request"
 elif command -v google-chrome >/dev/null || command -v google-chrome-stable >/dev/null; then
-  echo "    found Chrome; browser-pilot's first channel will resolve"
+  echo "    found Chrome; sleep-walker's first channel will resolve"
 else
-  # The dependency is playwright-core, which bundles NO browser. browser-pilot
+  # The dependency is playwright-core, which bundles NO browser. sleep-walker
   # tries channels chrome -> msedge -> chromium, so on a bare container all
   # three miss and it fails with "could not launch a browser".
   #
@@ -320,32 +320,32 @@ say "Verifying the stack end to end"
 # broken on a fresh box and the one whose failure is least obvious from the
 # harness's own output.
 if [ -n "${NOVITA_API_KEY:-}${ANTHROPIC_API_KEY:-}" ]; then
-  if browser-pilot open "http://127.0.0.1:${PORT}/" --session cloud-setup-check >/dev/null 2>&1; then
+  if sleep-walker open "http://127.0.0.1:${PORT}/" --session cloud-setup-check >/dev/null 2>&1; then
     echo "    browser launched and reached the app"
-    browser-pilot stop --session cloud-setup-check >/dev/null 2>&1 || true
+    sleep-walker stop --session cloud-setup-check >/dev/null 2>&1 || true
   else
-    warn "browser-pilot could not open the app — re-run its command to see why:"
-    warn "  browser-pilot open http://127.0.0.1:${PORT}/ --session cloud-setup-check"
+    warn "sleep-walker could not open the app — re-run its command to see why:"
+    warn "  sleep-walker open http://127.0.0.1:${PORT}/ --session cloud-setup-check"
   fi
 
-  # `open` proves the browser, not the model. browser-pilot's INNER agent picks
-  # its provider from BROWSER_PILOT_PROVIDER, not from the harness's --provider,
+  # `open` proves the browser, not the model. sleep-walker's INNER agent picks
+  # its provider from SLEEP_WALKER_PROVIDER, not from the harness's --provider,
   # and defaults to zhipu — so with only NOVITA_API_KEY set, every `do` call
   # dies instantly with "no API key" and the run turn-caps at 0/6 (c0822bp
   # attempt 1, 2026-08-22, the first cloud run). Check the resolved config the
   # way the harness will see it.
-  inner_provider="${BROWSER_PILOT_PROVIDER:-${provider}}"
-  inner_cfg="$(BROWSER_PILOT_PROVIDER="$inner_provider" browser-pilot config --session cloud-setup-check 2>/dev/null || true)"
-  browser-pilot stop --session cloud-setup-check >/dev/null 2>&1 || true
+  inner_provider="${SLEEP_WALKER_PROVIDER:-${provider}}"
+  inner_cfg="$(SLEEP_WALKER_PROVIDER="$inner_provider" sleep-walker config --session cloud-setup-check 2>/dev/null || true)"
+  sleep-walker stop --session cloud-setup-check >/dev/null 2>&1 || true
   if printf '%s' "$inner_cfg" | grep -q '"apiKeySet": true'; then
     echo "    inner agent resolves provider ${inner_provider} with a key"
   else
-    warn "browser-pilot's inner agent has NO usable key for provider ${inner_provider}"
-    warn "every 'browser-pilot do' will fail instantly; see 'browser-pilot config'"
+    warn "sleep-walker's inner agent has NO usable key for provider ${inner_provider}"
+    warn "every 'sleep-walker do' will fail instantly; see 'sleep-walker config'"
   fi
-  if [ -z "${BROWSER_PILOT_PROVIDER:-}" ]; then
-    warn "BROWSER_PILOT_PROVIDER is not exported; the harness does NOT set it for you:"
-    warn "  export BROWSER_PILOT_PROVIDER=${provider}"
+  if [ -z "${SLEEP_WALKER_PROVIDER:-}" ]; then
+    warn "SLEEP_WALKER_PROVIDER is not exported; the harness does NOT set it for you:"
+    warn "  export SLEEP_WALKER_PROVIDER=${provider}"
   fi
 else
   warn "skipped: needs a model API key"
@@ -358,13 +358,13 @@ cat <<EOF
 
 $(printf '\033[1m==> Ready\033[0m')
 
-Run the browser-pilot arm. The export is REQUIRED: --provider configures the
-orchestrator only, and browser-pilot's inner agent reads its own provider from
+Run the sleep-walker arm. The export is REQUIRED: --provider configures the
+orchestrator only, and sleep-walker's inner agent reads its own provider from
 the environment (default zhipu, which has no key here):
 
-  export BROWSER_PILOT_PROVIDER=${provider}
+  export SLEEP_WALKER_PROVIDER=${provider}
   node bench/harness.mjs \\
-    --arm browser-pilot --target repairdesk \\
+    --arm sleep-walker --target repairdesk \\
     --task bench/tasks/repairdesk-ticket-flow.md \\
     --provider ${provider} \\
     --runid ${runid} --out bench/results --reset

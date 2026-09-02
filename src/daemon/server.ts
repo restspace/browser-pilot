@@ -18,7 +18,7 @@ import { generateScript } from './codegen.js';
 import { snapshot, waitForContent } from './refs.js';
 import { ScriptRecorder } from './recorder.js';
 import { encodeFrame, LineDecoder, type CommandName, type Frame, type Request } from '../shared/protocol.js';
-import { ensureSessionDir, socketPath, validateSessionName } from '../shared/paths.js';
+import { aliasLegacyEnv, ensureSessionDir, socketPath, validateSessionName } from '../shared/paths.js';
 import { BrowserSession } from './browser.js';
 import { SessionState } from './state.js';
 
@@ -434,7 +434,7 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         }
         if (!steps) {
           throw new Error(
-            'nothing recorded for this session — start it with --script (or BROWSER_PILOT_SCRIPT=1) before running instructions',
+            'nothing recorded for this session — start it with --script (or SLEEP_WALKER_SCRIPT=1) before running instructions',
           );
         }
         const file = a.path
@@ -1196,7 +1196,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       usage,
       usageByModel: diffUsageByModel(usageBefore, this.state.usageByModel),
       recoveryModel: opts.recovery.model,
-      provider: this.provider().constructor.name === 'AnthropicProvider' ? 'anthropic' : (process.env.BROWSER_PILOT_PROVIDER || 'zhipu'),
+      provider: this.provider().constructor.name === 'AnthropicProvider' ? 'anthropic' : (process.env.SLEEP_WALKER_PROVIDER || 'zhipu'),
     };
   }
 
@@ -1508,6 +1508,7 @@ function build(config: ReturnType<typeof resolveProviderConfig>): Provider {
 // --- entrypoint: node dist/daemon/server.js --session <name> [--headed] ---
 const isMain = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (isMain) {
+  aliasLegacyEnv(); // honor legacy BROWSER_PILOT_* env vars (also inherited from the CLI) — see paths.ts
   const argv = process.argv.slice(2);
   const sessionIdx = argv.indexOf('--session');
   const session = validateSessionName(sessionIdx >= 0 ? argv[sessionIdx + 1] : 'default');
@@ -1522,7 +1523,7 @@ if (isMain) {
     .listen()
     .then(() => {
       // parent (CLI) reads this line to know the pipe is ready when not detached
-      process.stdout.write(`browser-pilot daemon listening (session=${session}, pid=${process.pid})\n`);
+      process.stdout.write(`sleep-walker daemon listening (session=${session}, pid=${process.pid})\n`);
     })
     .catch((err) => {
       process.stderr.write(`daemon failed to start: ${err?.message || err}\n`);

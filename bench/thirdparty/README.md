@@ -7,7 +7,7 @@ be flattered by pages its authors shaped.
 
 They are self-hosted deliberately. Benchmarking against live public sites would mean
 fighting anti-bot measures — out of scope for this tool, and useless as measurement,
-since a run that dies on a CAPTCHA says nothing about browser-pilot.
+since a run that dies on a CAPTCHA says nothing about sleep-walker.
 
 ## The set
 
@@ -29,7 +29,7 @@ benchmark matrix runs against.
 ## Targets used for shakedown, then retired
 
 Five more were stood up on 2026-08-24 purely to widen the range of client technology
-browser-pilot had been exercised against — Gitea (Go templates + Vue islands), Ghost
+sleep-walker had been exercised against — Gitea (Go templates + Vue islands), Ghost
 (Ember admin, contenteditable editor), Jenkins (pre-SPA jQuery), NocoDB (canvas grid)
 and the-internet (isolated widget torture). They did their job, found the defects
 below, and were removed rather than carried as matrix rows nobody intended to publish.
@@ -46,7 +46,7 @@ applications of a shape already covered.
 - **Canvas content is unreachable.** NocoDB draws its data grid to a `<canvas>`;
   seeded rows appeared in zero DOM nodes. No selector, snapshot or read can reach
   them — by us or by any DOM-based tool. Only a vision model can. If the matrix ever
-  wants a row where a vision-based arm should beat browser-pilot outright, that is the
+  wants a row where a vision-based arm should beat sleep-walker outright, that is the
   shape to reach for.
 - **iframes replay, but do not compile.** The operator can see and act inside a frame
   (refs are `f<frame>e<element>`), but an in-frame action does not compile into a

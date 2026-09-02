@@ -37,7 +37,7 @@ jobs:
       - run: npm test
         env:
           BP_BROWSER_TESTS: '1'
-          BROWSER_PILOT_CHANNEL: chromium
+          SLEEP_WALKER_CHANNEL: chromium
 
   # Install-from-cold: pack the tarball, install it globally the way a
   # stranger would, and drive a real session (daemon spawn, browser launch,
@@ -61,13 +61,13 @@ jobs:
       - run: npm ci
       - run: npm pack
       - name: install tarball globally
-        run: npm install -g ./browser-pilot-*.tgz
+        run: npm install -g ./sleep-walker-*.tgz
       - name: doctor
-        run: browser-pilot doctor
+        run: sleep-walker doctor
       - name: drive a session without an API key
         run: |
           url=$(node -e "console.log(require('url').pathToFileURL('test/fixture/page.html').href)")
-          browser-pilot --session ci open "$url"
-          browser-pilot --session ci screenshot ci-smoke.png
+          sleep-walker --session ci open "$url"
+          sleep-walker --session ci screenshot ci-smoke.png
           test -s ci-smoke.png
-          browser-pilot --session ci stop
+          sleep-walker --session ci stop

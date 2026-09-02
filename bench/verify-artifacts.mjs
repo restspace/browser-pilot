@@ -54,7 +54,7 @@ const store = exists(skillsDir)
  */
 /** Report entries from the recording session, for when no flow was exported. */
 function sessionReports() {
-  const home = process.env.BROWSER_PILOT_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.browser-pilot');
+  const home = process.env.SLEEP_WALKER_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.sleep-walker');
   const file = path.join(home, 'sessions', `${tag}-n1`, 'script.jsonl');
   if (!exists(file)) return [];
   const out = [];
@@ -72,7 +72,7 @@ function sessionReports() {
 
 /** Post-navigation urls the recording run actually landed on, in order. */
 function sessionUrls() {
-  const home = process.env.BROWSER_PILOT_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.browser-pilot');
+  const home = process.env.SLEEP_WALKER_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.sleep-walker');
   const candidates = [
     path.join(dir, `${tag}-n1-script.jsonl`), // published alongside the results
     path.join(home, 'sessions', `${tag}-n1`, 'script.jsonl'),

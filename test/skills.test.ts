@@ -18,10 +18,10 @@ import { SkillStore, originOf, originSlug, type Skill } from '../src/skills/stor
 let tmp: string;
 beforeAll(() => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-skills-'));
-  process.env.BROWSER_PILOT_SKILLS_DIR = tmp;
+  process.env.SLEEP_WALKER_SKILLS_DIR = tmp;
 });
 afterAll(() => {
-  delete process.env.BROWSER_PILOT_SKILLS_DIR;
+  delete process.env.SLEEP_WALKER_SKILLS_DIR;
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 

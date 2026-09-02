@@ -1,7 +1,7 @@
 # repair-desk
 
 A neutral benchmark target app: a small workshop repair-ticket tool. It exists
-so the browser-pilot/agent-browser benchmark (`bench/README.md`) has a target
+so the sleep-walker/agent-browser benchmark (`bench/README.md`) has a target
 a reader can actually reproduce. The existing benchmark task ran only against
 a private app, which nobody outside this repo can stand up — that's an open
 gap the benchmark itself calls out ("Single application" / "a neutral,

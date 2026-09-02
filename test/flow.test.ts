@@ -12,10 +12,10 @@ import { compileSkill } from '../src/skills/compile.js';
 let tmp: string;
 beforeAll(() => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-flow-'));
-  process.env.BROWSER_PILOT_SKILLS_DIR = tmp;
+  process.env.SLEEP_WALKER_SKILLS_DIR = tmp;
 });
 afterAll(() => {
-  delete process.env.BROWSER_PILOT_SKILLS_DIR;
+  delete process.env.SLEEP_WALKER_SKILLS_DIR;
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
@@ -459,7 +459,7 @@ describe('a refused export keeps the recording', () => {
   it('writes .rejected.json, and listFlows does not offer it', async () => {
     const { saveRejectedFlow, listFlows, flowsDir } = await import('../src/skills/flow.js');
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-rej-'));
-    process.env.BROWSER_PILOT_FLOWS_DIR = dir;
+    process.env.SLEEP_WALKER_FLOWS_DIR = dir;
     try {
       const flow = { name: 'rej', origin: ORIGIN, startUrl: ORIGIN, vars: [], steps: [], created: '', session: '' } as unknown as Flow;
       const file = saveRejectedFlow(flow, 'a run value reached a locator');
@@ -470,7 +470,7 @@ describe('a refused export keeps the recording', () => {
       expect(listFlows().map((f) => f.name)).not.toContain('rej');
       expect(flowsDir()).toBe(dir);
     } finally {
-      delete process.env.BROWSER_PILOT_FLOWS_DIR;
+      delete process.env.SLEEP_WALKER_FLOWS_DIR;
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });

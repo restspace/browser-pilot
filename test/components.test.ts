@@ -19,11 +19,11 @@ let tmp: string;
 let store: ComponentStore;
 beforeEach(() => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-comp-'));
-  process.env.BROWSER_PILOT_COMPONENTS_FILE = path.join(tmp, 'components.json');
+  process.env.SLEEP_WALKER_COMPONENTS_FILE = path.join(tmp, 'components.json');
   store = new ComponentStore();
 });
 afterEach(() => {
-  delete process.env.BROWSER_PILOT_COMPONENTS_FILE;
+  delete process.env.SLEEP_WALKER_COMPONENTS_FILE;
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 

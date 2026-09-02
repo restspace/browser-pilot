@@ -20,8 +20,8 @@ uses 4` (reliable zero-model). Evidence in bench/results/flow5-*.
 
 ## Validation harness
 - App up at 127.0.0.1:4180 (repairdesk). `node bench/reset-app.mjs`.
-- Key: `source <scratchpad>/or.env` (OPENROUTER_API_KEY), `export BROWSER_PILOT_PROVIDER=openrouter`.
-- Sweep: `node bench/sweep.mjs --k 4 --base <b> --learn bench/results/<b>-skills --flow <b> --arm browser-pilot --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md --provider openrouter --model z-ai/glm-5.3 --coarse --verify --out bench/results`
+- Key: `source <scratchpad>/or.env` (OPENROUTER_API_KEY), `export SLEEP_WALKER_PROVIDER=openrouter`.
+- Sweep: `node bench/sweep.mjs --k 4 --base <b> --learn bench/results/<b>-skills --flow <b> --arm sleep-walker --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md --provider openrouter --model z-ai/glm-5.3 --coarse --verify --out bench/results`
 - Success signal: every run 6/6 verified AND zero-model step fraction MONOTONE non-decreasing across n2→n4 (the thing that's broken today).
 - Per-run tiers: read bench/results/<b>-n<k>-flowrun.json (steps[].tier / turns / repinned).
 

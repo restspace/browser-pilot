@@ -24,7 +24,7 @@ d('browser primitives (fixture page)', () => {
   const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, os.tmpdir());
 
   beforeAll(async () => {
-    process.env.BROWSER_PILOT_HOME = path.join(os.tmpdir(), `bp-browser-test-${Date.now()}`);
+    process.env.SLEEP_WALKER_HOME = path.join(os.tmpdir(), `bp-browser-test-${Date.now()}`);
     session = new BrowserSession({ session: 'fixture', persist: false });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
@@ -191,7 +191,7 @@ d('fetch_source (server response vs live DOM)', () => {
 <script>document.getElementById('island').remove()</script>`;
 
   beforeAll(async () => {
-    process.env.BROWSER_PILOT_HOME = path.join(os.tmpdir(), `bp-fetch-test-${Date.now()}`);
+    process.env.SLEEP_WALKER_HOME = path.join(os.tmpdir(), `bp-fetch-test-${Date.now()}`);
     server = http.createServer((_req, res) => {
       res.writeHead(200, { 'content-type': 'text/html' });
       res.end(BODY);
@@ -238,7 +238,7 @@ d('script recording (fixture page)', () => {
   const run = (name: string, args: Record<string, unknown>) => executeTool(session, name, args, os.tmpdir());
 
   beforeAll(async () => {
-    process.env.BROWSER_PILOT_HOME = path.join(os.tmpdir(), `bp-script-test-${Date.now()}`);
+    process.env.SLEEP_WALKER_HOME = path.join(os.tmpdir(), `bp-script-test-${Date.now()}`);
     session = new BrowserSession({ session: 'rec', persist: false, script: true });
     await (await session.getPage()).goto(fixtureUrl);
   }, 60_000);

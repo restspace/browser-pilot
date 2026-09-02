@@ -1,4 +1,4 @@
-# browser-pilot — an agent-in-the-loop Playwright CLI
+# sleep-walker — an agent-in-the-loop Playwright CLI
 
 ## Context
 
@@ -16,7 +16,7 @@ calls**. The recurring friction (from the pass reports):
 7. Env-var boilerplate per shell.
 8. Orchestration state (runid, created names, workarounds) manually relayed between subagents.
 
-**The tool**: a standalone CLI (`browser-pilot`, this directory) that wraps **Playwright
+**The tool**: a standalone CLI (`sleep-walker`, this directory) that wraps **Playwright
 directly** (playwright-core) like agent-browser does, but whose primary verb takes a
 **high-level natural-language instruction**. An **internal LLM agent** — default model
 **GLM 5.2** via Zhipu's OpenAI-compatible API — translates the instruction into a series of
@@ -26,7 +26,7 @@ to the caller. The outer agent's cost per step drops to one CLI call and a one-p
 Decisions taken with the user:
 - **Direct Playwright** (not shelling to agent-browser) — enables native dialog capture, React-safe
   input helpers, no subprocess/quoting layer.
-- **Standalone package** at `C:\dev\browser-pilot` with a `bin` entry (same shape as agent-browser/rs).
+- **Standalone package** at `C:\dev\sleep-walker` with a `bin` entry (same shape as agent-browser/rs).
 - **Internal model: GLM 5.2** (cheap). Accessed through an OpenAI-compatible chat-completions
   client with tool calling (`baseURL` + `GLM_API_KEY`/`ZHIPU_API_KEY` env). The LLM layer is a thin
   **provider adapter** so the model is swappable via `--model`/`--provider` (e.g. an Anthropic
@@ -37,9 +37,9 @@ Decisions taken with the user:
 
 ```
 outer agent (Claude Code etc.)
-   │  browser-pilot do "Create an organisation named X; confirm it appears in the list"
+   │  sleep-walker do "Create an organisation named X; confirm it appears in the list"
    ▼
-CLI entry (bin/browser-pilot.js) ── connects over local IPC ──► daemon process (per session)
+CLI entry (bin/sleep-walker.js) ── connects over local IPC ──► daemon process (per session)
                                                                   ├─ Playwright browser/context/page(s)
                                                                   ├─ dialog capture + React-input helpers (init scripts)
                                                                   ├─ internal agent loop (GLM 5.2 via OpenAI-compatible API)
@@ -52,8 +52,8 @@ CLI entry (bin/browser-pilot.js) ── connects over local IPC ──► daemon
 ### Process model (mirrors agent-browser)
 - **Daemon**: first CLI call spawns a detached Node daemon owning the Playwright browser; subsequent
   calls connect via a named pipe (Windows) / unix socket, keyed by `--session <name>` (default
-  `default`). `browser-pilot stop [--all]` kills it. State (cookies/localStorage) optionally
-  persisted per session dir (`~/.browser-pilot/sessions/<name>/`) so login survives restarts.
+  `default`). `sleep-walker stop [--all]` kills it. State (cookies/localStorage) optionally
+  persisted per session dir (`~/.sleep-walker/sessions/<name>/`) so login survives restarts.
 - **CLI**: thin client; sends `{command, args}` JSON over the socket, streams progress lines
   (optional `--verbose`) and prints the final result. Exit code 0 = instruction succeeded,
   1 = failed/blocked, 2 = infra error.
@@ -77,7 +77,7 @@ for trivial actions — `do` is for anything requiring judgment.
 - **LLM layer**: a small provider adapter interface —
   `complete(messages, tools) -> {text?, toolCalls[], usage}` — with the first implementation being
   **OpenAI-compatible chat completions** pointed at Zhipu's endpoint, default model `glm-5.2`
-  (config: `BROWSER_PILOT_MODEL`, `BROWSER_PILOT_BASE_URL`, `GLM_API_KEY`; overridable per session
+  (config: `SLEEP_WALKER_MODEL`, `SLEEP_WALKER_BASE_URL`, `GLM_API_KEY`; overridable per session
   via `config`/flags). Manual agentic loop in our code: send → execute tool calls → append results
   → repeat, with `--max-turns` cap and per-instruction wall-clock timeout.
 - **Tools** (typed, in-process — no shell, no quoting), exposed as OpenAI-style function tools:
@@ -120,9 +120,9 @@ for trivial actions — `do` is for anything requiring judgment.
 - **Result contract**: `do` prints the `report` JSON (or a human one-liner without `--json`).
   Nothing else lands in the outer agent's context unless `--verbose`.
 
-### Repo layout (`C:\dev\browser-pilot`)
+### Repo layout (`C:\dev\sleep-walker`)
 ```
-package.json            # bin: {"browser-pilot": "bin/browser-pilot.js"}, deps: playwright-core, openai (or plain fetch), ajv
+package.json            # bin: {"sleep-walker": "bin/sleep-walker.js"}, deps: playwright-core, openai (or plain fetch), ajv
 tsconfig.json
 src/
   cli.ts                # arg parsing, daemon connect/spawn, output formatting

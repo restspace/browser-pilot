@@ -8,10 +8,10 @@ import { ScriptRecorder, isStableId, q, type RecordedEntry } from '../src/daemon
 let tmpHome: string;
 beforeAll(() => {
   tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-codegen-'));
-  process.env.BROWSER_PILOT_HOME = tmpHome;
+  process.env.SLEEP_WALKER_HOME = tmpHome;
 });
 afterAll(() => {
-  delete process.env.BROWSER_PILOT_HOME;
+  delete process.env.SLEEP_WALKER_HOME;
   fs.rmSync(tmpHome, { recursive: true, force: true });
 });
 

@@ -97,7 +97,7 @@ export interface ProviderConfig {
    * Extra fields merged verbatim into every chat/completions request body.
    * Escape hatch for provider-specific routing that no preset should know
    * about — e.g. OpenRouter's {"provider":{"only":["Baidu"]}} backend pin.
-   * Set via BROWSER_PILOT_EXTRA_BODY as a JSON object; it is spread LAST, so
+   * Set via SLEEP_WALKER_EXTRA_BODY as a JSON object; it is spread LAST, so
    * it can override anything, deliberately.
    *
    * It is MAIN-MODEL calibration: a routing pin is chosen for one model's
@@ -110,7 +110,7 @@ export interface ProviderConfig {
   extraBody?: Record<string, unknown>;
   /**
    * Extra body for providers built for the FALLBACK model (escalation, flow
-   * recovery, relabel). Set via BROWSER_PILOT_FALLBACK_EXTRA_BODY; unset
+   * recovery, relabel). Set via SLEEP_WALKER_FALLBACK_EXTRA_BODY; unset
    * means the fallback tier sends no extra fields — it does NOT inherit
    * `extraBody`.
    */
@@ -226,15 +226,15 @@ export interface ProviderOverrides {
 export function resolveProviderConfig(overrides: ProviderOverrides = {}): ProviderConfig {
   const file = readGlobalConfig();
   const provider =
-    overrides.provider || process.env.BROWSER_PILOT_PROVIDER || file.provider || DEFAULT_PROVIDER;
+    overrides.provider || process.env.SLEEP_WALKER_PROVIDER || file.provider || DEFAULT_PROVIDER;
   const preset = PROVIDER_PRESETS[provider];
   if (!preset) {
     throw new Error(
       `unknown provider "${provider}" (available: ${Object.keys(PROVIDER_PRESETS).join(', ')}; ` +
-        `or use any OpenAI-compatible endpoint via BROWSER_PILOT_BASE_URL / config set baseUrl)`,
+        `or use any OpenAI-compatible endpoint via SLEEP_WALKER_BASE_URL / config set baseUrl)`,
     );
   }
-  const keyEnvVars = [...preset.keyEnvVars, 'BROWSER_PILOT_API_KEY'];
+  const keyEnvVars = [...preset.keyEnvVars, 'SLEEP_WALKER_API_KEY'];
   const apiKey =
     overrides.apiKey ||
     keyEnvVars.map((v) => process.env[v]).find(Boolean) ||
@@ -242,20 +242,20 @@ export function resolveProviderConfig(overrides: ProviderOverrides = {}): Provid
     '';
   return {
     provider,
-    baseUrl: overrides.baseUrl || process.env.BROWSER_PILOT_BASE_URL || file.baseUrl || preset.baseUrl,
-    model: overrides.model || process.env.BROWSER_PILOT_MODEL || file.model || preset.defaultModel,
+    baseUrl: overrides.baseUrl || process.env.SLEEP_WALKER_BASE_URL || file.baseUrl || preset.baseUrl,
+    model: overrides.model || process.env.SLEEP_WALKER_MODEL || file.model || preset.defaultModel,
     // "none"/"off" is how a caller disables a preset's escalation tier without
     // having to clear a config key it never set.
     fallbackModel: normalizeFallback(
       overrides.fallbackModel ||
-        process.env.BROWSER_PILOT_FALLBACK_MODEL ||
+        process.env.SLEEP_WALKER_FALLBACK_MODEL ||
         file.fallbackModel ||
         preset.fallbackModel,
     ),
     apiKey,
     temperature: overrides.temperature ?? 0,
-    extraBody: parseExtraBody(process.env.BROWSER_PILOT_EXTRA_BODY, 'BROWSER_PILOT_EXTRA_BODY'),
-    fallbackExtraBody: parseExtraBody(process.env.BROWSER_PILOT_FALLBACK_EXTRA_BODY, 'BROWSER_PILOT_FALLBACK_EXTRA_BODY'),
+    extraBody: parseExtraBody(process.env.SLEEP_WALKER_EXTRA_BODY, 'SLEEP_WALKER_EXTRA_BODY'),
+    fallbackExtraBody: parseExtraBody(process.env.SLEEP_WALKER_FALLBACK_EXTRA_BODY, 'SLEEP_WALKER_FALLBACK_EXTRA_BODY'),
     keyEnvVars,
   };
 }
@@ -293,7 +293,7 @@ export class OpenAICompatProvider implements Provider {
     if (!this.config.apiKey) {
       throw new Error(
         `no API key for provider "${this.config.provider}": set ${this.config.keyEnvVars.join(' or ')} ` +
-          `(or \`browser-pilot config set apiKey <key>\`)`,
+          `(or \`sleep-walker config set apiKey <key>\`)`,
       );
     }
     const body = {
@@ -413,7 +413,7 @@ export class AnthropicProvider implements Provider {
     if (!this.config.apiKey) {
       throw new Error(
         `no API key for provider "${this.config.provider}": set ${this.config.keyEnvVars.join(' or ')} ` +
-          `(or \`browser-pilot config set apiKey <key>\`)`,
+          `(or \`sleep-walker config set apiKey <key>\`)`,
       );
     }
     const system = messages

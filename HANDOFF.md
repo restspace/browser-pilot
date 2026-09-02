@@ -1,4 +1,4 @@
-# browser-pilot — improvements handoff
+# sleep-walker — improvements handoff
 
 > **Status: all items below implemented (2026-07-09).** Landed in `agent/loop.ts`,
 > `agent/tools.ts`, `agent/prompt.ts`, `cli.ts`, with tests in `test/loop.test.ts` and

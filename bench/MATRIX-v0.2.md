@@ -7,7 +7,7 @@ browser-use stand unchanged (those tools re-derive the task every run — their
 "replay" cost is their first-run cost, every time — so re-running them would
 have measured nothing new).
 
-- **sleep-walker** (browser-pilot): set-15 sweeps — a fresh recording (n1)
+- **sleep-walker** (sleep-walker): set-15 sweeps — a fresh recording (n1)
   plus two flow replays (n2, n3) per target, candidate ladders + slots +
   effect gates + scoped model recovery.
 - **playwright-codegen**: set-16 — the SAME n1 recordings emitted as literal

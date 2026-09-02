@@ -1,16 +1,16 @@
 # Benchmark handoff — 2026-08-21
 
-State of the browser-pilot vs agent-browser benchmark. Everything described here is committed
+State of the sleep-walker vs agent-browser benchmark. Everything described here is committed
 on `main`; the working tree is clean and no processes were left running.
 
 ## Bottom line
 
 **There is still not a publishable result, and the gap is no longer just run count.** h12 is the
-first browser-pilot run that is complete, fully costed, and externally verified against the app
+first sleep-walker run that is complete, fully costed, and externally verified against the app
 database. What blocks publication now is that the two headline metrics are known to be unsound
 as measured: the context advantage is *conditional on how the orchestrator sizes its
 instructions* rather than structural (h11 used 45 `do`s where h12 used 15), and commands-per-run
-was *not comparable across arms* because agent-browser chains with `&&` and browser-pilot does
+was *not comparable across arms* because agent-browser chains with `&&` and sleep-walker does
 not. Both are now addressed — sizing guidance moved into the shipped `--help`, and the harness
 splits chains into separate invocations — but that is precisely why **no run before 2026-08-21
 is comparable to one after it**. The next step is a re-baseline, not more analysis of the runs
@@ -37,8 +37,8 @@ run is invalidated by them, but every earlier run's timeout accounting is.
 restarting against **0.34.0** (npm latest, published 2026-08-10), pinned in
 `bench/cloud-setup.sh`. That is eighteen minor versions of behaviour change, so a03/a12/a13/a14
 are a **closed baseline**: do not pool them with new runs, do not plot them on the same axes,
-and do not compare a new browser-pilot run against an old agent-browser one. The
-browser-pilot-side figures are unaffected by this.
+and do not compare a new sleep-walker run against an old agent-browser one. The
+sleep-walker-side figures are unaffected by this.
 
 This machine still had 0.16.3 installed at the time of writing. Upgrade before measuring here:
 
@@ -51,14 +51,14 @@ npm install -g agent-browser@0.34.0
 | Run | Arm | Status | Turns | Wall | Ctx→orch | Orch $ | Inner $ |
 |---|---|---|---|---|---|---|---|
 | a03 | agent-browser | **complete, all 6 objectives** | 70 | 960s | 71.9KB | 0.550 | n/a |
-| h01 | browser-pilot | **complete, all 6 objectives** | 20 | 2440s | 30.0KB | 0.109 | *pre-fix, unmeasured* |
-| h02 | browser-pilot | died: transport | 13 | 1469s | 20.4KB | 0.060 | 0.553 |
-| h04 | browser-pilot | died: transport | 18 | 3344s | 26.9KB | 0.127 | 0.785 |
-| h06 | browser-pilot | died: API 400 | 2 | 36s | 0.6KB | 0.003 | — |
-| h07 | browser-pilot | died: DNS | 11 | 847s | 11.2KB | 0.031 | 0.200 |
-| h08 | browser-pilot | died: 403 no balance | 1 | 4s | — | — | — |
-| h11 | browser-pilot | died: task reaped at turn 59, no result JSON | 59 | ~2180s | 69.6KB | — | — |
-| h12 | browser-pilot | **complete**, obj 1+6 externally verified | 17 | 1658s | 25.5KB | 0.060 | 0.531 |
+| h01 | sleep-walker | **complete, all 6 objectives** | 20 | 2440s | 30.0KB | 0.109 | *pre-fix, unmeasured* |
+| h02 | sleep-walker | died: transport | 13 | 1469s | 20.4KB | 0.060 | 0.553 |
+| h04 | sleep-walker | died: transport | 18 | 3344s | 26.9KB | 0.127 | 0.785 |
+| h06 | sleep-walker | died: API 400 | 2 | 36s | 0.6KB | 0.003 | — |
+| h07 | sleep-walker | died: DNS | 11 | 847s | 11.2KB | 0.031 | 0.200 |
+| h08 | sleep-walker | died: 403 no balance | 1 | 4s | — | — | — |
+| h11 | sleep-walker | died: task reaped at turn 59, no result JSON | 59 | ~2180s | 69.6KB | — | — |
+| h12 | sleep-walker | **complete**, obj 1+6 externally verified | 17 | 1658s | 25.5KB | 0.060 | 0.531 |
 | a12 | agent-browser | void: hit turn cap via harness defect 8 | 200 | 748s | 122.8KB | 0.60 | n/a |
 | a13 | agent-browser | genuine fail: turn cap, stuck before obj 2 | 200 | 882s | 38.5KB | 0.39 | n/a |
 
@@ -66,8 +66,8 @@ Re-baseline runs (2026-08-21, after the help/harness changes; `--reset` on all t
 
 | Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ |
 |---|---|---|---|---|---|---|---|
-| h13 | browser-pilot | complete, but **inner cost lost** (defect 12) | 17 | 648s | 15.5KB | 0.048 | — |
-| h14 | browser-pilot | fail: turn cap, 119 `do`s all retrying sign-in | 120 | 1632s | 178.5KB | 0.130 | 0.781 |
+| h13 | sleep-walker | complete, but **inner cost lost** (defect 12) | 17 | 648s | 15.5KB | 0.048 | — |
+| h14 | sleep-walker | fail: turn cap, 119 `do`s all retrying sign-in | 120 | 1632s | 178.5KB | 0.130 | 0.781 |
 | a14 | agent-browser | fail: turn cap, 200 `snapshot`s, never filled or clicked | 200 | 703s | 191.1KB | 0.227 | n/a |
 
 **No complete-and-costed run exists on the new baseline *for the atelyr target*.** Three
@@ -77,22 +77,22 @@ Neutral target (`--target repairdesk`, the app that ships in `bench/app`), 2026-
 
 | Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
 |---|---|---|---|---|---|---|---|---|
-| r01 | browser-pilot | **complete, all 6 objectives externally verified** | 16 | 769s | 19.2KB | 0.047 | 0.060 | 0.107 |
+| r01 | sleep-walker | **complete, all 6 objectives externally verified** | 16 | 769s | 19.2KB | 0.047 | 0.060 | 0.107 |
 | r02 | agent-browser | fail: turn cap, **0/6**, never got past login | 120 | 1238s | 8.9KB | 0.228 | n/a | 0.228 |
 | r03 | agent-browser | **complete, all 6 objectives externally verified** | 78 | 536s | 37.0KB | 0.284 | n/a | 0.284 |
 
-Same target, first runs on **cloud Linux** (Claude Code routines, "BrowserPilot" environment,
+Same target, first runs on **cloud Linux** (Claude Code routines, "SleepWalker" environment,
 one fresh 4-CPU/17GB Ubuntu box per arm, Node 22.22), 2026-08-22. Raw files are in
 `bench/results-published/`, merged from the `results/<runid>` branches:
 
 | Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
 |---|---|---|---|---|---|---|---|---|
 | c0822ab | agent-browser 0.34.0 | **complete, all 6 objectives verified against the mutation log** | 40 | 214s | 39.3KB | 0.179 | n/a | 0.179 |
-| c0822bp | browser-pilot | fail: turn cap, **0/6**, 119 `do`s all blocked at sign-in (attempt 2; attempt 1 void, see below) | 120 | 4663s | 369.5KB | 0.112 | 7.214 | 7.326 |
-| c0822bp2 | browser-pilot | **post-fix**: inner sign-in now succeeds first try, but still 0/6 turn-cap — orchestrator re-issued sign-in 119× and never advanced (see below) | 120 | 1543s | 172.2KB | 0.121 | 0.680 | 0.802 |
-| c0822bp3 | browser-pilot | **completed 6/6** — diagnostic, no freeze; sent/received tracked | 13 | 652s | 16.2KB | 0.050 | 0.071 | 0.121 |
-| c0822bp4 | browser-pilot | turn-cap 0/6 — **freeze caught**: 100 context-truncated turns, provider frozen at ~2129 tok while harness sent 155KB | 120 | 1853s | 88.2KB | 0.243 | 0.623 | 0.865 |
-| c0822bp5 | browser-pilot | **completed 6/6** — diagnostic, no freeze | 15 | 574s | 9.4KB | 0.039 | 0.082 | 0.121 |
+| c0822bp | sleep-walker | fail: turn cap, **0/6**, 119 `do`s all blocked at sign-in (attempt 2; attempt 1 void, see below) | 120 | 4663s | 369.5KB | 0.112 | 7.214 | 7.326 |
+| c0822bp2 | sleep-walker | **post-fix**: inner sign-in now succeeds first try, but still 0/6 turn-cap — orchestrator re-issued sign-in 119× and never advanced (see below) | 120 | 1543s | 172.2KB | 0.121 | 0.680 | 0.802 |
+| c0822bp3 | sleep-walker | **completed 6/6** — diagnostic, no freeze; sent/received tracked | 13 | 652s | 16.2KB | 0.050 | 0.071 | 0.121 |
+| c0822bp4 | sleep-walker | turn-cap 0/6 — **freeze caught**: 100 context-truncated turns, provider frozen at ~2129 tok while harness sent 155KB | 120 | 1853s | 88.2KB | 0.243 | 0.623 | 0.865 |
+| c0822bp5 | sleep-walker | **completed 6/6** — diagnostic, no freeze | 15 | 574s | 9.4KB | 0.039 | 0.082 | 0.121 |
 
 Orchestrator moved off novita onto **OpenRouter → Z.AI** (same model `z-ai/glm-5.3`, same
 ~$1.4/$4.4/$0.26 rate; inner model still novita), 2026-08-22, commit ca873a7. This is the fix
@@ -102,15 +102,15 @@ rate-based figure to the cent:
 
 | Run | Arm | Status | Turns | Wall | Ctx | Orch $ | Inner $ | Total $ |
 |---|---|---|---|---|---|---|---|---|
-| c0822or | browser-pilot | **completed 6/6** — OpenRouter probe, 0 truncations | 13 | 720s | 7.9KB | 0.026 | 0.093 | 0.119 |
-| c0822orp | browser-pilot | **completed 6/6**, 0 truncations | 12 | 532s | 5.8KB | 0.025 | 0.052 | 0.077 |
+| c0822or | sleep-walker | **completed 6/6** — OpenRouter probe, 0 truncations | 13 | 720s | 7.9KB | 0.026 | 0.093 | 0.119 |
+| c0822orp | sleep-walker | **completed 6/6**, 0 truncations | 12 | 532s | 5.8KB | 0.025 | 0.052 | 0.077 |
 | c0822ora | agent-browser | **completed 6/6**, 0 truncations | 33 | 253s | 26.0KB | 0.132 | n/a | 0.132 |
 
 ### First clean paired comparison on a fault-free orchestrator (c0822orp vs c0822ora)
 
 Both arms, 6/6 verified against the mutation log, orchestrator on OpenRouter→Z.AI, same box class:
 
-| | browser-pilot (c0822orp) | agent-browser (c0822ora) |
+| | sleep-walker (c0822orp) | agent-browser (c0822ora) |
 |---|---|---|
 | Objectives | 6/6 | 6/6 |
 | Turns | 12 | 33 |
@@ -119,18 +119,18 @@ Both arms, 6/6 verified against the mutation log, orchestrator on OpenRouter→Z
 | Total cost | **$0.077** | $0.132 |
 | contextTruncations | 0 | 0 |
 
-This N=1 pair looked like the r01-vs-r03 shape (agent-browser faster, browser-pilot cheaper) —
+This N=1 pair looked like the r01-vs-r03 shape (agent-browser faster, sleep-walker cheaper) —
 but the sweep below shows that reading was noise. `c0822orp` was a lucky fast 12-turn run at the
-bottom of browser-pilot's cost distribution. The novita numbers above are NOT comparable to
+bottom of sleep-walker's cost distribution. The novita numbers above are NOT comparable to
 these (different orchestrator backend).
 
 ### N=4-per-arm sweep on OpenRouter→Z.AI (s1–s4 × bp/ab), 2026-08-22, commit 1d7b066
 
 Eight runs, one per fresh box. **Every run: 6/6 objectives PASS (verified against the mutation
-log — the two browser-pilot runs with extra mutations retried but ended correct), 0 price-claim
+log — the two sleep-walker runs with extra mutations retried but ended correct), 0 price-claim
 mismatches, `contextTruncations: 0`, backend Z.AI.** The freeze fix holds across N=8.
 
-| Metric (median, range) | browser-pilot | agent-browser |
+| Metric (median, range) | sleep-walker | agent-browser |
 |---|---|---|
 | Objectives | 4/4 runs 6/6 | 4/4 runs 6/6 |
 | Turns | 17.5 (15–26) | 33 (32–34) |
@@ -145,32 +145,32 @@ What the sweep actually says — and it is not what the N=1 pair said:
 
 - **agent-browser wins on both speed and cost here, with strikingly low variance** (wall
   881–965s, cost $0.129–0.136). Its many cheap orchestrator turns are predictable.
-- **browser-pilot's only consistent win is orchestrator context** (~1.6x less), which is its
+- **sleep-walker's only consistent win is orchestrator context** (~1.6x less), which is its
   architectural claim and it holds. But it is **slower in median wall-clock and more expensive**,
   and both are **high-variance** (wall 638–2076s, cost $0.149–0.284).
-- **The cost sink is browser-pilot's inner model**, not the orchestrator: inner is $0.09–0.22 per
+- **The cost sink is sleep-walker's inner model**, not the orchestrator: inner is $0.09–0.22 per
   run and swings with how much work escalates to glm-5.3. The orchestrator side is cheap (the
   decomposition claim), but the inner model eats the saving on this task/model pairing.
 - N=4 is still small and both arms could shift with a different inner model (see A2/A3 sensitivity
-  arms). But "browser-pilot is cheaper" from the single pair does not survive contact with N=4;
+  arms). But "sleep-walker is cheaper" from the single pair does not survive contact with N=4;
   quote the medians and ranges above, not c0822orp.
 
-### Cause of browser-pilot's blow-up: the orchestrator micro-manages it
+### Cause of sleep-walker's blow-up: the orchestrator micro-manages it
 
-The sweep's browser-pilot cost/turn variance is not the inner agent's fault — it is the
-orchestrator driving browser-pilot one UI action per `do` instead of delegating whole sub-tasks.
+The sweep's sleep-walker cost/turn variance is not the inner agent's fault — it is the
+orchestrator driving sleep-walker one UI action per `do` instead of delegating whole sub-tasks.
 Evidence: the cheap runs sent coarse instructions (c0822orp: 11 do-calls, "create a ticket with
 these fields", 0 escalations, $0.077); the dear ones micro-stepped and thrashed (s1bp: 24
 do-calls — "open the form" then separately "fill the title" — plus a state-confusion spiral of
 corrective instructions, 21 mutations, 1 escalation, $0.284). Each fragment pays for a full inner
 agent loop (~8-10 inner turns) and, when a fragment hits ambiguity, an escalation to glm-5.3
-(~10x the inner rate). So browser-pilot does far more *total* LLM turns than agent-browser
+(~10x the inner rate). So sleep-walker does far more *total* LLM turns than agent-browser
 (≈150+ inner vs ≈33 orchestrator on a run like s3bp) — fine if they are cheap and coarse, ruinous
 when the orchestrator fragments the work.
 
 ### Fix test: `--coarse` orchestrator prompt (scoarse1), commit 9bef84e, N=1
 
-`--coarse` adds one paragraph to the orchestrator prompt (browser-pilot only; agent-browser is the
+`--coarse` adds one paragraph to the orchestrator prompt (sleep-walker only; agent-browser is the
 untouched control): each command runs autonomously to its own report, so hand it a whole outcome
 and let it finish rather than driving click-by-click. No app specifics, no task plan. One run:
 
@@ -188,12 +188,12 @@ $0.126; scoarse2 do=13 **esc=2 $0.375**; scoarse3 do=12 esc=0 $0.110; scoarse4 d
 
 What holds and what doesn't:
 
-- **The median moves a lot.** Coarse delegation roughly halves browser-pilot's median cost
+- **The median moves a lot.** Coarse delegation roughly halves sleep-walker's median cost
   ($0.247 → $0.118), cuts do-calls (17 → 11) and wall (1412 → 724s), and removes escalation from
-  3 of 4 runs. On the median, coarse browser-pilot now **beats agent-browser on cost** ($0.118 vs
+  3 of 4 runs. On the median, coarse sleep-walker now **beats agent-browser on cost** ($0.118 vs
   $0.133) while keeping its context edge (11KB vs 28KB). The fragmentation really was the driver.
 - **But the tail is NOT gone — and its cause is not fragmentation** (corrected after inspecting
-  scoarse2, whose $0.375 is the dearest browser-pilot run recorded). Both of scoarse2's
+  scoarse2, whose $0.375 is the dearest sleep-walker run recorded). Both of scoarse2's
   escalations were on OPEN-ENDED EXPLORE/ENUMERATE instructions, not action-splitting: do#1
   "sign in *and explore the app enough to describe its structure*" (383s) and do#2 "open the New
   ticket dialog and *read its full contents — every field label, input type, placeholder, select
@@ -206,7 +206,7 @@ What holds and what doesn't:
   from the explore-to-turn-cap escalations.) An earlier note here called this "fragmentation";
   that was imprecise.
 - **agent-browser remains far more consistent** (cost 0.129–0.136 vs coarse bp 0.084–0.375). The
-  honest read: coarse browser-pilot has the better *typical* run; agent-browser has the better
+  honest read: coarse sleep-walker has the better *typical* run; agent-browser has the better
   *worst* run and near-zero variance. Which matters depends on whether you care about median or
   tail cost.
 - N=4 each; the coarse tail (one escalating run) means N=5+ would sharpen the picture. Levers for
@@ -219,16 +219,16 @@ What holds and what doesn't:
 
 ### A3: escalation OFF (noesc1–3) — the tail was pure cost, no benefit on this task
 
-Ran coarse+batch with `BROWSER_PILOT_FALLBACK_MODEL=none` (no glm-5.3 escalation, confirmed:
+Ran coarse+batch with `SLEEP_WALKER_FALLBACK_MODEL=none` (no glm-5.3 escalation, confirmed:
 inner.byModel deepseek only). N=3, **all 6/6, 0 escalations, 0 truncations, 0 price-claim
 mismatches**, cost median **$0.072 (0.066–0.110)** vs sbatch's $0.084 (0.054–**0.311**). The hard
 step (supplier-precondition / mark-ready) that drove every prior escalation **passed on plain
 deepseek within the default 30-turn budget in all three runs.** So on this task escalation never
 rescued anything — across the whole campaign it only ever added cost (scoarse2, sbatch3) — and
-turning it off made browser-pilot **cheaper AND tighter** with no loss of success. The $0.31 tail
+turning it off made sleep-walker **cheaper AND tighter** with no loss of success. The $0.31 tail
 is gone (max now $0.110).
 
-**Final optimized browser-pilot vs agent-browser (both 6/6, OpenRouter→Z.AI orchestrator):**
+**Final optimized sleep-walker vs agent-browser (both 6/6, OpenRouter→Z.AI orchestrator):**
 
 | | optimized bp (coarse+batch+no-escalate) | agent-browser |
 |---|---|---|
@@ -237,7 +237,7 @@ is gone (max now $0.110).
 | objectives | 3/3 runs 6/6 | 4/4 runs 6/6 |
 
 With the three prompt changes (coarse delegation + anti-survey + batching) and escalation off,
-browser-pilot is **~1.8× cheaper on median and ~2.8× lighter on orchestrator context** than
+sleep-walker is **~1.8× cheaper on median and ~2.8× lighter on orchestrator context** than
 agent-browser, at equal correctness. That is the opposite of where the sweep started ($0.247 vs
 $0.133) — the gap was configuration, not architecture.
 
@@ -260,7 +260,7 @@ example, and a new clause requires reading back any value before reporting it (t
 N=3, all 6/6, all `contextTruncations: 0`, and **batching now fires in every run** (6–7 do-outputs
 reference it, vs 0 across all prior runs):
 
-| config (browser-pilot) | doCalls med | cost med (range) | escalations | notes |
+| config (sleep-walker) | doCalls med | cost med (range) | escalations | notes |
 |---|---|---|---|---|
 | fine (s1–4bp) | 17 | 0.247 (0.149–0.284) | 5 | one-op-per-turn, no batching |
 | coarse (scoarse1–4) | 11 | 0.118 (0.084–0.375) | 2 | coarse delegation |
@@ -279,7 +279,7 @@ Its expensive steps were #5 (555s) and #6 (BLOCKED→escalated): the supplier-pr
 mark-ready sequence — discover the app requires a supplier on every part, add both, retry Ready.
 That is a genuine multi-step *reasoning* loop, not mechanical form-filling, so batching can't
 touch it; the cheap inner model burns its turn budget and escalates to glm-5.3. This is now the
-sole remaining source of browser-pilot's cost tail, and it is a model-capability limit. Levers:
+sole remaining source of sleep-walker's cost tail, and it is a model-capability limit. Levers:
 `--no-escalate` (A3) to cap the cost (accepting the step may fail), or a stronger inner model.
 Net decomposition of bp's cost: mechanical-work overhead → fixed by batching; exploration
 blow-up → fixed by the anti-survey clause; hard-reasoning-step escalation → not prompt-fixable.
@@ -300,7 +300,7 @@ Added an anti-survey clause to `--coarse` (don't spend a call exploring/enumerat
   0.129–0.136) while beating it on median ($0.105 vs $0.133) and context. That part worked.
 - **But scref3 fabricated an objective — and this is the more important finding.** The
   orchestrator's instruction was correct ("cost 200 and markup 25… report the price the app
-  computes, exact value shown"). browser-pilot's inner agent created Part B with **cost 25 /
+  computes, exact value shown"). sleep-walker's inner agent created Part B with **cost 25 /
   markup 0 / price $25**, then reported `status: success` with **cost $200 / markup 25% / price
   $250.00 and fabricated `evidence.values` plus a made-up "$200 × 1.25 = $250" calc.** The app
   never computed $250. This violates the inner agent's own operating rule 12 ("report only what a
@@ -319,7 +319,7 @@ Added an anti-survey clause to `--coarse` (don't spend a call exploring/enumerat
 
 ### First paired comparison (r01 vs r03), N=1 each — read the caveats
 
-| | browser-pilot (r01) | agent-browser (r03) |
+| | sleep-walker (r01) | agent-browser (r03) |
 |---|---|---|
 | Objectives verified | 6/6 | 6/6 |
 | Turns | 16 | 78 |
@@ -329,7 +329,7 @@ Added an anti-survey clause to `--coarse` (don't spend a call exploring/enumerat
 
 The shape matches what earlier atelyr runs suggested and neither arm is uniformly ahead:
 agent-browser is **faster in wall-clock** while costing ~2.7x more and ~1.9x the orchestrator
-context. browser-pilot's wall time is dominated by its inner model thinking; agent-browser's
+context. sleep-walker's wall time is dominated by its inner model thinking; agent-browser's
 commands are milliseconds each but it needs far more of them.
 
 Caveats, all of which matter more than the numbers:
@@ -349,31 +349,31 @@ Caveats, all of which matter more than the numbers:
 The two arms ran concurrently on identical fresh boxes, which is the setup the runbook was
 written for. agent-browser's figure is clean: 6/6 in 214s for $0.18, the fastest and cheapest
 complete run of that arm so far (no stale daemon this time — r03's 230s penalty is gone, and
-the cloud box is quicker than the Windows workstation). browser-pilot's figure is a failure,
+the cloud box is quicker than the Windows workstation). sleep-walker's figure is a failure,
 and this time the failure is fully diagnosable because the transcript now stores command output:
 
 - **Attempt 1 (void, not published):** every `do` failed instantly with "no API key". The
-  runbook never exported `BROWSER_PILOT_PROVIDER`; the harness's `--provider` configures the
-  orchestrator only, and browser-pilot's inner agent defaulted to `zhipu`. Fixed in
+  runbook never exported `SLEEP_WALKER_PROVIDER`; the harness's `--provider` configures the
+  orchestrator only, and sleep-walker's inner agent defaulted to `zhipu`. Fixed in
   `cloud-setup.sh` and `CLOUD-RUNBOOK.md` (commit 21092c7). 5.5 minutes, orchestrator tokens
 only; its files were archived on the box and not published.
 - **Attempt 2 (published as c0822bp):** the orchestrator opened the app correctly at turn 1
-  (`browser-pilot open http://127.0.0.1:4180/` → "Repair Desk — …#/tickets"). On the very
+  (`sleep-walker open http://127.0.0.1:4180/` → "Repair Desk — …#/tickets"). On the very
   first `do` ("Sign in…"), the inner agent did **not** look at the page it was on: its first
   action was `page.goto http://localhost:3000`, which failed, leaving the tab on
   `chrome-error://chromewebdata/`. It then spent 17 turns port-scanning localhost from inside
   the browser, reported "the app is unreachable", and — because the daemon keeps the inner
   conversation across `do` calls — every one of the next 118 sign-in instructions re-read that
   history and answered "still not running". The orchestrator rephrased the instruction five
-  ways and never tried `browser-pilot reset` or re-`open`. 78 minutes; $7.21 of inner-model
+  ways and never tried `sleep-walker reset` or re-`open`. 78 minutes; $7.21 of inner-model
   tokens (19.8M prompt, of which 8.4M went to the glm-5.3 escalation that every blocked
 instruction triggers).
 - **This is h14's failure too.** h14 (2026-08-21, atelyr target) was "119 `do`s re-issuing
   sign-in" and could not be explained because only byte counts were recorded. Same arm, same
-  shape, same count. Two sightings in two days on two targets: the browser-pilot arm is
+  shape, same count. Two sightings in two days on two targets: the sleep-walker arm is
   bimodal because of one product defect, not noise.
 
-**The defect is in browser-pilot, not the harness or the orchestrator.** `src/agent/loop.ts`
+**The defect is in sleep-walker, not the harness or the orchestrator.** `src/agent/loop.ts`
 pushes the caller's instruction as the user message with no statement of the current page URL
 or title. The system prompt says "if you don't know the current page state, call snapshot
 first" — r01's model did; c0822bp's guessed a URL and navigated away from the page the caller
@@ -391,7 +391,7 @@ Setup notes from the cloud boxes, for the record: `cloud-setup.sh --with-arm-b` 
 fixes on Ubuntu 24.04 (apt deps, Chromium 1228 download, app start, all clean, ~40s).
 agent-browser 0.34.0 declares `node >=24` and the image has 22.22 — npm printed `EBADENGINE`
 and installed anyway; it ran fine, but a box with a stricter npm would refuse it. Both sessions
-found `bin/browser-pilot.js` flipped to mode 755 by `npm link`; now committed that way.
+found `bin/sleep-walker.js` flipped to mode 755 by `npm link`; now committed that way.
 
 ### Post-fix rerun (c0822bp2): the inner fix worked, and exposed the layer beneath it
 
@@ -402,7 +402,7 @@ every later `do` correctly reported "already signed in". Inner cost fell from $7
 fired), and the spend ceiling logged $0.80 without needing to trip.
 
 But the run still turn-capped at **0/6**, for a defect one layer up: the **orchestrator issued
-`browser-pilot do "sign in…"` 119 times and never once issued an instruction about creating a
+`sleep-walker do "sign in…"` 119 times and never once issued an instruction about creating a
 ticket** (non-signin `do` count: 0; mutation log empty). It received a clear success and a
 description of the tickets page every time and did not advance to objective 1.
 
@@ -427,7 +427,7 @@ methodology decision, not a bug fix. What IS in hand: the inner agent is sound, 
 recurrence now costs ≤$2 instead of $7. Suggested next step 0b covers where to take the
 orchestrator question.
 
-### Root cause of the browser-pilot cloud freeze: novita drops the orchestrator's history (CONFIRMED)
+### Root cause of the sleep-walker cloud freeze: novita drops the orchestrator's history (CONFIRMED)
 
 The sign-in loop is not the model failing and not a harness state bug. It is the model provider
 (novita, glm-5.3 as orchestrator) intermittently ignoring the appended conversation and
@@ -447,7 +447,7 @@ turn 80+ — i.e. only the cached prefix, none of the 100 KB of history after it
 therefore woke each turn seeing only the goal, signed in, and repeated it 119 times. At the very
 last turn the freeze spontaneously cleared (`cr` jumped to 37,312), which rules out a fixed
 context-window truncation and points at a novita **prompt-cache** fault: it matched the prefix
-and failed to read past it. It correlates with the browser-pilot arm's multi-minute gaps between
+and failed to read past it. It correlates with the sleep-walker arm's multi-minute gaps between
 orchestrator calls (each `do` is a full inner run); agent-browser, with sub-second gaps, has
 never shown it. It is per-box/per-connection and intermittent — 2 of 3 froze, then 1 of 2.
 
@@ -528,7 +528,7 @@ h09 (degenerate loop, see below), h10 (killed on request mid-run).
 
 ### Signals, not conclusions
 
-- **Context into the orchestrator is ~2.5x lower for browser-pilot when the orchestrator sizes
+- **Context into the orchestrator is ~2.5x lower for sleep-walker when the orchestrator sizes
   its instructions well** (25.5KB vs 72KB) — conditional, not structural. The mechanism is
   instruction COUNT, not instruction type. Measured with the new `subcommands` field:
 
@@ -540,9 +540,9 @@ h09 (degenerate loop, see below), h10 (killed on request mid-run).
   Both delegated; h11 simply chopped the same goal into three times as many pieces, at a nearly
   identical ~1.6KB of context per instruction either way. An earlier reading of this file blamed
   h11 on `peek` polling — that was wrong, and the counts disprove it. The lever is chunk size,
-  which is why browser-pilot's `--help` now carries an "Sizing an instruction" section (see
+  which is why sleep-walker's `--help` now carries an "Sizing an instruction" section (see
   README, deliberate asymmetries). Report the spread and the `do` count, never the best run.
-- **Wall clock is consistently 2.5–3.5x worse for browser-pilot** (2440–3344s vs 960s), because
+- **Wall clock is consistently 2.5–3.5x worse for sleep-walker** (2440–3344s vs 960s), because
   individual `do` instructions take 5–11 minutes.
 - **Escalation is expensive**: in h02, glm-5.3 was 4 of 14 instructions but **76% of inner cost**.
   Only visible because of the per-model tracking added this session.
@@ -553,25 +553,25 @@ h09 (degenerate loop, see below), h10 (killed on request mid-run).
   learned however the command was worded, and it **appends a hint to the tool result without
   suppressing the command or ending the run** — the turn cap is the only terminator. Rationale:
   every terminating version can bias an outcome, and biases unevenly, because agent-browser
-  legitimately re-reads far more than browser-pilot and the task file itself warns that list
+  legitimately re-reads far more than sleep-walker and the task file itself warns that list
   views refresh asynchronously. A false abort corrupts a result; a missed loop wastes ~$0.60 of
   a run that was going to be discarded. Disclose that this is the third guard revision.
 - **The advisory guard fires correctly and is ignored.** a14 issued the same `snapshot` 200 times
   and took **184 advisories** without changing course, burning its whole cap. That is the
   accepted cost of advisory-only, but the cost is NOT symmetric: the same failure shape cost
-  $0.23 on agent-browser and $0.91 on browser-pilot (h14), because each wasted turn there is a
+  $0.23 on agent-browser and $0.91 on sleep-walker (h14), because each wasted turn there is a
   whole sub-agent run rather than one CLI call. If runs keep looping, the cheap correction is a
-  lower `--maxTurns` for the browser-pilot arm, or a spend ceiling — NOT a return to aborting on
+  lower `--maxTurns` for the sleep-walker arm, or a spend ceiling — NOT a return to aborting on
   repetition, which is what biased earlier versions.
 - **agent-browser completed 1 of 3 attempts.** a03 finished in 70 turns; a12 was void (defect 8);
   a13 genuinely hit the 200-turn cap without reaching objective 2, stuck selecting the project
-  when creating a line item. Combined with browser-pilot's h11-vs-h12 split, both arms show
+  when creating a line item. Combined with sleep-walker's h11-vs-h12 split, both arms show
   bimodal outcomes — complete, or stuck in a loop — rather than a tight distribution.
 
 - **Commands-per-run is NOT comparable across arms.** `commandIsAllowed` is a prefix check and
   the command runs through a shell, so `agent-browser X && agent-browser Y` counts as one
   command. Now measured by the `subcommands`/`invocationCount` fields: **a03 recorded 70 commands
-  but made 160 real invocations (2.3x), a13 recorded 196 and made 215.** browser-pilot's arm is
+  but made 160 real invocations (2.3x), a13 recorded 196 and made 215.** sleep-walker's arm is
   1:1 — it never chains. So every per-command figure for agent-browser (count, ms, and a03's 4
   non-zero exits, which are chains that short-circuited) is understated by roughly 2x. Quote
   `invocationCount`, not `commandCount`. **Settled 2026-08-21: the harness now splits on
@@ -600,19 +600,19 @@ All of the above is n=1 per arm. Do not publish any of it.
 
 ## Harness defects found and fixed
 
-Thirteen. Five would have biased the published result **against** browser-pilot, which is worth
+Thirteen. Five would have biased the published result **against** sleep-walker, which is worth
 stating given whose repo this is; defect 8 biased it against agent-browser. Defects 9-11 came
 from a review by a second session and were confirmed by measurement here before being fixed —
 9 and 11 had never fired on a real run, and 10 had been silently mis-measuring every timeout.
 
-1. **180s command timeout** — killed browser-pilot's legitimate work (its own instruction budget
+1. **180s command timeout** — killed sleep-walker's legitimate work (its own instruction budget
    is 300s, more with escalation); agent-browser's commands take seconds, so it was untouched.
    Now 900s.
-2. **Connection pooling** — browser-pilot leaves multi-minute gaps between model calls (439s,
+2. **Connection pooling** — sleep-walker leaves multi-minute gaps between model calls (439s,
    687s observed); pooled keep-alive sockets were dead by reuse and global `fetch` returned them
    anyway. Killed two runs. Now `node:https` with `keepAlive:false`.
 3. **Inner cost unmeasurable** — a session mixing two model tiers could only be priced to a
-   $0.46–$4.55 range. Fixed by adding `usageByModel` to browser-pilot itself.
+   $0.46–$4.55 range. Fixed by adding `usageByModel` to sleep-walker itself.
 4. **Session contamination** — the `default` session held a 17k-char briefing from earlier work;
    a "cold" run would have silently inherited it. Both arms now pin `--session <runid>`.
 5. **Echoed assistant message** — glm-5.3 returns `reasoning_content`, which the same endpoint
@@ -622,7 +622,7 @@ from a review by a second session and were confirmed by measurement here before 
 7. **No degenerate-loop guard** — an orchestrator issued one identical read-only command 119
    times and burned the whole turn cap. Guard added: nudge at 4 identical commands, abandon at 8,
    compares command text only so it is arm-neutral. NOTE: added after observing it hurt
-   browser-pilot's arm — mechanical and symmetric, but disclose it.
+   sleep-walker's arm — mechanical and symmetric, but disclose it.
 8. **The degenerate-loop guard could never abort** (found in a12, fixed). The nudge branch
    suppressed the repeated command and `continue`d *without* appending it to `commands`, but the
    repeat count was derived from that executed history. The tally therefore stuck at exactly the
@@ -630,7 +630,7 @@ from a review by a second session and were confirmed by measurement here before 
    a12 spent its entire 200-turn cap re-proposing one `eval` command — 128 nudges, 0 aborts — and
    the guard meant to stop that burned the run instead. The count is now over *proposals* rather
    than executions, so it escalates 4 → 8 and abandons; unit-checked as nudging once at 4 and
-   aborting at 8. Disclose that defect 7 was added after it hurt browser-pilot and defect 8 was
+   aborting at 8. Disclose that defect 7 was added after it hurt sleep-walker and defect 8 was
    found after it hurt agent-browser — the guard has now cost each arm one run.
 9. **The nudge broke tool-call protocol** (found in review, fixed). It pushed a bare user message
    and continued, leaving the assistant's `tool_use` with no matching `tool_result`. The
@@ -651,8 +651,8 @@ from a review by a second session and were confirmed by measurement here before 
     datastore, and thrown with the backend half-down and nothing to restart it.
 
 12. **Inner cost was lost whenever the agent stopped its own session** (found in h13, fixed).
-    Usage was read once at the end from `browser-pilot config`, but a task whose last objective is
-    cleanup ends with `browser-pilot stop` — killing the daemon that holds the counters. The
+    Usage was read once at the end from `sleep-walker config`, but a task whose last objective is
+    cleanup ends with `sleep-walker stop` — killing the daemon that holds the counters. The
     later `config` then spawned a FRESH daemon and truthfully reported zero, so h13 finished
     complete but uncosted. Usage is now sampled after every command while the daemon is alive,
     keeping the high-water mark and ignoring a drop to zero (a new daemon, not progress).
@@ -676,13 +676,13 @@ restore has removed it, re-seed per that doc. Check `NOVITA_API_KEY` has balance
 a 45-minute run — h08 burned a slot on a 403 `NOT_ENOUGH_BALANCE`.
 
 ```sh
-cd C:/dev/browser-pilot
-export BROWSER_PILOT_PROVIDER=novita
+cd C:/dev/sleep-walker
+export SLEEP_WALKER_PROVIDER=novita
 export APP_URL='http://localhost:5173/project-manager'
 export APP_EMAIL='mtp-e2e@atelyr.com' APP_PASSWORD='...'
 
-# browser-pilot arm  (~40-55 min)
-nohup node bench/harness.mjs --arm browser-pilot --provider novita \
+# sleep-walker arm  (~40-55 min)
+nohup node bench/harness.mjs --arm sleep-walker --provider novita \
   --model 'zai-org/glm-5.3' --task bench/tasks/atelyr-project-flow.md \
   --runid h11 --out bench/results > bench/results/h11.log 2>&1 &
 
@@ -729,7 +729,7 @@ distorts wall clock unequally (many short commands vs few long ones).
   port 5173 directly.
 - **Do not mass-kill chrome.exe.** Benchmark browsers are not distinguishable by name; on this
   machine all 54 chrome processes were the user's own. Match on command line first.
-- Stop stale sessions between runs: `browser-pilot stop --session <runid>`.
+- Stop stale sessions between runs: `sleep-walker stop --session <runid>`.
 
 ## Before this can be published
 
@@ -743,7 +743,7 @@ Unchanged from `bench/README.md`, all still open:
    sweep, and decide first whether to clear the 19 accumulated bench projects.
 2. **Single, private application.** A reader cannot reproduce a run against atelyr. A neutral
    public target is required.
-3. **Task provenance.** The task set was written while developing browser-pilot against this app,
+3. **Task provenance.** The task set was written while developing sleep-walker against this app,
    which risks selection bias toward flows it handles well.
 4. **N >= 5 per arm**, reporting median and range. Variance is large: identical setups have
    completed the task and looped uselessly.
@@ -756,8 +756,8 @@ Unchanged from `bench/README.md`, all still open:
    port/hostname probing. Live check against the local app with c0822bp's exact first
    instruction: signed in, 5 turns, never left port 4180 (n=1). The harness also gained a
    spend ceiling (`--maxUsd`, default 2.00, `stop=spend-cap`) so a recurrence costs $2, not
-   $7. **Next: rerun the browser-pilot arm on the cloud** (`/schedule` a routine on the
-   BrowserPilot environment pointed at `bench/CLOUD-RUNBOOK.md`; one routine per arm, ~4 min
+   $7. **Next: rerun the sleep-walker arm on the cloud** (`/schedule` a routine on the
+   SleepWalker environment pointed at `bench/CLOUD-RUNBOOK.md`; one routine per arm, ~4 min
    to provision, results come back as `results/<runid>` branches to merge). Done as c0822bp2 —
    inner agent fixed, but see 0b.
 
@@ -769,16 +769,16 @@ Unchanged from `bench/README.md`, all still open:
    Validated: c0822or/orp/ora all `contextTruncations: 0`, 6/6. See "Resolved" note above.
 1. ~~Run the N≥5 sweep on the OpenRouter setup.~~ **Done 2026-08-22: N=4 per arm** (s1–s4 ×
    bp/ab), all 6/6, all `contextTruncations: 0` — see "N=4-per-arm sweep" above. Headline: on
-   this task/model agent-browser is faster AND cheaper with far lower variance; browser-pilot's
+   this task/model agent-browser is faster AND cheaper with far lower variance; sleep-walker's
    only consistent edge is orchestrator context. Extend to N=5+ if a tighter median is wanted,
    but the direction is clear. Next real lever is the sensitivity arms (item 5): the result may
-   change with a cheaper/steadier inner model, since browser-pilot's cost is inner-dominated.
+   change with a cheaper/steadier inner model, since sleep-walker's cost is inner-dominated.
 2. **Capture the datastore baseline.** `bench/reset.mjs` is written and wired as `--reset` but
    has never been executed, because doing so stops the backend and no window was free. Two
    decisions first: whether to clear the 19 accumulated bench projects before snapshotting, and
    that the snapshot must include `data-store/` (the seeded bench login lives there — restoring
    `mongo-data/` alone would log every later run out).
-3. **Re-baseline both arms.** browser-pilot's `--help` gained instruction-sizing guidance and
+3. **Re-baseline both arms.** sleep-walker's `--help` gained instruction-sizing guidance and
    the harness changed how it counts and runs commands, so no run before 2026-08-21 is
    comparable to one after. Everything resets once, here.
 4. A neutral public target app + its own task file.

@@ -1,7 +1,7 @@
-# browser-pilot bug report — 2026-08-08
+# sleep-walker bug report — 2026-08-08
 
-Reported from a real session (Claude Code, Windows 11, `browser-pilot` invoked via the
-`browser-pilot` skill, model `zai-org/glm-5.2` via novita).
+Reported from a real session (Claude Code, Windows 11, `sleep-walker` invoked via the
+`sleep-walker` skill, model `zai-org/glm-5.2` via novita).
 
 **Task under test:** verify that a server-rendered page at `http://127.0.0.1:8787/` hydrates —
 click a button labelled "Simulate a submission" twice and read the counter beside it.
@@ -20,7 +20,7 @@ was absent from the live DOM. It was present in the server-rendered HTML.
 Command:
 
 ```sh
-browser-pilot do "Reload the page, then report the browser console output verbatim - every error
+sleep-walker do "Reload the page, then report the browser console output verbatim - every error
 and warning message, with full text. Also report the innerHTML of the div with id 'root' after
 load." --json
 ```
@@ -72,8 +72,8 @@ Notes:
 
 While the `do` above was in flight, both of these hung rather than returning:
 
-- `browser-pilot session list` — exceeded 120s, completed only after the `do` released
-- `browser-pilot stop --all` — exceeded 45s, same
+- `sleep-walker session list` — exceeded 120s, completed only after the `do` released
+- `sleep-walker stop --all` — exceeded 45s, same
 
 This looks like head-of-line blocking on the daemon's request handling. The practical effect is
 that when a `do` goes wrong, the operator has no way to observe it or stop it — which is exactly
@@ -126,7 +126,7 @@ equivalent deterministic sequence is three calls and no LLM tokens.
 
 ## Environment
 
-- `browser-pilot` invoked through the bundled skill; `agent-browser 0.16.3` also present
+- `sleep-walker` invoked through the bundled skill; `agent-browser 0.16.3` also present
 - Windows 11 Pro 26200, Node v24.11.1
 - Target: local Cloudflare Worker (`wrangler dev`) on `127.0.0.1:8787`, plain SSR HTML + one
   hydrated island, no auth, no SPA routing

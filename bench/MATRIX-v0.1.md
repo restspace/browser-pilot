@@ -14,11 +14,11 @@ is adjusted or substituted — a capped or truncated run is reported as itself.
 ## Conditions held constant
 
 - Model: z-ai/glm-5.3 via OpenRouter (Z.AI backend) as every arm's
-  orchestrator/agent model; browser-pilot's inner tier is glm-5.2 with
+  orchestrator/agent model; sleep-walker's inner tier is glm-5.2 with
   glm-5.3 escalation, disclosed below.
 - Spend ceiling $2.00/run, turn cap 120, same task text, same harness
   (bench/harness.mjs), fresh browser state per run, `--reset` per run.
-- browser-pilot runs use `--coarse` (its documented delegation mode);
+- sleep-walker runs use `--coarse` (its documented delegation mode);
   agent-browser/playwright-mcp issue their own native command/tool grain;
   browser-use is handed the task once (monolithic). The shape difference IS
   the subject of measurement (see README).
@@ -27,7 +27,7 @@ is adjusted or substituted — a capped or truncated run is reported as itself.
 
 | arm | verified (K=3) | cost per run | median wall | invocations |
 |---|---|---|---|---|
-| browser-pilot | 6/6, 6/6, 6/6 | $0.42, $0.27, $0.60 | 787s | 7–11 `do` calls |
+| sleep-walker | 6/6, 6/6, 6/6 | $0.42, $0.27, $0.60 | 787s | 7–11 `do` calls |
 | agent-browser | 6/6, 6/6, 6/6 | $0.81, $0.14, $0.13 | 138s | 78–103 commands |
 | playwright-mcp | 6/6, 6/6, 6/6 | $0.42, $0.42, $0.50 | 275s | 73–85 tool calls |
 | browser-use | 0/6, 0/6, 0/6 | $0.01, $0.01, $0.04 | 154s | 1 (monolithic) |
@@ -41,7 +41,7 @@ is adjusted or substituted — a capped or truncated run is reported as itself.
   model fit, not a harness fault. Disclosed: vision off, same model as all
   arms — this is "browser-use on the benchmark's model", not peak browser-use.
 
-## Breadth slice — real apps, browser-pilot vs strongest incumbent
+## Breadth slice — real apps, sleep-walker vs strongest incumbent
 
 Incumbent = agent-browser, picked on depth-slice medians before breadth ran.
 
@@ -49,14 +49,14 @@ Incumbent = agent-browser, picked on depth-slice medians before breadth ran.
 
 | arm | verified | cost | stop |
 |---|---|---|---|
-| browser-pilot | 6/6, 5/6*, 6/6 | $1.91†, $0.62*, $0.45 | completed, 402*, completed |
+| sleep-walker | 6/6, 5/6*, 6/6 | $1.91†, $0.62*, $0.45 | completed, 402*, completed |
 | agent-browser | 6/6, 6/6, 6/6 | $1.07, $0.93, $0.97 | completed ×3 |
 
 ### Grafana 11 (React SPA, deep unnamed DOM)
 
 | arm | verified | cost | stop |
 |---|---|---|---|
-| browser-pilot (bgr1, bgr2, bgr4) | 6/6, 6/6, 5/6 | $0.83, $1.10, $0.70 | completed ×3 |
+| sleep-walker (bgr1, bgr2, bgr4) | 6/6, 6/6, 5/6 | $0.83, $1.10, $0.70 | completed ×3 |
 | agent-browser (agr1-3) | 6/6, 0/6, 6/6 | $1.53, $2.02, $1.33 | completed, **spend-cap**, completed |
 
 (bgr4's 5/6 is an honest miss: dashboard saved with panels/tags/refresh
@@ -67,7 +67,7 @@ own branch at 4/6.)
 
 | arm | verified | cost | stop |
 |---|---|---|---|
-| browser-pilot | 1 run: partial (see note), 2× 402* | $1.26, — | completed, 402*, 402* |
+| sleep-walker | 1 run: partial (see note), 2× 402* | $1.26, — | completed, 402*, 402* |
 | agent-browser | 3× 402* | — | 402* ×3 |
 
 \* 402 = the OpenRouter account ran out of credit mid-run; these cells are
@@ -79,25 +79,25 @@ fixed before the reruns).
 
 ## What the completed cells say
 
-1. Reliability on real apps: browser-pilot and agent-browser both complete
+1. Reliability on real apps: sleep-walker and agent-browser both complete
    Odoo and Grafana; agent-browser burned its whole $2 ceiling once in three
    Grafana runs (agr2, verified 0/6 — nothing saved). Page-heavy SPAs expose
    the flat-command shape's cost: every snapshot transits the orchestrator.
-2. Cost on real apps: browser-pilot's clean-run range $0.45–1.10 vs
+2. Cost on real apps: sleep-walker's clean-run range $0.45–1.10 vs
    agent-browser's $0.93–1.53 (+1 cap-out). On the small in-repo app the
-   ranking reverses: agent-browser $0.13–0.14 medians vs browser-pilot
+   ranking reverses: agent-browser $0.13–0.14 medians vs sleep-walker
    $0.27–0.60. Layering pays off as pages get heavier, costs on light ones.
-3. Wall clock: agent-browser is consistently ~2–3x faster than browser-pilot
+3. Wall clock: agent-browser is consistently ~2–3x faster than sleep-walker
    (its commands are seconds; a `do` is a whole sub-agent episode).
 4. playwright-mcp is the consistency standout on the depth slice (three runs
    within $0.08) and a strong default incumbent for future matrices.
-5. Inner-model disclosure: with Novita out of balance, browser-pilot's inner
+5. Inner-model disclosure: with Novita out of balance, sleep-walker's inner
    ran on OpenRouter glm-5.2 (~2/3 the price of glm-5.3). On its designed
    inner (deepseek-v4-flash, ~12x cheaper), its costs above would drop
    substantially; that configuration is unmeasured today and is claimed as
    possibility, not result.
 
-## v0.2 addendum — browser-pilot column rerun on the latest build (2026-08-26)
+## v0.2 addendum — sleep-walker column rerun on the latest build (2026-08-26)
 
 The bp arm only, K=3 per target. repairdesk/odoo/grafana ran on the SAME
 cloud environment as their v0.1 cells (runids c2rd*/c2od*/c2gr*, one
@@ -172,8 +172,8 @@ externally verified per run, raw files on results/<runid> branches
 
 | arm | run type | verified (K=3) | cost per run | median wall |
 |---|---|---|---|---|
-| **browser-pilot — flow replay**§ | warm | 6/6, 6/6 | $0.460, $0.531 | 748s |
-| browser-pilot | cold | 6/6, 6/6, 6/6 | $0.058, $0.051, $0.161 | 843s |
+| **sleep-walker — flow replay**§ | warm | 6/6, 6/6 | $0.460, $0.531 | 748s |
+| sleep-walker | cold | 6/6, 6/6, 6/6 | $0.058, $0.051, $0.161 | 843s |
 | agent-browser | cold | 6/6, 6/6, 6/6 | $0.129, $0.147, $0.123 | 274s |
 | playwright-mcp | cold | 6/6, 6/6, 6/6 | $0.563, $0.440, $0.453 | 823s |
 | browser-use | cold | 2/6, 0/6, 0/6 | $0.058, $0.013, $0.013 | 150s |
@@ -182,19 +182,19 @@ externally verified per run, raw files on results/<runid> branches
 
 | arm | run type | verified | cost | stop |
 |---|---|---|---|---|
-| **browser-pilot — flow replay**§ | warm | 6/6, 6/6 | $0.850, $0.253 | success x2 |
-| browser-pilot | cold | 6/6, 6/6, 6/6 | $0.223, $0.135, $0.063 | completed x3 |
+| **sleep-walker — flow replay**§ | warm | 6/6, 6/6 | $0.850, $0.253 | success x2 |
+| sleep-walker | cold | 6/6, 6/6, 6/6 | $0.223, $0.135, $0.063 | completed x3 |
 | agent-browser | cold | 6/6, 6/6, 6/6 | $1.248, $0.440, $1.062 | completed x3 |
 
 ### Grafana 11
 
 | arm | run type | verified | cost | stop |
 |---|---|---|---|---|
-| **browser-pilot — flow replay**§ | warm | 6/6, **1/6** | $0.370, $0.179 | success, **halted** |
-| browser-pilot | cold | 6/6, 6/6, 6/6 | $0.167, $0.225, $0.500 | completed x3 |
+| **sleep-walker — flow replay**§ | warm | 6/6, **1/6** | $0.370, $0.179 | success, **halted** |
+| sleep-walker | cold | 6/6, 6/6, 6/6 | $0.167, $0.225, $0.500 | completed x3 |
 | agent-browser | cold | 6/6, 6/6, **2/6** | $1.402, $1.087, $2.003 | completed x2, **spend-cap** |
 
-§ **flow replay = the repeated-testing use case.** browser-pilot's warm
+§ **flow replay = the repeated-testing use case.** sleep-walker's warm
 mode: one orchestrated run records a flow at cold cost (repairdesk $0.167,
 odoo $0.165, grafana $0.352 — sweeps fwrd2/fwod3/fwgr3, cloud, commits
 496a2ef/6269b78), then runs 2..N replay it with NO orchestrator. K=2
@@ -212,7 +212,7 @@ type switch and the flow stopped rather than fabricate.
 
 | arm | verified‡ | cost | stop |
 |---|---|---|---|
-| browser-pilot (m2at) | max‡, max‡, incomplete | $0.89, $0.85, $2.19 | completed x2, spend-cap |
+| sleep-walker (m2at) | max‡, max‡, incomplete | $0.89, $0.85, $2.19 | completed x2, spend-cap |
 | agent-browser (m2aat) | max‡ (no claims), max‡ (no claims), incomplete | $2.01, $1.89, $2.02 | spend-cap, completed, spend-cap |
 
 ‡ as defined above: objectives 1+6 externally confirmed is the verifier's
@@ -223,7 +223,7 @@ verifiable objectives pass.
 
 ### What the controlled grid says
 
-1. **Reliability**: browser-pilot is the only arm at 6/6 on every cloud run
+1. **Reliability**: sleep-walker is the only arm at 6/6 on every cloud run
    (9/9). agent-browser's grafana spend-cap RECURRED under clean conditions
    (c2agr3, $2.00, 2/6) — v0.1's capped cell was the arm's real behaviour on
    heavy SPAs, not a credit-crunch artifact. playwright-mcp remains the
@@ -231,7 +231,7 @@ verifiable objectives pass.
    v0.1 zero largely reproduces (2/6, 0/6, 0/6): every run self-reported
    "completed" — only external verification tells them apart, which is the
    benchmark's reason for existing.
-2. **Cost, same-day comparison**: browser-pilot is cheapest on every target
+2. **Cost, same-day comparison**: sleep-walker is cheapest on every target
    — repairdesk $0.05–0.16 vs agent-browser's $0.12–0.15 (v0.1's ranking
    reversal confirmed gone), Odoo 3–7x cheaper ($0.06–0.22 vs $0.44–1.25),
    Grafana 4–6x cheaper ($0.17–0.50 vs $1.09–2.00), atelyr ~2.2x cheaper

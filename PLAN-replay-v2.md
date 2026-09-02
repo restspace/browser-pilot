@@ -7,7 +7,7 @@ work to PLAN-progressive-automation.md Stage 1 and PLAN-overnight.md.
 ## The evidence this plan rests on
 
 Record runs are now cheap and reliable: with the flash inner
-(BROWSER_PILOT_MODEL=deepseek/deepseek-v4-flash, provider order Baidu,
+(SLEEP_WALKER_MODEL=deepseek/deepseek-v4-flash, provider order Baidu,
 escalation glm-5.3), swo-n1 verified 6/6 at $0.199 and swg-n1 6/6 at $0.396.
 Replays are not: every real-app replay halted early —
 

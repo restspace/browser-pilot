@@ -8,9 +8,8 @@ selector-aware, quoting-aware, wait-aware CLI calls per logical step. Record a f
 later run replays it from compiled skills: on converged flows the replay makes **zero model calls
 and costs $0.00**, falling back to cheap model recovery only where the app has drifted.
 
-> **Naming:** the package is `sleep-walker`; the CLI installs both the `sleep-walker` command and
-> its original name `browser-pilot` as an alias — every example below works with either. Session
-> state lives under `~/.browser-pilot/` and env vars are `BROWSER_PILOT_*`.
+> **Naming:** the package and the CLI command are both `sleep-walker`. Session state lives under
+> `~/.sleep-walker/` and env vars are `SLEEP_WALKER_*`.
 
 An internal LLM agent (default **GLM 5.2** via Z.ai's OpenAI-compatible API) translates each
 instruction into typed, in-process Playwright tool calls against a persistent browser, then reports
@@ -19,7 +18,7 @@ Claude Code) never touches selectors, waits, dialogs, or quoting.
 
 ## Design boundary: the tool is app-agnostic
 
-**browser-pilot must never contain knowledge of any specific application under test.** No app's
+**sleep-walker must never contain knowledge of any specific application under test.** No app's
 selectors, class names, gestures, URLs, or workflow assumptions belong in the code — not in a verb,
 not in a default, not in a prompt. The tool works for testing *any* web app; the moment a primitive
 can't be described without naming something specific to one app, it does not belong here.
@@ -37,35 +36,35 @@ e.g. `click` needing a fallback when an element is covered — not a bespoke app
 ## Install
 
 ```sh
-npm install -g sleep-walker    # puts `sleep-walker` (and alias `browser-pilot`) on PATH
+npm install -g sleep-walker    # puts `sleep-walker` on PATH
 ```
 
 Or from a checkout:
 
 ```sh
 npm install        # builds via prepare
-npm link           # optional: puts `sleep-walker` / `browser-pilot` on PATH
+npm link           # optional: puts `sleep-walker` on PATH
 ```
 
-Requires Node 20+, an installed Chrome or Edge (or set `BROWSER_PILOT_EXECUTABLE`), and an API key
+Requires Node 20+, an installed Chrome or Edge (or set `SLEEP_WALKER_EXECUTABLE`), and an API key
 for one of the provider presets:
 
 ```sh
-browser-pilot config set provider novita   # persist your default provider
+sleep-walker config set provider novita   # persist your default provider
 export NOVITA_API_KEY=...                  # key via env (preferred) or `config set apiKey ...`
 ```
 
-`npm link` symlinks the global `browser-pilot` at this checkout, so a rebuild here is immediately
+`npm link` symlinks the global `sleep-walker` at this checkout, so a rebuild here is immediately
 live in every other repo — no re-link needed after `npm run build`.
 
 ### Claude Code skill
 
-`skills/browser-pilot/SKILL.md` is the canonical copy of the bundled skill. Claude Code loads
+`skills/sleep-walker/SKILL.md` is the canonical copy of the bundled skill. Claude Code loads
 skills from `~/.claude/skills/`, so install (or refresh after editing) with:
 
 ```sh
-mkdir -p ~/.claude/skills/browser-pilot
-cp skills/browser-pilot/SKILL.md ~/.claude/skills/browser-pilot/SKILL.md
+mkdir -p ~/.claude/skills/sleep-walker
+cp skills/sleep-walker/SKILL.md ~/.claude/skills/sleep-walker/SKILL.md
 ```
 
 Edit the repo copy, never the installed one — otherwise changes are lost on the next refresh.
@@ -73,44 +72,44 @@ Edit the repo copy, never the installed one — otherwise changes are lost on th
 ## Quickstart (5 minutes)
 
 ```sh
-browser-pilot doctor                                # install sanity: node, browser, provider, key
+sleep-walker doctor                                # install sanity: node, browser, provider, key
 export NOVITA_API_KEY=...                           # or any provider preset (see Providers)
-browser-pilot config set provider novita
+sleep-walker config set provider novita
 
-browser-pilot open https://demo.playwright.dev/todomvc
-browser-pilot do "Add two todos: 'write the report' and 'send it'.   Tick the first one off, then report how many items the footer counter shows as left."
+sleep-walker open https://demo.playwright.dev/todomvc
+sleep-walker do "Add two todos: 'write the report' and 'send it'.   Tick the first one off, then report how many items the footer counter shows as left."
 ```
 
 The `do` returns one JSON-shaped report: `{status, summary, evidence}` — the counter value it
 reports was read back from the live page, not assumed. Add `--verbose` to watch the internal
 agent work, `--headed` to watch the browser itself. Run the same `do` again with `--learn` on the
 session and the second execution replays the stored procedure instead of re-reasoning
-(`browser-pilot skills list` shows what it kept).
+(`sleep-walker skills list` shows what it kept).
 
 ## The outer-agent usage contract
 
 ```sh
 # deterministic verbs — no agent tokens spent
-browser-pilot open http://localhost:5173
-browser-pilot brief docs/AUTOMATION_GUIDE.md        # load app conventions into the session
-browser-pilot note "runid is k7x2"                  # record run state the agent must know
-browser-pilot peek [--selector css] [--interactive] # a11y snapshot / URL / title, direct
-browser-pilot screenshot [path]
+sleep-walker open http://localhost:5173
+sleep-walker brief docs/AUTOMATION_GUIDE.md        # load app conventions into the session
+sleep-walker note "runid is k7x2"                  # record run state the agent must know
+sleep-walker peek [--selector css] [--interactive] # a11y snapshot / URL / title, direct
+sleep-walker screenshot [path]
 
 # the core verb — anything requiring judgment
-browser-pilot do "log in as admin@example.com / pw123"
-browser-pilot do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' and confirm it appears in the Organisations list with the count incremented" --json
+sleep-walker do "log in as admin@example.com / pw123"
+sleep-walker do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' and confirm it appears in the Organisations list with the count incremented" --json
 
 # recording (opt-in, see below)
-browser-pilot script tests/flow.spec.ts                # emit a Playwright spec from what was done
-browser-pilot skills list|show <id>|rm <id>            # stored procedures learned with --learn
-browser-pilot var runid=k7x2                          # declare a run variable (learning session)
-browser-pilot run ticket-flow --var runid=k7x2        # replay a recorded session, no agent tokens in steady state
+sleep-walker script tests/flow.spec.ts                # emit a Playwright spec from what was done
+sleep-walker skills list|show <id>|rm <id>            # stored procedures learned with --learn
+sleep-walker var runid=k7x2                          # declare a run variable (learning session)
+sleep-walker run ticket-flow --var runid=k7x2        # replay a recorded session, no agent tokens in steady state
 
 # housekeeping
-browser-pilot session list
-browser-pilot stop [--all] [--save-flow <name>]     # prints video paths if --record was used; --save-flow exports the session as a replayable flow
-browser-pilot config
+sleep-walker session list
+sleep-walker stop [--all] [--save-flow <name>]     # prints video paths if --record was used; --save-flow exports the session as a replayable flow
+sleep-walker config
 ```
 
 - **Exit codes**: `0` instruction succeeded · `1` failed/blocked · `2` infra error (no key, no
@@ -137,15 +136,15 @@ no agent tokens at all.
 
 ## Recording a Playwright script
 
-Start a session with `--script` (or `BROWSER_PILOT_SCRIPT=1`) and every action the internal agent
-takes is captured as a replayable step; `browser-pilot script [out.spec.ts]` writes them out as a
+Start a session with `--script` (or `SLEEP_WALKER_SCRIPT=1`) and every action the internal agent
+takes is captured as a replayable step; `sleep-walker script [out.spec.ts]` writes them out as a
 standalone `@playwright/test` spec — one `test.step` per `do` instruction, in order.
 
 ```sh
-browser-pilot --session flow --script open http://localhost:5173
-browser-pilot --session flow do "log in as admin@example.com / pw123"
-browser-pilot --session flow do "create an organisation named 'Acme' and confirm it lists"
-browser-pilot --session flow script tests/acme.spec.ts     # → a spec you can run and commit
+sleep-walker --session flow --script open http://localhost:5173
+sleep-walker --session flow do "log in as admin@example.com / pw123"
+sleep-walker --session flow do "create an organisation named 'Acme' and confirm it lists"
+sleep-walker --session flow script tests/acme.spec.ts     # → a spec you can run and commit
 ```
 
 The hard part is that the agent drives the page through `@ref` handles from its own a11y snapshot,
@@ -176,22 +175,22 @@ recording you can re-run.
 
 ## Learning: replay what worked, reason only where it didn't
 
-Start a session with `--learn` (or `BROWSER_PILOT_SKILLS=1`) and browser-pilot becomes *progressively*
+Start a session with `--learn` (or `SLEEP_WALKER_SKILLS=1`) and sleep-walker becomes *progressively*
 less agentic on a site the more it succeeds there. Every instruction that reports `success` is compiled
 into a stored **skill** — a parameterised, replayable procedure — and on later instructions the skills
 that start on the current page are offered to the internal agent, which replays one deterministically
 and only reasons about the steps that no longer work.
 
 ```sh
-browser-pilot --session a --learn open http://app.local/
-browser-pilot --session a do "sign in as ops@example.com / pw1 and create a ticket titled 'k7 Bench'"
+sleep-walker --session a --learn open http://app.local/
+sleep-walker --session a do "sign in as ops@example.com / pw1 and create a ticket titled 'k7 Bench'"
 #   … 14 turns; stored s_68e5ee
-browser-pilot --session b --learn open http://app.local/
-browser-pilot --session b do "log in (ops@example.com, pw1) then create a new ticket called 'm3 Bench'"
+sleep-walker --session b --learn open http://app.local/
+sleep-walker --session b do "log in (ops@example.com, pw1) then create a new ticket called 'm3 Bench'"
 #   turn 1: run_skill s_68e5ee {v1: ops@example.com, v2: pw1, v3: m3 Bench} → 11/11 steps
 #   turn 2: report — 3 turns, same outcome, values read back live
-browser-pilot skills list                # what has been learned, per origin
-browser-pilot skills show s_68e5ee       # every step, its locators and fallbacks, what is a parameter and what is not
+sleep-walker skills list                # what has been learned, per origin
+sleep-walker skills show s_68e5ee       # every step, its locators and fallbacks, what is a parameter and what is not
 ```
 
 What a skill is, and how it is made:
@@ -245,8 +244,8 @@ evidence, not proof. Every `do` result carries a `skill` block (`invoked`, `step
 `repaired`, `tier`, `deterministicActions/totalActions`) and a `learned` block, and `config` rolls them
 up per session, so a learning run's deterministic fraction is measurable, not anecdotal.
 
-Where skills live: `~/.browser-pilot/skills/<origin>.json`, one file per site origin, shared by every
-session (that is the point); `BROWSER_PILOT_SKILLS_DIR` relocates the store, which the bench uses to keep
+Where skills live: `~/.sleep-walker/skills/<origin>.json`, one file per site origin, shared by every
+session (that is the point); `SLEEP_WALKER_SKILLS_DIR` relocates the store, which the bench uses to keep
 a sweep's store isolated. Note that anything the agent typed that was *not* in the instruction is stored
 literally — a password that came from a briefing rather than the instruction will be in the file.
 
@@ -256,7 +255,7 @@ lives in a store the tool *learned* on your site, which you can read and delete.
 ## Sessions
 
 Each `--session <name>` (default `default`) owns a detached daemon with a persistent Chrome
-profile under `~/.browser-pilot/sessions/<name>/` — logins survive daemon restarts. The internal
+profile under `~/.sleep-walker/sessions/<name>/` — logins survive daemon restarts. The internal
 agent keeps one running conversation per session, so instruction N+1 knows what instructions
 1..N created and discovered; `brief` and `note` content survives history trimming and daemon
 restarts. `stop` kills the daemon; the profile stays.
@@ -304,7 +303,7 @@ cookies, briefing, and notes.
 > interface may change. Use them, expect rough edges, report what breaks.
 
 A skill makes one instruction cheap on repeat. A **flow** makes a *whole session* cheap: the orchestrator
-drives browser-pilot normally the first time — deciding each step as it goes, reacting to what it sees —
+drives sleep-walker normally the first time — deciding each step as it goes, reacting to what it sees —
 and the session is exported as a replayable script. Later runs need no orchestrator at all: each step
 replays its pinned skill with zero model calls, drops to the cheap model only for a step whose page has
 drifted, and halts (returning per-step state) only when a step genuinely cannot complete.
@@ -315,18 +314,18 @@ did*, so its mid-run decisions are captured as ordinary steps.
 
 ```sh
 # 1. record — the orchestrator works normally, one --learn session, deciding as it goes
-browser-pilot --session run1 --learn open http://app.local/
-browser-pilot --session run1 var runid=k7            # declare what will differ next time → becomes {{runid}}
-browser-pilot --session run1 do "sign in as ops@example.com / pw1 and create a ticket titled 'k7 Bench'; report its id"
-browser-pilot --session run1 do "on that ticket add a part 'k7 Part A' cost 100 markup 25; report the price"
-browser-pilot --session run1 stop --save-flow ticket-flow
+sleep-walker --session run1 --learn open http://app.local/
+sleep-walker --session run1 var runid=k7            # declare what will differ next time → becomes {{runid}}
+sleep-walker --session run1 do "sign in as ops@example.com / pw1 and create a ticket titled 'k7 Bench'; report its id"
+sleep-walker --session run1 do "on that ticket add a part 'k7 Part A' cost 100 markup 25; report the price"
+sleep-walker --session run1 stop --save-flow ticket-flow
 
 # 2. replay — no orchestrator, new value, fresh app
-browser-pilot run ticket-flow --var runid=m3
+sleep-walker run ticket-flow --var runid=m3
 #   [OK] 01-signin  (replay)      ← pinned skill, zero model calls
 #   [OK] 02-add     (replay)
 #   ticket-flow: 2/2 steps, 8s — success
-browser-pilot flow list | show ticket-flow
+sleep-walker flow list | show ticket-flow
 ```
 
 What the export does automatically (no configuration):
@@ -374,7 +373,7 @@ makes skill replay trustworthy. A corollary worth knowing: a flow reliably repro
 *your parameters*, but it surfaces an *app-computed* value (a price the server calculated) on replay only
 when the original recording read it back explicitly; otherwise that output is omitted rather than faked.
 
-Flows live in `~/.browser-pilot/flows/<name>.json` (`BROWSER_PILOT_FLOWS_DIR` relocates), one file per
+Flows live in `~/.sleep-walker/flows/<name>.json` (`SLEEP_WALKER_FLOWS_DIR` relocates), one file per
 flow, human-readable and hand-editable.
 
 ## Providers
@@ -397,10 +396,10 @@ scale with page weight and instruction count, not with app complexity per se.
 Every field resolves with the precedence **flag > env > config file > preset**:
 
 - flags: `--provider`, `--model`, `--base-url`, `--fallback-model` (per `do` call)
-- env: `BROWSER_PILOT_PROVIDER`, `BROWSER_PILOT_MODEL`, `BROWSER_PILOT_FALLBACK_MODEL`,
-  `BROWSER_PILOT_BASE_URL`, `BROWSER_PILOT_API_KEY` (key accepted for any provider)
-- config file: `browser-pilot config set <provider|model|fallbackModel|baseUrl|apiKey> <value>` →
-  `~/.browser-pilot/config.json`, re-read on every instruction (no daemon restart needed);
+- env: `SLEEP_WALKER_PROVIDER`, `SLEEP_WALKER_MODEL`, `SLEEP_WALKER_FALLBACK_MODEL`,
+  `SLEEP_WALKER_BASE_URL`, `SLEEP_WALKER_API_KEY` (key accepted for any provider)
+- config file: `sleep-walker config set <provider|model|fallbackModel|baseUrl|apiKey> <value>` →
+  `~/.sleep-walker/config.json`, re-read on every instruction (no daemon restart needed);
   `config set <key> ""` clears. Prefer env for the key — `config set apiKey` stores it in plaintext.
 
 ### Escalation on blocked
@@ -444,13 +443,13 @@ is `https://open.bigmodel.cn/api/paas/v4`; Z.ai Coding Plan subscriptions use
 
 | Env / flag | Default | |
 |---|---|---|
-| `BROWSER_PILOT_CHANNEL` | `chrome` → `msedge` → bundled | browser channel |
-| `BROWSER_PILOT_EXECUTABLE` | — | explicit browser binary |
-| `BROWSER_PILOT_HEADED=1`, `--headed` | headless | visible window (first call of a session) |
-| `BROWSER_PILOT_HOME` | `~/.browser-pilot` | sessions + config root |
-| `BROWSER_PILOT_RECORD=1`, `--record` | off | record the session to webm, one file per tab, under `<session dir>/video` (first call of a session). Playwright only writes video out when the browser context closes, so the paths are printed by `stop` — nothing is readable mid-session, and killing the daemon without `stop` loses the recording. |
-| `BROWSER_PILOT_SCRIPT=1`, `--script` | off | record every action as a replayable Playwright step (first call of a session); write the spec with `browser-pilot script [out.spec.ts]`. Costs one page round trip per action to resolve a durable selector. |
-| `BROWSER_PILOT_SKILLS=1`, `--learn` | off | learning mode (see [Learning](#learning-replay-what-worked-reason-only-where-it-didnt)): compile successful instructions into stored skills and replay them later; implies `--script`. `BROWSER_PILOT_SKILLS_DIR` relocates the store (default `~/.browser-pilot/skills`). |
+| `SLEEP_WALKER_CHANNEL` | `chrome` → `msedge` → bundled | browser channel |
+| `SLEEP_WALKER_EXECUTABLE` | — | explicit browser binary |
+| `SLEEP_WALKER_HEADED=1`, `--headed` | headless | visible window (first call of a session) |
+| `SLEEP_WALKER_HOME` | `~/.sleep-walker` | sessions + config root |
+| `SLEEP_WALKER_RECORD=1`, `--record` | off | record the session to webm, one file per tab, under `<session dir>/video` (first call of a session). Playwright only writes video out when the browser context closes, so the paths are printed by `stop` — nothing is readable mid-session, and killing the daemon without `stop` loses the recording. |
+| `SLEEP_WALKER_SCRIPT=1`, `--script` | off | record every action as a replayable Playwright step (first call of a session); write the spec with `sleep-walker script [out.spec.ts]`. Costs one page round trip per action to resolve a durable selector. |
+| `SLEEP_WALKER_SKILLS=1`, `--learn` | off | learning mode (see [Learning](#learning-replay-what-worked-reason-only-where-it-didnt)): compile successful instructions into stored skills and replay them later; implies `--script`. `SLEEP_WALKER_SKILLS_DIR` relocates the store (default `~/.sleep-walker/skills`). |
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
 | `--turn-timeout` | 90 | wall-clock seconds for a single LLM call; a turn that produces no tool call by then is aborted and retried with a nudge, and three such turns in a row end the instruction. Stops a model from spending the whole `--timeout` reasoning inside one request. |
@@ -479,7 +478,7 @@ Stated limits, so you don't spend an afternoon discovering them:
 
 - **Canvas-rendered content**: charts, drawn data grids, and images have no DOM to read or verify
   against. The agent reports blocked and says so; that is the designed behaviour, not a bug.
-- **Anti-bot evasion, CAPTCHA solving, crawling**: out of scope by design. browser-pilot is for
+- **Anti-bot evasion, CAPTCHA solving, crawling**: out of scope by design. sleep-walker is for
   testing and driving apps you operate or are authorised to test — extraction from such apps is
   fine; defeating another site's defences is not what this tool is for.
 - **Vision**: the internal agent is text-only. It reads the accessibility tree and DOM, not
@@ -497,4 +496,4 @@ BP_BROWSER_TESTS=1 npx vitest run   # + browser-backed primitive, replay and per
 
 `test/fixture/page.html` is the fixture the browser tests drive (React-style controlled inputs,
 async banner, confirm() dialog). For a full-pipeline smoke without spending tokens, point
-`BROWSER_PILOT_BASE_URL` at a scripted mock of `/chat/completions`.
+`SLEEP_WALKER_BASE_URL` at a scripted mock of `/chat/completions`.

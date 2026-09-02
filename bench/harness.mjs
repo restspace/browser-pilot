@@ -3,7 +3,7 @@
  * Benchmark harness: one agent loop, two tools.
  *
  * The point of this file is that BOTH arms run through it unchanged. The only
- * things that differ between a browser-pilot run and an agent-browser run are
+ * things that differ between a sleep-walker run and an agent-browser run are
  * (a) which CLI the single `run_command` tool is allowed to invoke and (b) that
  * CLI's own documentation, pasted into the system prompt. Same model, same
  * loop, same prompt scaffolding, same caching strategy, same accounting.
@@ -15,12 +15,12 @@
  * makes every token attributable.
  *
  * The orchestrator is given a GOAL, never a pre-decomposed list of steps.
- * Decomposition is exactly the work that browser-pilot moves off the expensive
+ * Decomposition is exactly the work that sleep-walker moves off the expensive
  * model and agent-browser leaves on it, so handing both a ready-made plan would
  * erase the difference being measured.
  *
  * Usage:
- *   node bench/harness.mjs --arm browser-pilot --model claude-sonnet-5 \
+ *   node bench/harness.mjs --arm sleep-walker --model claude-sonnet-5 \
  *     --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md \
  *     --runid bpX1 --out bench/results --reset
  *
@@ -43,7 +43,7 @@ import { resetTarget } from './app-reset.mjs';
  * Three arm SHAPES, because the incumbents are not the same kind of thing:
  *
  *   cli         the orchestrator model calls one `run_command` tool wrapping
- *               the arm's own binary (browser-pilot, agent-browser).
+ *               the arm's own binary (sleep-walker, agent-browser).
  *   mcp         the orchestrator model calls the arm's NATIVE tool set,
  *               served by an MCP server the harness spawns and proxies to.
  *               Playwright MCP is designed to be driven this way; wrapping it
@@ -60,7 +60,7 @@ import { resetTarget } from './app-reset.mjs';
  * the layer-count difference is for cli arms (see file header).
  */
 const ARMS = {
-  'browser-pilot': { kind: 'cli', bin: 'browser-pilot', docs: 'armdocs/browser-pilot.md' },
+  'sleep-walker': { kind: 'cli', bin: 'sleep-walker', docs: 'armdocs/sleep-walker.md' },
   'agent-browser': { kind: 'cli', bin: 'agent-browser', docs: 'armdocs/agent-browser.md' },
   // Pinned for the same reason AGENT_BROWSER_VERSION is pinned in
   // cloud-setup.sh: two boxes set up a week apart must not quietly disagree.
@@ -155,7 +155,7 @@ function describeMachine(bin) {
     memGB: Math.round(os.totalmem() / 1e9),
   };
   if (bin) {
-    // spawnSync, not execFileSync: browser-pilot prints its banner for --version
+    // spawnSync, not execFileSync: sleep-walker prints its banner for --version
     // and exits 2, which execFileSync turns into a throw and records as null.
     // shell:true because on Windows both CLIs are .cmd shims that execFile
     // cannot exec directly. Take whatever was printed, whatever the exit code.
@@ -214,7 +214,7 @@ const PROVIDERS = {
 function parseArgs(argv) {
   // The per-command timeout must sit ABOVE the slowest legitimate command in
   // either arm, or it silently truncates work and looks like a tool failure.
-  // browser-pilot's own default instruction budget is 300s, and an escalated
+  // sleep-walker's own default instruction budget is 300s, and an escalated
   // instruction may take 300 + 1.5x300 before it returns; agent-browser's
   // commands are seconds, with a 25s worst case. 900s clears both. This is a
   // backstop against a wedged process, not a budget.
@@ -228,7 +228,7 @@ function parseArgs(argv) {
   // after every turn with bench/pricing.mjs (the same formula score.mjs uses).
   // A run that crosses it stops with stopReason 'spend-cap'. It exists because
   // the turn cap is not symmetric between arms: one wasted agent-browser turn
-  // is a CLI call, one wasted browser-pilot turn is a whole sub-agent run plus
+  // is a CLI call, one wasted sleep-walker turn is a whole sub-agent run plus
   // an escalation — c0822bp spent $7.21 on 119 identical blocked instructions.
   // 2.00 is ~7x the dearest complete run on record and well under that. 0
   // disables the ceiling.
@@ -368,34 +368,34 @@ const toolDocs = fs.readFileSync(path.join(here, arm.docs), 'utf8');
  * Identical for both arms apart from the tool docs and the optional briefing.
  * Deliberately says nothing about HOW to decompose the goal.
  */
-// Opt-in, browser-pilot only: teach the orchestrator to delegate whole outcomes
+// Opt-in, sleep-walker only: teach the orchestrator to delegate whole outcomes
 // and let each command run autonomously to its own report, instead of driving
 // the browser one UI action per call. Diagnosed 2026-08-22: the orchestrator was
-// micro-stepping browser-pilot (open form / fill / submit as separate `do`s) and
+// micro-stepping sleep-walker (open form / fill / submit as separate `do`s) and
 // thrashing, so each fragment paid for a full inner agent run plus escalation.
-// Gated to browser-pilot because agent-browser has no inner agent and must issue
+// Gated to sleep-walker because agent-browser has no inner agent and must issue
 // atomic commands — it stays the untouched control. Recorded in the result as
 // `coarse` and disclosed in HANDOFF; contains no app specifics or task plan.
-const coarse = Boolean(args.coarse) && args.arm === 'browser-pilot';
+const coarse = Boolean(args.coarse) && args.arm === 'sleep-walker';
 
-// Learning mode (progressive automation): browser-pilot compiles successful
+// Learning mode (progressive automation): sleep-walker compiles successful
 // instructions into stored skills and replays them on later ones. The store is
 // shared across the runs of a learning sweep and isolated from the user's own
 // (`--learn <dir>`), so run N+1 can benefit from run N and nothing else can.
 // Only the inner tool changes; the orchestrator prompt is untouched, so a
 // sweep measures what the tool learned, not what the orchestrator was told.
-const learnDir = args.learn && args.arm === 'browser-pilot' ? path.resolve(String(args.learn)) : null;
+const learnDir = args.learn && args.arm === 'sleep-walker' ? path.resolve(String(args.learn)) : null;
 if (learnDir) {
   fs.mkdirSync(learnDir, { recursive: true });
-  process.env.BROWSER_PILOT_SKILLS = '1';
-  process.env.BROWSER_PILOT_SKILLS_DIR = learnDir;
+  process.env.SLEEP_WALKER_SKILLS = '1';
+  process.env.SLEEP_WALKER_SKILLS_DIR = learnDir;
 }
 // Flow recording: export this session as a replayable flow at cleanup. The
 // harness — not the model — declares the run variable (so the flow
 // parameterises the runid) and issues `stop --save-flow`, keeping the
 // orchestrator's contract unchanged. Requires learning mode.
-const saveFlow = args['save-flow'] && args.arm === 'browser-pilot' && learnDir ? String(args['save-flow']) : null;
-if (args.flowsDir) process.env.BROWSER_PILOT_FLOWS_DIR = path.resolve(String(args.flowsDir));
+const saveFlow = args['save-flow'] && args.arm === 'sleep-walker' && learnDir ? String(args['save-flow']) : null;
+if (args.flowsDir) process.env.SLEEP_WALKER_FLOWS_DIR = path.resolve(String(args.flowsDir));
 const coarseBlock = coarse
   ? `\n\nIMPORTANT — how to use this tool well. Each \`run_command\` does NOT perform a single action and return — it hands one instruction to an internal agent that then works autonomously, taking as many browser steps as it needs (snapshot, fill, click, wait, retry, verify), and returns ONLY when it has achieved the outcome you asked for or is genuinely stuck. So your job is to delegate an outcome and let that command run to its own report — not to drive the browser click-by-click. Give it one whole sub-goal per call — for example "create a record with these field values and report what the app computed", or "bring the item to «target state», discovering and satisfying any preconditions the app enforces, and report what was required" — and trust it to handle the intermediate steps itself. Do NOT split one sub-goal across several calls (one to open a form, another to fill it, another to submit); that interrupts an agent that would have finished the whole thing in a single call. Equally, do NOT spend a call just exploring or cataloguing the UI ("describe the app's structure", "open the dialog and list every field, option and button", "report the full contents") — that sends the agent on an open-ended survey that burns its whole budget without moving the goal forward. Ask for the outcome and let the agent read only what it needs to achieve it; if you need a specific fact back, request that one fact as part of an action, not an exhaustive inventory. Read each report, then issue the next outcome; keep every instruction about the outcome you want, not the steps to get there.`
   : '';
@@ -486,7 +486,7 @@ const LOOP_NUDGE = 4;
  * compared command text and suppressed the command, which pinned its own tally
  * and burned a12's whole turn cap. Every version that *terminates* a run is an
  * intervention that can bias an outcome, and it biases unevenly: agent-browser
- * legitimately re-reads far more than browser-pilot, and the task file itself
+ * legitimately re-reads far more than sleep-walker, and the task file itself
  * says list views refresh asynchronously, so repeating a read while waiting is
  * correct behaviour. A false abort corrupts a result; a missed loop wastes
  * about $0.60 and fifteen minutes of a run that was going to be discarded.
@@ -526,7 +526,7 @@ const VALUE_FLAGS = new Set([
  * Which subcommand each invocation used, counted across every occurrence of the
  * binary in the command line (chained commands contain several).
  *
- * This is the delegation signal. browser-pilot's context advantage only appears
+ * This is the delegation signal. sleep-walker's context advantage only appears
  * when the orchestrator delegates coarsely — h12 spent 15 of 17 invocations on
  * `do` and used 25.5KB, while h11 fell back to fine-grained `peek` polling and
  * used 69.6KB, essentially agent-browser's figure. Reading that off the
@@ -562,7 +562,7 @@ function subcommandCounts(cmds, bin) {
  * Split a command line on top-level shell operators, respecting quotes.
  *
  * agent-browser chains routinely (`agent-browser X && agent-browser Y`) and
- * browser-pilot never does, so treating a chain as one "command" made
+ * sleep-walker never does, so treating a chain as one "command" made
  * commands-per-run incomparable across arms — a03 recorded 70 commands but made
  * 160 real invocations. Splitting restores comparable counting, lets every
  * segment be checked against the allow-list instead of only the first, and
@@ -846,7 +846,7 @@ async function startMcp() {
 }
 
 /**
- * Ask browser-pilot's daemon what its inner model(s) actually spent.
+ * Ask sleep-walker's daemon what its inner model(s) actually spent.
  *
  * Scraping stdout does not work: the orchestrator is free to call `do` without
  * `--json`, in which case no usage is printed at all — and forcing `--json`
@@ -857,11 +857,11 @@ async function startMcp() {
  * Must run before the session is stopped.
  */
 /**
- * Sample browser-pilot's own token usage.
+ * Sample sleep-walker's own token usage.
  *
  * Called after every command, not just at the end, because the end is too late
  * in two real cases: the run crashes (h11), or the agent stops its own session
- * as part of cleaning up (h13 issued `browser-pilot stop` on its last turn).
+ * as part of cleaning up (h13 issued `sleep-walker stop` on its last turn).
  * Either way the daemon holding the counters is gone, and a later `config`
  * silently spawns a FRESH daemon that truthfully reports zero — which is how
  * h13 finished complete but uncosted.
@@ -872,7 +872,7 @@ async function startMcp() {
  * recorded as one of the run's commands, so it does not pollute the metrics.
  */
 async function collectInnerUsage() {
-  if (args.arm !== 'browser-pilot') return;
+  if (args.arm !== 'sleep-walker') return;
   const r = await runCommand(`${arm.bin} config --session ${runid}`);
   try {
     const cfg = JSON.parse(r.out.slice(r.out.indexOf('{'), r.out.lastIndexOf('}') + 1));
@@ -902,7 +902,7 @@ async function collectInnerUsage() {
 /**
  * One request, one TCP connection, explicitly NOT pooled.
  *
- * The browser-pilot arm leaves multi-minute gaps between model calls, because a
+ * The sleep-walker arm leaves multi-minute gaps between model calls, because a
  * single `do` is a whole sub-agent run — observed gaps of 439s and 687s here.
  * A pooled keep-alive socket is long dead by the time the next call reuses it,
  * and global fetch hands the dead socket back: two long runs died that way,
@@ -960,7 +960,7 @@ function httpPost(url, body, headers) {
  * treated as terminal.
  */
 async function post(body, headers) {
-  // Patient by design. A browser-pilot run takes 40+ minutes of wall clock and
+  // Patient by design. A sleep-walker run takes 40+ minutes of wall clock and
   // real money, and the model API is the one component whose failure discards
   // ALL of it — the local browser work survives fine. Six attempts capped at
   // 30s tolerated about a minute of outage, which lost a run to a DNS blip.
@@ -1206,7 +1206,7 @@ if (arm.kind === 'mcp') {
  * { finalText, steps, usage: {prompt, cached, completion}, model, error? }.
  * Its stdout above that line is the agent's own progress noise and goes to the
  * transcript only. Token usage lands in `inner` (the arm's model does the
- * browser-level work, exactly what `inner` prices for browser-pilot), and the
+ * browser-level work, exactly what `inner` prices for sleep-walker), and the
  * orchestrator block stays zero — there is no orchestrator to bill.
  *
  * What is NOT enforced here, and is disclosed in the result: --maxUsd cannot
@@ -1300,7 +1300,7 @@ if (arm.kind === 'monolithic') {
     // while the provider's reported `usage.input` stays flat, the history is
     // being dropped between here and the model (provider/network), not by the
     // harness. Counts only — no message content — so it stays publishable.
-    // Diagnoses the cloud browser-pilot freeze where usage.input sat at 17 for
+    // Diagnoses the cloud sleep-walker freeze where usage.input sat at 17 for
     // 118 turns (c0822bp/c0822bp2). See bench/HANDOFF.md.
     const sentChars = messages.reduce((n, m) => n + JSON.stringify(m).length, 0);
     log({ k: 'sent', turn: turns, messages: messages.length, chars: sentChars });
@@ -1476,7 +1476,7 @@ await collectInnerUsage();
 try {
   if (arm.kind === 'cli') {
     const stop =
-      args.arm === 'browser-pilot'
+      args.arm === 'sleep-walker'
         ? `${arm.bin} stop --session ${runid}${saveFlow ? ` --save-flow ${saveFlow}` : ''}`
         : `${arm.bin} --session ${runid} close`;
     const r = await runCommand(stop);

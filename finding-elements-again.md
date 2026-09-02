@@ -1,6 +1,6 @@
 # Finding elements again
 
-How browser-pilot repeats a browser task without an LLM, using evidence it
+How sleep-walker repeats a browser task without an LLM, using evidence it
 collected the first time. Written for someone who has never seen this codebase.
 
 ## The problem

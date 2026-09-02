@@ -153,9 +153,9 @@ export interface ReplayOutcome {
   instructionSucceeded: boolean;
 }
 
-/** Where skills live: `$BROWSER_PILOT_SKILLS_DIR` or `<home>/skills`. */
+/** Where skills live: `$SLEEP_WALKER_SKILLS_DIR` or `<home>/skills`. */
 export function skillsDir(): string {
-  return process.env.BROWSER_PILOT_SKILLS_DIR || path.join(rootDir(), 'skills');
+  return process.env.SLEEP_WALKER_SKILLS_DIR || path.join(rootDir(), 'skills');
 }
 
 export function originOf(url: string): string | null {

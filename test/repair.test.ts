@@ -129,8 +129,8 @@ d('repair on the fixture page (closed loop)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-repairfix-'));
-    process.env.BROWSER_PILOT_HOME = home;
-    process.env.BROWSER_PILOT_SKILLS_DIR = path.join(home, 'skills');
+    process.env.SLEEP_WALKER_HOME = home;
+    process.env.SLEEP_WALKER_SKILLS_DIR = path.join(home, 'skills');
     session = new BrowserSession({ session: 'repairfix', persist: false, learn: true });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
@@ -151,8 +151,8 @@ d('repair on the fixture page (closed loop)', () => {
 
   afterAll(async () => {
     await session?.close();
-    delete process.env.BROWSER_PILOT_SKILLS_DIR;
-    delete process.env.BROWSER_PILOT_HOME;
+    delete process.env.SLEEP_WALKER_SKILLS_DIR;
+    delete process.env.SLEEP_WALKER_HOME;
     fs.rmSync(home, { recursive: true, force: true });
   });
 

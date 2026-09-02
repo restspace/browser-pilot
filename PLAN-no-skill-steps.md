@@ -84,7 +84,7 @@ Remaining fix — **surface the debt at build time, not replay time**:
   from the stored skill's steps.
 - After referencizing, lint every `{{sid.out}}`: if the producing step's
   skill does not publish `out`, attach a warning to the flow export
-  (`browser-pilot flows export` prints it): *"{{02-create.dashboard_uid}}
+  (`sleep-walker flows export` prints it): *"{{02-create.dashboard_uid}}
   can only be re-observed by model recovery — consider re-recording so the
   value is read from the page."*
 - No behavioural change at replay; this is a recording-quality signal, the

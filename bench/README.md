@@ -1,11 +1,11 @@
-# browser-pilot benchmark harness
+# sleep-walker benchmark harness
 
-A comparison between **browser-pilot** and **agent-browser** that tries to be fair enough to
+A comparison between **sleep-walker** and **agent-browser** that tries to be fair enough to
 publish, including to a reader who would rather it weren't.
 
 ## Conflict of interest
 
-This benchmark lives in browser-pilot's own repository and was written by browser-pilot's
+This benchmark lives in sleep-walker's own repository and was written by sleep-walker's
 authors. Treat the numbers accordingly. Everything needed to re-run it is here — harness, task
 definitions, tool documentation, raw per-run results — so the honest response to disagreement is
 to re-run it and publish a contradiction.
@@ -14,7 +14,7 @@ to re-run it and publish a contradiction.
 
 The two tools are not the same kind of thing:
 
-- **browser-pilot** contains a model. You give it an instruction (`browser-pilot do "..."`) and
+- **sleep-walker** contains a model. You give it an instruction (`sleep-walker do "..."`) and
   it works out the browser steps itself.
 - **agent-browser** contains no model. It executes one browser action per command
   (`agent-browser click @e3`). Something else has to decide what those commands are.
@@ -23,7 +23,7 @@ So you cannot benchmark them head-to-head directly. What you can benchmark is **
 systems accomplishing the same goal**, and that is what this harness does:
 
 ```
-Arm A: orchestrator O ──coarse instruction──► browser-pilot [inner model M] ──► browser
+Arm A: orchestrator O ──coarse instruction──► sleep-walker [inner model M] ──► browser
                       ◄──compact report──────
 
 Arm B: orchestrator O ──agent-browser click @e3──► browser
@@ -31,7 +31,7 @@ Arm B: orchestrator O ──agent-browser click @e3──► browser
 ```
 
 The layer-count difference **is the thing being measured**, not a confound to be normalised
-away. browser-pilot's claim is that decomposition and page noise stay inside a cheap inner
+away. sleep-walker's claim is that decomposition and page noise stay inside a cheap inner
 model; agent-browser leaves both on the orchestrator. Cost is therefore reported as:
 
 ```
@@ -50,7 +50,7 @@ through `run_command` without benchmarking a wrapper nobody ships:
 - **browser-use** — a complete agent, so there is no orchestrator at all: the
   harness hands it the task once and takes back the final report, step count and
   token usage (from browser-use's own accounting, the same self-reporting basis
-  as browser-pilot's inner usage). Disclosures: it runs on the SAME model as the
+  as sleep-walker's inner usage). Disclosures: it runs on the SAME model as the
   other arms' orchestrator (model quality is a control, so this is "browser-use
   on the benchmark's model", not peak browser-use); `use_vision` is off because
   that model takes no images and every arm is text-only; and `--maxUsd` cannot
@@ -88,7 +88,7 @@ Owning the loop makes every token attributable.
 ### Deliberate asymmetries, and why they stay
 
 - **Each arm gets its own tool's real `--help` text, verbatim.** That is what a user gets.
-  agent-browser's is ~23KB against browser-pilot's ~4KB, because it has far more commands to
+  agent-browser's is ~23KB against sleep-walker's ~4KB, because it has far more commands to
   document. Equalising this would mean editorialising one tool's documentation. Both armdocs
   are regenerated from the installed binary rather than hand-copied, so they cannot drift into
   editorialising — and they must be regenerated whenever either tool's version changes. Under
@@ -98,9 +98,9 @@ Owning the loop makes every token attributable.
   loads workflow guidance written by its authors. Arm B's orchestrator can invoke it like any
   other subcommand, and it is part of the shipped tool, so it stays. This is worth stating
   plainly because it is the closest thing agent-browser has to the decomposition guidance
-  browser-pilot carries internally, and a reader comparing the two should know arm B can reach
+  sleep-walker carries internally, and a reader comparing the two should know arm B can reach
   for it. Whether a run actually does is visible in the `subcommands` breakdown.
-- **browser-pilot's `--help` gained a "Sizing an instruction" section on 2026-08-21, and this
+- **sleep-walker's `--help` gained a "Sizing an instruction" section on 2026-08-21, and this
   is expected to improve its numbers.** Disclosed because the reader should judge it. The
   reasoning: runs varied 15 vs 45 `do` instructions for the same goal, at ~1.6KB of orchestrator
   context each, and instruction count is the single largest driver of the headline metric — yet
@@ -109,10 +109,10 @@ Owning the loop makes every token attributable.
   the tool as shipped. What would NOT be legitimate is putting the same advice in the harness
   system prompt: that is shared scaffolding, deliberately silent on decomposition, and coaching
   one arm there while the other gets nothing is a thumb on the scale. The armdoc is regenerated
-  from `browser-pilot --help` rather than hand-copied, so it cannot drift into editorialising.
-  **All browser-pilot runs before this date used the old help and are not comparable to runs
+  from `sleep-walker --help` rather than hand-copied, so it cannot drift into editorialising.
+  **All sleep-walker runs before this date used the old help and are not comparable to runs
   after it.**
-- **The inner model M is a property of the system, not a variable to match.** browser-pilot's
+- **The inner model M is a property of the system, not a variable to match.** sleep-walker's
   claim includes "the inner model can be cheap", so the headline runs it in its recommended
   configuration. Sensitivity arms below exist to test whether that is the whole story.
 - **Giving both arms a pre-written plan would erase the difference being measured**, because
@@ -122,14 +122,14 @@ Owning the loop makes every token attributable.
 
 | Arm | System | Purpose |
 |---|---|---|
-| A1 | O + browser-pilot (default inner model, escalation on) | headline |
+| A1 | O + sleep-walker (default inner model, escalation on) | headline |
 | B1 | O + agent-browser | headline |
-| A2 | O + browser-pilot with inner model = O | shows the win is not merely cheap-model arbitrage |
-| A3 | O + browser-pilot, `--no-escalate` | isolates what escalation contributes |
+| A2 | O + sleep-walker with inner model = O | shows the win is not merely cheap-model arbitrage |
+| A3 | O + sleep-walker, `--no-escalate` | isolates what escalation contributes |
 | — | cold vs briefed | both arms get the **same** briefing file, byte for byte, or neither does |
 
-`--script` replay is not a separate arm for agent-browser alone: browser-pilot records a
-standalone Playwright spec from its own run (`--script`, then `browser-pilot script out.spec.ts`),
+`--script` replay is not a separate arm for agent-browser alone: sleep-walker records a
+standalone Playwright spec from its own run (`--script`, then `sleep-walker script out.spec.ts`),
 so both tools can reach a zero-LLM replay. The interesting question there is not cost per replay
 but **how the script is obtained** and how many of its locators survive a re-run — measured
 separately.
@@ -155,7 +155,7 @@ building the recorder.
 
 It is self-hosted deliberately. Benchmarking against live public sites would mean fighting
 anti-bot measures, which is both out of scope for this tool and useless as a measurement: a run
-that dies on a CAPTCHA says nothing about browser-pilot. Self-hosting also gives the clean
+that dies on a CAPTCHA says nothing about sleep-walker. Self-hosting also gives the clean
 per-run reset that K-replay sweeps require. Odoo was chosen over ERPNext purely on footprint —
 two containers (2.3 GB) against the frappe stack's ten.
 
@@ -174,7 +174,7 @@ export NOVITA_API_KEY=...          # or ANTHROPIC_API_KEY
 node bench/app/server.mjs &        # the app under test, port 4180
 
 node bench/harness.mjs \
-  --arm browser-pilot --target repairdesk \
+  --arm sleep-walker --target repairdesk \
   --provider novita --model zai-org/glm-5.3 \
   --task bench/tasks/repairdesk-ticket-flow.md \
   --runid r01 --out bench/results --reset
@@ -190,7 +190,7 @@ repo commit), so a published row can say what produced it.
 
 On a fresh Linux box — a cloud instance, a container, a CI runner — `bench/cloud-setup.sh`
 does all of the above and checks it: node version, build, a browser (the dependency is
-`playwright-core`, which bundles none, so a bare container has nothing for browser-pilot's
+`playwright-core`, which bundles none, so a bare container has nothing for sleep-walker's
 `chrome → msedge → chromium` channel search to find), outbound network to the model API, and
 the app itself. It installs `agent-browser` only with `--with-arm-b`, at a **pinned concrete
 version** — currently 0.34.0 — never `latest`, so that two boxes set up a week apart cannot
@@ -207,7 +207,7 @@ Against the private target, where the placeholders must be supplied:
 export APP_URL=... APP_EMAIL=... APP_PASSWORD=...   # never committed
 
 node bench/harness.mjs \
-  --arm browser-pilot --target atelyr \
+  --arm sleep-walker --target atelyr \
   --provider novita --model zai-org/glm-5.3 \
   --task bench/tasks/atelyr-project-flow.md \
   --runid h01 --out bench/results --reset
@@ -224,7 +224,7 @@ discovered forty turns in.
 
 ## Learning sweeps (progressive automation)
 
-`--learn <dir>` puts the browser-pilot arm in learning mode with an isolated skill store: successful
+`--learn <dir>` puts the sleep-walker arm in learning mode with an isolated skill store: successful
 instructions are compiled into stored procedures and later instructions replay them (see the root
 README, "Learning"). The orchestrator prompt is untouched, so a sweep measures what the *tool* learned.
 The result file gains a `learn` block — `deterministicFraction` (A_n: inner browser actions that ran by
@@ -235,7 +235,7 @@ replay ÷ all inner browser actions), `invoked`, `fullReplays`, `repaired`, `com
 minting `<base>-n<k>` runids, and prints the per-n curve (cost, turns, A_n, verified objectives):
 
 ```sh
-node bench/sweep.mjs --k 5 --base lrn --learn bench/results/lrn-skills --verify   --arm browser-pilot --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md   --provider openrouter --model z-ai/glm-5.3 --coarse --out bench/results
+node bench/sweep.mjs --k 5 --base lrn --learn bench/results/lrn-skills --verify   --arm sleep-walker --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md   --provider openrouter --model z-ai/glm-5.3 --coarse --out bench/results
 ```
 
 Omit `--learn` for a control sweep of the same K. The claim under test is the notes' Pareto one: cost
@@ -268,7 +268,7 @@ node bench/reset.mjs --status
 Then pass `--reset` to any run, which restores that baseline before the first command:
 
 ```sh
-node bench/harness.mjs --arm browser-pilot ... --reset
+node bench/harness.mjs --arm sleep-walker ... --reset
 ```
 
 Both snapshot and restore stop `mongod` and `rs2-server`, move the bytes, and restart via
@@ -305,17 +305,17 @@ Both snapshot and restore stop `mongod` and `rs2-server`, move the bytes, and re
   inner tokens after every turn with `bench/pricing.mjs` — the same formula `score.mjs` uses —
   and stops the run at `stopReason: "spend-cap"` once crossed; the result records `maxUsd` and
   the final `spendUsd`. This is the symmetric counterpart to the turn cap, which is not: a
-  wasted agent-browser turn is one CLI call, a wasted browser-pilot turn is a sub-agent run plus
+  wasted agent-browser turn is one CLI call, a wasted sleep-walker turn is a sub-agent run plus
   an escalation, and c0822bp spent $7.21 on 119 identical blocked instructions before the turn
   cap caught it. A capped run is reported as capped, never discarded, and the ceiling is the
   same for both arms. If a run cannot be priced (a model missing from `rates.json`) the ceiling
   is not enforced and the transcript says so.
 - **Quote `invocationCount`, never `commandCount`.** agent-browser chains with `&&`, so one
-  recorded command can be several real invocations (a03: 70 recorded, 160 actual); browser-pilot
+  recorded command can be several real invocations (a03: 70 recorded, 160 actual); sleep-walker
   never chains and is 1:1. `commandCount` is therefore not comparable across arms.
-- **Report the `subcommands` breakdown with any context figure.** For browser-pilot the `do`
+- **Report the `subcommands` breakdown with any context figure.** For sleep-walker the `do`
   count is what the context number tracks, and two runs of the same goal have differed threefold.
-- **Pin versions**: agent-browser version, browser-pilot commit, model IDs, date.
+- **Pin versions**: agent-browser version, sleep-walker commit, model IDs, date.
 - Known tool bugs that cost wall-clock time (e.g. agent-browser's cold-start hang) are reported
   **separately** rather than folded into a headline, in either direction.
 
@@ -340,11 +340,11 @@ These are open, and the benchmark is not publishable until they are closed:
    still missing is results: **every number published so far comes from the private app.**
    This gap closes when a sweep has been run against the neutral target and the two targets'
    figures are reported side by side.
-3. **The task set was written while developing browser-pilot** against this app, which risks
+3. **The task set was written while developing sleep-walker** against this app, which risks
    selection bias toward flows it handles well. The neutral target reduces the app-specific
    part of this but not all of it: `repairdesk-ticket-flow.md` is deliberately a structural
    mirror of `atelyr-project-flow.md`, so it inherits the *shape* of a task set chosen with
-   browser-pilot in hand, even though the app underneath is new. A genuinely independent task
+   sleep-walker in hand, even though the app underneath is new. A genuinely independent task
    set — written by someone with no stake in the result — is the real fix.
 4. **Orchestrator usage pattern, not the tool, drives the context result.** The context saving
    only appears when the orchestrator delegates coarsely (few `do` instructions). A run that

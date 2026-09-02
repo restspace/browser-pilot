@@ -46,7 +46,7 @@ export interface Recipe {
   verifyRead?: string;
   status: 'provisional' | 'validated' | 'demoted';
   stats: RecipeStats;
-  /** Shipped with browser-pilot rather than learned; still starts provisional. */
+  /** Shipped with sleep-walker rather than learned; still starts provisional. */
   seeded?: boolean;
   provenance?: { session?: string; instruction?: string; created: string };
 }
@@ -143,9 +143,9 @@ export function seedRecipes(): Recipe[] {
   ];
 }
 
-/** Where recipes live: `$BROWSER_PILOT_COMPONENTS_FILE` or `<home>/components.json`. */
+/** Where recipes live: `$SLEEP_WALKER_COMPONENTS_FILE` or `<home>/components.json`. */
 export function componentsFile(): string {
-  return process.env.BROWSER_PILOT_COMPONENTS_FILE || path.join(rootDir(), 'components.json');
+  return process.env.SLEEP_WALKER_COMPONENTS_FILE || path.join(rootDir(), 'components.json');
 }
 
 /**

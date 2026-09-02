@@ -1,6 +1,6 @@
 # Progressive automation — Stage 1 plan
 
-Goal of the programme: make browser-pilot *learn*. Repeated successful work is converted from
+Goal of the programme: make sleep-walker *learn*. Repeated successful work is converted from
 model-driven execution into stored, validated, parameterised procedures that replay deterministically,
 with the model used only where reality diverges from what previously worked (repair), and eventually
 with recognition of template pages so one learned procedure serves many related pages. Source ideas:
@@ -274,7 +274,7 @@ Every `do` result carries a `skill` block so cost and determinism are attributab
 
 ### 1. Skill store — `src/skills/store.ts`
 
-Persisted under `~/.browser-pilot/skills/<origin-slug>/<id>.json` plus an `index.json` per origin.
+Persisted under `~/.sleep-walker/skills/<origin-slug>/<id>.json` plus an `index.json` per origin.
 Keyed by **origin** (scheme+host+port), not session: the point is that run N+1 benefits from run N.
 
 ```ts
@@ -312,7 +312,7 @@ string, and can **fall through the chain** when the first candidate no longer re
 change is small: keep the structured candidates it already builds instead of discarding all but the
 winner.
 
-CLI: `browser-pilot skills list [--origin …]`, `skills show <id>`, `skills rm <id>`, `skills clear
+CLI: `sleep-walker skills list [--origin …]`, `skills show <id>`, `skills rm <id>`, `skills clear
 --origin …`. Skills must be inspectable and deletable — a wrong skill that keeps matching is worse than
 none.
 
@@ -449,7 +449,7 @@ replay outcome)` pairs from real runs and can set a threshold from data instead 
 
 - `do` result gains `skill: { listed: n, invoked?: id, stepsReplayed, stepsTotal, repaired: bool,
   fallthroughs, similarity }`.
-- Harness (`bench/harness.mjs`) gains `--learn <store-dir>`: sets `BROWSER_PILOT_SKILLS=1` with an
+- Harness (`bench/harness.mjs`) gains `--learn <store-dir>`: sets `SLEEP_WALKER_SKILLS=1` with an
   isolated skills home so bench runs never pollute (or read) the user's real store, and records per run:
   **deterministic fraction** `A_n = tool actions executed by replay / total tool actions`, skill hit count,
   repairs, plus the existing cost/turns/tokens.
@@ -473,7 +473,7 @@ exercises.
 ## Implementation order
 
 1. Recorder keeps structured `LocatorChain` + state diff per step; recording forced on under
-   `BROWSER_PILOT_SKILLS=1` / `--learn`. Tests: existing `codegen.test.ts` still passes (codegen reads
+   `SLEEP_WALKER_SKILLS=1` / `--learn`. Tests: existing `codegen.test.ts` still passes (codegen reads
    `chain[0].expr`).
 2. `compile.ts` + `store.ts` + `skills` CLI. Tests: parameterisation, url normalisation, dedupe/merge, round-trip.
 3. `replay.ts` + `run_skill` tool + candidate listing + prompt clause. Tests against the fixture page,
@@ -538,7 +538,7 @@ under its precondition, remove both parts, archive). First added the missing
 `--flow` parse to the sweep (it computed `flowsDir`/`replayOnly` from
 `own.flow` but never populated it). Run 1 records with the orchestrator
 (GLM-5.3, novita) in a `--learn` session and exports flow `rd-flow`; runs 2-4
-replay that flow with **no orchestrator** (`browser-pilot run`), each app-reset
+replay that flow with **no orchestrator** (`sleep-walker run`), each app-reset
 and re-parameterised by runid, each externally scored against `/__log`.
 
 Result — every run 6/6 objectives externally verified:
@@ -651,7 +651,7 @@ model. That is the generalisation the fold is for.
 
 Novita ran out of balance, so both roles were moved to OpenRouter (no code change
 needed — orchestrator via `--provider openrouter`, inner agent via
-`BROWSER_PILOT_PROVIDER=openrouter`). Pairing: **glm-5.3 orchestrator + glm-5.2
+`SLEEP_WALKER_PROVIDER=openrouter`). Pairing: **glm-5.3 orchestrator + glm-5.2
 inner, escalation off** (the OpenRouter preset carries no fallback).
 
 ### flow4 sweep (K=4, OpenRouter) — all four runs 6/6
@@ -729,7 +729,7 @@ machinery (spec: PLAN-overnight.md; commits da4048f..93a28b5):
 3. **Drift telemetry**: every primary-locator miss becomes a structured
    DriftTicket (with the localized-vs-redesign similarity attached) in
    `<runid>-drift.json`. Recording only — never inline repair.
-4. **Post-session repair** (`browser-pilot skills repair --drift <file>`):
+4. **Post-session repair** (`sleep-walker skills repair --drift <file>`):
    promote proven fallbacks (no model), model-patch dead locators on the live
    page into provisional variants that must earn adoption, flag redesigns for
    re-record.
