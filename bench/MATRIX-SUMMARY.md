@@ -82,15 +82,20 @@ bench, plus the null option of just running the agent again:
 |---|---|---|---|---|
 | repairdesk | **7/7, 7/7** · $0.004, $0.003 · 80s, 83s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
 | kanboard | **6/6, 6/6** · $0.00, $0.00 · 19s, 19s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
-| grafana | **6/6, 5/6** · $0.14, $0.25 · 583s, 592s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
+| grafana | **5/6, 5/6** · $0.014, $0.003 · 274s, 109s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
 | odoo | **6/6, 6/6** · $0.49, $0.04 · 1215s, 598s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
 
 (kanboard sleep-walker replays: 4/4 app-state objectives verified plus both
 report-only objectives answered from the flow's own step reports — scored
-6/6 here; the codegen arm cannot answer report objectives at all. The one
-sleep-walker miss in the table, grafana r2 at 5/6, is a time range silently
-dropped by the app on save — caught *because* the verifier is app-side, and
-tracked as an open defect.)
+6/6 here; the codegen arm cannot answer report objectives at all. The grafana
+row is set 21 (fwgr21, build 6313d1d), which replaced set 15's fwgr19 cell of
+6/6, 5/6 · $0.14, $0.25 · 583s, 592s after the set-20/21 defect campaign —
+bench/results-published/fwgr2[01]-* and rpgr[234]-* hold the intermediate
+runs. Both replays verified 5/6 app-side; the sweep did not persist the
+per-objective verifier output, so which objective each missed is not in the
+published artifacts — the partial record shows r2's time range PASSED, so it
+is not the browser-invisible time-range drop this cell used to carry. The r2
+replay ran 8 of 8 steps at tier A with 0 model turns on 7 of them.)
 
 **Reading it**: the static scripts are free and mostly wrong (14/48 verified
 objectives for the strongest of them, and odoo's authored script confirmed an
