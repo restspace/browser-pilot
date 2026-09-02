@@ -1,0 +1,228 @@
+{
+  "flow": "fwod30",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Odoo with admin/admin, navigated to Contacts, created a new contact named 'rpod2-r1 Bench Customer' (Company type, Customer) with City 'Benchville'. Saved the record, then reopened it and verified: the Name field shows 'rpod2-r1 Bench Customer' and the City field shows 'Benchville' on the form view.",
+      "values": {
+        "city": "Benchville",
+        "contact_name": "rpod2-r1 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-change",
+      "status": "success",
+      "summary": "The contact 'rpod2-r1 Bench Customer' already existed and was open on its form view. I verified the Name field reads 'rpod2-r1 Bench Customer' and the City field reads 'Benchville'. The Company Type is set to Company, and the record appears fully saved.",
+      "values": {
+        "contact_name": "rpod2-r1 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Created and saved quotation S00021 for customer 'rpod2-r1 Bench Customer' with exactly one order line: product 'Conference Chair' [E-COM12], quantity 3.00, unit price £33.00 (auto-filled by the app), and Untaxed Amount £99.00 (TAX 20% £19.80, Total £118.80). All values verified from the saved record's live DOM.",
+      "values": {
+        "customer_name": "rpod2-r1 Bench Customer",
+        "order_line_text": "Conference Chair [E-COM12] Conference Chair (Steel) 3.00 33.00 20% £ 99.00",
+        "order_reference": "S00021",
+        "product_name": "Conference Chair",
+        "quantity": "3.00",
+        "tax_20_percent": "£ 19.80",
+        "total": "£ 118.80",
+        "unit_price": "£ 33.00",
+        "untaxed_amount": "£ 99.00",
+        "product_code": "E-COM12",
+        "o_field_cell_o_list_pric": "33.00",
+        "o_field_cell_o_list_pric_2": "£ 99.00",
+        "o_data_cell": "20%",
+        "oe_subtotal_footer_tr_oe": "Untaxed Amount\t£ 99.00",
+        "oe_subtotal_footer_tr_oe_2": "TAX 20%\t\n£ 19.80",
+        "oe_subtotal_footer_tr_oe_3": "Total\t£ 118.80",
+        "oe_subtotal_footer_tr_oe_4": "£ 118.80"
+      },
+      "tier": "A",
+      "replayed": "0/2",
+      "repaired": false,
+      "turns": 52
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00021 for 'rpod2-r1 Bench Customer', entered edit mode, added a second order line with product 'Customizable Desk' [FURN_0096] (selected from the autocomplete dropdown), quantity 2.00, unit price £750.00 auto-filled by the app. The existing Conference Chair line (qty 3.00, £33.00, £99.00) was left untouched. Saved the quotation and verified from the saved record: Untaxed Amount is now £1,599.00 (TAX 20% £319.80, Total £1,918.80), reflecting both lines (£99.00 + £1,500.00).",
+      "values": {
+        "quotation_reference": "S00021",
+        "customer": "rpod2-r1 Bench Customer",
+        "first_line_product": "Conference Chair",
+        "first_line_quantity": "3.00",
+        "first_line_unit_price": "33.00",
+        "first_line_subtotal": "£ 99.00",
+        "second_product_name": "Customizable Desk",
+        "second_product_code": "FURN_0096",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "750.00",
+        "second_line_subtotal": "£ 1,500.00",
+        "untaxed_amount": "£ 1,599.00",
+        "tax_20_percent": "£ 319.80",
+        "total": "£ 1,918.80"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 35
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened quotation S00021 for 'rpod2-r1 Bench Customer', entered edit mode, changed the first order line (Conference Chair) quantity from 3 to 5 — unit price remained £33.00, subtotal updated to £165.00. The second line (Customizable Desk, qty 2, £750.00, subtotal £1,500.00) was left untouched. Saved and verified: new total Untaxed Amount is £1,665.00 (TAX 20% £333.00, Total £1,998.00), reflecting £165.00 + £1,500.00.",
+      "values": {
+        "quotation_reference": "S00021",
+        "new_untaxed_amount": "£ 1,665.00",
+        "first_line_quantity": "5.00",
+        "first_line_amount": "£ 165.00",
+        "second_line_product": "Customizable Desk",
+        "second_line_quantity": "2.00",
+        "second_line_subtotal": "£ 1,500.00",
+        "tax_20_percent": "£ 333.00",
+        "total": "£ 1,998.00",
+        "new_untaxed_amount_2": "£ 1,665.00"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened quotation S00021 for 'rpod2-r1 Bench Customer', clicked Confirm (with dialog accept). The quotation was confirmed and converted to a Sales Order. Verified: order reference is 'S00021', and the status shown is 'Sales Order' (the active status in a 3-step progress bar: Quotation → Quotation Sent → Sales Order).",
+      "values": {
+        "order_reference": "S00021",
+        "current_status": "Sales Order",
+        "current_status_2": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 5,
+      "repinned": "s_a26b06"
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Opened sales order S00021 for 'rpod2-r1 Bench Customer', clicked the Cancel button in the header, and confirmed the 'Cancel Sales Order' dialog (which sends a cancellation email) by clicking 'Send and cancel'. The dialog closed and the record now shows status 'Cancelled' in the statusbar (progress bar: Quotation → Quotation Sent → Sales Order → Cancelled). The Cancel action succeeded.",
+      "values": {
+        "order_reference": "S00021",
+        "current_status": "Cancelled",
+        "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 46
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Verified cancelled sales order S00021 for 'rpod2-r1 Bench Customer' (benchville). The record shows: Order Reference S00021, Status 'Cancelled' (progress bar: Cancelled → Sales Order → Quotation Sent → Quotation), Customer 'rpod2-r1 Bench Customer', two order lines — (1) Conference Chair, qty 5.00, (2) Customizable Desk, qty 2.00, Untaxed Amount £1,665.00. All values confirmed from the live page without any state-changing actions.",
+      "values": {
+        "order_reference": "S00021",
+        "current_status": "Cancelled",
+        "customer_name_with_city": "rpod2-r1 Bench Customer\nBenchville",
+        "order_line_1_product": "Conference Chair",
+        "order_line_1_quantity": "5.00",
+        "order_line_2_product": "Customizable Desk",
+        "order_line_2_quantity": "2.00",
+        "untaxed_amount": "£ 1,665.00",
+        "untaxed_amount_2": "£ 1,665.00",
+        "current_status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 3
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 1,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwod30",
+      "step": "03-open",
+      "skill": "s_5ff5da",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_5ff5da stopped at step 1 — after step 1 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 1 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Quotations\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod30",
+      "step": "05-open",
+      "skill": "s_543a48",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-open.quotation_reference, 04-open.second_product, 03-open.quotation_reference, 04-open.second_product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod30",
+      "step": "06-open",
+      "skill": "s_a26b06",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-open.quotation_reference, 03-open.quotation_reference, 03-open.quotation_reference, 03-open.url.q.id",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod30",
+      "step": "08-open",
+      "skill": "s_7d7c7c",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-open.quotation_reference, 03-open.quotation_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 970315,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3629916,
+    "completionTokens": 23176,
+    "cachedTokens": 3206752
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2635285,
+      "completionTokens": 17295,
+      "cachedTokens": 2302464
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 994631,
+      "completionTokens": 5881,
+      "cachedTokens": 904288
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

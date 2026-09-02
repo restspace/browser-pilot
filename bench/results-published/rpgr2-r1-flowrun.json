@@ -1,0 +1,186 @@
+{
+  "flow": "fwgr19",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana at http://127.0.0.1:3000/ (no password change prompt appeared). Navigated to the 'Service health' dashboard via the recently viewed link. The dashboard contains 3 panels with the following exact titles:",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 17
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "The dashboard 'rpgr2-r1 Bench Dashboard' was created and saved (the stored procedure had completed the creation and save; I verified the saved state). The dashboard contains one Stat panel titled 'rpgr2-r1 Availability' whose query uses the 'TestData' data source with the default 'Random Walk' scenario (panel renders A-series value 31.8). Dashboard URL after saving: http://127.0.0.1:3000/d/efx1qogd4qakgc/rpgr2-r1-bench-dashboard?from=now-6h&to=now&timezone=browser. Save was confirmed — the dashboard persists in view mode with the correct title in the breadcrumb and the panel rendering data.",
+      "values": {
+        "dashboard_title": "rpgr2-r1 Bench Dashboard",
+        "dashboard_url": "http://127.0.0.1:3000/d/efx1qogd4qakgc/rpgr2-r1-bench-dashboard",
+        "data_source_name": "TestData",
+        "panel_title": "rpgr2-r1 Availability",
+        "scenario": "Random Walk (default)"
+      },
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 66
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a Text panel titled 'rpgr2-r1 Notes' with markdown content '# Bench run rpgr2-r1 — notes panel.' to the dashboard. Saved the dashboard successfully (confirmed by 'Dashboard saved' alert). The dashboard now shows two panels: 'rpgr2-r1 Availability' (Stat) and 'rpgr2-r1 Notes' (Text). The notes panel renders the heading 'Bench run rpgr2-r1 — notes panel.' as visible content, which includes the required runid 'rpgr2-r1'.",
+      "values": {
+        "notes_panel_title": "rpgr2-r1 Notes",
+        "notes_content_rendered": "Bench run rpgr2-r1 — notes panel.",
+        "dashboard_url": "http://127.0.0.1:3000/d/efx1qogd4qakgc/rpgr2-r1-bench-dashboard",
+        "availability_panel_title": "rpgr2-r1 Availability"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added the tag 'bench' to the dashboard's tags in Settings > General, and the time range was already set to 'Last 6 hours' (confirmed in the top bar time picker). Saved the dashboard — the save was confirmed by the 'Dashboard saved' alert. Verification: Settings > General shows the tag 'bench' listed under Dashboard tags, and the top bar time picker displays 'Last 6 hours' after saving.",
+      "values": {
+        "save_confirmed": "yes — 'Dashboard saved' alert appeared",
+        "tags_in_settings": "bench",
+        "time_range_top_bar": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "0/11",
+      "repaired": false,
+      "turns": 38
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to 1m via the top bar refresh interval dropdown (selected '1 minute'). Saved the dashboard with 'Update default refresh value' checkbox checked — confirmed by 'Dashboard saved' alert. The top bar refresh interval now shows '1m'. Save confirmed: yes.",
+      "values": {
+        "auto_refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_7ab93e"
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Verified all items after a fresh page load at http://127.0.0.1:3000/d/efx1qogd4qakgc/rpgr2-r1-bench-dashboard (UID: efx1qogd4qakgc): (1) Breadcrumb title: 'rpgr2-r1 Bench Dashboard'. (2) Panel titles visible: 'rpgr2-r1 Availability' and 'rpgr2-r1 Notes'. (3) Time range in top bar: 'Last 6 hours'. (4) Auto-refresh interval: '1m'. (5) Dashboard Settings > General shows tag 'bench' and dashboard name 'rpgr2-r1 Bench Dashboard'. (6) Opened 'rpgr2-r1 Availability' panel's query editor — data source selected is 'TestData' (visible in query row as 'A (TestData)' and in the data source selector with TestData logo). Closed the editor without saving (Back to dashboard button).",
+      "values": {
+        "dashboard_uid": "efx1qogd4qakgc",
+        "breadcrumb_title": "rpgr2-r1 Bench Dashboard",
+        "panel_titles": "rpgr2-r1 Availability, rpgr2-r1 Notes",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags_in_settings": "bench",
+        "dashboard_name_in_settings": "rpgr2-r1 Bench Dashboard",
+        "data_source_name": "TestData"
+      },
+      "tier": "A",
+      "replayed": "1/13",
+      "repaired": false,
+      "turns": 28
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "01-open",
+      "skill": "s_a2bce0",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Username input field')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "04-add",
+      "skill": "s_ce4549",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Edit' })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx1qogd4qakgc/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "05-set",
+      "skill": "s_7ab93e",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Back to dashboard button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 3,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx1qogd4qakgc/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "06-change",
+      "skill": "s_a878d8",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx1qogd4qakgc/:id"
+    }
+  ],
+  "wallMs": 1036534,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2970619,
+    "completionTokens": 21636,
+    "cachedTokens": 2623840
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2230561,
+      "completionTokens": 15430,
+      "cachedTokens": 1938944
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 740058,
+      "completionTokens": 6206,
+      "cachedTokens": 684896
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
