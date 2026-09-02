@@ -805,6 +805,8 @@ ${describeLeaks(leaks.slice(0, 10))}`);
     let halted = false;
     /** Adoptions decided this run, before the write-back — see the repin gate. */
     const pendingPins = new Map<string, string>();
+    /** Adopted steps that recovered cleanly this run and should shed `adopted`. */
+    const graduated = new Set<string>();
     /**
      * Outputs an earlier run demonstrated are the app's, not this run's, so
      * their recorded literal resolves instead of sending the step to recovery.
@@ -977,6 +979,34 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill && adoptable) {
           repinned = outcome.skill;
           pendingPins.set(step.id, outcome.skill);
+        } else if (
+          // Adopted-step graduation. An adopted step's incumbent skill (if it
+          // has one) is a PARTIAL compiled from a non-success recording — the
+          // reason it was adopted was that its instruction never reported
+          // success, so its skill covers only the sub-steps that ran before
+          // the session moved on (rpod1's 01-open replayed 1/2 then paid ~90
+          // turns of model recovery on EVERY replay, plus the adopted doubled
+          // budget, forever). The normal gate withholds the pin until a fresh
+          // provisional validates across runs — sound when the incumbent is a
+          // healthy validated skill, but inverted here: the incumbent is known
+          // scaffolding, strictly worse than a recovery that just completed
+          // the whole step. So on the FIRST clean recovery, pin the recovery
+          // skill (provisional is fine) and shed `adopted`, letting the next
+          // run treat this as an ordinary step whose skill earns its place
+          // through the normal lifecycle instead of re-recovering from zero.
+          // Still gated by canAdoptPin (never steal another step's skill,
+          // never demote a mutating step to a read-only one).
+          step.adopted &&
+          result.report.status === 'success' &&
+          outcome?.ok &&
+          outcome.skill &&
+          outcome.skill !== step.skill &&
+          adoptable
+        ) {
+          repinned = outcome.skill;
+          pendingPins.set(step.id, outcome.skill);
+          graduated.add(step.id);
+          opts.progress(`[flow ${flow.name}] ${step.id}: adopted step graduated — pinned ${outcome.skill} (${outcome.status}), shedding model-first replay`);
         }
       }
       usage.promptTokens += result.usage.promptTokens;
@@ -1101,6 +1131,10 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         const step = flow.steps.find((st) => st.id === r.id);
         if (step) {
           step.skill = String(r.repinned);
+          // A graduated adopted step is no longer model-first: it now owns a
+          // skill that completed it, so drop the flag that gave it the doubled
+          // recovery budget and the 'adopted' recovery route.
+          if (graduated.has(String(r.id)) && step.adopted) delete step.adopted;
           updated++;
         }
       }

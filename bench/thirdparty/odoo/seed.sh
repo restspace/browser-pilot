@@ -32,10 +32,17 @@ curl -sS -X POST "$BASE/web/database/create" \
 # automate yet. Install Sales offline: the running server holds a registry
 # that a live install would have to invalidate, so stop it, install in a
 # one-off container, and bring it back.
-echo "==> installing the Sales app (a few minutes)"
+# Install `contacts` alongside sale_management. Without it, res.partner has no
+# top-level "Contacts" app in the menu, and whether one appears at all depends
+# on which module happens to pull it in — the recording box (fwod30) had a
+# Contacts app and the flow navigates to it, but fresh boxes seeded with only
+# sale_management did NOT, so rpod1's 01-open primary `menuitem "Contacts"`
+# missed and paid full recovery on every replay. Naming it explicitly makes
+# the menu identical across boxes, which is the whole point of a shared seed.
+echo "==> installing the Sales + Contacts apps (a few minutes)"
 docker compose -f "$HERE/docker-compose.yml" stop odoo >/dev/null
 docker compose -f "$HERE/docker-compose.yml" run --rm --no-deps odoo \
-  odoo -d "$DB" -i sale_management --without-demo=False --stop-after-init >/dev/null 2>&1
+  odoo -d "$DB" -i sale_management,contacts --without-demo=False --stop-after-init >/dev/null 2>&1
 docker compose -f "$HERE/docker-compose.yml" start odoo >/dev/null
 
 echo -n "==> waiting for the server"
