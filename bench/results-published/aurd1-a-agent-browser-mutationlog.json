@@ -1,0 +1,232 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-09-02T09:24:27.067Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "aurd1-a RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-09-02T09:24:27.067Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-09-02T09:24:31.150Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-02T09:24:31.150Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-09-02T09:24:42.933Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-02T09:24:42.933Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-09-02T09:24:46.667Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-02T09:24:31.150Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-02T09:24:31.150Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-09-02T09:24:53.432Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-02T09:24:31.150Z",
+      "price": 187.5
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-09-02T09:24:31.150Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-09-02T09:24:57.182Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-02T09:24:42.933Z",
+      "price": 250
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-09-02T09:24:42.933Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-09-02T09:25:03.050Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "aurd1-a RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-09-02T09:24:27.067Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "aurd1-a RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-09-02T09:24:27.067Z"
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-09-02T09:25:09.359Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-09-02T09:24:31.150Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 9,
+    "at": "2026-09-02T09:25:14.854Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "aurd1-a RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Bench Supplier",
+      "createdAt": "2026-09-02T09:24:42.933Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-09-02T09:25:18.163Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "aurd1-a RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-09-02T09:24:27.067Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "aurd1-a RD Bench Ticket",
+      "customer": "Bench Customer",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-09-02T09:24:27.067Z"
+    }
+  }
+]
