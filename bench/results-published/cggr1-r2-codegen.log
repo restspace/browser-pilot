@@ -1,0 +1,21 @@
+[ok] 1 goto 664ms
+[ok] 2 fill 283ms
+[ok] 3 fill 13ms
+[ok] 4 click 282ms
+[ok] 5 click 314ms
+[ok] 6 click 488ms
+[ok] 7 click 305ms
+[read] 8 []
+[read] 10 []
+[read] 14 "Request rate"
+[read] 15 "Error count"
+[read] 16 "Latency by endpoint"
+[read] 17 "Request rate"
+[read] 18 "Error count"
+[read] 19 "Latency by endpoint"
+[ok] 20 click 72ms
+[ok] 21 click 281ms
+[ok] 22 click 240ms
+[FATAL] 23 click locator.click: Timeout 30000ms exceeded.
+[script aborted at gesture 23]
+RESULT {"runid":"cggr1-r2","gestures":[{"i":1,"tool":"goto","ok":true,"ms":664},{"i":2,"tool":"fill","ok":true,"ms":283},{"i":3,"tool":"fill","ok":true,"ms":13},{"i":4,"tool":"click","ok":true,"ms":282},{"i":5,"tool":"click","ok":true,"ms":314},{"i":6,"tool":"click","ok":true,"ms":488},{"i":7,"tool":"click","ok":true,"ms":305},{"i":20,"tool":"click","ok":true,"ms":72},{"i":21,"tool":"click","ok":true,"ms":281},{"i":22,"tool":"click","ok":true,"ms":240},{"i":23,"tool":"click","ok":false,"ms":30008,"error":"locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('heading', { name: 'Panel Title' })\u001b[22m\n\u001b[2m    - locator resolved to <h2 id=\"_r2o_\" class=\"css-4sw7w0\" title=\"Panel Title\">Panel Title</h2>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to "}],"reads":[{"i":8,"ok":true,"value":[]},{"i":10,"ok":true,"value":[]},{"i":14,"ok":true,"value":"Request rate"},{"i":15,"ok":true,"value":"Error count"},{"i":16,"ok":true,"value":"Latency by endpoint"},{"i":17,"ok":true,"value":"Request rate"},{"i":18,"ok":true,"value":"Error count"},{"i":19,"ok":true,"value":"Latency by endpoint"}],"fatal":23}
