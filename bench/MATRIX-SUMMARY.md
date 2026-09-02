@@ -101,13 +101,18 @@ replays verify 25/26 objectives at $0.00 where the flow has converged
 (repairdesk, kanboard — 19–83 seconds a run) and at $0.04–0.25 where recovery
 still fires (grafana, odoo — the convergence trend line: odoo fell from
 $0.49 to $0.04 between its two replays). The recurring cost of a known flow
-trends to zero without the correctness trending anywhere. On the clock: a
-converged sleep-walker replay is the fastest *correct* repeat on record
-(kanboard 19s — three times faster than the codegen script walking the same
-flow), and the statics' short walls elsewhere are mostly time-to-crash, not
-time-to-done (grafana authored: 17s to die at login; odoo codegen: 8s to die
-on the Apps page). The grafana/odoo sleep-walker walls are recovery time and
-fall with the cost as the flow converges (odoo 1215s → 598s).
+trends to zero without the correctness trending anywhere. On the clock: sleep-walker's wall and cost columns are the same metric in
+disguise — both measure how much model the replay still needed. A converged
+replay (zero model turns) runs at the engine's floor of ~20–30s and is the
+fastest *correct* repeat on record: kanboard 19s here, and repairdesk's
+previous sweep (fwrd38) replayed at 27s with 0 turns — 2.5–6× faster than
+re-running the agent. The slower cells above are un-converged flows paying
+for recovery turns: fwrd39's 80s includes ~12 turns re-deriving its first
+step (a tracked recording-quality regression), and grafana/odoo carry
+74–182 turns from the two open drift defects — falling with the cost as
+repair folds them in (odoo 1215s → 598s, 182 → 121 turns). The statics'
+short walls elsewhere are mostly time-to-crash, not time-to-done (grafana
+authored: 17s to die at login; odoo codegen: 8s to die on the Apps page).
 
 ## Conditions and caveats, so the numbers stay honest
 
