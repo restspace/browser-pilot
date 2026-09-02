@@ -512,6 +512,20 @@ describe('compileSkill', () => {
     expect(stableFirst([{ kind: 'role', role: 'link', name: '{{v1}}' }, { kind: 'css', selector: 'a' }])[0].kind).toBe('role');
   });
 
+  it('keeps the label on a target-less url read, so the flow can publish where a record lives', () => {
+    const entries = [
+      ...recording(),
+      step('read', { what: 'url', label: 'ticket_url' }, [], { result: JSON.stringify(`${ORIGIN}/#/tickets/t15`) }),
+    ];
+    const urlReport = { ...report, evidence: { values: { ...report.evidence.values, ticket_url: `${ORIGIN}/#/tickets/t15` } } };
+    const s = compileSkill({ entries, instruction: INSTRUCTION, report: urlReport, session: 's' })!;
+    const last = s.steps.at(-1)!;
+    expect(last.tool).toBe('read');
+    expect(last.args.what).toBe('url');
+    expect(last.locators).toEqual({});
+    expect(last.label).toBe('ticket_url');
+  });
+
   it('produces a parameterised, replayable skill from a recording', () => {
     const skill = compileSkill({ entries: recording(), instruction: INSTRUCTION, report, session: 's', model: 'm', now: '2026-08-23T00:00:00Z' });
     expect(skill).toBeTruthy();

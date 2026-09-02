@@ -230,7 +230,8 @@ export function compileSkills(input: CompileInput): Skill[] {
       // must not advertise the value either — publishedOutputs reads `label`,
       // and a promised output that never arrives sends later steps to
       // recovery with the reference blank.
-      if (label && Object.values(locators).some((chain) => chain.length)) out.label = label;
+      const targetless = step.tool === 'read' && step.args.what === 'url';
+      if (label && (targetless || Object.values(locators).some((chain) => chain.length))) out.label = label;
       if (step.via) out.via = step.via;
       for (const name of slotsUsed(JSON.stringify({ args, locators }))) segParams[name]?.usedIn.push(i + 1);
       return out;

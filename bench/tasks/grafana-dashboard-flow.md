@@ -16,7 +16,8 @@ Sign in with username `{{APP_EMAIL}}` and password `{{APP_PASSWORD}}`.
    includes the runid. Saved.
 4. The dashboard has the tag `bench` and its time range is set to the last 6 hours. Saved.
 5. The dashboard's auto-refresh interval is set to `1m`. Saved.
-6. Report the dashboard's URL (or UID) so it can be found again.
+6. Report the dashboard's URL (or UID) so it can be found again — read it from the browser's
+   page URL rather than quoting it from memory.
 
 Substitute the runid you were given for `<RUNID>` everywhere above, exactly as provided.
 
@@ -26,6 +27,9 @@ Substitute the runid you were given for `<RUNID>` everywhere above, exactly as p
   regular DOM. Nothing in this goal requires reading values off a chart.
 - Grafana only persists changes when the dashboard is explicitly saved; edits in the
   panel editor are not saved by "Apply"/"Back" alone.
+- The time range is persisted into the saved dashboard ONLY when the save dialog's
+  "Update default time range" box is ticked; the time picker in the top bar shows the
+  browser session's range whether or not it was saved, so it is not proof of persistence.
 
 ## What to report
 

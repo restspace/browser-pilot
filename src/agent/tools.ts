@@ -194,13 +194,14 @@ export const TOOL_DEFS: ToolDef[] = [
       'The target must match exactly one element, or the read fails: a snapshot ref (@e123) always does, ' +
       'and a bare tag like "h1" usually does not. Use read_all to read every match, or what=count to count them. ' +
       'If the value matters beyond this glance — a reference, id, name, or total the task or a later step will use — ' +
-      'pass `label` NOW: a labelled value is published under that name automatically; an unlabelled one stays anonymous.',
+      'pass `label` NOW: a labelled value is published under that name automatically; an unlabelled one stays anonymous. ' +
+      'what=url reads the current page URL (no target) — the way to report where a record lives.',
     parameters: {
       type: 'object',
-      required: ['target', 'what'],
+      required: ['what'],
       properties: {
         target: TARGET,
-        what: { type: 'string', enum: ['text', 'value', 'attr', 'count'] },
+        what: { type: 'string', enum: ['text', 'value', 'attr', 'count', 'url'] },
         attr: { type: 'string', description: 'Attribute name when what=attr.' },
         label: {
           type: 'string',
@@ -799,6 +800,11 @@ async function dispatch(
       return waitFor(page, args, signal);
 
     case 'read': {
+      // The page URL is an observation with no element behind it: a record's
+      // address is often the only durable handle on it (the grafana flow
+      // could name every panel yet had no way to publish the dashboard uid).
+      if (args.what === 'url') return JSON.stringify(page.url());
+      if (typeof args.target !== 'string' || !args.target.trim()) throw new Error(`read ${String(args.what)} needs a target (only what=url reads without one)`);
       const loc = t();
       // `count` asks HOW MANY, so plural is the answer, not an error.
       if (args.what === 'count') return String(await loc.count());

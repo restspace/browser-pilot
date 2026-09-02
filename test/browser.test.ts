@@ -58,6 +58,16 @@ d('browser primitives (fixture page)', () => {
     expect(out.result).toMatch(/Submit/);
   });
 
+  it('read what=url publishes the page address without a target; other reads still need one', async () => {
+    const page = await session.getPage();
+    const url = await run('read', { what: 'url' });
+    expect(url.isError).toBe(false);
+    expect(JSON.parse(url.result)).toBe(page.url());
+    const bare = await run('read', { what: 'text' });
+    expect(bare.isError).toBe(true);
+    expect(bare.result).toMatch(/needs a target/);
+  }, 60_000);
+
   it('eval is read-only: a click through it is refused and the page is untouched', async () => {
     const before = (await run('read', { target: '#banner', what: 'text' })).result;
     const refused = await run('eval', { expression: "document.querySelector('#submit').click()" });

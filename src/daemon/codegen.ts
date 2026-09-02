@@ -243,6 +243,7 @@ function readAssertion(target: string, step: RecordedStep): string[] {
   }
   const all = tool === 'read_all';
 
+  if (what === 'url') return [`// await expect(page).toHaveURL(${q(String(value))});`];
   if (what === 'count') return [`// await expect(${target}).toHaveCount(${Number(value)});`];
   if (what === 'attr') {
     return all
