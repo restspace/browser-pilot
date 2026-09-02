@@ -57,7 +57,10 @@ export function makeLocator(page: Page, c: LocatorCandidate): Locator {
       loc = c.attr === 'data-testid' ? page.getByTestId(c.value) : page.locator(`[${c.attr}=${JSON.stringify(c.value)}]`);
       break;
     case 'role':
-      loc = page.getByRole(c.role as Parameters<Page['getByRole']>[0], { name: c.name });
+      // exact: Playwright's default name match is a case-insensitive substring,
+      // so a recorded 'Edit' also matches a sibling 'Exit edit' — which is how
+      // rpgr2-r2 left edit mode instead of entering it and halted the flow.
+      loc = page.getByRole(c.role as Parameters<Page['getByRole']>[0], { name: c.name, exact: true });
       break;
     case 'label':
       loc = page.getByLabel(c.label);
@@ -89,7 +92,7 @@ export function candidateExpr(c: LocatorCandidate): string {
       expr = c.attr === 'data-testid' ? `page.getByTestId(${q(c.value)})` : `page.locator(${q(`[${c.attr}=${JSON.stringify(c.value)}]`)})`;
       break;
     case 'role':
-      expr = `page.getByRole(${q(c.role)}, { name: ${q(c.name)} })`;
+      expr = `page.getByRole(${q(c.role)}, { name: ${q(c.name)}, exact: true })`;
       break;
     case 'label':
       expr = `page.getByLabel(${q(c.label)})`;

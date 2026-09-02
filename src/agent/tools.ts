@@ -866,6 +866,12 @@ async function dispatch(
 
     case 'eval': {
       const expression = String(args.expression ?? '');
+      const mutation = evalMutation(expression);
+      if (mutation) {
+        throw new Error(
+          `eval is read-only: the expression ${mutation}. That would run, but could never be replayed — only the dedicated tools are recorded. Use click / fill / press / select / goto instead (locate the element first if you only know its text).`,
+        );
+      }
       const value = await page.evaluate((expr) => {
         // eslint-disable-next-line no-eval
         return (0, eval)(expr);
@@ -962,6 +968,38 @@ async function dispatch(
  * (selector matched many elements) is NOT swallowed — it is rethrown so the
  * caller gets the disambiguation hint rather than silently acting on .first().
  */
+/**
+ * Why an eval expression is refused: the page-mutating call it makes, or null.
+ *
+ * fwgr19 recorded its dashboard save as `btn.click()` inside an eval. The
+ * step ran fine, but eval steps do not compile into skills — only the
+ * dedicated tools carry locators — so the pinned skill had fill-title → wait
+ * for dialog hidden with no save between them, failed there on every replay,
+ * and paid 66 recovery turns per run forever. An unreplayable mutation is a
+ * hole in the recording, so it is refused at the source, naming the tool to
+ * use instead. Read expressions are untouched: a comparison (`el.value ===
+ * x`) is not an assignment, and querying, filtering and serialising are fine.
+ */
+export function evalMutation(expression: string): string | null {
+  const patterns: Array<[RegExp, string]> = [
+    [/\.(click|submit|requestSubmit)\s*\(/, 'calls .$1()'],
+    [/\.dispatchEvent\s*\(/, 'dispatches a synthetic event'],
+    [/\.(value|checked|selectedIndex)\s*=(?!=)/, 'assigns .$1'],
+    [/\.(innerHTML|outerHTML|textContent|innerText)\s*=(?!=)/, 'assigns .$1'],
+    [/\blocation\.(href|hash)\s*=(?!=)/, 'assigns location.$1'],
+    [/\blocation\.(assign|replace|reload)\s*\(/, 'navigates via location.$1()'],
+    [/\bhistory\.(pushState|replaceState|back|forward|go)\s*\(/, 'navigates via history.$1()'],
+    [/\.(remove|removeChild|appendChild|insertBefore|replaceChild|replaceWith)\s*\(/, 'edits the DOM with .$1()'],
+    [/\.(setAttribute|removeAttribute)\s*\(/, 'edits the DOM with .$1()'],
+    [/\b(localStorage|sessionStorage)\.(setItem|removeItem|clear)\s*\(/, 'writes $1'],
+  ];
+  for (const [re, why] of patterns) {
+    const m = re.exec(expression);
+    if (m) return why.replace('$1', m[1] ?? '');
+  }
+  return null;
+}
+
 async function robustClick(loc: Locator, opts: { timeout: number; dbl?: boolean }): Promise<string> {
   const label = opts.dbl ? 'double-clicked' : 'clicked';
   const act = (o: { timeout: number; force?: boolean }) => (opts.dbl ? loc.dblclick(o) : loc.click(o));

@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { ChatMessage, Completion, Provider, ToolDef } from '../src/agent/llm.js';
-import { runEscalatingInstruction, runInstruction } from '../src/agent/loop.js';
+import { loopingCycle, runEscalatingInstruction, runInstruction } from '../src/agent/loop.js';
 import type { BrowserSession } from '../src/daemon/browser.js';
 import { SessionState } from '../src/daemon/state.js';
 
@@ -264,6 +264,44 @@ describe('turn watchdog', () => {
     expect(result.actions[0]).toEqual({ tool: 'click', args: '{"target":"#x"}', ok: false });
     expect(result.actions.every((a) => a.ok === false)).toBe(true);
     expect(result.transcriptTail?.some((line) => /abandoned/.test(line))).toBe(true);
+  });
+
+  it('loopingCycle spots a repeated gesture cycle of period 1–3 and nothing else', () => {
+    expect(loopingCycle(['a', 'a'])).toBe(0);
+    expect(loopingCycle(['a', 'a', 'a'])).toBe(1);
+    expect(loopingCycle(['x', 'a', 'b', 'a', 'b', 'a', 'b'])).toBe(2);
+    expect(loopingCycle(['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c'])).toBe(3);
+    // same gestures, differing responses (a paginating Next) is progress, not a loop
+    expect(loopingCycle(['next → p1', 'next → p2', 'next → p3'])).toBe(0);
+    // a cycle broken by anything else does not count
+    expect(loopingCycle(['a', 'b', 'a', 'b', 'a', 'c'])).toBe(0);
+  });
+
+  it('nudges once when the agent repeats the same gesture cycle, then bails as looping', async () => {
+    const state = new SessionState('t-loop');
+    // every click fails identically: the agent alternating two clicks that
+    // change nothing is the rpgr2-r2 Exit edit ↔ Discard dialog cycle
+    const deadBrowser = {
+      dialogs: { drain: () => [] },
+      isOpen: false,
+      getPage: () => Promise.reject(new Error('nope')),
+    } as unknown as BrowserSession;
+    const a = { id: 'c1', name: 'click', args: { target: '#a' }, rawArgs: '{"target":"#a"}' };
+    const b = { id: 'c2', name: 'click', args: { target: '#b' }, rawArgs: '{"target":"#b"}' };
+    const provider = scriptedProvider(Array.from({ length: 20 }, (_, i) => ({ toolCalls: [i % 2 ? b : a] })));
+    const seen: string[] = [];
+    const result = await runInstruction(provider, deadBrowser, state, 'x', {
+      ...loopOpts,
+      maxTurns: 40,
+      onProgress: (line) => seen.push(line),
+    });
+    expect(result.report.status).toBe('blocked');
+    expect(result.bailReason).toBe('looping');
+    expect(result.report.summary).toMatch(/looped: a cycle of 2 action/);
+    // 6 turns to the nudge, 6 more to the bail — nowhere near the 40 cap
+    expect(result.turns).toBe(12);
+    expect(seen.filter((l) => /loop detected/.test(l)).length).toBe(1);
+    expect(state.messages.some((m) => m.role === 'user' && /You are looping/.test(String(m.content)))).toBe(true);
   });
 
   it('stops promptly when the caller aborts mid-turn', async () => {

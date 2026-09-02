@@ -24,6 +24,32 @@ export const DEFAULT_TURN_TIMEOUT_MS = 90_000;
  */
 const MAX_UNPRODUCTIVE_TURNS = 3;
 
+/** Gestures that count towards cycle detection; observations never do. */
+const CYCLE_TOOLS = new Set(['click', 'dblclick', 'modifier_click', 'right_click', 'fill', 'type', 'press', 'select', 'check', 'goto', 'back']);
+/** Repetitions of a cycle before it counts as looping. */
+const CYCLE_REPEATS = 3;
+/** Longest cycle looked for (Exit edit ↔ Discard is 2; open-menu, pick, confirm is 3). */
+const CYCLE_MAX_PERIOD = 3;
+
+/**
+ * The period of a short cycle that has just repeated CYCLE_REPEATS times at
+ * the tail of `acts`, or 0. Entries carry the tool, its args AND the tool
+ * result (state diff included), so a paginating "Next" click whose diff
+ * differs each time is not a cycle — only identical responses to identical
+ * gestures are.
+ */
+export function loopingCycle(acts: string[]): number {
+  for (let p = 1; p <= CYCLE_MAX_PERIOD; p++) {
+    const need = p * CYCLE_REPEATS;
+    if (acts.length < need) return 0;
+    const tail = acts.slice(-need);
+    let same = true;
+    for (let i = p; i < need && same; i++) if (tail[i] !== tail[i - p]) same = false;
+    if (same) return p;
+  }
+  return 0;
+}
+
 /**
  * Extra turn/time budget the escalation attempt gets when the routine model
  * bailed by exhausting its own. Deliberately modest: the point is to clear a
@@ -134,7 +160,7 @@ export interface SkillRecord {
   tier?: 'A' | 'B';
 }
 
-export type BailReason = 'turn-cap' | 'timeout' | 'stalled' | 'stopped' | 'invalid-report';
+export type BailReason = 'turn-cap' | 'timeout' | 'stalled' | 'stopped' | 'invalid-report' | 'looping';
 
 export interface EscalationRecord {
   from: string;
@@ -176,6 +202,11 @@ export async function runInstruction(
   let heldValues: Record<string, string | number | boolean | null> | undefined;
   let capWarned = false;
   let unproductiveTurns = 0;
+  // Recent state-changing calls with their outcomes, for cycle detection —
+  // see loopingCycle. Cleared when the nudge is issued so the second strike
+  // needs a fresh full cycle.
+  const recentActs: string[] = [];
+  let loopNudged = false;
 
   // Previous instructions' raw tool output describes a page that has usually
   // moved on; their durable conclusion survives as the `[report]` line below.
@@ -375,6 +406,17 @@ export async function runInstruction(
       turns,
       true,
       'timeout',
+    );
+
+  const looping = (turns: number, period: number) =>
+    finish(
+      {
+        status: 'blocked',
+        summary: `Agent looped: a cycle of ${period} action(s) repeated ${CYCLE_REPEATS}× with identical page responses, twice, despite being told to change approach — the state was not advancing. ${resumeHint()} Check the page for a dialog or unsaved-changes prompt that needs a different response.`,
+      },
+      turns,
+      true,
+      'looping',
     );
 
   const stalled = (turns: number) =>
@@ -592,6 +634,26 @@ export async function runInstruction(
       actions.push({ tool: call.name, args: summary, ok: !execution.isError });
       state.messages.push({ role: 'tool', tool_call_id: call.id, content: execution.result });
       accountActions(skill, call.name, call.args, execution);
+
+      // The same gesture cycle producing the same page response, over and
+      // over, means the agent is not advancing — the r2 halt on grafana was
+      // 75 turns of Exit edit ↔ Discard dialog. One nudge to break out, then
+      // a blocked report that says so, instead of burning to the cap.
+      if (CYCLE_TOOLS.has(call.name)) {
+        recentActs.push(`${call.name} ${summary} → ${execution.result.slice(0, 600)}`);
+        const period = loopingCycle(recentActs);
+        if (period) {
+          recentActs.length = 0;
+          if (loopNudged) return looping(turn, period);
+          loopNudged = true;
+          transcript.push(`turn ${turn}: looping — the last ${period} action(s) repeated ${CYCLE_REPEATS}× with identical results`);
+          opts.onProgress?.(`[turn ${turn}/${opts.maxTurns}] loop detected (period ${period}); nudging`);
+          state.messages.push({
+            role: 'user',
+            content: `You are looping: your last ${period} action(s) have run ${CYCLE_REPEATS} times in a row and the page responded identically each time, so repeating them will not change anything. Stop. Take a snapshot, work out why the state is not advancing (a dialog that needs a different button, an unsaved change to discard or keep, a control that is not the one you think), and take a DIFFERENT route. If there is no other route, call report with status blocked and say exactly what is stuck.`,
+          });
+        }
+      }
 
       if (call.name === 'screenshot' && !execution.isError) {
         const m = execution.result.match(/^screenshot saved: (.+)$/);

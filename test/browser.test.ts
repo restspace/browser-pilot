@@ -11,6 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { BrowserSession } from '../src/daemon/browser.js';
 import { executeTool } from '../src/agent/tools.js';
 import { generateScript } from '../src/daemon/codegen.js';
+import { candidateExpr, makeLocator } from '../src/daemon/recorder.js';
 
 const enabled = process.env.BP_BROWSER_TESTS === '1';
 const d = enabled ? describe : describe.skip;
@@ -56,6 +57,17 @@ d('browser primitives (fixture page)', () => {
     expect(out.result).toMatch(/button/i);
     expect(out.result).toMatch(/Submit/);
   });
+
+  it('eval is read-only: a click through it is refused and the page is untouched', async () => {
+    const before = (await run('read', { target: '#banner', what: 'text' })).result;
+    const refused = await run('eval', { expression: "document.querySelector('#submit').click()" });
+    expect(refused.isError).toBe(true);
+    expect(refused.result).toMatch(/eval is read-only: the expression calls \.click\(\)/);
+    expect((await run('read', { target: '#banner', what: 'text' })).result).toBe(before);
+    const read = await run('eval', { expression: "document.querySelector('#submit').textContent.trim()" });
+    expect(read.isError).toBe(false);
+    expect(read.result).toBe('"Submit"');
+  }, 60_000);
 
   it('@ref targets from a snapshot resolve to live elements', async () => {
     const snap = await run('snapshot', {});
@@ -263,7 +275,7 @@ d('script recording (fixture page)', () => {
 
     const src = generateScript(recorder.entries, { session: 'rec' });
     expect(src).toContain("await test.step('fill the form and submit it', async () => {");
-    expect(src).toContain("await page.getByRole('button', { name: 'Submit' }).click();");
+    expect(src).toContain("await page.getByRole('button', { name: 'Submit', exact: true }).click();");
     expect(src).toContain("await expect(page.locator('#banner')).toContainText('Saved Ada');");
     // no @ref survived into the generated script — they are meaningless outside the session
     expect(src).not.toMatch(/aria-ref|@e\d+(?![^\n]*TODO)/);
@@ -293,6 +305,16 @@ d('script recording (fixture page)', () => {
       : page.locator('.dup >> nth=1');
     expect(await derived.count()).toBe(1);
     expect(await derived.innerText()).toBe('Dup B');
+  }, 60_000);
+
+  it('a role candidate matches its name exactly — "Edit" never resolves to a sibling "Exit edit"', async () => {
+    const page = await session.getPage();
+    await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="exit-edit" type="button">Exit edit</button>'));
+    // the fixture has two row "Edit" buttons; substring matching would make it three
+    expect(await makeLocator(page, { kind: 'role', role: 'button', name: 'Edit' }).count()).toBe(2);
+    expect(await makeLocator(page, { kind: 'role', role: 'button', name: 'Exit edit' }).count()).toBe(1);
+    expect(candidateExpr({ kind: 'role', role: 'button', name: 'Edit' })).toBe("page.getByRole('button', { name: 'Edit', exact: true })");
+    await page.evaluate(() => document.getElementById('exit-edit')?.remove());
   }, 60_000);
 
   it('records a raw CSS target verbatim and flags it when it is not unique', async () => {
