@@ -1,0 +1,174 @@
+{
+  "flow": "fwgr19",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8f9ac5; observed h2=Request rate, h2_2=Error count, h2_3=Latency by endpoint.",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard, added a Stat visualization panel titled 'rpgr3-r2 Availability' using the TestData data source (default Random Walk scenario), set the dashboard name to 'rpgr3-r2 Bench Dashboard', and saved it. Verified: panel title is 'rpgr3-r2 Availability' (shown as h2 and in the Title field), data source is TestData (shown as 'A (TestData)' badge and TestData logo in the query editor), and the dashboard URL is http://127.0.0.1:3000/d/efx2ayl1qlp1cc/rpgr3-r2-bench-dashboard after saving.",
+      "values": {
+        "panel_title": "rpgr3-r2 Availability",
+        "data_source": "TestData",
+        "dashboard_url": "http://127.0.0.1:3000/d/efx2ayl1qlp1cc/rpgr3-r2-bench-dashboard"
+      },
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "The replayed procedure created the 'rpgr3-r2 Notes' panel on the dashboard (that title appears in the left panel list button at @e3096). The panel has been given the title 'rpgr3-r2 Notes' but the visualization is still 'Time series' (default) rather than 'Text', and I was unable to switch it to Text (ran out of turns when trying to search for 'Text' in the visualization picker). The 'rpgr3-r2 Availability' Stat panel is also present. The dashboard title in the breadcrumb is 'rpgr3-r2 Bench Dashboard'. I could not verify the Text content or complete the save — the panel needs its visualization changed to 'Text' and then the text content needs to be entered in the Text mode editor before saving.",
+      "values": {
+        "dashboard_title": "rpgr3-r2 Bench Dashboard",
+        "availability_panel_title": "rpgr3-r2 Availability",
+        "notes_panel_title": "rpgr3-r2 Notes",
+        "dashboard_url": "http://127.0.0.1:3000/d/efx2ayl1qlp1cc/rpgr3-r2-bench-dashboard"
+      },
+      "tier": "A",
+      "replayed": "12/27",
+      "repaired": false,
+      "turns": 30
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Completed both tasks on the 'rpgr3-r2 Bench Dashboard': (1) added the tag 'bench' in dashboard Settings > General — verified in the settings tags list (listitem 'bench' with a 'Remove \"bench\" tag' button); (2) the time range is set to 'Last 6 hours' — verified in the top bar time picker ('Time range selected: Last 6 hours'). Saved the dashboard with 'Update default time range' checked; the save was confirmed by the 'Dashboard saved' alert. After saving, the top bar still shows 'Last 6 hours' and the dashboard title in the breadcrumb is 'rpgr3-r2 Bench Dashboard'.",
+      "values": {
+        "tags_in_settings": "bench",
+        "time_range_displayed": "Last 6 hours",
+        "save_confirmed": "yes — 'Dashboard saved' alert shown",
+        "dashboard_title": "rpgr3-r2 Bench Dashboard"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 41
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard auto-refresh interval to '1m' via the top bar refresh interval dropdown. Saved the dashboard; the save was confirmed by a 'Dashboard saved' alert. After saving, the top bar refresh interval button shows '1m' and the URL includes refresh=1m.",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "save_confirmed": "yes — 'Dashboard saved' alert shown"
+      },
+      "tier": "B",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Verification completed on a fresh load of http://127.0.0.1:3000/d/efx2ayl1qlp1cc/rpgr3-r2-bench-dashboard (UID efx2ayl1qlp1cc). (1) Breadcrumb title: 'rpgr3-r2 Bench Dashboard'. (2) Panels visible: two panels — 'Panel Title' and 'rpgr3-r2 Availability' (note: 'rpgr3-r2 Notes' appears only as a legend/series item inside the 'Panel Title' panel, not as a separate panel title). (3) Time range in top bar: 'Last 6 hours'. (4) Auto-refresh interval in top bar dropdown: '1m'. (5) Settings > General: tags list contains 'bench' (with a 'Remove \"bench\" tag' button); dashboard name is 'rpgr3-r2 Bench Dashboard'. (6) The 'rpgr3-r2 Availability' panel's query editor shows data source 'TestData' (query row 'A (TestData)' with the TestData logo); the editor was closed without saving. Nothing was changed.",
+      "values": {
+        "dashboard_uid": "efx2ayl1qlp1cc",
+        "breadcrumb_title": "rpgr3-r2 Bench Dashboard",
+        "panel_titles": "Panel Title; rpgr3-r2 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags_in_settings": "bench",
+        "dashboard_name_in_settings": "rpgr3-r2 Bench Dashboard",
+        "availability_panel_data_source": "TestData",
+        "notes_panel_content": "Panel Title\nrpgr3-r2 Notes"
+      },
+      "tier": "A",
+      "replayed": "1/13",
+      "repaired": false,
+      "turns": 49
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "03-add",
+      "skill": "s_567dd1",
+      "atStep": "13",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Panel editor option pane field input Title')",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx2ayl1qlp1cc/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "05-set",
+      "skill": "s_7ab93e",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Back to dashboard button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx2ayl1qlp1cc/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "06-change",
+      "skill": "s_a878d8",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx2ayl1qlp1cc/:id"
+    }
+  ],
+  "wallMs": 1423798,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3127180,
+    "completionTokens": 36759,
+    "cachedTokens": 2717536
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2324953,
+      "completionTokens": 24480,
+      "cachedTokens": 2031616
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 802227,
+      "completionTokens": 12279,
+      "cachedTokens": 685920
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
