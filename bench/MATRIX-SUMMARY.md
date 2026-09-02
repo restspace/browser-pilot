@@ -80,10 +80,10 @@ bench, plus the null option of just running the agent again:
 
 | target | sleep-walker (r1, r2) | agent-browser re-run | authored script (r1, r2) | codegen (r1, r2) |
 |---|---|---|---|---|
-| repairdesk | **7/7, 7/7** · $0.004, $0.003 | 6/6 · $0.19 every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
-| kanboard | **6/6, 6/6** · $0.00, $0.00 | 2/6 · $0.77 every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a), same · $0 |
-| grafana | **6/6, 5/6** · $0.14, $0.25 | 6/6 · $1.05 every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
-| odoo | **6/6, 6/6** · $0.49, $0.04 | 6/6 · $1.51 every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
+| repairdesk | **7/7, 7/7** · $0.004, $0.003 · 80s, 83s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
+| kanboard | **6/6, 6/6** · $0.00, $0.00 · 19s, 19s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
+| grafana | **6/6, 5/6** · $0.14, $0.25 · 583s, 592s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
+| odoo | **6/6, 6/6** · $0.49, $0.04 · 1215s, 598s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
 
 (kanboard sleep-walker replays: 4/4 app-state objectives verified plus both
 report-only objectives answered from the flow's own step reports — scored
@@ -101,7 +101,13 @@ replays verify 25/26 objectives at $0.00 where the flow has converged
 (repairdesk, kanboard — 19–83 seconds a run) and at $0.04–0.25 where recovery
 still fires (grafana, odoo — the convergence trend line: odoo fell from
 $0.49 to $0.04 between its two replays). The recurring cost of a known flow
-trends to zero without the correctness trending anywhere.
+trends to zero without the correctness trending anywhere. On the clock: a
+converged sleep-walker replay is the fastest *correct* repeat on record
+(kanboard 19s — three times faster than the codegen script walking the same
+flow), and the statics' short walls elsewhere are mostly time-to-crash, not
+time-to-done (grafana authored: 17s to die at login; odoo codegen: 8s to die
+on the Apps page). The grafana/odoo sleep-walker walls are recovery time and
+fall with the cost as the flow converges (odoo 1215s → 598s).
 
 ## Conditions and caveats, so the numbers stay honest
 
