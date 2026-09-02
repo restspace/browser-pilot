@@ -1,0 +1,189 @@
+{
+  "flow": "fwod30",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Odoo (admin), navigated via the Sales app to the Customers (Contacts) list, and created a new contact named \"rpod1-r1 Bench Customer\" (Company type, Customer) with City \"Benchville\". Saved as record id=44, then reopened it from the list and verified the form shows Name \"rpod1-r1 Bench Customer\" and City \"Benchville\".",
+      "values": {
+        "contact_name": "rpod1-r1 Bench Customer",
+        "city": "Benchville",
+        "record_id": "44"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 87
+    },
+    {
+      "id": "02-change",
+      "status": "success",
+      "summary": "Contact 'rpod1-r1 Bench Customer' (Company type, Customer) with City 'Benchville' was already created and is open on the form page. Both values verified: Name = \"rpod1-r1 Bench Customer\", City = \"Benchville\". No re-creation needed.",
+      "values": {
+        "contact_name": "rpod1-r1 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Quotation S00021 for customer 'rpod1-r1 Bench Customer' exists and was verified by reopening it. It contains exactly one order line: product \"[E-COM10] Pedal Bin\", quantity 3.00, with the app-filled unit price of 47.00 (£). The computed Untaxed Amount shown in the order totals is £141.00 (TAX 20% £28.20, Total £169.20).",
+      "values": {
+        "quotation_reference": "S00021",
+        "customer": "rpod1-r1 Bench Customer",
+        "product_name": "[E-COM10] Pedal Bin",
+        "quantity": "3.00",
+        "unit_price": "47.00",
+        "untaxed_amount": "£ 141.00",
+        "total": "£ 169.20"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 36
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Quotation S00021 was edited: a second order line for \"[FURN_7777] Office Chair\" (qty 2, app-filled unit price £70.00) was added, keeping the existing \"[E-COM10] Pedal Bin\" line (qty 3, £47.00) untouched. Saved successfully. The new total Untaxed Amount computed by the app is £281.00 (£141.00 + £140.00), with Tax £56.20 and Total £337.20.",
+      "values": {
+        "second_product_name": "[FURN_7777] Office Chair",
+        "second_product_unit_price": "70.00",
+        "second_product_quantity": "2.00",
+        "first_line_subtotal": "£ 141.00",
+        "second_line_subtotal": "£ 140.00",
+        "untaxed_amount_total": "£ 281.00",
+        "tax": "£ 56.20",
+        "total": "£ 337.20",
+        "ref": "S00021"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Quotation S00021 was edited: the first order line '[E-COM10] Pedal Bin' quantity was changed from 3 to 5 (the second line '[FURN_7777] Office Chair' qty 2 remained untouched). The app recomputed: Pedal Bin subtotal £235.00, Office Chair subtotal £140.00, giving a new total Untaxed Amount of £375.00. Tax £75.00, Total £450.00.",
+      "values": {
+        "pedal_bin_quantity": "5.00",
+        "pedal_bin_unit_price": "47.00",
+        "pedal_bin_subtotal": "£ 235.00",
+        "office_chair_quantity": "2.00",
+        "office_chair_unit_price": "70.00",
+        "office_chair_subtotal": "£ 140.00",
+        "untaxed_amount": "£ 375.00",
+        "tax": "£ 75.00",
+        "total": "£ 450.00",
+        "untaxed_amount_2": "Untaxed Amount\t£ 375.00",
+        "pedal_bin_subtotal_2": "£ 235.00",
+        "office_chair_subtotal_2": "£ 140.00",
+        "untaxed_amount_3": "£ 375.00",
+        "ref": "S00021"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Quotation S00021 for 'rpod1-r1 Bench Customer' was confirmed successfully. The record now shows order reference \"S00021\" and the status displayed is \"Sales Order\" (the checked/active radio in the statusbar). The buttons now show \"Create Invoice\", \"Send by Email\", \"Cancel\" instead of \"Confirm\".",
+      "values": {
+        "order_reference": "S00021",
+        "order_status": "Sales Order",
+        "order_status_2": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Sales order S00021 for 'rpod1-r1 Bench Customer' was cancelled successfully. The Cancel button was clicked, the \"Cancel Sales Order\" wizard appeared with \"Send and cancel\" option, which was clicked. The status bar now shows \"Cancelled\" as the active/checked status.",
+      "values": {
+        "order_reference": "S00021",
+        "order_status": "Cancelled"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 15
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Record S00021 reads as follows: Order reference \"S00021\". Status (active radio in statusbar): \"Cancelled\". Customer: \"rpod1-r1 Bench Customer\". Two order lines: (1) [E-COM10] Pedal Bin, qty 5.00, unit price £47.00, subtotal £235.00; (2) [FURN_7777] Office Chair, qty 2.00, unit price £70.00, subtotal £140.00. Untaxed Amount: £375.00. TAX 20%: £75.00. Total: £450.00.",
+      "values": {
+        "order_reference": "S00021",
+        "status": "Cancelled",
+        "customer": "rpod1-r1 Bench Customer",
+        "line1_product": "[E-COM10] Pedal Bin",
+        "line1_quantity": "5.00",
+        "line1_unit_price": "47.00",
+        "line1_subtotal": "£ 235.00",
+        "line2_product": "[FURN_7777] Office Chair",
+        "line2_quantity": "2.00",
+        "line2_unit_price": "70.00",
+        "line2_subtotal": "£ 140.00",
+        "untaxed_amount": "£ 375.00",
+        "tax": "£ 75.00",
+        "total": "£ 450.00",
+        "untaxed_amount_2": "Untaxed Amount\t£ 375.00\nTAX 20%\t\n£ 75.00\n\nTotal\t£ 450.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 3
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwod30",
+      "step": "01-open",
+      "skill": "s_d9a4ad",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('menuitem', { name: 'Contacts' })",
+      "fallbackUsed": "page.locator('body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    }
+  ],
+  "wallMs": 1081500,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3778589,
+    "completionTokens": 27649,
+    "cachedTokens": 3135552
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 3273431,
+      "completionTokens": 24902,
+      "cachedTokens": 2690048
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 505158,
+      "completionTokens": 2747,
+      "cachedTokens": 445504
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

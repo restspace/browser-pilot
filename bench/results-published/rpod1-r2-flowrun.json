@@ -1,0 +1,187 @@
+{
+  "flow": "fwod30",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Odoo as admin, navigated to the Contacts app via Sales > Orders > Customers (the res.partner Contacts view — no separate top-level Contacts app was installed), and created a new contact named exactly \"rpod1-r2 Bench Customer\" (default Company type) with City \"Benchville\". Saved successfully (record id=45, \"Contact created\" notification shown). Verified by returning to the Customers kanban and reopening record id=45: the form displays Name \"rpod1-r2 Bench Customer\" and City \"Benchville\". Note: this Odoo build's contact form exposes no explicit Customer checkbox (no boolean fields exist in the form view); the contact was created in the Customers context and appears in the Customers list. Screenshots captured at save and verification states.",
+      "values": {
+        "contact_name": "rpod1-r2 Bench Customer",
+        "contact_city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 100
+    },
+    {
+      "id": "02-change",
+      "status": "success",
+      "summary": "Contact 'rpod1-r2 Bench Customer' (Company type, Customer) with City 'Benchville' was already created and is open on the form page. Both values verified: Name = \"rpod1-r2 Bench Customer\", City = \"Benchville\". No re-creation needed.",
+      "values": {
+        "contact_name": "rpod1-r2 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Created and saved quotation S00022 (id=22) in the Odoo Sales app for customer 'rpod1-r2 Bench Customer' (selected from the autocomplete dropdown, showing Benchville). Added exactly one order line: product 'Conference Chair' [E-COM12] selected from the product catalogue dropdown, quantity set to 3.00. The app auto-filled the unit price at £ 33.00 and computed Untaxed Amount £ 99.00 (TAX 20% £ 19.80, Total £ 118.80). All values verified on the saved record after the save navigation.",
+      "values": {
+        "ref": "S00022"
+      },
+      "tier": "A",
+      "replayed": "0/2",
+      "repaired": false,
+      "turns": 47
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 for customer 'rpod1-r2 Bench Customer', entered edit mode, and added a second order line: product 'Customizable Desk' [FURN_0096] selected from the product catalogue autocomplete dropdown, quantity set to 2.00 via the product configurator dialog. The app auto-filled the unit price at £ 750.00. The first line (Conference Chair, qty 3.00, £ 99.00) was left untouched. Saved the quotation — the new total Untaxed Amount is £ 1,599.00 (TAX 20% £ 319.80, Total £ 1,918.80), reflecting both lines. All values verified on the saved record.",
+      "values": {
+        "ref": "S00022"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 43
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 for customer 'rpod1-r2 Bench Customer', clicked Edit, changed the first order line (Conference Chair) quantity from 3 to 5. The second line (Customizable Desk, qty 2) was left untouched. Saved the quotation — the app recomputed the new total Untaxed Amount as £ 1,665.00 (first line now £165.00 + second line £1,500.00 = £1,665.00; TAX 20% £333.00, Total £1,998.00). All values verified on the saved record.",
+      "values": {
+        "new_untaxed_amount": "£ 1,665.00",
+        "ref": "S00022"
+      },
+      "tier": "B",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened quotation S00022 for customer 'rpod1-r2 Bench Customer' in Odoo Sales. Found two stray blocking modals (an email composer and an \"Edit: rpod1-r2 Bench Customer\" dialog) left over from earlier attempts that were intercepting the Confirm clicks — discarded both. Then clicked the Confirm button, which changed the record's status. Verified on the reloaded record: the order reference shown is \"S00022\" and the statusbar now shows \"Sales Order\" as the current status (data-value=sale, aria-checked=true). Screenshot captured as evidence.",
+      "values": {
+        "ref": "S00022"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 56
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Opened sales order S00022 for customer 'rpod1-r2 Bench Customer' in Odoo Sales. Clicked the Cancel button in the header, which opened a \"Cancel Sales Order\" confirmation modal (with a native alert \"Are you sure you want to cancel this order?\"). Clicked the modal's primary \"Cancel\" button to confirm the cancellation. Verified after a full page reload: the statusbar now shows \"Cancelled\" as the current status (aria-checked=true), and the header buttons changed from \"Create Invoice / Send by Email / Preview / Cancel\" to \"Preview / Set to Quotation\", confirming the Cancel action succeeded. Screenshot captured as evidence.",
+      "values": {
+        "ref": "S00022"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 41
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Record S00022 for customer 'rpod1-r2 Bench Customer' (Benchville) is in status \"Cancelled\". Two order lines: (1) Conference Chair, qty 5.00; (2) Customizable Desk, qty 2.00. Untaxed Amount: £ 1,665.00. All values verified from the live page without any state changes.",
+      "values": {
+        "order_reference": "S00022",
+        "customer_name": "rpod1-r2 Bench Customer\nBenchville",
+        "first_line_product": "Conference Chair",
+        "first_line_qty": "5.00",
+        "second_line_product": "Customizable Desk",
+        "second_line_qty": "2.00",
+        "untaxed_amount": "£ 1,665.00",
+        "current_status": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 2
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwod30",
+      "step": "01-open",
+      "skill": "s_d9a4ad",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('menuitem', { name: 'Contacts' })",
+      "fallbackUsed": "page.locator('body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(2)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod30",
+      "step": "03-open",
+      "skill": "s_142027",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.27,
+      "missedLocator": "page.getByRole('menuitem', { name: 'Sales' })",
+      "fallbackUsed": "page.locator('body > header > nav > div:nth-of-type(1) > div > a:nth-of-type(3)')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&dashboard_id=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod30",
+      "step": "05-open",
+      "skill": "s_543a48",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-open.quotation_reference, 03-open.product_name, 04-open.second_product, 03-open.quotation_reference, 03-open.product_name, 04-open.second_product",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod30",
+      "step": "08-open",
+      "skill": "s_7d7c7c",
+      "similarity": 0.997,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 03-open.quotation_reference, 03-open.quotation_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 2181807,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 7684100,
+    "completionTokens": 45188,
+    "cachedTokens": 6971865
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 5153381,
+      "completionTokens": 26903,
+      "cachedTokens": 4626432
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 2530719,
+      "completionTokens": 18285,
+      "cachedTokens": 2345433
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
