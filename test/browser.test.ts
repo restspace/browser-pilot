@@ -9,7 +9,7 @@ import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { BrowserSession } from '../src/daemon/browser.js';
-import { executeTool } from '../src/agent/tools.js';
+import { executeTool, fireWhenAttached } from '../src/agent/tools.js';
 import { generateScript } from '../src/daemon/codegen.js';
 import { candidateExpr, describeTarget, makeLocator } from '../src/daemon/recorder.js';
 
@@ -67,6 +67,45 @@ d('browser primitives (fixture page)', () => {
     const read = await run('eval', { expression: "document.querySelector('#submit').textContent.trim()" });
     expect(read.isError).toBe(false);
     expect(read.result).toBe('"Submit"');
+  }, 60_000);
+
+  it('clicks a control that re-mounts on every render, inside a window, and says so', async () => {
+    const page = await session.getPage();
+    // a React-style flicker: the button is torn down and rebuilt every 30ms,
+    // so no single element ever passes Playwright's stability check
+    await page.evaluate(() => {
+      const w = window as unknown as { __flick: number; __flickTimer: number };
+      w.__flick = 0;
+      const host = document.createElement('div');
+      host.id = 'flick-host';
+      document.body.appendChild(host);
+      const mount = () => {
+        host.innerHTML = '';
+        const b = document.createElement('button');
+        b.id = 'flick';
+        b.type = 'button';
+        b.textContent = 'Flicker';
+        b.addEventListener('click', () => { w.__flick++; });
+        host.appendChild(b);
+      };
+      mount();
+      w.__flickTimer = window.setInterval(mount, 8);
+    });
+    const flicks = () => page.evaluate(() => (window as unknown as { __flick: number }).__flick);
+    // the window tier on its own: lands a click on the first attached poll
+    const direct = await fireWhenAttached(page.locator('#flick'), { timeout: 5_000 });
+    expect(direct).toMatch(/dispatched during a re-render window/);
+    expect(await flicks()).toBeGreaterThanOrEqual(1);
+    // and through the click tool: whichever tier lands it, it lands within
+    // one actionability timeout plus the window — never two timeouts
+    const started = Date.now();
+    const res = await run('click', { target: '#flick' });
+    const elapsed = Date.now() - started;
+    await page.evaluate(() => window.clearInterval((window as unknown as { __flickTimer: number }).__flickTimer));
+    expect(res.isError).toBe(false);
+    expect(await flicks()).toBeGreaterThanOrEqual(2);
+    expect(elapsed).toBeLessThan(18_000);
+    await page.evaluate(() => document.getElementById('flick-host')?.remove());
   }, 60_000);
 
   it('@ref targets from a snapshot resolve to live elements', async () => {

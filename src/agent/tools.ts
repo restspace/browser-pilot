@@ -1007,24 +1007,72 @@ async function robustClick(loc: Locator, opts: { timeout: number; dbl?: boolean 
     await act({ timeout: opts.timeout });
     return label;
   } catch (first) {
-    if (/strict mode violation/i.test(first instanceof Error ? first.message : String(first))) throw first;
+    const msg = first instanceof Error ? first.message : String(first);
+    if (/strict mode violation/i.test(msg)) throw first;
+    // A control the app re-mounts on every render never passes the
+    // attached→visible→stable check, and a forced click needs it attached at
+    // the instant of the action just the same — so both tiers lose the race
+    // and burn their full timeout (rpgr4-r2 spent 74 turns on grafana's
+    // viz-picker toggle this way). Skip straight to firing inside a window.
+    if (/detached|not attached|stable/i.test(msg)) return fireWhenAttached(loc, opts, label);
     await loc.scrollIntoViewIfNeeded({ timeout: opts.timeout }).catch(() => {});
     try {
       await act({ timeout: opts.timeout, force: true });
       return `${label} (forced past actionability checks)`;
     } catch {
-      await loc.first().evaluate((el, dbl) => {
-        const fire = (type: string) =>
-          el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
-        fire('click');
-        if (dbl) {
-          fire('click');
-          fire('dblclick');
-        }
-      }, Boolean(opts.dbl));
-      return `${label} (dispatched DOM event — element was not normally clickable)`;
+      try {
+        await loc.first().evaluate(fireClick, Boolean(opts.dbl));
+        return `${label} (dispatched DOM event — element was not normally clickable)`;
+      } catch {
+        return fireWhenAttached(loc, opts, label);
+      }
     }
   }
+}
+
+/** Runs in the page: a synthetic click (React's delegated handlers see it). */
+function fireClick(el: Element, dbl: boolean): void {
+  const fire = (type: string) => el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
+  fire('click');
+  if (dbl) {
+    fire('click');
+    fire('dblclick');
+  }
+}
+
+/**
+ * Click a control that keeps re-mounting. Polls for the element and, the
+ * moment a handle resolves, dispatches the click in the same tick — no
+ * actionability wait at all. A flickering element is attached for a good
+ * fraction of every cycle; the normal tiers never act inside that window.
+ * If no window is found within the budget, the error says what the agent is
+ * fighting and what to try instead of the same click again.
+ */
+export async function fireWhenAttached(loc: Locator, opts: { timeout: number; dbl?: boolean }, label = 'clicked'): Promise<string> {
+  const deadline = Date.now() + opts.timeout;
+  let polls = 0;
+  let attached = 0;
+  while (Date.now() < deadline) {
+    polls++;
+    const handle = await loc.first().elementHandle({ timeout: 100 }).catch(() => null);
+    if (handle) {
+      attached++;
+      try {
+        await handle.evaluate(fireClick, Boolean(opts.dbl));
+        return `${label} (dispatched during a re-render window — the element re-mounts continuously, so a normal click could not land; if the app did not respond, it may need a keyboard route or a wait_for on the state that settles it)`;
+      } catch {
+        // gone again between resolve and fire — next window
+      } finally {
+        await handle.dispose().catch(() => {});
+      }
+    }
+    await new Promise((r) => setTimeout(r, 25));
+  }
+  throw new Error(
+    attached
+      ? `target re-rendered continuously: attached on ${attached} of ${polls} polls but never long enough to click. The app re-mounts it on every render. Do not repeat this click — wait_for an element that appears once the state settles, or drive it by keyboard (focus a stable neighbour, Tab to it, press Enter).`
+      : `target was never attached during ${Math.round(opts.timeout / 1000)}s of polling after an initial detach — it was removed by a re-render. Re-snapshot and locate it afresh rather than repeating this click.`,
+  );
 }
 
 async function waitFor(
