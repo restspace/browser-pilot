@@ -1,0 +1,63 @@
+{
+  "arm": "agent-browser",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "a9ca517"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "auod1-a",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 73,
+  "wallMs": 302064,
+  "orchestrator": {
+    "input": 240279,
+    "cacheWrite": 0,
+    "cacheRead": 4401472,
+    "output": 6945
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 164,
+  "subcommands": {
+    "open": 4,
+    "skills": 1,
+    "snapshot": 42,
+    "fill": 7,
+    "click": 35,
+    "get": 8,
+    "wait": 42,
+    "type": 4,
+    "press": 3,
+    "eval": 18
+  },
+  "invocationCount": 164,
+  "commandMs": 115936,
+  "commandBytes": 290334,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Modal",
+    "Friendli"
+  ],
+  "orReportedCostUsd": 1.4074,
+  "maxUsd": 2,
+  "spendUsd": 1.5113,
+  "finalText": "All objectives are complete and verified.\n\n## Final Report\n\n**Objective 1 — DONE**: Customer `auod1-a Bench Customer` created (res.partner id 44). Verified on the contact form: Name field = `auod1-a Bench Customer`, City field = `Benchville`.\n\n**Objective 2 — DONE**: Quotation `S00021` created for that customer with one order line. Product chosen: `[FURN_0269] Office Chair Black` (selected from the autocomplete dropdown). Unit price the app filled in: `120.50`. Untaxed amount computed: `£ 361.50` (3 × 120.50).\n\n**Objective 3 — DONE**: Second order line added: `[FURN_7800] Desk Combination` (chosen from the dropdown), quantity 2, unit price `450.00`, line Tax excl. `£ 900.00`. New untaxed amount: `£ 1,261.50`.\n\n**Objective 4 — DONE**: First line quantity changed from 3 to 5 (line shows `5.00`, Tax excl. `£ 602.50`). Untaxed amount afterwards: `£ 1,502.50` (TAX 20% `£ 300.50`, Total `£ 1,803.00`).\n\n**Objective 5 — DONE**: Quotation confirmed. Order reference: `S00021`. Status shown by the status bar: `Sales Order` (the \"Sales Order\" radio was checked; the \"Create Invoice\" button appeared).\n\n**Objective 6 — DONE**: The sales order was cancelled. Status shown after cancelling: `Cancelled` (the \"Cancelled\" radio is now the checked one; the action buttons changed to \"Preview\" and \"Set to Quotation\"). Nothing from this run remains active.\n\nNote: while adding the second line, an unrelated \"Edit: auod1-a Bench Customer\" modal appeared on top of the cancel dialog; I discarded it and proceeded with the cancel confirmation.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/auod1-a-agent-browser-transcript.jsonl"
+}

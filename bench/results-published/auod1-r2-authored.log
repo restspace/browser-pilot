@@ -1,0 +1,52 @@
+STEP login
+STEP logged in
+STEP create customer
+OBJ 1 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[name="name"]').first() to be visible[22m
+
+STEP create quotation
+OBJ 2 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.o_list_renderer .o_data_row, .o_field_x2m_list .o_data_row').last().locator('td[name="product_id"] input, div[name="product_id"] input, [name="product_id"] input').first() to be visible[22m
+
+STEP add second line
+OBJ 3 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.o_list_renderer .o_data_row, .o_field_x2m_list .o_data_row').last().locator('td[name="product_id"] input, div[name="product_id"] input, [name="product_id"] input').first() to be visible[22m
+
+STEP change first line qty to 5
+OBJ 4 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.o_list_renderer .o_data_row, .o_field_x2m_list .o_data_row').first().locator('input[name="quantity"]').first() to be visible[22m
+
+STEP confirm quotation
+OBJ 5 DONE: Order reference S00023, status "Sales Order Quotation Sent Quotation"
+STEP cancel sales order
+OBJ 6 FAILED: locator.click: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('.modal.d-block:not(.o_inactive_modal)').last().getByRole('button', { name: /Send and cancel/ }).first()[22m
+
+--- FINAL REPORT ---
+1 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[name="name"]').first() to be visible[22m
+
+2 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.o_list_renderer .o_data_row, .o_field_x2m_list .o_data_row').last().locator('td[name="product_id"] input, div[name="product_id"] input, [name="product_id"] input').first() to be visible[22m
+
+3 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.o_list_renderer .o_data_row, .o_field_x2m_list .o_data_row').last().locator('td[name="product_id"] input, div[name="product_id"] input, [name="product_id"] input').first() to be visible[22m
+
+4 FAILED: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.o_list_renderer .o_data_row, .o_field_x2m_list .o_data_row').first().locator('input[name="quantity"]').first() to be visible[22m
+
+5 DONE: Order reference S00023, status "Sales Order Quotation Sent Quotation"
+6 FAILED: locator.click: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('.modal.d-block:not(.o_inactive_modal)').last().getByRole('button', { name: /Send and cancel/ }).first()[22m
+
+5 objective(s) failed
