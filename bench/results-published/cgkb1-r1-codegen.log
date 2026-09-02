@@ -1,0 +1,45 @@
+[ok] 1 goto 144ms
+[ok] 2 fill 35ms
+[ok] 3 fill 12ms
+[ok] 4 click 139ms
+[ok] 5 click 110ms
+[ok] 6 click 67ms
+[ok] 7 click 89ms
+[read] 8 ["Backlog  \nTask count\n3  (\nTotal number of tasks in this column across all swimlanes\n3)","Ready ","Work in progress ","Done "]
+[read] 10 ["Backlog  \nTask count\n3  (\nTotal number of tasks in this column across all swimlanes\n3)","Ready ","Work in progress ","Done "]
+[read] 11 "Ready "
+[read] 12 "Work in progress "
+[read] 13 "Done "
+[ok] 14 click 47ms
+[ok] 15 fill 39ms
+[ok] 16 fill 9ms
+[ok] 17 click 36ms
+[read] 19 "cgkb1-r1 Bench Task"
+[read] 20 "Backlog  \nTask count\n4  (\nTotal number of tasks in this column across all swimlanes\n4)"
+[ok] 21 drag 115ms
+[read] 23 "cgkb1-r1 Bench Task"
+[read] 24 "Work in progress "
+[ok] 25 click 134ms
+[ok] 26 click 82ms
+[ok] 27 fill 30ms
+[ok] 28 click 38ms
+[read] 29 "Comment for run cgkb1-r1"
+[read] 31 "cgkb1-r1 Bench Task"
+[ok] 32 click 41ms
+[read] 33 ["","","","","","","","","Visibility:","","Title","","Tags","","","Color","Assignee","Priority","Due Date","","Start Date","","Original estimate","","Time spent","","Complexity","","Reference",""]
+[ok] 34 fill 119ms
+[ok] 35 fill 20ms
+[ok] 36 click 51ms
+[read-miss] 37 locator.innerText: Timeout 30000ms exceeded.
+[read] 39 "12/31/2026 22:34"
+[read-miss] 40 locator.innerText: Timeout 30000ms exceeded.
+[ok] 41 click 45ms
+[ok] 42 click 91ms
+[read] 43 "Position: 1"
+[read] 45 "Due date: 12/31/2026 22:34\nStarted: Start now\nCreated: 09/01/2026 22:34\nModified: 09/01/2026 22:34\nMoved: 09/01/2026 22:34"
+[read] 46 "Column:"
+[read] 47 "Work in progress"
+[read] 48 "Comment for run cgkb1-r1"
+[read] 49 "12/31/2026 22:34"
+[script complete]
+RESULT {"runid":"cgkb1-r1","gestures":[{"i":1,"tool":"goto","ok":true,"ms":144},{"i":2,"tool":"fill","ok":true,"ms":35},{"i":3,"tool":"fill","ok":true,"ms":12},{"i":4,"tool":"click","ok":true,"ms":139},{"i":5,"tool":"click","ok":true,"ms":110},{"i":6,"tool":"click","ok":true,"ms":67},{"i":7,"tool":"click","ok":true,"ms":89},{"i":14,"tool":"click","ok":true,"ms":47},{"i":15,"tool":"fill","ok":true,"ms":39},{"i":16,"tool":"fill","ok":true,"ms":9},{"i":17,"tool":"click","ok":true,"ms":36},{"i":21,"tool":"drag","ok":true,"ms":115},{"i":25,"tool":"click","ok":true,"ms":134},{"i":26,"tool":"click","ok":true,"ms":82},{"i":27,"tool":"fill","ok":true,"ms":30},{"i":28,"tool":"click","ok":true,"ms":38},{"i":32,"tool":"click","ok":true,"ms":41},{"i":34,"tool":"fill","ok":true,"ms":119},{"i":35,"tool":"fill","ok":true,"ms":20},{"i":36,"tool":"click","ok":true,"ms":51},{"i":41,"tool":"click","ok":true,"ms":45},{"i":42,"tool":"click","ok":true,"ms":91}],"reads":[{"i":8,"ok":true,"value":["Backlog  \nTask count\n3  (\nTotal number of tasks in this column across all swimlanes\n3)","Ready ","Work in progress ","Done "]},{"i":10,"ok":true,"value":["Backlog  \nTask count\n3  (\nTotal number of tasks in this column across all swimlanes\n3)","Ready ","Work in progress ","Done "]},{"i":11,"ok":true,"value":"Ready "},{"i":12,"ok":true,"value":"Work in progress "},{"i":13,"ok":true,"value":"Done "},{"i":19,"ok":true,"value":"cgkb1-r1 Bench Task"},{"i":20,"ok":true,"value":"Backlog  \nTask count\n4  (\nTotal number of tasks in this column across all swimlanes\n4)"},{"i":23,"ok":true,"value":"cgkb1-r1 Bench Task"},{"i":24,"ok":true,"value":"Work in progress "},{"i":29,"ok":true,"value":"Comment for run cgkb1-r1"},{"i":31,"ok":true,"value":"cgkb1-r1 Bench Task"},{"i":33,"ok":true,"value":["","","","","","","","","Visibility:","","Title","","Tags","","","Color","Assignee","Priority","Due Date","","Start Date","","Original estimate","","Time spent","","Complexity","","Reference",""]},{"i":37,"ok":false,"error":"locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Due date: 12/31/2026 17:40', { exact: true }).first()\u001b[22m\n"},{"i":39,"ok":true,"value":"12/31/2026 22:34"},{"i":40,"ok":false,"error":"locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Due date: 12/31/2026 17:40', { exact: true }).first()\u001b[22m\n"},{"i":43,"ok":true,"value":"Position: 1"},{"i":45,"ok":true,"value":"Due date: 12/31/2026 22:34\nStarted: Start now\nCreated: 09/01/2026 22:34\nModified: 09/01/2026 22:34\nMoved: 09/01/2026 22:34"},{"i":46,"ok":true,"value":"Column:"},{"i":47,"ok":true,"value":"Work in progress"},{"i":48,"ok":true,"value":"Comment for run cgkb1-r1"},{"i":49,"ok":true,"value":"12/31/2026 22:34"}],"fatal":null}
