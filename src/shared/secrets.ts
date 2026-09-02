@@ -70,7 +70,10 @@ export function resolveSecretsDeep<T>(value: T): T {
  */
 export function scrubSecrets(text: string): string {
   let out = text;
-  for (const [name, value] of ledger) {
+  // Longest first: a shorter secret that is a substring of a longer one
+  // (USER=james, PASS=james2024!) would otherwise split the longer value and
+  // let its tail through.
+  for (const [name, value] of [...ledger].sort((a, b) => b[1].length - a[1].length)) {
     if (value.length < MIN_SCRUB_LEN) continue;
     if (out.includes(value)) out = out.split(value).join(`{{env:${name}}}`);
   }

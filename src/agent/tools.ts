@@ -421,9 +421,12 @@ export async function executeTool(
   /** Cancels cooperative waits (wait_for polling) when the caller's deadline expires. */
   signal?: AbortSignal,
 ): Promise<ToolExecution> {
-  if (name === 'batch') return executeBatch(session, args, screenshotDir, signal);
-  if (name === 'run_skill') return executeSkill(session, args, screenshotDir, signal);
   try {
+    // Inside the guard: a dead browser (getPage throwing) must come back as
+    // an error result the loop can report, never a rejection that ends the
+    // instruction with no report and a dangling user message.
+    if (name === 'batch') return await executeBatch(session, args, screenshotDir, signal);
+    if (name === 'run_skill') return await executeSkill(session, args, screenshotDir, signal);
     const diffing = STATE_CHANGING.has(name) ? await session.getPage().catch(() => null) : null;
     const before: PageSignature | null = diffing ? await captureSignature(diffing) : null;
     const { result } = await runStep(session, name, args, screenshotDir, signal, { before });
@@ -733,9 +736,14 @@ async function dispatch(
       return robustClick(t(), { timeout });
     case 'dblclick':
       return robustClick(t(), { timeout, dbl: true });
-    case 'modifier_click':
-      await t().click({ timeout, modifiers: args.modifiers as ('Shift' | 'Control' | 'Alt' | 'Meta')[] });
-      return `clicked with ${(args.modifiers as string[]).join('+')}`;
+    case 'modifier_click': {
+      // Validate BEFORE clicking: a missing list used to click plainly and
+      // then throw on the result, so the model repeated a click that landed.
+      const modifiers = args.modifiers;
+      if (!Array.isArray(modifiers) || !modifiers.length) throw new Error('modifier_click needs a non-empty modifiers list (Shift, Control, Alt, Meta); use click for a plain click');
+      await t().click({ timeout, modifiers: modifiers as ('Shift' | 'Control' | 'Alt' | 'Meta')[] });
+      return `clicked with ${(modifiers as string[]).join('+')}`;
+    }
     case 'right_click':
       await t().click({ timeout, button: 'right' });
       return 'right-clicked';
@@ -920,6 +928,9 @@ async function dispatch(
 
     case 'download': {
       const downloadPromise = page.waitForEvent('download', { timeout: 30_000 });
+      // If the click throws, nothing awaits this promise and its own timeout
+      // would surface 30s later as an unhandled rejection that kills the daemon.
+      downloadPromise.catch(() => {});
       await t().click({ timeout });
       const download = await downloadPromise;
       const savePath = args.save_path

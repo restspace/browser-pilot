@@ -94,17 +94,28 @@ export class BrowserSession {
   }
 
   async getContext(): Promise<BrowserContext> {
-    if (!this.context) {
-      this.context = await this.launch();
-      this.context.on('page', (p) => this.adoptPage(p));
-      this.context.on('close', () => {
-        this.context = null;
-        this.activePage = null;
+    if (this.context) return this.context;
+    // One launch at a time: an unqueued command (screenshot) arriving while
+    // the first launch is in flight used to start a second browser and
+    // orphan the first, videos and all.
+    this.launching ??= this.launch()
+      .then((context) => {
+        this.context = context;
+        context.on('page', (p) => this.adoptPage(p));
+        context.on('close', () => {
+          this.context = null;
+          this.activePage = null;
+        });
+        for (const p of context.pages()) this.adoptPage(p);
+        return context;
+      })
+      .finally(() => {
+        this.launching = null;
       });
-      for (const p of this.context.pages()) this.adoptPage(p);
-    }
-    return this.context;
+    return this.launching;
   }
+
+  private launching: Promise<BrowserContext> | null = null;
 
   private adoptPage(page: Page): void {
     this.dialogs.attach(page);

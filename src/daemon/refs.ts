@@ -102,7 +102,10 @@ export function refHint(page: Page, ref: string): { role: string; name?: string 
 export function parseRefLines(snapshotText: string): Map<string, { role: string; name?: string }> {
   const out = new Map<string, { role: string; name?: string }>();
   for (const line of snapshotText.split('\n')) {
-    const m = /^\s*-\s+([a-z]+)(?:\s+"((?:[^"\\]|\\.)*)")?[^[\n]*\[@((?:f\d+)?e\d+)\]/.exec(line);
+    // Lazy across the state attributes Playwright renders BEFORE the ref
+    // ([level=1], [expanded], [selected], …) — an expanded picker is exactly
+    // the element that vanishes before it can be described.
+    const m = /^\s*-\s+([a-z]+)(?:\s+"((?:[^"\\]|\\.)*)")?.*?\[@((?:f\d+)?e\d+)\]/.exec(line);
     if (!m) continue;
     const name = m[2]?.replace(/\\"/g, '"');
     out.set(m[3], name ? { role: m[1], name } : { role: m[1] });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, promoteLabelledReads, unnamedReadValues, validateReport, type Report } from '../src/agent/report.js';
+import { addEvidenceValue, backfillReadValues, flattenComposedValues, promoteLabelledReads, proseIdentifiers, unnamedReadValues, validateReport, type Report } from '../src/agent/report.js';
 
 describe('report validation', () => {
   it('accepts a minimal valid report', () => {
@@ -183,6 +183,13 @@ describe('a snapshot ref is not a value name', () => {
   });
 });
 
+
+describe('proseIdentifiers', () => {
+  it('skips refs, ordinals and measurements so the real reference is not crowded out', () => {
+    const report = { status: 'success' as const, summary: 'Clicked @e1234 on the 10th row (width 100px, took 30s) and confirmed order S00021.', evidence: { values: {} } };
+    expect(proseIdentifiers(report)).toEqual(['S00021']);
+  });
+});
 
 describe('composed report values', () => {
   const of = (values: Record<string, string>): Report => ({

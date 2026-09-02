@@ -223,7 +223,11 @@ export function compileSkills(input: CompileInput): Skill[] {
       // whether it is past the point of creation, not merely how far it got.
       const mintedHereOnly = mintedAll.find((m) => m.keptIndex === g);
       if (mintedHereOnly) out.mints = { at: mintedHereOnly.at };
-      const expect = expectationFor(step, slots);
+      // Minted values go into the url-pattern reduction as slots: an id-like
+      // one (odoo's "44", repair-desk's "t15") is otherwise reduced to `:id`
+      // before the {{dN}} marker can land, and the minting step then carries
+      // no reference to what it minted — so `derived` could not find it.
+      const expect = expectationFor(step, new Map([...slots, ...mintedHere]));
       if (expect) out.expect = substituteDeep(expect, mintedHere) as StepExpectation;
       const label = readLabel(step, reportValues);
       // A read with no way to find its element again publishes nothing, so it
@@ -233,7 +237,9 @@ export function compileSkills(input: CompileInput): Skill[] {
       const targetless = step.tool === 'read' && step.args.what === 'url';
       if (label && (targetless || Object.values(locators).some((chain) => chain.length))) out.label = label;
       if (step.via) out.via = step.via;
-      for (const name of slotsUsed(JSON.stringify({ args, locators }))) segParams[name]?.usedIn.push(i + 1);
+      // Expectations count as use: a slot dropped as "unused" would leave an
+      // orphan {{vN}} in addedContains, which replay treats as a HARD line.
+      for (const name of slotsUsed(JSON.stringify({ args, locators, expect: out.expect }))) segParams[name]?.usedIn.push(i + 1);
       return out;
     });
     const mintedForStart = mintedMap((m) => m.keptIndex < base);
@@ -323,7 +329,9 @@ export function compileSkills(input: CompileInput): Skill[] {
       template: finalTemplate,
       params,
       preconditions: {
-        urlPattern: urlPattern(b.sg.startUrl, new Map([...slots, ...b.mintedForStart])),
+        // keptSlots, not slots: a dropped slot has no param to bind, and its
+        // marker in the pattern would read as a wildcard segment.
+        urlPattern: urlPattern(b.sg.startUrl, new Map([...keptSlots, ...b.mintedForStart])),
         ...(b.sg.fingerprint ? { fingerprint: b.sg.fingerprint } : {}),
         ...(identityOf(b.sg.startText, keptSlots, knownVals).length
           ? { requireText: identityOf(b.sg.startText, keptSlots, knownVals) }
@@ -733,7 +741,7 @@ export function urlPattern(url: string, slots: Map<string, string> = new Map()):
       .split('/')
       .map((seg) => {
         if (!seg) return seg;
-        const filled = substitute(decodeURIComponent(seg), slots);
+        const filled = substitute(safeDecode(seg), slots);
         if (filled !== seg && filled.includes('{{')) return filled;
         return isIdLike(seg) ? ':id' : seg;
       })
@@ -767,7 +775,7 @@ export function urlPattern(url: string, slots: Map<string, string> = new Map()):
         if (eq < 0) return pair;
         const key = pair.slice(0, eq);
         const value = pair.slice(eq + 1);
-        const filled = substitute(decodeURIComponent(value), slots);
+        const filled = substitute(safeDecode(value), slots);
         if (filled !== value && filled.includes('{{')) return `${key}=${filled}`;
         return `${key}=${isIdLike(value) ? ':id' : value}`;
       })
@@ -1133,7 +1141,11 @@ function chainSkeleton(chain: LocatorCandidate[] | undefined): string {
 /** Two steps are the same procedure applied to (possibly) a different record. */
 function loopEquivalent(a: SkillStep, b: SkillStep): boolean {
   if (a.tool !== b.tool || a.tool === 'loop') return false;
-  return chainSkeleton(a.locators.target) === chainSkeleton(b.locators.target) && chainSkeleton(a.locators.source) === chainSkeleton(b.locators.source);
+  // Same procedure means the same TYPED values too: two edits that set
+  // different quantities are two steps, not one loop replaying the first
+  // group's value on every record. Targets are per-record by design.
+  const typed = (s: SkillStep) => JSON.stringify(Object.fromEntries(Object.entries(s.args).filter(([k]) => k !== 'target' && k !== 'source')));
+  return typed(a) === typed(b) && chainSkeleton(a.locators.target) === chainSkeleton(b.locators.target) && chainSkeleton(a.locators.source) === chainSkeleton(b.locators.source);
 }
 
 /** True when two groups differ in a *raw* id somewhere — proof they act on distinct records, not an accidental repeat. */

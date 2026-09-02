@@ -117,11 +117,17 @@ function flowFile(name: string): string {
   return path.join(flowsDir(), `${safe}.json`);
 }
 
-export function saveFlow(flow: Flow): string {
-  const dir = flowsDir();
-  fs.mkdirSync(dir, { recursive: true });
-  const file = flowFile(flow.name);
-  fs.writeFileSync(file, JSON.stringify(flow, null, 2));
+/**
+ * Write a flow. `file` defaults to the flows dir under the flow's own name;
+ * a run that loaded the flow from somewhere else passes that path back so
+ * evidence and re-pins land where they came from. Tmp + rename, so a reader
+ * never sees a half-written file.
+ */
+export function saveFlow(flow: Flow, file: string = flowFile(flow.name)): string {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(flow, null, 2));
+  fs.renameSync(tmp, file);
   return file;
 }
 
@@ -143,16 +149,21 @@ export function saveRejectedFlow(flow: Flow, reason: string): string {
   return file;
 }
 
-export function loadFlow(nameOrPath: string): Flow | null {
+/** A flow and the file it was read from — a path first, then a name in the flows dir. */
+export function loadFlowFile(nameOrPath: string): { flow: Flow; file: string } | null {
   const candidates = [nameOrPath, flowFile(nameOrPath)];
-  for (const c of candidates) {
+  for (const file of candidates) {
     try {
-      return JSON.parse(fs.readFileSync(c, 'utf8')) as Flow;
+      return { flow: JSON.parse(fs.readFileSync(file, 'utf8')) as Flow, file };
     } catch {
       /* try next */
     }
   }
   return null;
+}
+
+export function loadFlow(nameOrPath: string): Flow | null {
+  return loadFlowFile(nameOrPath)?.flow ?? null;
 }
 
 export function listFlows(): Flow[] {

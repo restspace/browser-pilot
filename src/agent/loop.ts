@@ -422,7 +422,9 @@ export async function runInstruction(
           // the model — which knows where it read them — for a selector, then
           // trust it only after it resolves to exactly that value. One extra
           // turn, and only when a straggler exists.
-          if (stragglers.length) {
+          // Never past the instruction deadline: this is one more model
+          // call, and the caller believes the budget bounds the whole thing.
+          if (stragglers.length && Date.now() < deadline) {
             const sourced = await sourceStragglers(provider, page, system, state, stragglers, opts, usage);
             for (const step of sourced) browser.script.addStep(step);
           }
@@ -503,6 +505,9 @@ export async function runInstruction(
    * same blocked report a timeout produces.
    */
   const runTool = async (name: string, args: Record<string, unknown>): Promise<ToolExecution> => {
+    // A stop that already landed must not let the rest of a multi-call turn
+    // run: the listener below never fires on an already-aborted signal.
+    if (opts.signal?.aborted) return { result: `ERROR: ${name} was not run — the instruction was stopped.`, isError: true };
     const abort = new AbortController();
     const abortTool = () => abort.abort();
     const timer = setTimeout(abortTool, Math.max(0, deadline - Date.now()));
@@ -610,8 +615,22 @@ export async function runInstruction(
     }
     unproductiveTurns = 0;
 
-    for (const call of completion.toolCalls) {
-      if (Date.now() > deadline) break;
+    // Every tool call on an assistant message must get a tool result, or the
+    // history is malformed for every later request in the session (both
+    // OpenAI-compatible and Anthropic hosts reject it with a 400). A turn that
+    // ends early — deadline, stop, an accepted report mid-turn — answers the
+    // calls it did not run with a stub. A nudge to the model is likewise held
+    // until the turn's results are all in, never pushed between them.
+    const calls = completion.toolCalls;
+    const stubFrom = (index: number, why: string) => {
+      for (const c of calls.slice(index)) state.messages.push({ role: 'tool', tool_call_id: c.id, content: `not executed — ${why}` });
+    };
+    let nudge: string | null = null;
+    for (const [ci, call] of calls.entries()) {
+      if (Date.now() > deadline || opts.signal?.aborted) {
+        stubFrom(ci, 'the instruction ended first');
+        break;
+      }
 
       if (call.name === 'report') {
         const validation = call.args ? validateReport(call.args) : { ok: false as const, error: 'arguments were not valid JSON' };
@@ -627,11 +646,12 @@ export async function runInstruction(
             opts.onProgress?.(`[turn ${turn}] ${hold.progress}`);
             continue;
           }
-          if (holdsAsked.has('naming') && Object.keys(validation.report.evidence?.values ?? {}).length) {
-            browser.script?.noteNamingAnswered?.();
+          if (holdsAsked.has('naming')) {
+            if (Object.keys(validation.report.evidence?.values ?? {}).length) browser.script?.noteNamingAnswered?.();
             // The retry asked for the report "unchanged except…"; models drop
-            // things anyway. Keep every value either report named — see
-            // mergeReportValues for the trace that made this necessary.
+            // things anyway — sometimes the whole evidence block. Keep every
+            // value either report named — see mergeReportValues for the
+            // trace that made this necessary.
             if (heldValues) {
               (validation.report.evidence ??= {}).values = mergeReportValues(heldValues, validation.report.evidence.values);
             }
@@ -643,6 +663,7 @@ export async function runInstruction(
             opts.onProgress?.(`[turn ${turn}] report accepted after repair: ${validation.coerced.join('; ')}`);
           }
           state.messages.push({ role: 'tool', tool_call_id: call.id, content: 'report accepted' });
+          stubFrom(ci + 1, 'the report closed the instruction');
           return finish(validation.report, turn);
         }
         state.messages.push({
@@ -652,6 +673,7 @@ export async function runInstruction(
         });
         transcript.push(`report rejected: ${validation.error}`);
         if (reportRetried) {
+          stubFrom(ci + 1, 'the instruction ended first');
           return finish(
             {
               status: 'blocked',
@@ -692,19 +714,20 @@ export async function runInstruction(
         const period = loopingCycle(recentActs);
         if (period) {
           recentActs.length = 0;
-          if (loopNudged) return looping(turn, period);
+          if (loopNudged) {
+            stubFrom(ci + 1, 'the instruction ended first');
+            return looping(turn, period);
+          }
           loopNudged = true;
           transcript.push(`turn ${turn}: looping — the last ${period} action(s) repeated ${CYCLE_REPEATS}× with identical results`);
           opts.onProgress?.(`[turn ${turn}/${opts.maxTurns}] loop detected (period ${period}); nudging`);
-          state.messages.push({
-            role: 'user',
-            content: `You are looping: your last ${period} action(s) have run ${CYCLE_REPEATS} times in a row and the page responded identically each time, so repeating them will not change anything. Stop. Take a snapshot, work out why the state is not advancing (a dialog that needs a different button, an unsaved change to discard or keep, a control that is not the one you think), and take a DIFFERENT route. If there is no other route, call report with status blocked and say exactly what is stuck.`,
-          });
+          nudge = `You are looping: your last ${period} action(s) have run ${CYCLE_REPEATS} times in a row and the page responded identically each time, so repeating them will not change anything. Stop. Take a snapshot, work out why the state is not advancing (a dialog that needs a different button, an unsaved change to discard or keep, a control that is not the one you think), and take a DIFFERENT route. If there is no other route, call report with status blocked and say exactly what is stuck.`;
         }
       }
 
       if (call.name === 'screenshot' && !execution.isError) {
-        const m = execution.result.match(/^screenshot saved: (.+)$/);
+        // Multiline: a native-dialog note may follow the path on its own line.
+        const m = execution.result.match(/^screenshot saved: (.+)$/m);
         if (m) screenshots.push(m[1]);
       }
 
@@ -721,6 +744,7 @@ export async function runInstruction(
         `${call.name} ${summary} → ${execution.isError ? execution.result.slice(0, 200) : 'ok'}`,
       );
     }
+    if (nudge) state.messages.push({ role: 'user', content: nudge });
   }
 
   return finish(
@@ -780,7 +804,7 @@ export async function runEscalatingInstruction(
     // The recording must carry the caller's wording, not the resume scaffold —
     // see LoopOptions.recordAs. Flow building then merges the continuation
     // into the failed first attempt's group.
-    recordAs: { text: instruction, resume: true },
+    recordAs: { text: opts.recordAs?.text ?? instruction, resume: true },
     ...(first.bailReason === 'turn-cap' ? { maxTurns: headroom(opts.maxTurns) } : {}),
     ...(first.bailReason === 'timeout' ? { timeoutMs: headroom(opts.timeoutMs) } : {}),
   };
@@ -871,7 +895,9 @@ async function sourceStragglers(
   };
   let completion;
   try {
-    completion = await provider.complete([system, ...state.messages, ask], [LOCATE_TOOL], { signal: opts.signal });
+    // One structured answer from a page the model has already seen: low
+    // reasoning effort, or a reasoning model spends a 16k budget on it.
+    completion = await provider.complete([system, ...state.messages, ask], [LOCATE_TOOL], { signal: opts.signal, effort: 'low' });
   } catch {
     return [];
   }
@@ -977,6 +1003,7 @@ function accountActions(skill: SkillRecord, name: string, args: Record<string, u
   if (name === 'batch' && Array.isArray(args.steps)) {
     // Only the steps that ran count; the result lists one line per step that did.
     const ran = (execution.result.match(/^\d+\. /gm) ?? []).length;
+    if (execution.isError && !ran) return; // rejected at validation — nothing ran
     skill.totalActions += ran || args.steps.length;
     return;
   }

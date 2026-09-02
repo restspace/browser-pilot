@@ -39,6 +39,18 @@ describe('scrubSecrets', () => {
       'the page shows {{env:BP_TEST_SECRET}} twice: {{env:BP_TEST_SECRET}}',
     );
   });
+  it('scrubs the longer secret first when a shorter one is its prefix', () => {
+    process.env.BP_TEST_USER = 'james';
+    process.env.BP_TEST_PASS = 'james2024!';
+    try {
+      resolveSecrets('{{env:BP_TEST_USER}}');
+      resolveSecrets('{{env:BP_TEST_PASS}}');
+      expect(scrubSecrets('must not contain james2024! (user james)')).toBe('must not contain {{env:BP_TEST_PASS}} (user {{env:BP_TEST_USER}})');
+    } finally {
+      delete process.env.BP_TEST_USER;
+      delete process.env.BP_TEST_PASS;
+    }
+  });
   it('scrubs deep structures (diffs)', () => {
     resolveSecrets('{{env:BP_TEST_SECRET}}');
     const diff = scrubSecretsDeep({ url: 'http://h/', added: ['- banner "Saved hunter2-secret!"'], alerts: [] });

@@ -80,7 +80,13 @@ export function admitsIncompletion(summary: string): string | null {
     /\b(ran out of turns|out of turns|unable to|was not able to|not able to|could not|couldn't|did not (?:complete|finish|save|succeed|manage)|failed to|not (?:yet )?saved|unsaved changes|incomplete|still (?:shows?|set to|the default|remains?)|remains? (?:unset|unchanged|the default))\b/i.exec(
       summary,
     );
-  return m ? m[1] : null;
+  if (!m) return null;
+  // "still shows 3 panels after refresh, as expected" is a verified
+  // invariant, not an admission: an assertion word right after the phrase
+  // clears it.
+  const tail = summary.slice(m.index + m[0].length, m.index + m[0].length + 60);
+  if (/\b(as (?:expected|required|intended|designed)|which is (?:correct|right|expected)|correctly)\b/i.test(tail)) return null;
+  return m[1];
 }
 
 export function validateReport(input: unknown): ReportValidation {
@@ -552,6 +558,10 @@ export function proseIdentifiers(report: Report): string[] {
     const v = m[0].replace(/[.\-_]+$/, '');
     if (v.length < MIN_PROSE_ID_LEN || v.length > MAX_PROSE_ID_LEN) continue;
     if (!/[A-Za-z]/.test(v) || !/\d/.test(v)) continue;
+    // Not references, though they pass the letter+digit shape: a snapshot ref
+    // (e1234), an ordinal (10th), a measurement (100px, 30s). Each used to
+    // take one of the three slots and crowd out the real S00021.
+    if (/^e\d+$/.test(v) || /^\d+(st|nd|rd|th)$/i.test(v) || /^\d+(px|ms|s|m|h|d|kb|mb|gb|%)$/i.test(v)) continue;
     if (present.has(v) || out.includes(v)) continue;
     out.push(v);
   }

@@ -8,7 +8,7 @@ import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/
 import type { DriftTicket } from '../skills/repair.js';
 import type { Page } from 'playwright-core';
 import { agentGesturesOutsideReplay, bindSkill, canAdoptPin, decideRepin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, consumedUrlOutputs, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
+import { buildFlow, consumedUrlOutputs, lintFlowRefs, listFlows, loadFlow, loadFlowFile, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
@@ -97,7 +97,9 @@ export class Daemon {
 
   /** Caller vars seeded once, so every producer sees the same run values. */
   private seedLedger(): void {
-    for (const [name, value] of Object.entries(this.state.vars ?? {})) this.ledger.add(value, { from: 'var', name });
+    // Vouched: a declared var is a run value whatever its length (`runid=k7`
+    // is the documented example, and the length floor was dropping it).
+    for (const [name, value] of Object.entries(this.state.vars ?? {})) this.ledger.add(value, { from: 'var', name }, { vouched: true });
   }
 
   /**
@@ -128,7 +130,13 @@ ${describeLeaks(leaks.slice(0, 6))}`);
    * than one carrying a candidate that will miss. Returns how many went.
    */
   private stripLeakedCandidates(flow: import('../skills/flow.js').Flow, store: NonNullable<typeof this.browser.learn>): number {
-    const runValues = this.ledger.values().filter((v) => v.length >= 3);
+    // Identifiers only, as `fatal` already insists: a reported status word
+    // ("Ready") is banked as text, and stripping every candidate whose name
+    // contains it ("Mark Ready") weakened chains permanently in the store.
+    const runValues = this.ledger
+      .all()
+      .filter((e) => e.kind === 'identifier' && e.value.length >= 3)
+      .map((e) => e.value);
     if (!runValues.length) return 0;
     let removed = 0;
     for (const skill of this.sessionSkills(flow, store)) {
@@ -384,7 +392,10 @@ ${describeLeaks(leaks.slice(0, 6))}`);
               this.browser,
               this.state,
               direct.prelude ? `${instruction}\n\n${direct.prelude}` : instruction,
-              loopOpts,
+              // After a part-way replay the recording already holds this
+              // instruction's group (opened by replayDirect); the model's
+              // continuation is filed into it as a resume, not a new step.
+              { ...loopOpts, ...(direct.prelude ? { recordAs: { text: instruction, resume: true as const } } : {}) },
             );
             if (direct.partial && result.skill) result.skill = { ...result.skill, ...direct.partial, listed: result.skill.listed };
           }
@@ -773,8 +784,12 @@ ${describeLeaks(leaks.slice(0, 10))}`);
       progress: (m: string) => void;
     },
   ): Promise<unknown> {
-    const flow = loadFlow(name);
-    if (!flow) throw new Error(`no flow "${name}" (looked in the flows dir and as a path)`);
+    const loaded = loadFlowFile(name);
+    if (!loaded) throw new Error(`no flow "${name}" (looked in the flows dir and as a path)`);
+    // Written back to the file it came from — never to flowsDir()/<flow.name>,
+    // which for a flow run by path or under a copied filename is a DIFFERENT
+    // flow whose pins and evidence this run would overwrite.
+    const { flow, file: flowFile } = loaded;
     const missingVars = flow.vars.filter((v) => !(v in varsIn));
     if (missingVars.length) throw new Error(`flow "${flow.name}" needs --var for: ${missingVars.join(', ')}`);
 
@@ -784,6 +799,9 @@ ${describeLeaks(leaks.slice(0, 10))}`);
     }
     const page = await this.browser.getPage();
     await page.goto(flow.startUrl, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
+    // `load` fires before a client-rendered app has painted, and the first
+    // step's precondition (fingerprint, identity text) is judged right after.
+    await waitForContent(page).catch(() => {});
     this.browser.script?.commit(await this.browser.script.prepare(page, 'goto', { url: flow.startUrl }).catch(() => null), 'ok');
 
     const screenshotDir = path.join(ensureSessionDir(this.opts.session), 'screenshots');
@@ -866,8 +884,13 @@ ${describeLeaks(leaks.slice(0, 10))}`);
       // Zero-model first: replay the step's pinned skill directly, binding its
       // params from the flow's stored bindings (robust to reworded steps)
       // rather than re-deriving them from the instruction text.
-      const direct = step.skill && !unresolved
-        ? await this.replayDirect(text, screenshotDir, opts.signal, opts.progress, { id: step.skill, params: bound?.params })
+      // A throw here (the browser died mid-replay) must not discard the steps
+      // that DID complete: it becomes a fallback reason, and the recovery's
+      // own guard below turns a dead browser into a halted flowrun.
+      const direct: Awaited<ReturnType<typeof this.replayDirect>> = step.skill && !unresolved
+        ? await this.replayDirect(text, screenshotDir, opts.signal, opts.progress, { id: step.skill, params: bound?.params }).catch((err: unknown) => ({
+            why: `replay threw before completing: ${(err instanceof Error ? err.message : String(err)).slice(0, 200)}`,
+          }))
         : {};
       let result: InstructionResult;
       let recovered = false;
@@ -944,6 +967,9 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
               screenshotDir,
               signal: opts.signal,
               onProgress: opts.progress,
+              // A part-way replay opened this step's recording group; the
+              // recovery continues it rather than opening a second one.
+              ...(direct.prelude ? { recordAs: { text, resume: true as const } } : {}),
             },
           );
         } catch (err) {
@@ -1034,7 +1060,9 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       // result — they are addresses, not findings.
       const stepOutputs: Record<string, string> = { ...values };
       try {
-        const urlOuts = await captureUrlOutputs(await this.browser.getPage(), wantedUrlOuts.get(step.id), step.id);
+        // A model-driven end state has no reason to carry the recorded url
+        // shape, so a recovered step does not wait for the consumed parts.
+        const urlOuts = await captureUrlOutputs(await this.browser.getPage(), recovered ? undefined : wantedUrlOuts.get(step.id), step.id);
         for (const [key, value] of Object.entries(urlOuts)) {
           if (!(key in stepOutputs)) stepOutputs[key] = value;
         }
@@ -1125,7 +1153,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
     }
     // Evidence is written back even when nothing was re-pinned: it is the
     // whole point of this run for a flow whose references cannot resolve yet.
-    if (updated || evidenceChanged) saveFlow(flow);
+    if (updated || evidenceChanged) saveFlow(flow, flowFile);
 
     const passed = stepResults.filter((r) => r.status === 'success').length;
     return {
@@ -1272,14 +1300,23 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         break;
       }
       // The just-finished segment succeeded on its own terms — record it now.
-      store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
+      // Not the head: instruction-level learning records the head (as
+      // record.invoked) when the chain succeeds, and the block after the walk
+      // does when it fails — recording it here too doubled its stats.
+      if (last.id !== match.skill.id) store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
       agg.segmentsDone++;
       progress(`[skill] chain ${current.seq.chain}: segment ${next.seq!.index + 1}/${next.seq!.of} → ${next.id}`);
       const nextExec = await executeTool(this.browser, 'run_skill', { id: next.id, params: { ...match.params, ...derived } }, screenshotDir, signal);
       const r = nextExec.replay;
       if (!r) return {};
       Object.assign(derived, r.derivedValues ?? {});
+      // A chain's earlier segment may have created the record the later one
+      // stops on; recovery needs the whole chain's creations, not the last
+      // segment's. (Reassigning `replay` first and then pushing r.created into
+      // it doubled this segment's and lost the earlier ones.)
+      const createdSoFar = replay.created;
       replay = r;
+      replay.created = [...createdSoFar, ...r.created];
       last = next;
       current = next;
       agg.stepsRun += r.stepsRun;
@@ -1287,10 +1324,6 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       agg.fallthroughs += r.fallthroughs;
       agg.misses.push(...r.misses.map((m) => ({ ...m, skill: next.id })));
       agg.evidence.push(...r.candidateEvidence.map((e) => ({ ...e, skill: next.id })));
-      // A chain's earlier segment may have created the record the later one
-      // stops on; recovery needs the whole chain's creations, not the last
-      // segment's.
-      replay.created.push(...r.created);
       Object.assign(agg.values, r.values);
       agg.echoed.push(...r.echoedValues);
     }
@@ -1299,6 +1332,12 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
     // FINAL segment is neither — record it here, or it could never validate.
     if (replay.ok && last.id !== match.skill.id) {
       store.recordOutcome(last.id, { ok: true, fallthroughs: replay.fallthroughs, instructionSucceeded: true });
+    }
+    // A chain that advanced past its head and then stopped: the head's clean
+    // replay is real evidence, and record.invoked now names the failing
+    // segment, so nothing else will bank it.
+    if (!replay.ok && agg.segmentsDone > 0) {
+      store.recordOutcome(match.skill.id, { ok: true, fallthroughs: 0, instructionSucceeded: true });
     }
     // Per-candidate evidence, folded on ONLY when the run got past these steps
     // — the same rule the url generalisations follow. A miss inside a run that
@@ -1364,6 +1403,16 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       .map(([k, v]) => `${k}=${v}`)
       .join(', ');
     this.state.messages.push({ role: 'assistant', content: `[report] success: ${report.summary}${facts ? ' | ' + facts : ''}` });
+    // Close the recording's instruction group the way the loop's finish()
+    // does. Without it a zero-model step had steps but no report, the flow
+    // export dropped it, and the replayed sign-in went missing from the flow.
+    this.browser.script?.endInstruction({
+      status: 'success',
+      summary: report.summary,
+      values: Object.fromEntries(Object.entries(report.evidence?.values ?? {}).map(([k, v]) => [k, String(v)])),
+      skill: match.skill.id,
+      tier: 'A',
+    });
     return {
       done: {
         report,

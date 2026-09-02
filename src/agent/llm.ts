@@ -512,6 +512,9 @@ function toAnthropicMessages(messages: ChatMessage[]): Array<{ role: 'user' | 'a
       }
       content.push({ type: 'tool_use', id: tc.id, name: tc.function.name, input });
     }
+    // An empty assistant turn (a reasoning model that emitted only reasoning)
+    // is a 400 on this API; keep the turn so the tool/user pairing holds.
+    if (!content.length) content.push({ type: 'text', text: '(no output)' });
     out.push({ role: 'assistant', content });
   }
   return out;

@@ -302,11 +302,15 @@ export class ScriptRecorder {
    * followed by eight from the re-run. Both replays dutifully did the whole
    * lifecycle twice and the verifier still scored them 6/6.
    */
-  readonly priorEntries: number;
+  private priorCount = 0;
+
+  get priorEntries(): number {
+    return this.priorCount;
+  }
 
   constructor(private readonly session: string) {
     this.load();
-    this.priorEntries = this.entries.length;
+    this.priorCount = this.entries.length;
   }
 
   /** Entries recorded by THIS take — what a flow export may build from. */
@@ -325,14 +329,19 @@ export class ScriptRecorder {
     } catch {
       return; // nothing recorded yet for this session
     }
+    let torn = !raw.endsWith('\n');
     for (const line of raw.split('\n')) {
       if (!line.trim()) continue;
       try {
         this.entries.push(JSON.parse(line) as RecordedEntry);
       } catch {
-        // a partially written last line after a kill — drop it, keep the rest
+        torn = true; // a partially written last line after a kill — drop it, keep the rest
       }
     }
+    // Make the file canonical before the first append: appending after a
+    // torn last line glued the next entry onto the fragment, and the NEXT
+    // load lost that entry too.
+    if (torn) this.rewrite();
   }
 
   private append(entry: RecordedEntry): void {
@@ -458,6 +467,7 @@ export class ScriptRecorder {
 
   clear(): void {
     this.entries.length = 0;
+    this.priorCount = 0; // a cleared recording has no previous take to skip
     try {
       fs.rmSync(this.file(), { force: true });
     } catch {
@@ -822,8 +832,7 @@ async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: st
     // `match === 0` is not the same as "unique". This copy was missed when
     // that was fixed, so a read-back pinned to an ambiguous locator could not
     // be re-resolved.
-    const ambiguous = (await loc.count().catch(() => 0)) > 1;
-    const spec = ambiguous || match !== 0 ? { ...candidate.spec, nth: match } : candidate.spec;
+    const spec = match.count > 1 || match.index !== 0 ? { ...candidate.spec, nth: match.index } : candidate.spec;
     if (!winner) winner = spec;
     chain.push(spec);
   }
@@ -906,13 +915,16 @@ const CLICK_RETARGETS: ((handle: ElementHandle<Node>) => Promise<ElementHandle<E
 async function interactiveAncestorOf(handle: ElementHandle<Node>): Promise<ElementHandle<Element> | null> {
   const found = await handle.evaluateHandle((el) => {
     const node = el as Element;
+    // SVG-namespace elements report a lowercase tagName ("svg", "path"), so
+    // an icon click never matched the inert list until this upper-cased.
+    const tag = (n: Element) => n.tagName.toUpperCase();
     const interactive = (n: Element): boolean => {
-      if (/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY|LABEL)$/.test(n.tagName)) return true;
+      if (/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY|LABEL)$/.test(tag(n))) return true;
       const role = n.getAttribute('role');
       if (role && /^(button|link|menuitem|menuitemcheckbox|menuitemradio|tab|option|checkbox|radio|switch)$/.test(role)) return true;
       return n.hasAttribute('tabindex') && n.getAttribute('tabindex') !== '-1';
     };
-    if (!/^(SPAN|I|EM|B|STRONG|SVG|PATH|USE|IMG|SMALL|SUP|SUB)$/.test(node.tagName) || interactive(node)) return null;
+    if (!/^(SPAN|I|EM|B|STRONG|SVG|PATH|USE|IMG|SMALL|SUP|SUB)$/.test(tag(node)) || interactive(node)) return null;
     for (let cur = node.parentElement, hops = 0; cur && hops < 4; cur = cur.parentElement, hops++) {
       if (interactive(cur)) return cur;
     }
@@ -984,8 +996,7 @@ async function verifiedChain(
     // record row, which is the shape behind every wrong-record bug this plan
     // exists to stop. An ambiguous candidate needs its index to be
     // reproducible, exactly as an ambiguous anchor needs to be unique.
-    const ambiguous = (await loc.count().catch(() => 0)) > 1;
-    winner = ambiguous || match !== 0 ? { ...candidate.spec, nth: match } : candidate.spec;
+    winner = match.count > 1 || match.index !== 0 ? { ...candidate.spec, nth: match.index } : candidate.spec;
     chain.push(winner);
   }
   return { winner, chain };
@@ -996,18 +1007,19 @@ async function verifiedChain(
  * first few. Identity (not text equality) is the test: two buttons can share a
  * label, and only the one the agent actually used is the right recording.
  */
-async function matchIndex(locator: Locator, handle: ElementHandle<Node>): Promise<number | null> {
-  const count = await locator.count().catch(() => 0);
-  if (count === 0) return null;
-  for (let i = 0; i < Math.min(count, 10); i++) {
-    const same = await locator
-      .nth(i)
-      .evaluate((el, other) => el === other, handle)
-      .catch(() => false);
-    if (same) return i;
+async function matchIndex(locator: Locator, handle: ElementHandle<Node>): Promise<{ index: number; count: number } | null> {
+  // One round trip for the index AND the match count, instead of a count
+  // plus one evaluate per candidate element (up to eleven per describe).
+  try {
+    const r = await locator.evaluateAll((els, other) => ({ index: (els as Element[]).indexOf(other as Element), count: els.length }), handle);
+    return r.count === 0 || r.index < 0 || r.index >= MATCH_INDEX_LIMIT ? null : r;
+  } catch {
+    return null; // detached page or malformed selector
   }
-  return null;
 }
+
+/** How far into a locator's matches the recorded element may sit and still be indexed. */
+const MATCH_INDEX_LIMIT = 10;
 
 function candidatesFor(info: ElementInfo): Candidate[] {
   const out: Candidate[] = [];
@@ -1106,6 +1118,16 @@ export function isStableId(id: string): boolean {
 function describeInPage(node: Node): ElementInfo {
   const el = node as Element;
   const attr = (name: string) => el.getAttribute(name) || null;
+  // The same judgement as isStableId (which this page-side code cannot
+  // call): a framework-minted id (React's `_r8b_`, radix, a hash) anchoring
+  // the structural path or a row container is dead on the next load.
+  const stableId = (id: string): boolean =>
+    Boolean(id) &&
+    id.length <= 64 &&
+    !/^[:\d]/.test(id) &&
+    !/[0-9a-f]{8,}/i.test(id) &&
+    !/^_r[0-9a-z]{1,4}_$/i.test(id) &&
+    !/^(radix|headlessui|mui|react-aria)[-:]/i.test(id);
   const clean = (s: string | null | undefined) => {
     const t = (s ?? '').replace(/\s+/g, ' ').trim();
     return t && t.length <= 80 ? t : null;
@@ -1166,7 +1188,7 @@ function describeInPage(node: Node): ElementInfo {
     let cur: Element | null = el;
     while (cur && cur.nodeType === 1 && parts.length < 6) {
       const node: Element = cur;
-      if (node.id && !/^[:\d]/.test(node.id)) {
+      if (stableId(node.id)) {
         parts.unshift(`#${CSS.escape(node.id)}`);
         break;
       }
@@ -1210,7 +1232,7 @@ function describeInPage(node: Node): ElementInfo {
     const tagOf = box.tagName.toLowerCase() + (cls && /^[A-Za-z][\w-]*$/.test(cls) ? `.${cls}` : '');
     let container = tagOf;
     for (let p = box.parentElement, hops = 0; p && hops < 3; p = p.parentElement, hops++) {
-      if (p.id && !/^[:\d]/.test(p.id)) {
+      if (stableId(p.id)) {
         container = `#${CSS.escape(p.id)} ${tagOf}`;
         break;
       }
@@ -1245,7 +1267,10 @@ function describeInPage(node: Node): ElementInfo {
     clean(attr('placeholder')) ||
     clean(attr('alt')) ||
     clean(attr('title')) ||
-    clean(tag === 'input' ? (el as HTMLInputElement).value : (el as HTMLElement).innerText);
+    // Never an input's VALUE: it is not an accessible name (getByRole would
+    // not match it at replay), it changes every run, and on an unlabeled
+    // password field it put the typed secret into the recording.
+    clean(tag === 'input' ? '' : (el as HTMLElement).innerText);
 
   return {
     tag,

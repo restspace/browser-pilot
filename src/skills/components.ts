@@ -396,6 +396,9 @@ export async function tryRecipe(
   payload: string,
   store: ComponentStore = new ComponentStore(),
 ): Promise<string | null> {
+  // No recipe for this intent at all (the common case on a plain input)?
+  // Then recognising the widget — six round trips — can only answer null.
+  if (!store.list().some((r) => r.intent === intent && r.status !== 'demoted')) return null;
   let rec: RecognizedComponent | null;
   try {
     rec = await recognize(target);

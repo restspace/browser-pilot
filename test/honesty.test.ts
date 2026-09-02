@@ -22,6 +22,11 @@ describe('admitsIncompletion', () => {
     expect(admitsIncompletion('Failed to open the settings drawer.')).toBe('Failed to');
   });
 
+  it('does not hold a verified invariant phrased with an admission word', () => {
+    expect(admitsIncompletion('The dashboard still shows 3 panels after refresh, as expected.')).toBeNull();
+    expect(admitsIncompletion('Confirmed the total remains unchanged after cancelling, which is correct.')).toBeNull();
+  });
+
   it('lets a clean success through', () => {
     expect(admitsIncompletion("Created dashboard 'x Bench Dashboard' with a Stat panel; save confirmed by the 'Dashboard saved' alert.")).toBeNull();
     expect(admitsIncompletion('Verified all three panel titles: Request rate, Error count, Latency by endpoint.')).toBeNull();
@@ -90,13 +95,19 @@ describe('parseRefLines', () => {
       '    - option "Loki \\"prod\\"" [@e1661] [selected]',
       '  - textbox "Search" [@e1670]: hello',
       '- text: not a ref line',
+      '- heading "Order S00021" [level=1] [@e7]',
+      '- button "Data source" [expanded] [@e9]',
     ].join('\n');
     const m = parseRefLines(snap);
+    // state attributes sit between the name and the ref (the expanded picker
+    // is exactly the element that vanishes before it can be described)
+    expect(m.get('e7')).toEqual({ role: 'heading', name: 'Order S00021' });
+    expect(m.get('e9')).toEqual({ role: 'button', name: 'Data source' });
     expect(m.get('e1653')).toEqual({ role: 'button', name: 'TestData' });
     expect(m.get('e1660')).toEqual({ role: 'generic' });
     expect(m.get('e1661')).toEqual({ role: 'option', name: 'Loki "prod"' });
     expect(m.get('e1670')).toEqual({ role: 'textbox', name: 'Search' });
     expect(m.get('e1601')).toEqual({ role: 'dialog', name: 'Opened data source picker list' });
-    expect(m.size).toBe(5);
+    expect(m.size).toBe(7);
   });
 });

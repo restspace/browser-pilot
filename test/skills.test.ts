@@ -535,7 +535,8 @@ describe('compileSkill', () => {
     expect(s.preconditions.urlPattern).toBe(`${ORIGIN}/#/tickets/:id`);
     expect(s.preconditions.fingerprint).toEqual([1, 0, 0]);
     expect(Object.keys(s.params)).toEqual(['v1', 'v2', 'v3']);
-    expect(s.params.v1).toEqual({ example: 'x7 RD Part A', usedIn: [2, 6, 7] });
+    // step 5's alert expectation carries the slot too, so it counts as a use
+    expect(s.params.v1).toEqual({ example: 'x7 RD Part A', usedIn: [2, 5, 6, 7] });
     // args, locators and expectations all carry the slot
     expect(s.steps[1].args.value).toBe('{{v1}}');
     expect(s.steps[6].locators.target[0]).toEqual({ kind: 'css', selector: 'tr:has-text("{{v1}}") td.price' });

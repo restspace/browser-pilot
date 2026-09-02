@@ -69,8 +69,9 @@ export async function html5DragDrop(source: Locator, target: Locator): Promise<v
   const page = source.page();
   const sourceHandle = await source.elementHandle();
   const targetHandle = await target.elementHandle();
-  if (!sourceHandle || !targetHandle) throw new Error('drag source or target not found');
-  await page.evaluate(
+  try {
+    if (!sourceHandle || !targetHandle) throw new Error('drag source or target not found');
+    await page.evaluate(
     ([src, dst]) => {
       const dataTransfer = new DataTransfer();
       const fire = (el: Element, type: string) => {
@@ -93,5 +94,9 @@ export async function html5DragDrop(source: Locator, target: Locator): Promise<v
       fire(src, 'dragend');
     },
     [sourceHandle, targetHandle] as const,
-  );
+    );
+  } finally {
+    await sourceHandle?.dispose().catch(() => {});
+    await targetHandle?.dispose().catch(() => {});
+  }
 }

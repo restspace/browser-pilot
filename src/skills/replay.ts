@@ -377,6 +377,7 @@ export async function replaySkill(
     // caller reads it as exactly that before trying another candidate. A
     // second candidate then clicks Create again.
     if (!isRead) res.acted = true;
+    const urlBefore = page.url();
     try {
       outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: failIndex });
     } catch (err) {
@@ -412,8 +413,10 @@ export async function replaySkill(
     // told only how many steps ran and left to infer the rest — which is how
     // fwod13 came to create a second and third order.
     if (step.mints) {
+      // Only a part the step CHANGED: a rejected click leaves the url as it
+      // was, and "new" from /tickets/new is not a record this run created.
       const made = urlPart(page.url(), step.mints.at);
-      if (made) res.created.push(made);
+      if (made && made !== urlPart(urlBefore, step.mints.at)) res.created.push(made);
     }
 
     // Effect gates: did the step leave the page as the recording said it
@@ -474,7 +477,15 @@ export async function replaySkill(
     // advances exactly when the previous iteration did not consume its record.
     let cursor = 0;
     while (iter < max) {
-      if (opts.signal?.aborted) break;
+      // A loop cut short by the budget is NOT a finished loop: breaking out
+      // used to count it as 'ran', and a part-cleared list became a success.
+      if (opts.signal?.aborted) {
+        res.stepsRun = before;
+        res.failedAt = n;
+        res.reason = `instruction budget exhausted after ${iter} loop iteration(s), before the loop finished`;
+        res.lines.push(`${n}. loop → stopped after ×${iter}: ${res.reason}`);
+        return 'stop';
+      }
       await settleDom(page);
       const chain = fillParamsDeep(guard, params) as LocatorCandidate[];
       // No waitMs: this asks whether the list still has rows, and a null
@@ -560,6 +571,7 @@ export async function replaySkill(
       // put the browser back on the flow's start url first.
       res.refused = false;
       res.failedAt = n;
+      res.url = page.url(); // the goto moved the browser; the caller repositions from here
       return res;
     }
   }
@@ -645,9 +657,11 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
   if (!outcome.diff || !step.expect?.addedContains?.length) return null;
   const warnings: string[] = [];
   const seen = outcome.diff.added.join('\n');
+  // A line carrying a {{vN}} slot is HARD (below). A {{dN}} derived marker
+  // is filled like any other param but stays soft — the app minted it.
   const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
   let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
-  const plain = step.expect.addedContains.filter((l) => !isParam(l));
+  const plain = step.expect.addedContains.filter((l) => !isParam(l)).map((l) => fillParams(l, params));
   // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
   // change: its own echo in a same-role element is what the wrong element
   // produces too (see consequentialExpectations). When the echo is all the
@@ -817,7 +831,9 @@ export async function resolveChain(
   }));
   /** Does this fallback still identify the record the primary named? */
   const keepsIdentity = async (index: number, candidate: LocatorCandidate, locator: Locator): Promise<boolean> => {
-    if (index === 0 || !requireIdentity.length) return true;
+    // The recorded primary is trusted — unless it is itself structural (an
+    // agent-typed positional selector at the head), which names no record.
+    if (!requireIdentity.length || (index === 0 && !structural(candidate))) return true;
     const expr = JSON.stringify(candidate);
     const wanted = requireIdentity.filter((v) => !expr.includes(v));
     if (!wanted.length) return true;
@@ -1020,14 +1036,21 @@ const RESOLVE_POLL_MS = 100;
 
 const SETTLE_QUIET_MS = 250;
 const SETTLE_MAX_MS = 2_000;
+/**
+ * How long a page gets to show it is busy before it is called quiet. The
+ * quiet window used to be the floor too — 250ms per step even on a static
+ * page, ~20s across an 80-step replay that was otherwise at the engine's
+ * floor. Now the full quiet window is demanded only once a mutation shows.
+ */
+const SETTLE_PROBE_MS = 60;
 
 /** Resolve once no DOM mutation has happened for SETTLE_QUIET_MS, or after SETTLE_MAX_MS. */
 async function settleDom(page: Page): Promise<void> {
   try {
     await page.evaluate(
-      ({ quiet, max }) =>
+      ({ probe, quiet, max }) =>
         new Promise<void>((resolve) => {
-          let timer = setTimeout(resolve, quiet);
+          let timer = setTimeout(resolve, probe);
           const stop = setTimeout(() => {
             observer.disconnect();
             resolve();
@@ -1042,7 +1065,7 @@ async function settleDom(page: Page): Promise<void> {
           });
           observer.observe(document, { childList: true, subtree: true, attributes: true, characterData: true });
         }),
-      { quiet: SETTLE_QUIET_MS, max: SETTLE_MAX_MS },
+      { probe: SETTLE_PROBE_MS, quiet: SETTLE_QUIET_MS, max: SETTLE_MAX_MS },
     );
   } catch {
     // navigating / detached — the locator resolution will report it
