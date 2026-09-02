@@ -1013,8 +1013,12 @@ async function robustClick(loc: Locator, opts: { timeout: number; dbl?: boolean 
     // attached→visible→stable check, and a forced click needs it attached at
     // the instant of the action just the same — so both tiers lose the race
     // and burn their full timeout (rpgr4-r2 spent 74 turns on grafana's
-    // viz-picker toggle this way). Skip straight to firing inside a window.
-    if (/detached|not attached|stable/i.test(msg)) return fireWhenAttached(loc, opts, label);
+    // viz-picker toggle this way). Only Playwright's own detach evidence
+    // sends a click straight to the window tier: its generic timeout log
+    // reads "waiting for element to be visible, enabled and stable" for
+    // EVERY stalled click, and matching on that routed 15 ordinary replay
+    // clicks per run past the tiers that had been landing them (rpgr5).
+    if (DETACHED.test(msg)) return fireWhenAttached(loc, opts, label, msg);
     await loc.scrollIntoViewIfNeeded({ timeout: opts.timeout }).catch(() => {});
     try {
       await act({ timeout: opts.timeout, force: true });
@@ -1024,11 +1028,14 @@ async function robustClick(loc: Locator, opts: { timeout: number; dbl?: boolean 
         await loc.first().evaluate(fireClick, Boolean(opts.dbl));
         return `${label} (dispatched DOM event — element was not normally clickable)`;
       } catch {
-        return fireWhenAttached(loc, opts, label);
+        return fireWhenAttached(loc, opts, label, msg);
       }
     }
   }
 }
+
+/** Playwright's own words for an element that left the DOM mid-action — never its generic actionability wording. */
+const DETACHED = /element was detached|not attached to the DOM|element is not attached|element is not stable/i;
 
 /** Runs in the page: a synthetic click (React's delegated handlers see it). */
 function fireClick(el: Element, dbl: boolean): void {
@@ -1048,7 +1055,10 @@ function fireClick(el: Element, dbl: boolean): void {
  * If no window is found within the budget, the error says what the agent is
  * fighting and what to try instead of the same click again.
  */
-export async function fireWhenAttached(loc: Locator, opts: { timeout: number; dbl?: boolean }, label = 'clicked'): Promise<string> {
+export async function fireWhenAttached(loc: Locator, opts: { timeout: number; dbl?: boolean }, label = 'clicked', because = ''): Promise<string> {
+  // The first line of the failure that sent us here rides along in the
+  // result, so a post-mortem can see WHY a click took this route.
+  const cause = because ? ` after: ${because.split('\n')[0].slice(0, 120)}` : '';
   const deadline = Date.now() + opts.timeout;
   let polls = 0;
   let attached = 0;
@@ -1059,7 +1069,7 @@ export async function fireWhenAttached(loc: Locator, opts: { timeout: number; db
       attached++;
       try {
         await handle.evaluate(fireClick, Boolean(opts.dbl));
-        return `${label} (dispatched during a re-render window — the element re-mounts continuously, so a normal click could not land; if the app did not respond, it may need a keyboard route or a wait_for on the state that settles it)`;
+        return `${label} (dispatched during a re-render window${cause} — the element re-mounts continuously, so a normal click could not land; if the app did not respond, it may need a keyboard route or a wait_for on the state that settles it)`;
       } catch {
         // gone again between resolve and fire — next window
       } finally {
