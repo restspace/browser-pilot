@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { admitsIncompletion } from '../src/agent/report.js';
 import { parseRefLines } from '../src/daemon/refs.js';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
-import { agentGesturesOutsideReplay } from '../src/skills/learn.js';
+import { agentGesturesOutsideReplay, decideRepin } from '../src/skills/learn.js';
 
 // Three gates from the set-20 grafana post-mortem: a success report that
 // admits it did not finish, a re-pin onto a skill the model finished by hand,
@@ -47,6 +47,37 @@ describe('agentGesturesOutsideReplay', () => {
 
   it('is zero for a recovery the skill carried alone', () => {
     expect(agentGesturesOutsideReplay([step('click', { skill: 's_1', step: 1 }), step('read')])).toBe(0);
+  });
+});
+
+describe('decideRepin', () => {
+  const validated = { skill: 's_new', status: 'validated' as const, ok: true };
+  const provisional = { skill: 's_new', status: 'provisional' as const, ok: true };
+  const base = { step: { id: '03-add', skill: 's_old' }, reportStatus: 'success' as const, stray: 0, adoptable: true };
+
+  it('moves the pin to a validated skill that carried the step', () => {
+    expect(decideRepin({ ...base, outcome: validated })).toEqual({ skill: 's_new', graduated: false });
+  });
+
+  it('refuses when the model drove the step beyond the replay (rpgr3 s_567dd1)', () => {
+    const d = decideRepin({ ...base, outcome: validated, stray: 3 });
+    expect(d && 'refused' in d ? d.refused : null).toMatch(/drove 3 gesture/);
+  });
+
+  it('withholds the pin from a provisional skill, a failed report, or an unadoptable one', () => {
+    expect(decideRepin({ ...base, outcome: provisional })).toBeNull();
+    expect(decideRepin({ ...base, outcome: validated, reportStatus: 'blocked' })).toBeNull();
+    expect(decideRepin({ ...base, outcome: validated, adoptable: false })).toBeNull();
+  });
+
+  it('graduates an adopted step on its first clean recovery, provisional or not', () => {
+    expect(decideRepin({ ...base, step: { id: '01-open', adopted: true }, outcome: provisional })).toEqual({ skill: 's_new', graduated: true });
+  });
+
+  it('does nothing when the incumbent replayed, failed, or is the same skill', () => {
+    expect(decideRepin({ ...base, outcome: undefined })).toBeNull();
+    expect(decideRepin({ ...base, outcome: { ...validated, ok: false } })).toBeNull();
+    expect(decideRepin({ ...base, outcome: { ...validated, skill: 's_old' } })).toBeNull();
   });
 });
 

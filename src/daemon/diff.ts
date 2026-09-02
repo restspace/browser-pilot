@@ -1,4 +1,5 @@
 import type { Page } from 'playwright-core';
+import { clip } from '../shared/text.js';
 import { isInteractiveLine, truncate } from './refs.js';
 
 /**
@@ -199,8 +200,4 @@ function surplus(a: string[], b: string[]): string[] {
     else out.push(item);
   }
   return out;
-}
-
-function clip(text: string, maxChars: number): string {
-  return text.length <= maxChars ? text : text.slice(0, maxChars) + '…';
 }

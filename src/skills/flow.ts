@@ -658,6 +658,43 @@ export function lookupOutput(outputs: Record<string, Record<string, string>>, si
   return typeof node === 'string' || typeof node === 'number' ? String(node) : undefined;
 }
 
+/** What a flow reference can be filled from, in lookup order. */
+interface RefSources {
+  vars: Record<string, string>;
+  outputs: Record<string, Record<string, string>>;
+  /** Outputs an earlier run demonstrated are app furniture; their recorded literal resolves. */
+  stable: Record<string, string>;
+}
+
+/** One reference's value: a `{{var}}` from the run's vars, a `{{step.output}}` from prior outputs, else the stable literal. */
+function lookupRef(ref: string, src: RefSources): string | undefined {
+  if (!ref.includes('.')) return ref in src.vars ? src.vars[ref] : undefined;
+  const dot = ref.indexOf('.');
+  const v = lookupOutput(src.outputs, ref.slice(0, dot), ref.slice(dot + 1));
+  // Demonstrated stable by an earlier run: the app produced this exact value
+  // again, so it is furniture and the recorded literal is right. Anything not
+  // demonstrated stays missing and goes to recovery.
+  if (v === undefined && ref in src.stable) return src.stable[ref];
+  return v;
+}
+
+/**
+ * Fill every `{{ref}}` in `text`. ONE substitution for instructions and
+ * params alike — a reference that resolves in one and not the other is a
+ * silent way to send a step to recovery. `missing` names what could not be
+ * filled; an unfilled reference is left in place (`keep`) or blanked.
+ */
+export function resolveRefs(text: string, src: RefSources, unresolved: 'keep' | 'blank' = 'keep'): { text: string; missing: string[] } {
+  const missing: string[] = [];
+  const filled = text.replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
+    const v = lookupRef(ref, src);
+    if (v !== undefined) return v;
+    missing.push(ref);
+    return unresolved === 'keep' ? m : '';
+  });
+  return { text: filled, missing };
+}
+
 /** Fill {{var}} and {{step.output}} references from run vars and prior outputs. */
 export function resolveInstruction(
   step: FlowStep,
@@ -665,27 +702,7 @@ export function resolveInstruction(
   outputs: Record<string, Record<string, string>>,
   stable: Record<string, string> = {},
 ): { text: string; missing: string[] } {
-  const missing: string[] = [];
-  const text = step.instruction.replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
-    if (ref.includes('.')) {
-      const dot = ref.indexOf('.');
-      const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-      const v = lookupOutput(outputs, sid, out);
-      if (v === undefined) {
-        // Demonstrated stable by an earlier run: the app produced this exact
-        // value again, so it is furniture and the recorded literal is right.
-        // Anything not demonstrated stays missing and goes to recovery.
-        if (ref in stable) return stable[ref];
-        missing.push(ref);
-        return m;
-      }
-      return v;
-    }
-    if (ref in vars) return vars[ref];
-    missing.push(ref);
-    return m;
-  });
-  return { text, missing };
+  return resolveRefs(step.instruction, { vars, outputs, stable });
 }
 
 /**
@@ -700,16 +717,8 @@ export function softResolveInstruction(
   outputs: Record<string, Record<string, string>>,
   stable: Record<string, string> = {},
 ): string {
-  return step.instruction
-    .replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
-      if (ref.includes('.')) {
-        const dot = ref.indexOf('.');
-        const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-        return lookupOutput(outputs, sid, out) ?? stable[ref] ?? '';
-      }
-      return ref in vars ? vars[ref] : '';
-    })
-    .replace(/[ \t]{2,}/g, ' ')
+  return resolveRefs(step.instruction, { vars, outputs, stable }, 'blank')
+    .text.replace(/[ \t]{2,}/g, ' ')
     .trim();
 }
 
@@ -724,20 +733,9 @@ export function resolveStepParams(
   const params: Record<string, string> = {};
   const missing: string[] = [];
   for (const [k, tmpl] of Object.entries(step.params)) {
-    params[k] = tmpl.replace(/\{\{([\w.#-]+)\}\}/g, (m, ref: string) => {
-      if (ref.includes('.')) {
-        const dot = ref.indexOf('.');
-        const [sid, out] = [ref.slice(0, dot), ref.slice(dot + 1)];
-        const v = lookupOutput(outputs, sid, out);
-        if (v !== undefined) return v;
-        if (ref in stable) return stable[ref];
-        missing.push(ref);
-        return m;
-      }
-      if (ref in vars) return vars[ref];
-      missing.push(ref);
-      return m;
-    });
+    const r = resolveRefs(tmpl, { vars, outputs, stable });
+    params[k] = r.text;
+    missing.push(...r.missing);
   }
   return { params, missing };
 }

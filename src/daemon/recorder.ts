@@ -849,44 +849,23 @@ export async function describeLocator(page: Page, locator: Locator, raw: string,
 }
 
 async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: string, retarget = false): Promise<LocatorExpr> {
-  // A click on a table ROW opening a record is more durably located by the
-  // record's own link inside it (name = the ref, which parameterises) than by
-  // the row (name = the whole volatile row text; a positional css otherwise).
-  // Retarget to that link, keeping the row's structural path as a fallback.
+  // A click is recorded against the element that best survives the app
+  // restyling itself — see CLICK_RETARGETS. The element the agent actually
+  // clicked keeps its structural path as the chain's last fallback.
   if (retarget) {
-    const link = await recordLinkOf(handle).catch(() => null);
-    if (link) {
+    for (const better of CLICK_RETARGETS) {
+      const el = await better(handle).catch(() => null);
+      if (!el) continue;
       try {
-        const linkInfo = (await link.evaluate(describeInPage)) as ElementInfo;
-        const { winner, chain } = await verifiedChain(page, linkInfo, link);
-        if (winner) {
-          const rowInfo = (await handle.evaluate(describeInPage)) as ElementInfo;
-          const fallback: LocatorCandidate = { kind: 'css', selector: rowInfo.cssPath };
-          return { expr: candidateExpr(winner), verified: true, raw, chain: [...chain, fallback] };
-        }
-      } finally {
-        await link.dispose().catch(() => {});
-      }
-    }
-    // A click on an INERT element inside a control belongs to the control. The
-    // agent clicks whatever the snapshot handed it — often a text span inside
-    // a button — and the span's inner structure is the most volatile DOM in
-    // the app: fwgr18 recorded grafana's time-picker as `[testid] span > span`,
-    // the span nesting changed once a range was set, and every replay fell to
-    // a bare structural path (4 of the sweep's 11 fallthroughs). The BUTTON
-    // has the testid and the stable identity; a click on it lands the same.
-    const control = await interactiveAncestorOf(handle).catch(() => null);
-    if (control) {
-      try {
-        const controlInfo = (await control.evaluate(describeInPage)) as ElementInfo;
-        const { winner, chain } = await verifiedChain(page, controlInfo, control);
+        const info = (await el.evaluate(describeInPage)) as ElementInfo;
+        const { winner, chain } = await verifiedChain(page, info, el);
         if (winner) {
           const selfInfo = (await handle.evaluate(describeInPage)) as ElementInfo;
           const fallback: LocatorCandidate = { kind: 'css', selector: selfInfo.cssPath };
           return { expr: candidateExpr(winner), verified: true, raw, chain: [...chain, fallback] };
         }
       } finally {
-        await control.dispose().catch(() => {});
+        await el.dispose().catch(() => {});
       }
     }
   }
@@ -897,6 +876,25 @@ async function describeHandle(page: Page, handle: ElementHandle<Node>, raw: stri
   // let the generated script flag it, rather than inventing something clean.
   return { expr: `page.locator(${q(info.cssPath)})`, verified: false, raw, chain };
 }
+
+/**
+ * Elements a click is better recorded against than the one the agent hit, in
+ * preference order. Each returns a handle to the better target or null.
+ *
+ * 1. A click on a table ROW opening a record is more durably located by the
+ *    record's own link inside it (name = the ref, which parameterises) than
+ *    by the row (name = the whole volatile row text; a positional css
+ *    otherwise).
+ * 2. A click on an INERT element inside a control belongs to the control.
+ *    The agent clicks whatever the snapshot handed it — often a text span
+ *    inside a button — and the span's inner structure is the most volatile
+ *    DOM in the app: fwgr18 recorded grafana's time-picker as
+ *    `[testid] span > span`, the span nesting changed once a range was set,
+ *    and every replay fell to a bare structural path (4 of the sweep's 11
+ *    fallthroughs). The BUTTON has the testid and the stable identity; a
+ *    click on it lands the same.
+ */
+const CLICK_RETARGETS: ((handle: ElementHandle<Node>) => Promise<ElementHandle<Element> | null>)[] = [recordLinkOf, interactiveAncestorOf];
 
 /**
  * If `handle` is an inert presentational element (a span, an icon) sitting

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Locator, Page } from 'playwright-core';
 import type { BrowserSession } from '../daemon/browser.js';
+import { clip } from '../shared/text.js';
 import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
 import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
 import { tryRecipe } from '../skills/components.js';
@@ -689,10 +690,6 @@ function summarize(args: Record<string, unknown>): string {
   return clip(JSON.stringify(args), 80);
 }
 
-function clip(text: string, maxChars: number): string {
-  return text.length <= maxChars ? text : text.slice(0, maxChars) + '…';
-}
-
 /**
  * Summary of what the just-executed action changed, as `\n[state: …]`, or ''
  * if it could not be determined. The action already succeeded by the time this
@@ -1006,38 +1003,68 @@ export function evalMutation(expression: string): string | null {
   return null;
 }
 
-async function robustClick(loc: Locator, opts: { timeout: number; dbl?: boolean }): Promise<string> {
-  const label = opts.dbl ? 'double-clicked' : 'clicked';
-  const act = (o: { timeout: number; force?: boolean }) => (opts.dbl ? loc.dblclick(o) : loc.click(o));
-  try {
-    await act({ timeout: opts.timeout });
-    return label;
-  } catch (first) {
-    const msg = first instanceof Error ? first.message : String(first);
-    if (/strict mode violation/i.test(msg)) throw first;
-    // A control the app re-mounts on every render never passes the
-    // attached→visible→stable check, and a forced click needs it attached at
-    // the instant of the action just the same — so both tiers lose the race
-    // and burn their full timeout (rpgr4-r2 spent 74 turns on grafana's
-    // viz-picker toggle this way). Only Playwright's own detach evidence
-    // sends a click straight to the window tier: its generic timeout log
-    // reads "waiting for element to be visible, enabled and stable" for
-    // EVERY stalled click, and matching on that routed 15 ordinary replay
-    // clicks per run past the tiers that had been landing them (rpgr5).
-    if (DETACHED.test(msg)) return fireWhenAttached(loc, opts, label, msg);
-    await loc.scrollIntoViewIfNeeded({ timeout: opts.timeout }).catch(() => {});
-    try {
+type ClickOpts = { timeout: number; dbl?: boolean };
+type ClickAct = (o: { timeout: number; force?: boolean }) => Promise<void>;
+
+/**
+ * One way to land a click. `note` is appended to the result so the agent (and
+ * a post-mortem) can see which tier did the work.
+ */
+interface ClickTier {
+  note: string;
+  run: (loc: Locator, opts: ClickOpts, act: ClickAct) => Promise<void>;
+}
+
+/**
+ * The tiers a click falls through, in order. Each is tried when the one
+ * before it failed; the window tier (fireWhenAttached) comes last and its own
+ * error is what the agent sees, because it is the only tier that can explain
+ * WHY nothing landed.
+ */
+const CLICK_TIERS: ClickTier[] = [
+  // Playwright's own click, actionability checks and all.
+  { note: '', run: (_loc, opts, act) => act({ timeout: opts.timeout }) },
+  // Scroll into view and skip the checks: a control under a sticky header,
+  // or one an overlay covers in a way the app treats as fine.
+  {
+    note: ' (forced past actionability checks)',
+    run: async (loc, opts, act) => {
+      await loc.scrollIntoViewIfNeeded({ timeout: opts.timeout }).catch(() => {});
       await act({ timeout: opts.timeout, force: true });
-      return `${label} (forced past actionability checks)`;
-    } catch {
-      try {
-        await loc.first().evaluate(fireClick, Boolean(opts.dbl));
-        return `${label} (dispatched DOM event — element was not normally clickable)`;
-      } catch {
-        return fireWhenAttached(loc, opts, label, msg);
-      }
+    },
+  },
+  // A synthetic event straight at the element: React's delegated handlers see
+  // it even when the element is not "clickable" by Playwright's rules.
+  { note: ' (dispatched DOM event — element was not normally clickable)', run: (loc, opts) => loc.first().evaluate(fireClick, Boolean(opts.dbl)) },
+];
+
+async function robustClick(loc: Locator, opts: ClickOpts): Promise<string> {
+  const label = opts.dbl ? 'double-clicked' : 'clicked';
+  const act: ClickAct = (o) => (opts.dbl ? loc.dblclick(o) : loc.click(o));
+  let firstFailure = '';
+  for (const tier of CLICK_TIERS) {
+    try {
+      await tier.run(loc, opts, act);
+      return `${label}${tier.note}`;
+    } catch (err) {
+      if (firstFailure) continue;
+      firstFailure = err instanceof Error ? err.message : String(err);
+      // Two or more matches is the agent's problem to fix, not a tier's.
+      if (/strict mode violation/i.test(firstFailure)) throw err;
+      // A control the app re-mounts on every render never passes the
+      // attached→visible→stable check, and a forced click needs it attached
+      // at the instant of the action just the same — so both tiers lose the
+      // race and burn their full timeout (rpgr4-r2 spent 74 turns on
+      // grafana's viz-picker toggle this way). Only Playwright's own detach
+      // evidence sends a click straight to the window tier: its generic
+      // timeout log reads "waiting for element to be visible, enabled and
+      // stable" for EVERY stalled click, and matching on that routed 15
+      // ordinary replay clicks per run past the tiers that had been landing
+      // them (rpgr5).
+      if (DETACHED.test(firstFailure)) break;
     }
   }
+  return fireWhenAttached(loc, opts, label, firstFailure);
 }
 
 /** Playwright's own words for an element that left the DOM mid-action — never its generic actionability wording. */

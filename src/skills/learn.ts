@@ -378,6 +378,49 @@ export function canAdoptPin(
   return !(mutates(store, current) && !mutates(store, next));
 }
 
+/**
+ * Where a flow step's pin goes after this run, if anywhere. Pure: every gate
+ * the verdict rests on arrives as a fact, so the whole decision is one
+ * readable function instead of a chain of conditions inside the flow runner.
+ *
+ * Lifecycle-gated adoption: the pin only ever moves to a skill that is
+ * VALIDATED and has just replayed this step cleanly. A skill compiled from a
+ * single model recovery enters the store provisional and must EARN the pin by
+ * validating across runs — flow5 showed that force-pinning such a skill
+ * (usually MORE fragile than the clean original) makes the zero-model
+ * fraction non-monotone: fail, recover, re-pin another provisional, churn.
+ *
+ * The one exception is an ADOPTED step: its incumbent (if any) is a partial
+ * compiled from a non-success recording — scaffolding, strictly worse than a
+ * recovery that just completed the whole step (rpod1's 01-open replayed 1/2
+ * then paid ~90 turns of recovery on EVERY replay). So on the first clean
+ * recovery the recovery skill is pinned, provisional or not, and the step
+ * graduates to an ordinary one.
+ *
+ * `stray` is the model-driven gesture count outside the skill replay: a skill
+ * that ran inside a recovery the model then finished by hand did not carry
+ * the step, and pinning it would replay the same shortfall. `adoptable` is
+ * canAdoptPin's verdict (never steal another step's skill, never demote a
+ * mutating step to a read-only one).
+ */
+export function decideRepin(input: {
+  step: { id: string; skill?: string; adopted?: boolean };
+  reportStatus: Report['status'];
+  outcome: LearnedRecord['outcome'];
+  stray: number;
+  adoptable: boolean;
+}): { skill: string; graduated: boolean } | { refused: string } | null {
+  const { step, outcome } = input;
+  if (!outcome?.ok || outcome.skill === step.skill) return null;
+  if (input.stray > MAX_STRAY_GESTURES_FOR_PIN) {
+    return { refused: `not re-pinning ${outcome.skill} — the model drove ${input.stray} gesture(s) beyond its replay, so it did not carry the step` };
+  }
+  if (input.reportStatus !== 'success' || !input.adoptable) return null;
+  if (outcome.status === 'validated') return { skill: outcome.skill, graduated: false };
+  if (step.adopted) return { skill: outcome.skill, graduated: true };
+  return null;
+}
+
 export function instructionEntry(entries: RecordedEntry[]): RecordedInstruction | undefined {
   return entries.find((e): e is RecordedInstruction => e.k === 'instruction');
 }

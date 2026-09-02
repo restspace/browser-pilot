@@ -1,4 +1,5 @@
 import type { Locator, Page } from 'playwright-core';
+import { clip } from '../shared/text.js';
 import { captureSignature } from '../daemon/diff.js';
 import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
@@ -353,41 +354,14 @@ export async function replaySkill(
       const isMove =
         Boolean(destPattern) && NAV_FALLBACK_TOOLS.has(step.tool) && !tag.includes('.') && !urlMatches(destPattern!, page.url(), params);
       if (isMove) {
-        const arrived = (used: string, note: string): 'ran' => {
+        const arrived = await navigateToDestination(page, destPattern!, params, (tool, a, resolved) => opts.exec(tool, a, resolved, { skill: skill.id, step: failIndex }));
+        if (arrived) {
           const miss = res.misses[res.misses.length - 1];
-          if (miss && miss.step === tag) miss.used = used;
+          if (miss && miss.step === tag) miss.used = arrived.used;
           res.fallthroughs++;
-          res.warnings.push(`step ${tag}: ${resolveError}; ${note}`);
-          res.lines.push(`${head} → target gone; ${note}`);
+          res.warnings.push(`step ${tag}: ${resolveError}; ${arrived.note}`);
+          res.lines.push(`${head} → target gone; ${arrived.note}`);
           return 'ran';
-        };
-        // (a) The page may offer the same destination through a different
-        // link. Requires the matching anchors to agree on ONE destination —
-        // ambiguity (a wildcard pattern matching many records) skips the rung.
-        const link = await linkToDestination(page, destPattern!, params);
-        if (link) {
-          try {
-            await opts.exec('click', { target: link.selector }, { target: page.locator(link.selector).first() }, { skill: skill.id, step: failIndex });
-            await settleDom(page);
-            if (urlMatches(destPattern!, page.url(), params)) {
-              return arrived(`click ${link.selector}`, `clicked another link to the recorded destination (${link.selector})`);
-            }
-          } catch {
-            // that link did not work either — try the direct navigation
-          }
-        }
-        // (b) Direct navigation, last resort before model recovery.
-        const dest = fillParams(destPattern!, params);
-        const concrete = dest && !dest.includes('{{') && !/[/=#](:id|:var)(?=[/&#]|$)/.test(dest);
-        if (concrete && !urlMatches(destPattern!, page.url(), params)) {
-          try {
-            await opts.exec('goto', { url: dest }, {}, { skill: skill.id, step: failIndex });
-            if (urlMatches(destPattern!, page.url(), params)) {
-              return arrived(`goto ${dest}`, `navigated to the step's recorded destination instead (${dest})`);
-            }
-          } catch {
-            // destination unreachable — report the original miss below
-          }
         }
       }
       res.failedAt = failIndex;
@@ -442,80 +416,19 @@ export async function replaySkill(
       if (made) res.created.push(made);
     }
 
-    // Hard expectation: where the step was supposed to leave the browser.
-    // A same-shape url whose literal segment(s) disagree is treated as
-    // volatile (mechanism 2): warn, stage the generalisation, continue.
-    if (step.expect?.urlPattern && !urlMatches(step.expect.urlPattern, page.url(), params)) {
-      const soft = softUrlMatch(step.expect.urlPattern, page.url(), params);
-      if (!soft) {
+    // Effect gates: did the step leave the page as the recording said it
+    // would? Each gate's warnings and staged generalisations always apply; a
+    // stop ends the replay here, with what ran already in `res`.
+    for (const gate of STEP_GATES) {
+      const verdict = await gate({ page, step, tag, failIndex, args, params, outcome, isRead, positionalResolution });
+      if (!verdict) continue;
+      if (verdict.warnings) res.warnings.push(...verdict.warnings);
+      if (verdict.generalise) res.generalisations.push(verdict.generalise);
+      if (verdict.stop) {
         res.failedAt = failIndex;
-        res.reason = `after step ${tag} expected url ${fillParams(step.expect.urlPattern, params)} but browser is at ${urlPattern(page.url())}`;
-        res.lines.push(`${head} → ran, but ${res.reason}`);
+        res.reason = verdict.stop;
+        res.lines.push(`${head} → ran, but ${verdict.stop}`);
         return 'stop';
-      }
-      res.warnings.push(
-        `step ${tag}: url segment(s) differ from recorded (${soft.diffs.map((d) => `${d.expected}→${d.actual}`).join(', ')}) — treated as volatile`,
-      );
-      res.generalisations.push({ kind: 'expect', step: failIndex, pattern: soft.generalised });
-    }
-    // Page-change expectations. Lines that carry a parameter are HARD: they
-    // are what distinguishes this run from the recorded one (the new title
-    // appearing as a heading), so their absence means the step acted on the
-    // wrong thing even though it "worked". Everything else stays soft until
-    // data says it is reliable.
-    // An alert the recording never saw is the app talking back — usually a
-    // rejection ("Ticket is not ready…") that leaves the page superficially
-    // intact. fwrd4l-n3 clicked into exactly that: the step counted as run,
-    // the synthesized report declared the recorded outcome, and only external
-    // verification caught that the ticket never reached Ready. So a
-    // state-changing step that provokes an UNRECORDED alert fails hard, while
-    // a recorded-but-missing alert stays soft below (toasts are volatile).
-    if (outcome.diff?.alerts.length && !isRead && !step.expect?.alertContains) {
-      res.failedAt = failIndex;
-      res.reason = `step ${tag} raised an alert the recording never saw: ${clip(outcome.diff.alerts.join(' | '), 200)}`;
-      res.lines.push(`${head} → ran, but ${res.reason}`);
-      return 'stop';
-    }
-    if (outcome.diff && step.expect) {
-      if (step.expect.alertContains) {
-        const want = fillParams(step.expect.alertContains, params);
-        if (!outcome.diff.alerts.some((a) => a.includes(want))) res.warnings.push(`step ${tag}: expected alert containing ${JSON.stringify(want)}`);
-      }
-      if (step.expect.addedContains?.length) {
-        const seen = outcome.diff.added.join('\n');
-        const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
-        let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
-        const plain = step.expect.addedContains.filter((l) => !isParam(l));
-        // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
-        // change: its own echo in a same-role element is what the wrong
-        // element produces too (see consequentialExpectations). When the echo
-        // is all the recording has, the old gate stands and we say so.
-        if (positionalResolution && parameterised.length && typeof args.value === 'string' && args.value) {
-          const value = args.value;
-          const consequential = parameterised.filter((l) => !isEchoLine(l, value));
-          if (consequential.length) parameterised = consequential;
-          else res.warnings.push(`step ${tag}: resolved positionally and its only recorded effect is the fill's own echo — the effect gate cannot tell right element from wrong here`);
-        }
-        if (parameterised.length && !parameterised.some((w) => seen.includes(w)) && !(await presentOnPage(page, parameterised))) {
-          res.failedAt = failIndex;
-          res.reason = `after step ${tag} the page did not show ${parameterised.map((w) => JSON.stringify(w)).join(' / ')} as it did when recorded — the step ran but probably acted on the wrong element`;
-          res.lines.push(`${head} → ran, but ${res.reason}`);
-          return 'stop';
-        }
-        if (plain.length && !plain.some((w) => seen.includes(w))) {
-          // None of the recorded effects in the step diff — check the live
-          // page before judging (a change can land outside the diff window).
-          // Absent there too, the action did not have its recorded effect:
-          // failing here is what turns a rejected state change into a clean
-          // recovery instead of a false success (the fwrd4l-n3 Ready click).
-          if (!(await presentOnPage(page, plain))) {
-            res.failedAt = failIndex;
-            res.reason = `after step ${tag} none of the ${plain.length} recorded page change(s) appeared (e.g. ${JSON.stringify(plain[0])}) — the step ran but did not have its recorded effect`;
-            res.lines.push(`${head} → ran, but ${res.reason}`);
-            return 'stop';
-          }
-          res.warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared in the step diff (found on the page instead)`);
-        }
       }
     }
 
@@ -655,6 +568,112 @@ export async function replaySkill(
   res.url = page.url();
   return res;
 }
+
+/** What an effect gate sees after a step's action ran. */
+interface StepGateInput {
+  page: Page;
+  step: SkillStep;
+  /** Human step tag ("5", or "9.2.1" inside a loop). */
+  tag: string;
+  /** Top-level step number, for staged generalisations. */
+  failIndex: number;
+  /** The step's args with params filled. */
+  args: Record<string, unknown>;
+  params: Record<string, string>;
+  outcome: { result: string; diff?: StepDiff };
+  isRead: boolean;
+  /** Some target of this step resolved through a structural (positional) candidate. */
+  positionalResolution: boolean;
+}
+
+/** A gate's verdict. Warnings and generalisations always apply; `stop` ends the replay with that reason. */
+interface StepVerdict {
+  warnings?: string[];
+  generalise?: ReplayResult['generalisations'][number];
+  stop?: string;
+}
+
+type StepGate = (g: StepGateInput) => Promise<StepVerdict | null> | StepVerdict | null;
+
+/**
+ * Hard expectation: where the step was supposed to leave the browser. A
+ * same-shape url whose literal segment(s) disagree is treated as volatile
+ * (mechanism 2): warn, stage the generalisation, continue.
+ */
+const expectedUrl: StepGate = ({ step, page, params, tag, failIndex }) => {
+  const pattern = step.expect?.urlPattern;
+  if (!pattern || urlMatches(pattern, page.url(), params)) return null;
+  const soft = softUrlMatch(pattern, page.url(), params);
+  if (!soft) return { stop: `after step ${tag} expected url ${fillParams(pattern, params)} but browser is at ${urlPattern(page.url())}` };
+  return {
+    warnings: [`step ${tag}: url segment(s) differ from recorded (${soft.diffs.map((d) => `${d.expected}→${d.actual}`).join(', ')}) — treated as volatile`],
+    generalise: { kind: 'expect', step: failIndex, pattern: soft.generalised },
+  };
+};
+
+/**
+ * An alert the recording never saw is the app talking back — usually a
+ * rejection ("Ticket is not ready…") that leaves the page superficially
+ * intact. fwrd4l-n3 clicked into exactly that: the step counted as run, the
+ * synthesized report declared the recorded outcome, and only external
+ * verification caught that the ticket never reached Ready. So a
+ * state-changing step that provokes an UNRECORDED alert fails hard, while a
+ * recorded-but-missing alert stays soft (expectedAlert — toasts are volatile).
+ */
+const unrecordedAlert: StepGate = ({ outcome, isRead, step, tag }) => {
+  if (!outcome.diff?.alerts.length || isRead || step.expect?.alertContains) return null;
+  return { stop: `step ${tag} raised an alert the recording never saw: ${clip(outcome.diff.alerts.join(' | '), 200)}` };
+};
+
+const expectedAlert: StepGate = ({ outcome, step, params, tag }) => {
+  if (!outcome.diff || !step.expect?.alertContains) return null;
+  const want = fillParams(step.expect.alertContains, params);
+  return outcome.diff.alerts.some((a) => a.includes(want)) ? null : { warnings: [`step ${tag}: expected alert containing ${JSON.stringify(want)}`] };
+};
+
+/**
+ * Page-change expectations. Lines that carry a parameter are HARD: they are
+ * what distinguishes this run from the recorded one (the new title appearing
+ * as a heading), so their absence means the step acted on the wrong thing
+ * even though it "worked". Everything else stays soft until data says it is
+ * reliable — but a plain change absent from the diff AND the live page means
+ * the action did not have its recorded effect, and failing there is what
+ * turns a rejected state change into a clean recovery instead of a false
+ * success (the fwrd4l-n3 Ready click).
+ */
+const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, page, positionalResolution }) => {
+  if (!outcome.diff || !step.expect?.addedContains?.length) return null;
+  const warnings: string[] = [];
+  const seen = outcome.diff.added.join('\n');
+  const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
+  let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
+  const plain = step.expect.addedContains.filter((l) => !isParam(l));
+  // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
+  // change: its own echo in a same-role element is what the wrong element
+  // produces too (see consequentialExpectations). When the echo is all the
+  // recording has, the old gate stands and we say so.
+  if (positionalResolution && parameterised.length && typeof args.value === 'string' && args.value) {
+    const value = args.value;
+    const consequential = parameterised.filter((l) => !isEchoLine(l, value));
+    if (consequential.length) parameterised = consequential;
+    else warnings.push(`step ${tag}: resolved positionally and its only recorded effect is the fill's own echo — the effect gate cannot tell right element from wrong here`);
+  }
+  if (parameterised.length && !parameterised.some((w) => seen.includes(w)) && !(await presentOnPage(page, parameterised))) {
+    return { warnings, stop: `after step ${tag} the page did not show ${parameterised.map((w) => JSON.stringify(w)).join(' / ')} as it did when recorded — the step ran but probably acted on the wrong element` };
+  }
+  if (plain.length && !plain.some((w) => seen.includes(w))) {
+    // None of the recorded effects in the step diff — check the live page
+    // before judging (a change can land outside the diff window).
+    if (!(await presentOnPage(page, plain))) {
+      return { warnings, stop: `after step ${tag} none of the ${plain.length} recorded page change(s) appeared (e.g. ${JSON.stringify(plain[0])}) — the step ran but did not have its recorded effect` };
+    }
+    warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared in the step diff (found on the page instead)`);
+  }
+  return warnings.length ? { warnings } : null;
+};
+
+/** The effect gates a step passes through after its action, in order. */
+const STEP_GATES: StepGate[] = [expectedUrl, unrecordedAlert, expectedAlert, expectedChanges];
 
 /** Short human label for a loop's guard locator. */
 function chain0Desc(chain: LocatorCandidate[]): string {
@@ -910,6 +929,52 @@ export function identityOfPrimary(chain: LocatorCandidate[], skill: Skill, param
 }
 
 /**
+ * The rungs a navigation step falls through when its recorded link is gone,
+ * each testing how the app works for a HUMAN before the next is tried:
+ *  (a) another link on the page to the same destination — click that,
+ *      exercising the app's own navigation;
+ *  (b) only then, and only when the destination is fully concrete
+ *      (params/derived filled, nothing volatile left), navigate there
+ *      directly — the last resort before model recovery.
+ * Returns what got the browser there, or null when neither rung did.
+ */
+async function navigateToDestination(
+  page: Page,
+  destPattern: string,
+  params: Record<string, string>,
+  exec: (tool: string, args: Record<string, unknown>, resolved: Record<string, Locator>) => Promise<unknown>,
+): Promise<{ used: string; note: string } | null> {
+  // (a) Requires the matching anchors to agree on ONE destination —
+  // ambiguity (a wildcard pattern matching many records) skips the rung.
+  const link = await linkToDestination(page, destPattern, params);
+  if (link) {
+    try {
+      await exec('click', { target: link.selector }, { target: page.locator(link.selector).first() });
+      await settleDom(page);
+      if (urlMatches(destPattern, page.url(), params)) {
+        return { used: `click ${link.selector}`, note: `clicked another link to the recorded destination (${link.selector})` };
+      }
+    } catch {
+      // that link did not work either — try the direct navigation
+    }
+  }
+  // (b)
+  const dest = fillParams(destPattern, params);
+  const concrete = dest && !dest.includes('{{') && !/[/=#](:id|:var)(?=[/&#]|$)/.test(dest);
+  if (concrete && !urlMatches(destPattern, page.url(), params)) {
+    try {
+      await exec('goto', { url: dest }, {});
+      if (urlMatches(destPattern, page.url(), params)) {
+        return { used: `goto ${dest}`, note: `navigated to the step's recorded destination instead (${dest})` };
+      }
+    } catch {
+      // destination unreachable — the caller reports the original miss
+    }
+  }
+  return null;
+}
+
+/**
  * A visible anchor on the page whose destination matches the recorded
  * pattern. Used by the navigation fallback's first rung: when the recorded
  * link is gone, another route to the same place may exist (a sidebar entry, a
@@ -1014,10 +1079,6 @@ function describeArgs(tool: string, args: Record<string, unknown>): string {
   }
   void tool;
   return parts.join(' ');
-}
-
-function clip(text: string, max: number): string {
-  return text.length <= max ? text : text.slice(0, max) + '…';
 }
 
 /** Text rendering of a replay result for the agent's tool output. */

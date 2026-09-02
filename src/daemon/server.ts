@@ -6,7 +6,8 @@ import { runEscalatingInstruction, type InstructionResult, type SkillRecord } fr
 import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
-import { MAX_STRAY_GESTURES_FOR_PIN, agentGesturesOutsideReplay, bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
+import type { Page } from 'playwright-core';
+import { agentGesturesOutsideReplay, bindSkill, canAdoptPin, decideRepin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, consumedUrlOutputs, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
@@ -843,13 +844,7 @@ ${describeLeaks(leaks.slice(0, 10))}`);
       // boundary, never mid-skill.
       if (prevRecovered) {
         try {
-          const page = await this.browser.getPage();
-          const blockers = page.locator('[role="dialog"], [aria-modal="true"]');
-          for (let i = 0; i < 3 && (await blockers.count()) > 0 && (await blockers.first().isVisible().catch(() => false)); i++) {
-            await page.keyboard.press('Escape');
-            await page.waitForTimeout(250);
-          }
-          if ((await blockers.count()) > 0 && (await blockers.first().isVisible().catch(() => false))) {
+          if (!(await dismissBlockingDialogs(await this.browser.getPage()))) {
             opts.progress(`[flow ${flow.name}] ${step.id}: a blocking dialog from the previous step's recovery would not dismiss — proceeding, the step's own recovery will handle it`);
           }
         } catch {
@@ -982,71 +977,36 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
           // is generic across runs instead of baking in this run's ids.
           vars: { ...varsIn, ...provenanceValues(outputs), ...referencedValues(step, outputs) },
         });
-        // Lifecycle-gated adoption: the pin only ever moves to a skill that is
-        // VALIDATED and has just replayed this step cleanly. A skill compiled
-        // from a single model recovery enters the store provisional and must
-        // EARN the pin by validating across runs — flow5 showed that
-        // force-pinning such a skill (usually MORE fragile than the clean
-        // original) makes the zero-model fraction non-monotone: fail, recover,
-        // re-pin another provisional, churn. The pin is a hint, not an
-        // authority: selection each run is by track record (selectCandidates),
-        // so an unhealthy pin costs one refused/failed attempt, not the step.
+        // Whether the pin moves is decideRepin's call (see it for the
+        // lifecycle and graduation rules). The pin is a hint, not an
+        // authority: selection each run is by track record
+        // (selectCandidates), so an unhealthy pin costs one refused/failed
+        // attempt, not the step.
         const outcome = learned?.outcome;
-        // Two further gates, both from fwrd14l-n2, where step 08 (create a
-        // scratch ticket) and step 09 (delete both parts) were re-pinned to
-        // s_0b2413 — step 07's READ-ONLY skill, validated and matching the
-        // same detail page. n3 inherited the rewritten flow, replayed 07's
-        // read chain three times, mutated NOTHING, reported success for all
-        // three, and halted at step 10 on a scratch ticket that was never
-        // created. A replay that reports success having done nothing is the
-        // worst outcome this system can produce, so the pin must be about
-        // this step's WORK, not merely a skill that resolves on this page.
-        // Pending re-pins count as owned. The write-back happens after the
-        // loop, so on the flow object alone this run's own adoptions are
-        // invisible — fwrd16-n3 re-pinned 02-create AND 10-open onto the same
-        // s_738ec0 in one pass, straight through the gate that exists to
-        // forbid it.
+        // Ownership gate (fwrd14l-n2: two steps re-pinned onto step 07's
+        // READ-ONLY skill, replayed its read chain three times, mutated
+        // nothing and reported success). Pending re-pins count as owned: the
+        // write-back happens after the loop, so on the flow object alone this
+        // run's own adoptions are invisible — fwrd16-n3 re-pinned 02-create
+        // AND 10-open onto the same s_738ec0 in one pass.
         const owned = flow.steps.map((st) => ({ id: st.id, skill: pendingPins.get(st.id) ?? st.skill }));
-        // Third gate: the replayed skill must have DONE the step, not just run
-        // inside a recovery the model then finished by hand. Measured on the
-        // recording: model-driven gestures outside any skill replay.
-        const stray = agentGesturesOutsideReplay(recoveryEntries);
-        const carried = stray <= MAX_STRAY_GESTURES_FOR_PIN;
-        const adoptable = outcome && carried && canAdoptPin(this.browser.learn, owned, step.id, step.skill, outcome.skill);
-        if (outcome && outcome.ok && outcome.skill !== step.skill && !carried) {
-          opts.progress(`[flow ${flow.name}] ${step.id}: not re-pinning ${outcome.skill} — the model drove ${stray} gesture(s) beyond its replay, so it did not carry the step`);
-        }
-        if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill && adoptable) {
-          repinned = outcome.skill;
-          pendingPins.set(step.id, outcome.skill);
-        } else if (
-          // Adopted-step graduation. An adopted step's incumbent skill (if it
-          // has one) is a PARTIAL compiled from a non-success recording — the
-          // reason it was adopted was that its instruction never reported
-          // success, so its skill covers only the sub-steps that ran before
-          // the session moved on (rpod1's 01-open replayed 1/2 then paid ~90
-          // turns of model recovery on EVERY replay, plus the adopted doubled
-          // budget, forever). The normal gate withholds the pin until a fresh
-          // provisional validates across runs — sound when the incumbent is a
-          // healthy validated skill, but inverted here: the incumbent is known
-          // scaffolding, strictly worse than a recovery that just completed
-          // the whole step. So on the FIRST clean recovery, pin the recovery
-          // skill (provisional is fine) and shed `adopted`, letting the next
-          // run treat this as an ordinary step whose skill earns its place
-          // through the normal lifecycle instead of re-recovering from zero.
-          // Still gated by canAdoptPin (never steal another step's skill,
-          // never demote a mutating step to a read-only one).
-          step.adopted &&
-          result.report.status === 'success' &&
-          outcome?.ok &&
-          outcome.skill &&
-          outcome.skill !== step.skill &&
-          adoptable
-        ) {
-          repinned = outcome.skill;
-          pendingPins.set(step.id, outcome.skill);
-          graduated.add(step.id);
-          opts.progress(`[flow ${flow.name}] ${step.id}: adopted step graduated — pinned ${outcome.skill} (${outcome.status}), shedding model-first replay`);
+        const adoptable = Boolean(outcome && canAdoptPin(this.browser.learn, owned, step.id, step.skill, outcome.skill));
+        const decision = decideRepin({
+          step,
+          reportStatus: result.report.status,
+          outcome,
+          stray: agentGesturesOutsideReplay(recoveryEntries),
+          adoptable,
+        });
+        if (decision && 'refused' in decision) {
+          opts.progress(`[flow ${flow.name}] ${step.id}: ${decision.refused}`);
+        } else if (decision) {
+          repinned = decision.skill;
+          pendingPins.set(step.id, decision.skill);
+          if (decision.graduated) {
+            graduated.add(step.id);
+            opts.progress(`[flow ${flow.name}] ${step.id}: adopted step graduated — pinned ${decision.skill} (${outcome?.status}), shedding model-first replay`);
+          }
         }
       }
       usage.promptTokens += result.usage.promptTokens;
@@ -1074,25 +1034,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       // result — they are addresses, not findings.
       const stepOutputs: Record<string, string> = { ...values };
       try {
-        // Whatever this run's browser landed on, published under the same
-        // rule buildFlow used to mint the references — see urlOutputs. When a
-        // later step is known to consume one of this step's url outputs, wait
-        // (bounded) for the URL to actually carry it: an SPA can update its
-        // URL a beat after the page settles, and a structural replay finishes
-        // inside that beat — fwod30 lost {{03-open.url.q.id}} to a snapshot
-        // taken before Odoo's hash gained the freshly minted id.
-        const flowPage = await this.browser.getPage();
-        let urlOuts = urlOutputs(flowPage.url());
-        const wanted = wantedUrlOuts.get(step.id);
-        if (wanted?.size) {
-          const deadline = Date.now() + 5_000;
-          while ([...wanted].some((k) => !(k in urlOuts)) && Date.now() < deadline) {
-            await new Promise((r) => setTimeout(r, 250));
-            urlOuts = urlOutputs(flowPage.url());
-          }
-          const missing = [...wanted].filter((k) => !(k in urlOuts));
-          if (missing.length) console.error(`[flow] ${step.id}: url output(s) never appeared: ${missing.join(', ')} (url: ${flowPage.url().slice(0, 160)})`);
-        }
+        const urlOuts = await captureUrlOutputs(await this.browser.getPage(), wantedUrlOuts.get(step.id), step.id);
         for (const [key, value] of Object.entries(urlOuts)) {
           if (!(key in stepOutputs)) stepOutputs[key] = value;
         }
@@ -1440,6 +1382,49 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
     await new Promise((r) => setTimeout(r, 150));
     process.exit(0);
   }
+}
+
+/**
+ * Between-step hygiene: at a step boundary the page should be at rest, so a
+ * still-open modal is debris from the previous step's recovery. Escape it
+ * (bounded) before the next step's own skill replay, so the debris is not
+ * charged to that step. Uses the ARIA-standard modal signal, never an app
+ * selector; in-skill dialogs are unaffected because this runs only at the
+ * boundary. Returns false when a dialog would not go.
+ */
+async function dismissBlockingDialogs(page: Page): Promise<boolean> {
+  const blockers = page.locator('[role="dialog"], [aria-modal="true"]');
+  const blocking = async () => (await blockers.count()) > 0 && (await blockers.first().isVisible().catch(() => false));
+  for (let i = 0; i < 3 && (await blocking()); i++) {
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(250);
+  }
+  return !(await blocking());
+}
+
+/** How long a step's end-url capture waits for a consumed url output to appear. */
+const URL_OUTPUT_WAIT_MS = 5_000;
+
+/**
+ * The outputs a step's end url publishes, under the same rule buildFlow used
+ * to mint the references — see urlOutputs. When a later step is known to
+ * consume one of them (`wanted`), wait (bounded) for the URL to actually
+ * carry it: an SPA can update its URL a beat after the page settles, and a
+ * structural replay finishes inside that beat — fwod30 lost
+ * {{03-open.url.q.id}} to a snapshot taken before Odoo's hash gained the
+ * freshly minted id.
+ */
+async function captureUrlOutputs(page: Page, wanted: Set<string> | undefined, stepId: string): Promise<Record<string, string>> {
+  let urlOuts = urlOutputs(page.url());
+  if (!wanted?.size) return urlOuts;
+  const deadline = Date.now() + URL_OUTPUT_WAIT_MS;
+  while ([...wanted].some((k) => !(k in urlOuts)) && Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 250));
+    urlOuts = urlOutputs(page.url());
+  }
+  const missing = [...wanted].filter((k) => !(k in urlOuts));
+  if (missing.length) console.error(`[flow] ${stepId}: url output(s) never appeared: ${missing.join(', ')} (url: ${page.url().slice(0, 160)})`);
+  return urlOuts;
 }
 
 function listFlowsSummary() {

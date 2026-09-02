@@ -162,6 +162,26 @@ export interface SkillRecord {
 
 export type BailReason = 'turn-cap' | 'timeout' | 'stalled' | 'stopped' | 'invalid-report' | 'looping';
 
+/**
+ * One reason to hold a schema-valid report and ask the model again. `check`
+ * returns null when the report passes, else what to tell the model and how
+ * to log it. Holds are consulted in order; each fires at most once.
+ */
+interface ReportHold {
+  name: string;
+  check: (report: Report) => { message: string; transcript: string; progress: string } | null;
+}
+
+/** The first hold not yet asked that has something to ask about `report`. */
+function firstHold(holds: ReportHold[], asked: Set<string>, report: Report): (ReturnType<ReportHold['check']> & { name: string }) | null {
+  for (const hold of holds) {
+    if (asked.has(hold.name)) continue;
+    const hit = hold.check(report);
+    if (hit) return { name: hold.name, ...hit };
+  }
+  return null;
+}
+
 export interface EscalationRecord {
   from: string;
   to: string;
@@ -196,11 +216,52 @@ export async function runInstruction(
   const actions: ActionRecord[] = [];
   const screenshots: string[] = [];
   let reportRetried = false;
-  /** The naming ask below is made at most once per instruction, and never blocks a report. */
-  let namingAsked = false;
-  let contradictionAsked = false;
   /** evidence.values from the report held for naming, so the retry cannot lose them. */
   let heldValues: Record<string, string | number | boolean | null> | undefined;
+  /**
+   * Reasons to hand a schema-valid report back to the model ONCE before
+   * accepting it, asked in this order. Each fires at most once per
+   * instruction and never on the last turn: a held report that then hits the
+   * cap is reported as blocked, and losing a completed instruction costs far
+   * more than anything a hold can win. The retry is accepted whatever it
+   * says — so is the first report, if the model simply repeats it.
+   */
+  const holds: ReportHold[] = [
+    {
+      // A success whose own summary says the work was not finished: the
+      // status and the prose must agree before a flow marks the step done on
+      // the strength of the status alone.
+      name: 'contradiction',
+      check: (report) => {
+        const admission = report.status === 'success' ? admitsIncompletion(report.summary) : null;
+        if (!admission) return null;
+        return {
+          message: `report held — status is "success" but the summary says "${admission}". Those cannot both be true. If the instruction was FULLY completed and verified, call report again with a summary that does not describe unfinished work. If it was not, call report again with status "failure" or "blocked" and say exactly what is missing. Do not take further actions first.`,
+          transcript: `report held for contradiction: success but "${admission}"`,
+          progress: `holding success report that admits "${admission}"`,
+        };
+      },
+    },
+    {
+      // Values the report describes but never named. Ask with the values
+      // quoted back so the model supplies labels rather than re-reading the
+      // page — see unnamedReadValues for what an unnamed value costs every
+      // later replay.
+      name: 'naming',
+      check: (report) => {
+        const unnamed = unnamedReadValues(report, browser.script?.readsThisInstruction() ?? []);
+        if (!unnamed.length) return null;
+        heldValues = report.evidence?.values;
+        browser.script?.noteNamingAsk?.(unnamed);
+        return {
+          message: namingAskMessage(unnamed),
+          transcript: `report held for naming: ${unnamed.join(', ')}`,
+          progress: `asking for names for ${unnamed.length} unnamed read value(s): ${unnamed.join(', ')}`,
+        };
+      },
+    },
+  ];
+  const holdsAsked = new Set<string>();
   let capWarned = false;
   let unproductiveTurns = 0;
   // Recent state-changing calls with their outcomes, for cycle detection —
@@ -555,47 +616,18 @@ export async function runInstruction(
       if (call.name === 'report') {
         const validation = call.args ? validateReport(call.args) : { ok: false as const, error: 'arguments were not valid JSON' };
         if (validation.ok) {
-          // The report is schema-valid and will be accepted; the only question
-          // left is whether the values it describes carry names. Ask once, with
-          // the values quoted back so the model supplies labels rather than
-          // re-reading the page — see unnamedReadValues for what an unnamed
-          // value costs every later replay. The report is never lost: the
-          // second call is accepted whatever it says, and so is this one if the
-          // model simply repeats it.
-          // Never spend the last turn on naming: a held report that then hits
-          // the cap is reported as blocked, and losing a completed instruction
-          // costs far more than a selector-derived name.
-          // A success whose own summary says the work was not finished is
-          // held once: the status and the prose must agree before a flow
-          // marks the step done on the strength of the status alone.
-          const admission = validation.report.status === 'success' ? admitsIncompletion(validation.report.summary) : null;
-          if (admission && !contradictionAsked && turn < opts.maxTurns && Date.now() < deadline) {
-            contradictionAsked = true;
-            state.messages.push({
-              role: 'tool',
-              tool_call_id: call.id,
-              content: `report held — status is "success" but the summary says "${admission}". Those cannot both be true. If the instruction was FULLY completed and verified, call report again with a summary that does not describe unfinished work. If it was not, call report again with status "failure" or "blocked" and say exactly what is missing. Do not take further actions first.`,
-            });
-            transcript.push(`report held for contradiction: success but "${admission}"`);
-            opts.onProgress?.(`[turn ${turn}] holding success report that admits "${admission}"`);
+          // The report is schema-valid and will be accepted unless one of the
+          // holds has something to ask first — see `holds`.
+          const roomToHold = turn < opts.maxTurns && Date.now() < deadline;
+          const hold = roomToHold ? firstHold(holds, holdsAsked, validation.report) : null;
+          if (hold) {
+            holdsAsked.add(hold.name);
+            state.messages.push({ role: 'tool', tool_call_id: call.id, content: hold.message });
+            transcript.push(hold.transcript);
+            opts.onProgress?.(`[turn ${turn}] ${hold.progress}`);
             continue;
           }
-          const roomToAsk = !namingAsked && turn < opts.maxTurns && Date.now() < deadline;
-          const unnamed = roomToAsk ? unnamedReadValues(validation.report, browser.script?.readsThisInstruction() ?? []) : [];
-          if (unnamed.length) {
-            namingAsked = true;
-            state.messages.push({
-              role: 'tool',
-              tool_call_id: call.id,
-              content: namingAskMessage(unnamed),
-            });
-            heldValues = validation.report.evidence?.values;
-            browser.script?.noteNamingAsk?.(unnamed);
-            transcript.push(`report held for naming: ${unnamed.join(', ')}`);
-            opts.onProgress?.(`[turn ${turn}] asking for names for ${unnamed.length} unnamed read value(s): ${unnamed.join(', ')}`);
-            continue;
-          }
-          if (namingAsked && Object.keys(validation.report.evidence?.values ?? {}).length) {
+          if (holdsAsked.has('naming') && Object.keys(validation.report.evidence?.values ?? {}).length) {
             browser.script?.noteNamingAnswered?.();
             // The retry asked for the report "unchanged except…"; models drop
             // things anyway. Keep every value either report named — see

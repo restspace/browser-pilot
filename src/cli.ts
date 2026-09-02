@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import { clip } from './shared/text.js';
 import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -809,8 +810,7 @@ function skillSummary(s: Skill) {
 }
 
 function clipText(text: string, max: number): string {
-  const one = text.replace(/\s+/g, ' ');
-  return one.length <= max ? one : one.slice(0, max) + '…';
+  return clip(text.replace(/\s+/g, ' '), max);
 }
 
 function flowCommand(positional: string[], json: boolean): void {
