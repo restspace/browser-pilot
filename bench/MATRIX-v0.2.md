@@ -139,6 +139,70 @@ record confirmed by JSON-RPC not to exist in the replay's database, so a
 tidied script dies there instead — failure deferred, not avoided. Confirmed
 after both runs: no record of any run, seed or otherwise, was touched.
 
+## The strongest static incumbent: the agent writes its own script (set 17)
+
+The codegen arm above is the floor for static replay — gestures without
+judgement. Set 17 constructs the strongest static incumbent we could think of:
+after a fresh **agent-browser** run (same glm-5.3 stack as v0.1), the **same
+model** is handed its own complete command log, its final report, and the task
+file, and told to write a standalone Playwright script — parameterised by
+RUNID, locating records by name, waiting on concrete state, reporting per
+objective, free to use judgement everywhere. One syntax-repair round allowed;
+semantic failures are the result (`bench/author-replay.mjs`, commit a9ca517).
+That script then replays twice cold, resets between, same verifiers.
+
+| target | phase A: agent-browser first-run | authoring | authored replay r1, r2 (verified) | codegen floor (set 16) | sleep-walker (set 15) |
+|---|---|---|---|---|---|
+| repairdesk | 6/6, 47 turns, $0.19, 67s | 164 lines, $0.023, 1 attempt | **1/6, 1/6** | 6/6, 6/6 | 7/7, 7/7 |
+| kanboard | **2/6, turn-cap** (120), $0.77 | 148 lines, $0.035, 1 attempt | **5/6, 5/6** | 4/4 (+2 n/a) | 6/6, 6/6 |
+| grafana | 6/6, 75 turns, $1.05, 448s | 145 lines, $0.032, 1 attempt | **0/6, 0/6** | 0/6, 0/6 | 6/6, 5/6 |
+| odoo | 6/6, 73 turns, $1.51, 302s | 229 lines, $0.041, 1 attempt | **1/6, 1/6** | 0/6, 0/6 | 6/6, 6/6 |
+
+(The kanboard phase A doubles as agent-browser's first-ever kanboard cell for
+the v0.1 grid: 2/6 at the 120-turn cap, $0.77 — the drag-and-drop board is its
+weakest target on record. Every authored replay exited 1; every failure was
+deterministic across r1/r2. augr1's first replay attempt crashed before the
+script ran — wrong working directory on the box, a harness non-event — and was
+re-issued; disclosed here, no app state was touched.)
+
+Where each authored script actually broke — every one a **belief that
+observation would have corrected**:
+
+- **repairdesk (1/6)**: after Create, the script waits for the ticket detail
+  page's heading — but the app returns to the *list*; in the live run the
+  agent had clicked into the ticket, and the author forgot its own click. The
+  box proved it with a diagnostic: the h1 exists, on a page the script never
+  reaches. Note codegen scored **6/6 here**: the recording *kept* that click.
+- **kanboard (5/6)**: the best static cell of the campaign, and the arm's
+  honest win — writing code, the model completed work its own live run never
+  finished (the source run scored 2/6!), answered both report-only objectives,
+  moved the task correctly, touched no seed task. Its one miss (the comment)
+  came with an inverted self-report: a `waitForFunction` gate timed out, so
+  the script printed FAILED for three objectives the app says PASSED.
+- **grafana (0/6)**: the script dodged both predicted traps — it created the
+  dashboard via Grafana's HTTP API and re-found it by name — then died at
+  **login**, step one: a `waitForURL` pattern the real post-login redirect
+  never matches. Belief about a URL, wrong at the first fence.
+- **odoo (1/6)**: no networkidle, menu-name navigation, RUNID-name record
+  lookup — the checklist looks perfect. It still lost the create-customer form
+  to a remembered selector, and then did the worst thing in the matrix: it
+  **confirmed an order with zero lines** and left it ACTIVE (S00022/S00023,
+  state=sale, never cancelled — the next reset had to force-cancel it). The
+  script printed FAILED and exited 1, but the wrong record was already in the
+  database. Judgement without an effect gate mutates first and regrets later.
+
+What set 17 settles: the floor and the ceiling of static replay fail
+*differently*, and neither is enough. Codegen keeps what actually happened and
+loses the intent (it beat the authored script on repairdesk purely because the
+recording preserved a click the author forgot). Authoring keeps the intent and
+loses what actually happened (it beat codegen on kanboard by finishing work
+the run never did — from memory of a page it had seen). Sleep-walker's
+recorder is precisely the machine that keeps **both**: the observed gesture
+with its verified locators AND the checked effect that says what the gesture
+was for. Total authoring cost to learn this: ~$0.13. Total objectives the
+strongest static incumbent verified across eight replays: 14/48, against
+sleep-walker's 47/50 on the same four apps.
+
 ## What the cells say
 
 1. **Static replay is bimodal, and the mode is a property of the app, not
@@ -169,8 +233,10 @@ after both runs: no record of any run, seed or otherwise, was touched.
 
 Set 15 (sleep-walker): fwrd39, fwkb2, fwgr19, fwod30 — sweep.json, per-run
 flowrun/drift/script files. Set 16 (codegen): cgrd2, cgkb1, cggr1, cgod1 —
-per-replay spec.mjs (the generated script itself), log, result.json. All under
-bench/results-published/. The local Windows smoke (cgrd1, identical outcome to
+per-replay spec.mjs (the generated script itself), log, result.json. Set 17
+(agent-authored): aurd1, aukb1, augr1, auod1 — phase-A transcript + result,
+author-meta.json (attempts/tokens/cost), the authored spec.mjs itself, and
+per-replay log + result.json. All under bench/results-published/. The local Windows smoke (cgrd1, identical outcome to
 cgrd2) is in the session record but not published as a matrix cell — published
 cells are cloud-only per bench/CLOUD-RUNBOOK.md.
 
