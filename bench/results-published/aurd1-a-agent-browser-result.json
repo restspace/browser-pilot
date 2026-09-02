@@ -1,0 +1,59 @@
+{
+  "arm": "agent-browser",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "a9ca517"
+  },
+  "mutationLogPath": "/home/user/sleep-walker/bench/results/aurd1-a-agent-browser-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "aurd1-a",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 47,
+  "wallMs": 66716,
+  "orchestrator": {
+    "input": 18230,
+    "cacheWrite": 0,
+    "cacheRead": 563776,
+    "output": 3153
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 82,
+  "subcommands": {
+    "open": 1,
+    "snapshot": 22,
+    "fill": 13,
+    "click": 23,
+    "wait": 15,
+    "get": 7,
+    "find": 1
+  },
+  "invocationCount": 82,
+  "commandMs": 22395,
+  "commandBytes": 27081,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Friendli"
+  ],
+  "orReportedCostUsd": 0.1674,
+  "maxUsd": 2,
+  "spendUsd": 0.186,
+  "finalText": "All objectives verified. The ticket RD-1015 \"aurd1-a RD Bench Ticket\" now shows as **Archived** with status **Ready** and **0 parts** in the archived list, and it no longer appears in the active list.\n\n## Final Report\n\n**1. DONE** — Ticket created: ref **RD-1015**, title \"aurd1-a RD Bench Ticket\", customer \"Bench Customer\", created 2026-09-02. Confirmed present in the tickets list.\n\n**2. DONE** — Part \"aurd1-a RD Part A\" with cost $100.00 and markup 25%: the app computed a price of **$125.00** (shown in the PRICE column; ticket total was $125.00 at that point).\n\n**3. DONE** — Part \"aurd1-a RD Part B\" with cost $200.00 and markup 25%: the app computed a price of **$250.00** (ticket total was $375.00 with both parts).\n\n**4. DONE** — After editing Part A's cost from 100 to 150 (markup still 25%), the app computed a price of **$187.50** (ticket total became $437.50).\n\n**5. DONE** — Status **Ready** achieved. The precondition the app enforces: **every part on the ticket must have a supplier**. Clicking \"Mark Ready\" with supplierless parts produced the error banner: \"Ticket is not ready — Part \"aurd1-a RD Part A\" has no supplier / Part \"aurd1-a RD Part B\" has no supplier\". I satisfied it by editing each part and setting supplier \"Bench Supplier\" on both. After that, \"Mark Ready\" succeeded and the page showed **Status: Ready** (buttons changed to \"Mark Draft\" / \"Mark Closed\").\n\n**6. DONE** — Both parts removed: each delete required a confirm dialog (\"Confirm\" → \"Delete part\"), and afterwards the parts table read \"No parts on this ticket yet.\" with parts count 0. The ticket was then archived: the detail page button changed from \"Archive ticket\" to \"Unarchive ticket\", and in the tickets list (with \"Show archived\" checked) the row reads \"RD-1015 | aurd1-a RD Bench Ticket Archived | Bench Customer | Ready | 0 | 2026-09-02\". Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/aurd1-a-agent-browser-transcript.jsonl"
+}
