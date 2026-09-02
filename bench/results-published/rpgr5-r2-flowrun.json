@@ -1,0 +1,98 @@
+{
+  "flow": "fwgr19",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (skipped the password change prompt), navigated to the provisioned 'Service health' dashboard, and found 3 panels with the following exact titles: Request rate, Request rate, Latency by endpoint.",
+      "values": {
+        "h2": "Error count",
+        "h2_2": "Request rate",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created new dashboard \"rpgr5-r2 Bench Dashboard\" with a Stat visualization panel titled \"rpgr5-r2 Availability\" using the TestData data source (default Random Walk scenario). The dashboard was saved successfully, confirmed by the \"Dashboard saved\" alert and the URL change. The panel title is displayed as \"rpgr5-r2 Availability\" and the query editor shows TestData as the data source.",
+      "values": {
+        "panel_title": "rpgr5-r2 Availability",
+        "data_source": "TestData",
+        "dashboard_name": "rpgr5-r2 Bench Dashboard",
+        "button": "Stat"
+      },
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 27
+    },
+    {
+      "id": "03-add",
+      "status": "failure",
+      "summary": "The panel title \"rpgr5-r2 Notes\" was set by the stored procedure, but the panel type is still \"Time series\" — I was unable to switch it to the \"Text\" visualization. The \"Text\" option exists in the visualization picker but its clickable ancestor/button could not be resolved to a single unambiguous selector within the turn budget. The text content was never set and the dashboard was not saved. Screenshots were taken showing the current state.",
+      "values": {
+        "panel_title_set": "rpgr5-r2 Notes",
+        "current_visualization": "Time series",
+        "target_visualization": "Text (not switched)",
+        "text_content": "not set",
+        "dashboard_saved": "not saved"
+      },
+      "tier": "A",
+      "replayed": "12/27",
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 2,
+  "total": 6,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "03-add",
+      "skill": "s_567dd1",
+      "atStep": "13",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Panel editor option pane field input Title')",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx2qvmnza6tcb/:id"
+    }
+  ],
+  "wallMs": 490440,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 854655,
+    "completionTokens": 13435,
+    "cachedTokens": 744960
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 854655,
+      "completionTokens": 13435,
+      "cachedTokens": 744960
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

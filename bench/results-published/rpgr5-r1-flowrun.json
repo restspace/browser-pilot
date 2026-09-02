@@ -1,0 +1,69 @@
+{
+  "flow": "fwgr19",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_8f9ac5; observed h2=Request rate, h2_2=Error count, h2_3=Latency by endpoint.",
+      "values": {
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "blocked",
+      "summary": "Turn cap (45) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 75
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    }
+  ],
+  "wallMs": 604702,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1026675,
+    "completionTokens": 11182,
+    "cachedTokens": 942112
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 366173,
+      "completionTokens": 5716,
+      "cachedTokens": 303616
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 660502,
+      "completionTokens": 5466,
+      "cachedTokens": 638496
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
