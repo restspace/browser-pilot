@@ -1,0 +1,65 @@
+{
+  "arm": "agent-browser",
+  "target": "kanboard",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "agent-browser 0.34.0",
+    "commit": "a9ca517"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "aukb1-a",
+  "task": "bench/tasks/kanboard-board-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "turn-cap",
+  "turns": 120,
+  "wallMs": 118011,
+  "orchestrator": {
+    "input": 57287,
+    "cacheWrite": 0,
+    "cacheRead": 2472128,
+    "output": 9769
+  },
+  "inner": {
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "completionTokens": 0
+  },
+  "commandCount": 162,
+  "subcommands": {
+    "open": 6,
+    "snapshot": 7,
+    "fill": 5,
+    "click": 5,
+    "get": 6,
+    "eval": 114,
+    "wait": 13,
+    "console": 1,
+    "errors": 1,
+    "read": 1,
+    "network": 2,
+    "select": 1
+  },
+  "invocationCount": 162,
+  "commandMs": 23338,
+  "commandBytes": 65133,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": false,
+  "learn": null,
+  "orBackends": [
+    "Modal",
+    "Friendli"
+  ],
+  "orReportedCostUsd": 0.6902,
+  "maxUsd": 2,
+  "spendUsd": 0.7659,
+  "finalText": "",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/aukb1-a-agent-browser-transcript.jsonl"
+}
