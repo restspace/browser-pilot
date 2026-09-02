@@ -1,0 +1,150 @@
+{
+  "flow": "fwgr19",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Grafana, skipped password change, navigated to the 'Service health' dashboard, and identified the 3 panel titles on screen.",
+      "values": {
+        "panel_titles": "Request rate\nError count\nLatency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "The dashboard 'rpgr6-r1 Bench Dashboard' (created by the earlier replayed steps) was completed and saved successfully. The panel 'rpgr6-r1 Availability' is a Stat visualization using the TestData data source with the default Random Walk scenario (verified in the panel's query editor, which showed the query row as \"(TestData)\" and the data source picker as \"TestData logo\"). The save was confirmed with a \"Dashboard saved\" alert, and the saved dashboard renders the panel with live data (A-series, 12.8).",
+      "values": {
+        "panel_title_on_dashboard": "rpgr6-r1 Availability"
+      },
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 49
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text panel titled 'rpgr6-r1 Notes' with content 'Bench run rpgr6-r1 — notes panel.' (contains the runid rpgr6-r1) to the 'rpgr6-r1 Bench Dashboard', then saved the dashboard — the save was confirmed by a \"Dashboard saved\" alert. Verified in the live DOM: the panel heading reads \"rpgr6-r1 Notes\", the Title field in Panel options reads \"rpgr6-r1 Notes\", and the rendered paragraph shows \"Bench run rpgr6-r1 — notes panel.\" The dashboard's panels are \"rpgr6-r1 Availability\" (from the prior step, verified earlier in this session) and the new \"rpgr6-r1 Notes\". Caveat: the final click returned to the dashboard view but the last full panel list was not re-snapshotted before the turn cap; both panel titles were individually verified in the live DOM during the session.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 74
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added the tag 'bench' to the dashboard's tags via Settings > General (verified the tag appears in the Tags list). The time range was already set to 'Last 6 hours' (shown in the top bar time picker and confirmed via URL params from=now-6h). Saved the dashboard and received a 'Dashboard saved' alert confirming success. Settings > General shows the Tags list containing the 'bench' tag with its Remove button, confirming the tag persisted.",
+      "values": {
+        "time_range": "Last 6 hours"
+      },
+      "tier": "B",
+      "replayed": "0/11",
+      "repaired": true,
+      "turns": 17
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to 1m via the top bar refresh interval dropdown (selected '1 minute'). Saved the dashboard with 'Update default refresh value' checkbox checked — confirmed by 'Dashboard saved' alert. The top bar refresh interval now shows '1m'. Save confirmed: yes.",
+      "values": {
+        "auto_refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_7ab93e"
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Verified the dashboard rpgr6-r1 Bench Dashboard in its current state without making any changes. Dashboard breadcrumb shows 'rpgr6-r1 Bench Dashboard'. Two panels visible: 'rpgr6-r1 Availability' (Stat) and 'rpgr6-r1 Notes' (Text). Time range picker shows 'Last 6 hours'. Auto-refresh dropdown shows '1m'. Settings > General shows dashboard name 'rpgr6-r1 Bench Dashboard' and tags list containing 'bench'. The rpgr6-r1 Availability panel's query editor shows the data source as TestData (confirmed by '(TestData)' in the query row header and 'TestData logo' image). Dashboard UID: bfx2se6k3ewowc.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/13",
+      "repaired": true,
+      "turns": 24
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "01-open",
+      "skill": "s_a2bce0",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Username input field')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "04-add",
+      "skill": "s_ce4549",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2se6k3ewowc/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "06-change",
+      "skill": "s_a878d8",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2se6k3ewowc/:id"
+    }
+  ],
+  "wallMs": 1402465,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3880822,
+    "completionTokens": 44656,
+    "cachedTokens": 3535151
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2641346,
+      "completionTokens": 19623,
+      "cachedTokens": 2353152
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1239476,
+      "completionTokens": 25033,
+      "cachedTokens": 1181999
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

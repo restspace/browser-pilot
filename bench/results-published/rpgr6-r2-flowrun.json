@@ -1,0 +1,171 @@
+{
+  "flow": "fwgr19",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (skipped the password change prompt), navigated to the provisioned 'Service health' dashboard, and found 3 panels with the following exact titles: Request rate, Error count, Request rate.",
+      "values": {
+        "h2": "Latency by endpoint",
+        "h2_2": "Error count",
+        "h2_3": "Request rate"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created dashboard \"rpgr6-r2 Bench Dashboard\" with a Stat panel titled \"rpgr6-r2 Availability\" using the TestData data source (default Random Walk scenario). Saved successfully. Dashboard URL: http://127.0.0.1:3000/d/dfx2uz6gsos1sa/rpgr6-r2-bench-dashboard",
+      "values": {
+        "panel_title": "rpgr6-r2 Availability",
+        "data_source_name": "TestData",
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx2uz6gsos1sa/rpgr6-r2-bench-dashboard",
+        "data_source_name_2": "(TestData)"
+      },
+      "tier": "A",
+      "replayed": "16/19",
+      "repaired": false,
+      "turns": 20
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"rpgr6-r2 Notes\" with content \"Bench run rpgr6-r2 — notes panel.\" to the \"rpgr6-r2 Bench Dashboard\" and saved successfully (confirmed by \"Dashboard saved\" alert, twice). The saved dashboard shows two panels: \"rpgr6-r2 Availability\" (Stat, A-series value 106) and \"rpgr6-r2 Notes\" (Text, rendering \"Bench run rpgr6-r2 — notes panel.\"). Dashboard URL: http://127.0.0.1:3000/d/dfx2uz6gsos1sa/rpgr6-r2-bench-dashboard",
+      "values": {
+        "panel_titles": "rpgr6-r2 Availability; rpgr6-r2 Notes",
+        "notes_panel_text": "Bench run rpgr6-r2 — notes panel.",
+        "notes_panel_title": "rpgr6-r2 Notes",
+        "save_confirmation": "Dashboard saved",
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx2uz6gsos1sa/rpgr6-r2-bench-dashboard"
+      },
+      "tier": "A",
+      "replayed": "12/27",
+      "repaired": false,
+      "turns": 44
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added the tag 'bench' to the dashboard's tags via Settings > General (verified the tag appears in the Tags list). The time range was already set to 'Last 6 hours' (shown in the top bar time picker and confirmed via URL params from=now-6h). Saved the dashboard and received a 'Dashboard saved' alert confirming success. Settings > General shows the Tags list containing the 'bench' tag with its Remove button, confirming the tag persisted.",
+      "values": {
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_c45d61"
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to '1m' via Settings > General (Auto refresh) and saved. The top bar refresh dropdown now shows '1m' with label \"Choose refresh time interval with current interval 1 minute selected\". The URL also reflects refresh=1m. Save was confirmed by 'Dashboard saved' alert.",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "save_confirmed": "Dashboard saved alert shown"
+      },
+      "tier": "B",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Verified all items on the rpgr6-r2 Bench Dashboard: (1) Breadcrumb title: \"rpgr6-r2 Bench Dashboard\". (2) Panel titles visible: \"rpgr6-r2 Availability\" and \"rpgr6-r2 Notes\". (3) Time range: \"Last 6 hours\". (4) Auto-refresh: \"1m\" shown in top bar refresh dropdown. (5) Settings > General shows tags: \"bench\" and dashboard name: \"rpgr6-r2 Bench Dashboard\". (6) The rpgr6-r2 Availability panel's query uses data source \"TestData\" (confirmed by TestData logo and placeholder text). Dashboard UID: dfx2uz6gsos1sa.",
+      "values": {
+        "breadcrumb_title": "rpgr6-r2 Bench Dashboard",
+        "panel_titles": "rpgr6-r2 Availability, rpgr6-r2 Notes",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench",
+        "dashboard_name_in_settings": "rpgr6-r2 Bench Dashboard",
+        "availability_panel_data_source": "TestData",
+        "dashboard_uid": "dfx2uz6gsos1sa"
+      },
+      "tier": "A",
+      "replayed": "4/12",
+      "repaired": false,
+      "turns": 29
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr19",
+      "step": "02-create",
+      "skill": "s_8fc03f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('div[role=\"dialog\"]')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "03-add",
+      "skill": "s_567dd1",
+      "atStep": "13",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Panel editor option pane field input Title')",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx2uz6gsos1sa/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "05-set",
+      "skill": "s_7ab93e",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "every candidate refused — s_7ab93e: missing params: v2 (e.g. \"fwgr19-n3-bench-dashboard\"), v3 (e.g. \"fwgr19-n3\") — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx2uz6gsos1sa/:id"
+    },
+    {
+      "flow": "fwgr19",
+      "step": "06-change",
+      "skill": "s_94f352",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_94f352 stopped at step 5 — after step 5 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 5 the page did not show \"- link \\\"{{v3}} Bench Dashboard\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx2uz6gsos1sa/:id"
+    }
+  ],
+  "wallMs": 701097,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1954032,
+    "completionTokens": 18934,
+    "cachedTokens": 1679968
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1693533,
+      "completionTokens": 17018,
+      "cachedTokens": 1455104
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 260499,
+      "completionTokens": 1916,
+      "cachedTokens": 224864
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
