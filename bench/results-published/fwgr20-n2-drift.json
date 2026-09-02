@@ -1,0 +1,50 @@
+[
+  {
+    "flow": "fwgr20",
+    "step": "02-create",
+    "skill": "s_5a219f",
+    "atStep": "5",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "(none recorded)",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+  },
+  {
+    "flow": "fwgr20",
+    "step": "04-open",
+    "skill": "s_1dc0b9",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_1dc0b9 stopped at step 1 — after step 1 the page did not show \"- heading \\\"{{v1}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+    "reason": "after step 1 the page did not show \"- heading \\\"{{v1}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id"
+  },
+  {
+    "flow": "fwgr20",
+    "step": "05-open",
+    "skill": "s_0cf0d3",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 0.983,
+    "missedLocator": "page.getByTestId('data-testid Save dashboard button')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id"
+  },
+  {
+    "flow": "fwgr20",
+    "step": "06-report",
+    "skill": "s_b285c7",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_b285c7 stopped at step 1 — the page at http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id does not show \"fwgr20-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id does not show \"fwgr20-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id"
+  }
+]
