@@ -24,6 +24,7 @@ export async function snapshot(page: Page, opts: SnapshotOptions = {}): Promise<
     raw = await (opts.selector ? page.locator(opts.selector) : page.locator('body')).ariaSnapshot();
   }
   let text = normalizeRefs(raw);
+  rememberRefs(page, text);
   if (opts.interactiveOnly) text = filterInteractive(text);
   if (!text.trim()) {
     // An empty tree and a broken page look identical, and the operator has no
@@ -72,6 +73,41 @@ export async function waitForContent(page: Page, timeoutMs = 5000): Promise<void
  */
 export function normalizeRefs(snapshotText: string): string {
   return snapshotText.replace(/\[ref=((?:f\d+)?e\d+)\]/g, '[@$1]');
+}
+
+/**
+ * What each @ref looked like in the snapshots this page has produced — the
+ * role and accessible name on its line — kept per page and merged across
+ * snapshots, since a ref minted by an earlier snapshot stays valid after a
+ * later one. This is the fallback description for a ref whose element has
+ * gone by the time the recorder describes it (fwgr20's data-source picker
+ * item re-rendered between the snapshot and the click): the click still
+ * lands via aria-ref, but without this the step compiles with NO locator and
+ * every replay dies there with "(none recorded)".
+ */
+const refLines = new WeakMap<Page, Map<string, { role: string; name?: string }>>();
+
+export function rememberRefs(page: Page, snapshotText: string): void {
+  let map = refLines.get(page);
+  if (!map) refLines.set(page, (map = new Map()));
+  for (const [ref, hint] of parseRefLines(snapshotText)) map.set(ref, hint);
+}
+
+/** The role (and name, when the line carried one) a ref showed in a snapshot. */
+export function refHint(page: Page, ref: string): { role: string; name?: string } | undefined {
+  return refLines.get(page)?.get(ref.replace(/^@/, ''));
+}
+
+/** `- button "Save" [@e12]` → e12: { role: 'button', name: 'Save' }. */
+export function parseRefLines(snapshotText: string): Map<string, { role: string; name?: string }> {
+  const out = new Map<string, { role: string; name?: string }>();
+  for (const line of snapshotText.split('\n')) {
+    const m = /^\s*-\s+([a-z]+)(?:\s+"((?:[^"\\]|\\.)*)")?[^[\n]*\[@((?:f\d+)?e\d+)\]/.exec(line);
+    if (!m) continue;
+    const name = m[2]?.replace(/\\"/g, '"');
+    out.set(m[3], name ? { role: m[1], name } : { role: m[1] });
+  }
+  return out;
 }
 
 const INTERACTIVE_ROLES =

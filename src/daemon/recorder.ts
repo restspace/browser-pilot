@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ElementHandle, Locator, Page } from 'playwright-core';
 import { ensureSessionDir } from '../shared/paths.js';
-import { isRefTarget, resolveTarget } from './refs.js';
+import { isRefTarget, refHint, resolveTarget } from './refs.js';
 import { tagComponent } from '../skills/components.js';
 
 /**
@@ -626,7 +626,19 @@ export async function describeTarget(page: Page, raw: string, retarget = false):
     .first()
     .elementHandle({ timeout: 2_000 })
     .catch(() => null);
-  if (!handle) return { expr: '', verified: false, raw };
+  if (!handle) {
+    // The element is already gone (re-rendered list, closed picker). The
+    // snapshot that minted the ref still says what it was, and a role+name
+    // locator beats no locator: unverified, but it can resolve on the next
+    // run where "(none recorded)" never can — fwgr20's 02-create died on
+    // exactly such a step, a data-source picker item, on every replay.
+    const hint = refHint(page, ref);
+    if (hint?.name) {
+      const c: LocatorCandidate = { kind: 'role', role: hint.role, name: hint.name };
+      return { expr: candidateExpr(c), verified: false, raw, chain: [c] };
+    }
+    return { expr: '', verified: false, raw };
+  }
   try {
     return await describeHandle(page, handle, raw, retarget);
   } finally {

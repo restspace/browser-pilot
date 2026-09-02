@@ -266,6 +266,27 @@ describe('turn watchdog', () => {
     expect(result.transcriptTail?.some((line) => /abandoned/.test(line))).toBe(true);
   });
 
+  it('holds a success report whose summary admits unfinished work, then accepts the corrected one', async () => {
+    const state = new SessionState('t-contradict');
+    const provider = scriptedProvider([
+      { toolCalls: [reportCall({ status: 'success', summary: 'Added the panel but ran out of turns before switching it to Text.' })] },
+      { toolCalls: [reportCall({ status: 'blocked', summary: 'Panel added; visualization type not switched to Text.' })] },
+    ]);
+    const result = await runInstruction(provider, browserStub, state, 'x', loopOpts);
+    expect(result.turns).toBe(2);
+    expect(result.report.status).toBe('blocked');
+    expect(state.messages.some((m) => m.role === 'tool' && /report held — status is "success" but the summary says "ran out of turns"/.test(String(m.content)))).toBe(true);
+  });
+
+  it('accepts a contradictory report the second time rather than losing the instruction', async () => {
+    const state = new SessionState('t-contradict2');
+    const stubborn = reportCall({ status: 'success', summary: 'Done, though I could not confirm the save.' });
+    const provider = scriptedProvider([{ toolCalls: [stubborn] }, { toolCalls: [stubborn] }]);
+    const result = await runInstruction(provider, browserStub, state, 'x', loopOpts);
+    expect(result.turns).toBe(2);
+    expect(result.report.status).toBe('success');
+  });
+
   it('loopingCycle spots a repeated gesture cycle of period 1–3 and nothing else', () => {
     expect(loopingCycle(['a', 'a'])).toBe(0);
     expect(loopingCycle(['a', 'a', 'a'])).toBe(1);

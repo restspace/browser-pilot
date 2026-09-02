@@ -67,6 +67,22 @@ const SUMMARY_CHARS = 2000;
  * Anything still invalid after coercion is a real disagreement about content
  * and is fed back to the model as before.
  */
+/**
+ * The phrase in a `success` summary that says the work was NOT finished, or
+ * null. rpgr3-r2's 03-add reported success with "the visualization is still
+ * 'Time series' rather than 'Text' … ran out of turns" — accepted as-is, the
+ * flow marked the step done and the API verifier found no text panel. The
+ * status and the prose disagree; the loop holds such a report once and asks
+ * the model to make them agree.
+ */
+export function admitsIncompletion(summary: string): string | null {
+  const m =
+    /\b(ran out of turns|out of turns|unable to|was not able to|not able to|could not|couldn't|did not (?:complete|finish|save|succeed|manage)|failed to|not (?:yet )?saved|unsaved changes|incomplete|still (?:shows?|set to|the default|remains?)|remains? (?:unset|unchanged|the default))\b/i.exec(
+      summary,
+    );
+  return m ? m[1] : null;
+}
+
 export function validateReport(input: unknown): ReportValidation {
   const validate = validator();
   if (validate(input)) return { ok: true, report: input as Report };

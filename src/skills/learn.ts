@@ -323,6 +323,24 @@ export function publishedOutputs(skill: Skill): string[] {
 /** Tools that CHANGE the app, as opposed to observing it. */
 const MUTATING = new Set(['click', 'dblclick', 'right_click', 'modifier_click', 'fill', 'type', 'press', 'select', 'check', 'drag', 'upload']);
 
+/**
+ * How many state-changing steps the MODEL drove in a recovery, beyond what a
+ * stored skill replayed — the measure of whether that skill did this step's
+ * work or merely ran somewhere inside it. rpgr3-r1 invoked s_567dd1 during a
+ * 41-turn 03-add recovery; the skill replayed fully, validated, and was
+ * re-pinned — but the model had done 30-odd clicks after it to actually
+ * finish, so on the next run the pinned skill alone left the panel unmade.
+ * A recovery the skill carried on its own has (near) none of these.
+ */
+export function agentGesturesOutsideReplay(entries: RecordedEntry[]): number {
+  let n = 0;
+  for (const e of entries) if (e.k === 'step' && !e.via && MUTATING.has(e.tool)) n++;
+  return n;
+}
+
+/** The most model-driven gestures a recovery may contain and still hand its replayed skill the pin. */
+export const MAX_STRAY_GESTURES_FOR_PIN = 2;
+
 function mutates(store: SkillStore, id: string | undefined): boolean {
   const skill = id ? store.get(id) : null;
   if (!skill) return false;

@@ -6,7 +6,7 @@ import { runEscalatingInstruction, type InstructionResult, type SkillRecord } fr
 import { executeTool } from '../agent/tools.js';
 import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/compile.js';
 import type { DriftTicket } from '../skills/repair.js';
-import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
+import { MAX_STRAY_GESTURES_FOR_PIN, agentGesturesOutsideReplay, bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
 import { buildFlow, consumedUrlOutputs, lintFlowRefs, listFlows, loadFlow, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
@@ -966,6 +966,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       // Learn from a repair so the flow's steps get cheaper over successive runs.
       let repinned;
       if (this.browser.learn) {
+        const recoveryEntries = this.browser.script?.entriesSince(mark) ?? [];
         const learned = learnFromInstruction(this.browser.learn, {
           result,
           // Never hand compile an instruction with unresolved {{ref}} markers:
@@ -973,7 +974,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
           // literal "{{01-open.ticket_ref}}"), which no live instruction can
           // ever match. The soft-resolved text is what actually drove the run.
           instruction: unresolved ? recoveryText : text,
-          entries: this.browser.script?.entriesSince(mark) ?? [],
+          entries: recoveryEntries,
           session: this.opts.session,
           model: opts.provider.model,
           // Slot-by-policy inputs: this run's declared vars plus every url
@@ -1006,7 +1007,15 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         // s_738ec0 in one pass, straight through the gate that exists to
         // forbid it.
         const owned = flow.steps.map((st) => ({ id: st.id, skill: pendingPins.get(st.id) ?? st.skill }));
-        const adoptable = outcome && canAdoptPin(this.browser.learn, owned, step.id, step.skill, outcome.skill);
+        // Third gate: the replayed skill must have DONE the step, not just run
+        // inside a recovery the model then finished by hand. Measured on the
+        // recording: model-driven gestures outside any skill replay.
+        const stray = agentGesturesOutsideReplay(recoveryEntries);
+        const carried = stray <= MAX_STRAY_GESTURES_FOR_PIN;
+        const adoptable = outcome && carried && canAdoptPin(this.browser.learn, owned, step.id, step.skill, outcome.skill);
+        if (outcome && outcome.ok && outcome.skill !== step.skill && !carried) {
+          opts.progress(`[flow ${flow.name}] ${step.id}: not re-pinning ${outcome.skill} — the model drove ${stray} gesture(s) beyond its replay, so it did not carry the step`);
+        }
         if (result.report.status === 'success' && outcome?.ok && outcome.status === 'validated' && outcome.skill !== step.skill && adoptable) {
           repinned = outcome.skill;
           pendingPins.set(step.id, outcome.skill);

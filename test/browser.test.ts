@@ -11,7 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { BrowserSession } from '../src/daemon/browser.js';
 import { executeTool } from '../src/agent/tools.js';
 import { generateScript } from '../src/daemon/codegen.js';
-import { candidateExpr, makeLocator } from '../src/daemon/recorder.js';
+import { candidateExpr, describeTarget, makeLocator } from '../src/daemon/recorder.js';
 
 const enabled = process.env.BP_BROWSER_TESTS === '1';
 const d = enabled ? describe : describe.skip;
@@ -315,6 +315,20 @@ d('script recording (fixture page)', () => {
     expect(await makeLocator(page, { kind: 'role', role: 'button', name: 'Exit edit' }).count()).toBe(1);
     expect(candidateExpr({ kind: 'role', role: 'button', name: 'Edit' })).toBe("page.getByRole('button', { name: 'Edit', exact: true })");
     await page.evaluate(() => document.getElementById('exit-edit')?.remove());
+  }, 60_000);
+
+  it('describes a ref whose element vanished from the snapshot that minted it, instead of recording nothing', async () => {
+    const page = await session.getPage();
+    await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="ephemeral" type="button">Pick TestData</button>'));
+    const snap = await run('snapshot', {});
+    const ref = /button "Pick TestData" \[(@e\d+)\]/.exec(snap.result)?.[1];
+    expect(ref).toBeTruthy();
+    // the picker item re-renders away before the recorder gets to it
+    await page.evaluate(() => document.getElementById('ephemeral')?.remove());
+    const described = await describeTarget(page, ref!, true);
+    expect(described.verified).toBe(false);
+    expect(described.expr).toBe("page.getByRole('button', { name: 'Pick TestData', exact: true })");
+    expect(described.chain).toEqual([{ kind: 'role', role: 'button', name: 'Pick TestData' }]);
   }, 60_000);
 
   it('records a raw CSS target verbatim and flags it when it is not unique', async () => {

@@ -7,7 +7,7 @@ import { candidatesFor, renderCandidates, type ReplayResult } from '../skills/re
 import { componentsOnPage, renderComponents } from '../skills/components.js';
 import { originOf } from '../skills/store.js';
 import { buildSystemPrompt } from './prompt.js';
-import { addEvidenceValue, backfillReadValues, flattenComposedValues, mergeReportValues, namingAskMessage, promoteLabelledReads, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
+import { addEvidenceValue, admitsIncompletion, backfillReadValues, flattenComposedValues, mergeReportValues, namingAskMessage, promoteLabelledReads, proseIdentifiers, unnamedReadValues, validateReport, type Report } from './report.js';
 import { executeTool, toolDefsFor, type ToolExecution } from './tools.js';
 import { captureReadBack, captureReadBackAt, setIdentityHints } from '../daemon/recorder.js';
 
@@ -198,6 +198,7 @@ export async function runInstruction(
   let reportRetried = false;
   /** The naming ask below is made at most once per instruction, and never blocks a report. */
   let namingAsked = false;
+  let contradictionAsked = false;
   /** evidence.values from the report held for naming, so the retry cannot lose them. */
   let heldValues: Record<string, string | number | boolean | null> | undefined;
   let capWarned = false;
@@ -564,6 +565,21 @@ export async function runInstruction(
           // Never spend the last turn on naming: a held report that then hits
           // the cap is reported as blocked, and losing a completed instruction
           // costs far more than a selector-derived name.
+          // A success whose own summary says the work was not finished is
+          // held once: the status and the prose must agree before a flow
+          // marks the step done on the strength of the status alone.
+          const admission = validation.report.status === 'success' ? admitsIncompletion(validation.report.summary) : null;
+          if (admission && !contradictionAsked && turn < opts.maxTurns && Date.now() < deadline) {
+            contradictionAsked = true;
+            state.messages.push({
+              role: 'tool',
+              tool_call_id: call.id,
+              content: `report held — status is "success" but the summary says "${admission}". Those cannot both be true. If the instruction was FULLY completed and verified, call report again with a summary that does not describe unfinished work. If it was not, call report again with status "failure" or "blocked" and say exactly what is missing. Do not take further actions first.`,
+            });
+            transcript.push(`report held for contradiction: success but "${admission}"`);
+            opts.onProgress?.(`[turn ${turn}] holding success report that admits "${admission}"`);
+            continue;
+          }
           const roomToAsk = !namingAsked && turn < opts.maxTurns && Date.now() < deadline;
           const unnamed = roomToAsk ? unnamedReadValues(validation.report, browser.script?.readsThisInstruction() ?? []) : [];
           if (unnamed.length) {
