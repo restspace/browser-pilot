@@ -1,0 +1,137 @@
+{
+  "flow": "fwgr20",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin, skipped the password change prompt, navigated to the \"Service health\" dashboard (under Bench). The dashboard has exactly 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard with a Stat panel titled 'fwgr20-n3 Availability', set its query data source to TestData (default Random Walk scenario), and saved it as 'fwgr20-n3 Bench Dashboard' (initially saved as \"New dashboard\", then renamed via Dashboard settings → General → Title and re-saved, confirming the \"Dashboard saved\" alert). Verified on the live dashboard page: breadcrumb shows \"fwgr20-n3 Bench Dashboard\", the Stat panel shows title \"fwgr20-n3 Availability\" with live data (A-series 94.3). URL: http://127.0.0.1:3000/d/ffx2gb1ohmakga/fwgr20-n3-bench-dashboard, UID: ffx2gb1ohmakga.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/13",
+      "repaired": false,
+      "turns": 60
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"fwgr20-n3 Notes\" to the fwgr20-n3 Bench Dashboard. Set its Markdown content to include the runid \"fwgr20-n3\" (showing \"Bench notes for run fwgr20-n3\" as a heading and \"This dashboard monitors availability metrics for the fwgr20-n3 run.\" as body text). Saved the dashboard successfully (\"Dashboard saved\" alert confirmed). The panel title reads \"fwgr20-n3 Notes\" and the content includes \"fwgr20-n3\" as verified on the live dashboard page.",
+      "values": {
+        "panel_title": "fwgr20-n3 Notes",
+        "notes_panel_heading": "Bench notes for run fwgr20-n3",
+        "notes_panel_paragraph": "This dashboard monitors availability metrics for the fwgr20-n3 run."
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Added tag 'bench' to the dashboard via Settings -> General -> Tags (filled \"bench\" and clicked Add button, confirmed it appeared in the tags section as \"bench\" with a Remove button). The time range was already set to \"Last 6 hours\" from the URL. Saved the dashboard via the Save dialog, confirmed \"Dashboard saved\" alert. On returning to the dashboard view, the breadcrumb shows \"fwgr20-n3 Bench Dashboard\", the time picker shows \"Time range selected: Last 6 hours\", and both panels (\"fwgr20-n3 Availability\" and \"fwgr20-n3 Notes\") are visible with data.",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/8",
+      "repaired": false,
+      "turns": 19
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_da49f1.",
+      "values": {},
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_da49f1"
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Verified dashboard 'fwgr20-n3 Bench Dashboard' (loaded fresh). (1) Dashboard title shown in header: \"fwgr20-n3 Bench Dashboard\". (2) Panel titles visible: \"fwgr20-n3 Notes\" and \"fwgr20-n3 Availability\". (3) Time range: \"Last 6 hours\". (4) Refresh interval: \"1m\". (5) Tags: \"bench\" (confirmed in Settings → General). Opened the \"fwgr20-n3 Availability\" panel in the editor via its panel menu → Edit; the query data source is TestData (shown as \"(TestData)\" in the query editor row).",
+      "values": {
+        "panel_1_title": "fwgr20-n3 Availability",
+        "data_source": "(TestData)"
+      },
+      "tier": "A",
+      "replayed": "8/12",
+      "repaired": false,
+      "turns": 28
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr20",
+      "step": "02-create",
+      "skill": "s_5a219f",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr20",
+      "step": "04-open",
+      "skill": "s_dc3c0b",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_dc3c0b stopped at step 1 — after step 1 the page did not show \"- heading \\\"{{v1}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 1 the page did not show \"- heading \\\"{{v1}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx2gb1ohmakga/:id"
+    },
+    {
+      "flow": "fwgr20",
+      "step": "06-report",
+      "skill": "s_3ac9cf",
+      "atStep": "9",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx2gb1ohmakga/:id"
+    }
+  ],
+  "wallMs": 1098201,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1772312,
+    "completionTokens": 21964,
+    "cachedTokens": 1538688
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1391054,
+      "completionTokens": 13048,
+      "cachedTokens": 1178368
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 381258,
+      "completionTokens": 8916,
+      "cachedTokens": 360320
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

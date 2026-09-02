@@ -1,0 +1,147 @@
+{
+  "flow": "fwgr20",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin, skipped the password change prompt, navigated to the \"Service health\" dashboard (under Bench). The dashboard has exactly 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Resumed the interrupted attempt and completed the Grafana dashboard creation. The panel was already configured from the earlier session (Stat visualization, title 'fwgr20-n2 Availability', TestData data source with default Random Walk scenario — all confirmed on the live page). The save drawer was open with default title \"New dashboard\"; I filled the \"Save dashboard title field\" with \"fwgr20-n2 Bench Dashboard\" and submitted via Enter. The save succeeded with an \"Dashboard saved\" alert, and the browser redirected to the dashboard at /d/bfx2e01gt0a2oa/fwgr20-n2-bench-dashboard. Navigated to the dashboard view page and verified: dashboard title \"fwgr20-n2 Bench Dashboard\" (page title \"fwgr20-n2 Bench Dashboard - Dashboards - Grafana\"), single Stat panel titled \"fwgr20-n2 Availability\" rendering live TestData values.",
+      "values": {
+        "dashboard_page_title": "fwgr20-n2 Bench Dashboard - Dashboards - Grafana"
+      },
+      "tier": "A",
+      "replayed": "4/13",
+      "repaired": false,
+      "turns": 52
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"fwgr20-n2 Notes\" to the fwgr20-n2 Bench Dashboard. Set its Markdown content to include the runid \"fwgr20-n2\" (showing \"Bench notes for run fwgr20-n2\" as a heading and \"This dashboard monitors availability metrics for the fwgr20-n2 run.\" as body text). Saved the dashboard successfully (\"Dashboard saved\" alert confirmed). The panel title reads \"fwgr20-n2 Notes\" and the content includes \"fwgr20-n2\" as verified on the live dashboard page.",
+      "values": {
+        "panel_title": "fwgr20-n2 Notes",
+        "notes_panel_heading": "Bench notes for run fwgr20-n2",
+        "notes_panel_paragraph": "This dashboard monitors availability metrics for the fwgr20-n2 run."
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened the fwgr20-n2 Bench Dashboard. Opened Dashboard Settings → General, typed and added the tag \"bench\" (confirmed as a chip with Remove button). The dashboard's time range was pre-set to \"Last 6 hours\" (from the earlier URL parameter, confirmed visible in the time picker). Clicked Save dashboard → \"Dashboard saved\" alert confirmed. Exited edit mode. Verification: API call to /api/dashboards/uid/bfx2e01gt0a2oa shows tags: [\"bench\"]; time picker shows \"Last 6 hours\" on the live dashboard page; the URL contains from=now-6h&to=now.",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/12",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m on the fwgr20-n2 Bench Dashboard. The refresh picker showed \"1m\" (from the prior URL param), but the API confirmed it was not persisted in the dashboard model. Opened the save drawer from edit mode, checked the \"Update default refresh value\" checkbox (this converts the URL-param refresh into a dashboard default), and clicked Save — \"Dashboard saved\" alert confirmed. API verification shows dashboard model now has refresh: \"1m\" (version 4, tags [\"bench\"] intact). Reloaded the dashboard page fresh (no query params; the app then applied the saved defaults) and verified on the live page: (a) refresh picker shows \"1m\" (aria: \"current interval 1 minute selected\"), (b) time picker shows \"Last 6 hours\" (aria: \"Time range selected: Last 6 hours\"), and (c) dashboard title is \"fwgr20-n2 Bench Dashboard\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/24",
+      "repaired": false,
+      "turns": 47
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Completed the read-only final verification on the fwgr20-n2 Bench Dashboard. Loaded the dashboard fresh (no query params; Grafana then applied the saved defaults, URL became ...?from=now-6h&to=now&timezone=browser&refresh=1m). Findings: (1) Dashboard title in header: \"fwgr20-n2 Bench Dashboard\"; (2) Panel titles visible: \"fwgr20-n2 Notes\" and \"fwgr20-n2 Availability\"; (3) Time picker shows \"Last 6 hours\"; (4) Refresh picker shows \"1m\"; (5) Dashboard tags: \"bench\" (verified via the dashboard API model — tags: [\"bench\"]; no tag chips are rendered in the live header/breadcrumb). Then opened the \"fwgr20-n2 Availability\" panel in the panel editor (via its title menu → Edit) and confirmed its query (A) uses the TestData data source — the TestData logo is shown in the query row and the TestData scenario editor (default \"Random Walk\") is displayed. Nothing was changed; only reads performed.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/14",
+      "repaired": false,
+      "turns": 41
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr20",
+      "step": "02-create",
+      "skill": "s_5a219f",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "(none recorded)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    },
+    {
+      "flow": "fwgr20",
+      "step": "04-open",
+      "skill": "s_1dc0b9",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_1dc0b9 stopped at step 1 — after step 1 the page did not show \"- heading \\\"{{v1}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 1 the page did not show \"- heading \\\"{{v1}} Availability\\\"\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id"
+    },
+    {
+      "flow": "fwgr20",
+      "step": "05-open",
+      "skill": "s_0cf0d3",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.983,
+      "missedLocator": "page.getByTestId('data-testid Save dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id"
+    },
+    {
+      "flow": "fwgr20",
+      "step": "06-report",
+      "skill": "s_b285c7",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_b285c7 stopped at step 1 — the page at http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id does not show \"fwgr20-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id does not show \"fwgr20-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx2e01gt0a2oa/:id"
+    }
+  ],
+  "wallMs": 1642687,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3537651,
+    "completionTokens": 33626,
+    "cachedTokens": 3204672
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2480879,
+      "completionTokens": 19352,
+      "cachedTokens": 2200832
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1056772,
+      "completionTokens": 14274,
+      "cachedTokens": 1003840
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
