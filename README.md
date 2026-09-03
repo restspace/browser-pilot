@@ -182,6 +182,7 @@ The clean A/B is to replay the same set-24 flows and stores on the fixed build (
 |---|---|---|
 | kanboard | 22 and 37 turns · 272s, 555s | **0 and 0 turns · 56s, 56s** · 4/4 app-state objectives both |
 | grafana | 4/6, 5/6 · 19 and 44 turns | **6/6, 6/6** · 29 and 44 turns · 151s, 272s on 08cf104, with the same recording's flow re-exported by the fixed engine (one export rule needed that) and paired with its replay-refined store |
+| odoo (set 26 recording) | 6/6, 6/6 · 91 and 35 turns | **6/6 · 31 turns · 213s** on 6ad5cde with the same pairing; the rest is the app's own url state varying between runs |
 
 The grafana row shows the shape of most of this work: the set-24 grafana
 cell as recorded was 4/6 and 5/6, and each miss was a rule in the engine
