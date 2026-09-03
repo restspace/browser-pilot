@@ -233,6 +233,53 @@ d('skill replay (fixture page)', () => {
     expect(await page.locator('h2', { hasText: 'Opened' }).count()).toBe(1);
   }, 30_000);
 
+  /**
+   * fwgr26's sign-in skill carried a stray recorded click on a target=_blank
+   * "Support" link. On the offline bench box that tab was a browser error
+   * page, the daemon adopted it as the active page, and every later step of
+   * the create segment was asked of chrome-error://chromewebdata/ (diaggr1,
+   * rpgr13, rpgr14). Two rules: a replay keeps its page whatever tabs open,
+   * and a tab that lands on an error page is closed and the opener restored.
+   */
+  it('a replay keeps its page when a replayed click opens a tab', async () => {
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    await page.evaluate(() => {
+      const a = document.createElement('a');
+      a.id = 'blank-link';
+      a.href = 'about:blank';
+      a.target = '_blank';
+      a.textContent = 'Elsewhere';
+      document.body.append(a);
+    });
+    const skill = clickSkill('s_popup', [{ name: 'Elsewhere', role: 'link', added: [] }]);
+    session.learn!.put(skill);
+    const out = await run('run_skill', { id: skill.id, params: {} });
+    session.learn!.remove(skill.id);
+    expect(out.replay?.stepsRun).toBe(1);
+    expect((await session.getPage()).url()).toBe(page.url());
+    for (const p of await session.listPages()) if (p !== page) await p.close();
+  }, 30_000);
+
+  it('closes a new tab that lands on a browser error page and restores the opener', async () => {
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    await page.evaluate(() => {
+      const a = document.createElement('a');
+      a.id = 'dead-link';
+      a.href = 'http://127.0.0.1:9/'; // nothing listens there
+      a.target = '_blank';
+      a.textContent = 'Dead';
+      document.body.append(a);
+    });
+    await run('click', { target: '#dead-link' });
+    // the popup reaches its error page, then the rule closes it
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline && (await session.listPages()).length > 1) await new Promise((r) => setTimeout(r, 100));
+    expect((await session.listPages()).length).toBe(1);
+    expect((await session.getPage()).url()).toBe(page.url());
+  }, 30_000);
+
   it('a goto-first procedure navigates itself: no start-page refusal', async () => {
     const page = await session.getPage();
     await page.goto('about:blank');

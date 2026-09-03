@@ -121,10 +121,50 @@ export class BrowserSession {
     this.dialogs.attach(page);
     const video = page.video();
     if (video) this.videos.add(video);
-    this.activePage = page;
+    const previous = this.activePage;
+    // A new tab becomes the active page — the agent follows what it opened —
+    // unless a replay has pinned its page: a replayed click that spawns a tab
+    // (fwgr26's sign-in skill carried a stray click on a target=_blank
+    // "Support" link) must not move the procedure off the page it is on.
+    if (!this.pinnedPage || this.pinnedPage.isClosed()) this.activePage = page;
     page.on('close', () => {
-      if (this.activePage === page) this.activePage = null;
+      if (this.activePage === page) this.activePage = previous && !previous.isClosed() ? previous : null;
     });
+    // A tab that lands on a browser error page is a dead link, not a place to
+    // work: close it and go back to where the click came from. On the offline
+    // bench box that Support tab was chrome-error://chromewebdata/, and every
+    // later step of the create segment was asked of the error page.
+    if (previous && previous !== page) {
+      // Polled, not awaited through a load state: an error page never
+      // reports itself loaded, and a popup starts as about:blank.
+      const poll = async () => {
+        for (let waited = 0; waited < 15_000 && !page.isClosed(); waited += 250) {
+          const url = page.url();
+          if (/^chrome-error:|^about:neterror/.test(url)) {
+            if (this.activePage === page) this.activePage = previous.isClosed() ? null : previous;
+            await page.close().catch(() => {});
+            return;
+          }
+          if (url && url !== 'about:blank') return; // a real page: the agent's to keep
+          await new Promise((r) => setTimeout(r, 250));
+        }
+      };
+      poll().catch(() => {});
+    }
+  }
+
+  private pinnedPage: Page | null = null;
+
+  /** Keep `page` active for the duration of `fn`, whatever tabs open meanwhile. */
+  async withPinnedPage<T>(page: Page, fn: () => Promise<T>): Promise<T> {
+    const outer = this.pinnedPage;
+    this.pinnedPage = page;
+    try {
+      return await fn();
+    } finally {
+      this.pinnedPage = outer;
+      if (!page.isClosed()) this.activePage = page;
+    }
   }
 
   /** Whether a context is already live — so callers can look without launching one. */

@@ -463,11 +463,15 @@ async function executeSkill(
 
   const page = await session.getPage();
   const before = await captureSignature(page);
-  const replay = await replaySkill(skill, params, {
-    page,
-    signal,
-    exec: async (tool, stepArgs, resolved, via) => runStep(session, tool, stepArgs, screenshotDir, signal, { resolved, via }),
-  });
+  // The replay stays on its page: a replayed click that opens a tab (a
+  // recorded stray click on a target=_blank link) must not move it.
+  const replay = await session.withPinnedPage(page, () =>
+    replaySkill(skill, params, {
+      page,
+      signal,
+      exec: async (tool, stepArgs, resolved, via) => runStep(session, tool, stepArgs, screenshotDir, signal, { resolved, via }),
+    }),
+  );
   // Mechanism 2 (PLAN-replay-v2): a url segment that soft-matched and was
   // then walked PAST has demonstrated volatility — generalise exactly that
   // segment in the stored pattern, permanently. Segments that never vary stay
