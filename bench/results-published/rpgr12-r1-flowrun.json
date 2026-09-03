@@ -1,0 +1,75 @@
+{
+  "flow": "fwgr26",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with admin/admin (the sign-in was already completed by the replayed skill), opened the 'Service health' dashboard under Bench. The dashboard contains exactly 3 panels with these titles: **Request rate**, **Error count**, and **Latency by endpoint**. Each title was confirmed via heading elements (h2) within labeled regions.",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2_h3_h4": "Request rate",
+        "h2_h3_h4_2": "Error count",
+        "h2_h3_h4_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 11
+    },
+    {
+      "id": "02-create",
+      "status": "failure",
+      "summary": "Created a new dashboard and added a Stat panel titled 'rpgr12-r1 Availability' with the TestData data source and default Random Walk scenario — all verified in the live DOM. However, the SAVE step did not complete: the save drawer opened but its Save button kept being detached by re-renders and could not be clicked, so the dashboard was never saved with the title 'rpgr12-r1 Bench Dashboard'. The work is still an unsaved draft at /dashboard/new?editPanel=1.",
+      "values": {
+        "data_source": "TestData",
+        "panel_title": "rpgr12-r1 Availability",
+        "scenario": "Random Walk",
+        "visualization": "Stat"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 74
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "01-open",
+      "skill": "s_a0dc8b",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Username input field')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    }
+  ],
+  "wallMs": 408564,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1182457,
+    "completionTokens": 11550,
+    "cachedTokens": 976320
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 491346,
+      "completionTokens": 5840,
+      "cachedTokens": 380416
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 691111,
+      "completionTokens": 5710,
+      "cachedTokens": 595904
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,147 @@
+{
+  "flow": "fwgr26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as admin/admin (skipped the password change prompt), opened the \"Service health\" dashboard, and found exactly 3 panels titled: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {},
+      "tier": "A",
+      "replayed": "2/4",
+      "repaired": false,
+      "turns": 19
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_16cc25; observed dashboard_title=rpgr12-r2 Bench Dashboard, panel_title=rpgr12-r2 Availability.",
+      "values": {
+        "dashboard_title": "rpgr12-r2 Bench Dashboard",
+        "panel_title": "rpgr12-r2 Availability"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_4b22da; observed panel_title=rpgr12-r2 Notes, panel_text_content=Notes for run rpgr12-r2, url=http://127.0.0.1:3000/d/dfx61hrwmk5q8a/rpgr12-r2-bench-dashboard?from=now-6h&to=now&timezone=browser&showCategory=Panel%20options, dashboard_title=rpgr12-r2 Bench Dashboard, other_panel_title=rpgr12-r2 Availability.",
+      "values": {
+        "panel_title": "rpgr12-r2 Notes",
+        "panel_text_content": "Notes for run rpgr12-r2",
+        "url": "http://127.0.0.1:3000/d/dfx61hrwmk5q8a/rpgr12-r2-bench-dashboard?from=now-6h&to=now&timezone=browser&showCategory=Panel%20options",
+        "dashboard_title": "rpgr12-r2 Bench Dashboard",
+        "other_panel_title": "rpgr12-r2 Availability"
+      },
+      "tier": "A",
+      "replayed": "24/24",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_4b22da"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened 'rpgr12-r2 Bench Dashboard', went to Edit > Settings > General, added the tag 'bench' (saw it appear with a Remove button), saved dashboard settings. Then set time range to 'Last 6 hours' via the time picker (already was showing Last 6 hours from the replayed steps). Saved the dashboard via the save dialog with 'Update default time range' checkbox checked — got \"Dashboard saved\" alert. After saving, the tag 'bench' was visible in the dashboard settings Tags section, and the top bar shows \"Time range selected: Last 6 hours\".",
+      "values": {
+        "tag": "bench",
+        "time_range": "Last 6 hours",
+        "dashboard_title": "rpgr12-r2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "4/5",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m via the refresh picker (the previous attempt's click on the \"1 minute\" menu item had already taken effect — the picker showed \"1m\" and the URL carried refresh=1m). Saved the dashboard via the save dialog, ticking the \"Update default refresh value\" checkbox (the dialog showed \"No changes to save\" until the checkbox created 1 change), and confirmed the \"Dashboard saved\" alert. Then reloaded the dashboard URL and verified: the refresh picker shows \"1m\" (button \"Choose refresh time interval with current interval 1 minute selected\"), the top bar time range shows \"Last 6 hours\", and the URL is http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr12-r2-bench-dashboard?from=now-6h&to=now.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr12-r2-bench-dashboard?from=now-6h&to=now",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified the dashboard at http://127.0.0.1:3000/d/dfx61hrwmk5q8a/rpgr12-r2-bench-dashboard: (1) Dashboard title in breadcrumb: \"rpgr12-r2 Bench Dashboard\". (2) Panel titles: \"rpgr12-r2 Notes\" (text panel containing \"Notes for run rpgr12-r2\") and \"rpgr12-r2 Availability\" (Stat panel showing value \"69.0\"). (3) Time range in top bar: \"Last 6 hours\". (4) Auto-refresh interval: \"1m\". (5) Opened dashboard Settings (gear icon) - tags listed: \"bench\". Then closed settings and returned to dashboard view. No changes were made.",
+      "values": {
+        "dashboard_title": "rpgr12-r2 Bench Dashboard",
+        "panel_titles": "rpgr12-r2 Notes, rpgr12-r2 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 16
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "01-open",
+      "skill": "s_c5d106",
+      "atStep": "3",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('link', { name: 'Support', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/login"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_3729ec",
+      "atStep": "5",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx5zyq28qy9sd/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "05-open",
+      "skill": "s_08fe8f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('[data-testid=\"data-testid RefreshPicker interval button\"] div')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    }
+  ],
+  "wallMs": 528212,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 942472,
+    "completionTokens": 10392,
+    "cachedTokens": 701696
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 942472,
+      "completionTokens": 10392,
+      "cachedTokens": 701696
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
