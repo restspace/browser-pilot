@@ -1,0 +1,163 @@
+{
+  "flow": "fwgr26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin (skipped the change-password prompt by clicking Skip), navigated to the \"Service health\" dashboard, and found exactly 3 panels displayed on it.",
+      "values": {
+        "panel_titles": "Error count",
+        "read5": "Error count",
+        "read6": "Error count",
+        "read7": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard at Grafana, added a Stat visualization panel with title \"diaggr1-r1 Availability\" using the TestData data source (default Random Walk scenario), and saved the dashboard as \"diaggr1-r1 Bench Dashboard\". The panel title displayed on the saved dashboard is confirmed as \"diaggr1-r1 Availability\".",
+      "values": {
+        "panel_title": "diaggr1-r1 Availability",
+        "dashboard_url": "http://127.0.0.1:3000/d/cfx5x6rziwkxsd/diaggr1-r1-bench-dashboard?from=now-6h&to=now&timezone=browser"
+      },
+      "tier": "A",
+      "replayed": "0/14",
+      "repaired": false,
+      "turns": 28
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_783a15; observed panel_title=diaggr1-r1 Notes, panel_text_content=Notes for run diaggr1-r1, screenshot=/home/user/sleep-walker/diaggr1-r1-dashboard-final.png, dashboard_title=diaggr1-r1 Bench Dashboard, other_panel_title=diaggr1-r1 Availability.",
+      "values": {
+        "panel_title": "diaggr1-r1 Notes",
+        "panel_text_content": "Notes for run diaggr1-r1",
+        "screenshot": "/home/user/sleep-walker/diaggr1-r1-dashboard-final.png",
+        "dashboard_title": "diaggr1-r1 Bench Dashboard",
+        "other_panel_title": "diaggr1-r1 Availability"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_783a15"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On the 'diaggr1-r1 Bench Dashboard' in Grafana, the tag 'bench' was added via dashboard settings (General section) and the settings were saved; the time range was set to 'Last 6 hours' and the dashboard was saved with the 'Update default time range' checkbox ticked. Verified after saving: the settings page shows the tag 'bench' (with a \"Remove 'bench' tag\" control), and the top bar shows \"Last 6 hours\". Persistence was confirmed by loading the dashboard with a clean URL (no time params) — it still displayed \"Last 6 hours\", proving the default time range was saved into the dashboard.",
+      "values": {
+        "tag_in_settings": "bench",
+        "time_range_top_bar": "Last 6 hours",
+        "dashboard_title": "diaggr1-r1 Bench Dashboard",
+        "dashboard_url": "http://127.0.0.1:3000/d/cfx5x6rziwkxsd/diaggr1-r1-bench-dashboard",
+        "screenshot": "/home/user/sleep-walker/diaggr1-r1-final-state.png"
+      },
+      "tier": "A",
+      "replayed": "6/15",
+      "repaired": false,
+      "turns": 54
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m via the refresh picker (the previous attempt's click on the \"1 minute\" menu item had already taken effect — the picker showed \"1m\" and the URL carried refresh=1m). Saved the dashboard via the save dialog, ticking the \"Update default refresh value\" checkbox (the dialog showed \"No changes to save\" until the checkbox created 1 change), and confirmed the \"Dashboard saved\" alert. Then reloaded the dashboard URL and verified: the refresh picker shows \"1m\" (button \"Choose refresh time interval with current interval 1 minute selected\"), the top bar time range shows \"Last 6 hours\", and the URL is http://127.0.0.1:3000/d/bfx5j0ewyyku8a/diaggr1-r1-bench-dashboard?from=now-6h&to=now.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/diaggr1-r1-bench-dashboard?from=now-6h&to=now",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified the 'diaggr1-r1 Bench Dashboard' at http://127.0.0.1:3000/d/cfx5x6rziwkxsd/diaggr1-r1-bench-dashboard: (1) Dashboard title in breadcrumb: \"diaggr1-r1 Bench Dashboard\"; (2) Panel titles: \"diaggr1-r1 Notes\" and \"diaggr1-r1 Availability\"; (3) Time range in top bar: \"Last 6 hours\"; (4) Auto-refresh interval: \"1m\" (button aria-label confirms \"1 minute selected\"); (5) Dashboard settings show tag: \"bench\". No changes were made.",
+      "values": {
+        "breadcrumb_title": "diaggr1-r1 Bench Dashboard",
+        "panel_titles": "diaggr1-r1 Notes, diaggr1-r1 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags_in_settings": "bench",
+        "dashboard_url": "http://127.0.0.1:3000/d/cfx5x6rziwkxsd/diaggr1-r1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "panel_title_notes": "diaggr1-r1 Notes",
+        "panel_title_availability": "diaggr1-r1 Availability",
+        "auto_refresh_aria": "Choose refresh time interval with current interval 1 minute selected"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 15
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "02-create",
+      "skill": "s_2aa1e0",
+      "similarity": 0.371,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_2aa1e0 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at chrome-error://chromewebdata/) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at chrome-error://chromewebdata/) — nothing was run",
+      "pageUrlPattern": "chrome-error://chromewebdata/"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_f9e95c",
+      "atStep": "7",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('\"Edit\"')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afx5ln7pyqe4ga/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "05-open",
+      "skill": "s_08fe8f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('[data-testid=\"data-testid RefreshPicker interval button\"] div')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    }
+  ],
+  "wallMs": 1048728,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1497194,
+    "completionTokens": 18106,
+    "cachedTokens": 1118464
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1093780,
+      "completionTokens": 11380,
+      "cachedTokens": 824576
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 403414,
+      "completionTokens": 6726,
+      "cachedTokens": 293888
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
