@@ -1023,12 +1023,28 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         // AND 10-open onto the same s_738ec0 in one pass.
         const owned = flow.steps.map((st) => ({ id: st.id, skill: pendingPins.get(st.id) ?? st.skill }));
         const adoptable = Boolean(outcome && canAdoptPin(this.browser.learn, owned, step.id, step.skill, outcome.skill));
+        // A candidate whose navigation targets carry an identifier THIS
+        // step's recovery minted (a url part first banked under this
+        // instruction) would replay onto this run's record. An identifier
+        // banked by an EARLIER instruction is left alone: fwod19's odoo menu
+        // id looked minted and was an app constant.
+        const candidate = outcome?.ok && outcome.skill ? (this.browser.learn?.get(outcome.skill) ?? null) : null;
+        const mintedLeaks = candidate
+          ? [
+              ...new Set(
+                scanForLeaks(candidate, this.ledger, outcome!.skill)
+                  .filter((l) => /args\.url/.test(l.where) && l.binding.from === 'url' && l.binding.step === `i${this.instructionIndex}`)
+                  .map((l) => l.value),
+              ),
+            ]
+          : [];
         const decision = decideRepin({
           step,
           reportStatus: result.report.status,
           outcome,
           stray: agentGesturesOutsideReplay(recoveryEntries),
           adoptable,
+          mintedLeaks,
         });
         if (decision && 'refused' in decision) {
           opts.progress(`[flow ${flow.name}] ${step.id}: ${decision.refused}`);

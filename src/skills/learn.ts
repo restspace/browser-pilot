@@ -409,11 +409,22 @@ export function decideRepin(input: {
   outcome: LearnedRecord['outcome'];
   stray: number;
   adoptable: boolean;
+  /**
+   * Navigation targets in the candidate skill that carry an identifier THIS
+   * step's recovery minted (a url part first banked during this step). Such
+   * a skill would send every later run to this run's record: fwgr26-n3's
+   * recovery typed `goto /d/<its own uid>/…`, verify-artifacts flagged it,
+   * and the pin moved anyway.
+   */
+  mintedLeaks?: string[];
 }): { skill: string; graduated: boolean } | { refused: string } | null {
   const { step, outcome } = input;
   if (!outcome?.ok || outcome.skill === step.skill) return null;
   if (input.stray > MAX_STRAY_GESTURES_FOR_PIN) {
     return { refused: `not re-pinning ${outcome.skill} — the model drove ${input.stray} gesture(s) beyond its replay, so it did not carry the step` };
+  }
+  if (input.mintedLeaks?.length) {
+    return { refused: `not re-pinning ${outcome.skill} — its navigation carries an identifier this run made (${input.mintedLeaks.slice(0, 3).join(', ')}), so it would replay onto this run's record` };
   }
   if (input.reportStatus !== 'success' || !input.adoptable) return null;
   if (outcome.status === 'validated') return { skill: outcome.skill, graduated: false };

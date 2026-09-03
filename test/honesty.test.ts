@@ -69,6 +69,12 @@ describe('decideRepin', () => {
     expect(d && 'refused' in d ? d.refused : null).toMatch(/drove 3 gesture/);
   });
 
+  it('refuses when the candidate navigates to an identifier this run made (fwgr26-n3)', () => {
+    const d = decideRepin({ ...base, outcome: validated, mintedLeaks: ['afx5ln7pyqe4ga'] });
+    expect(d && 'refused' in d ? d.refused : null).toMatch(/identifier this run made \(afx5ln7pyqe4ga\)/);
+    expect(decideRepin({ ...base, outcome: validated, mintedLeaks: [] })).toEqual({ skill: 's_new', graduated: false });
+  });
+
   it('withholds the pin from a provisional skill, a failed report, or an unadoptable one', () => {
     expect(decideRepin({ ...base, outcome: provisional })).toBeNull();
     expect(decideRepin({ ...base, outcome: validated, reportStatus: 'blocked' })).toBeNull();
