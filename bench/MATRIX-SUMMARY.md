@@ -82,30 +82,38 @@ bench, plus the null option of just running the agent again:
 |---|---|---|---|---|
 | repairdesk | **7/7, 7/7** · $0.004, $0.003 · 80s, 83s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
 | kanboard | **6/6, 6/6** · $0.00, $0.00 · 19s, 19s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
-| grafana | **5/6, 5/6** · $0.014, $0.003 · 274s, 109s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
+| grafana | **6/6, 6/6** · $0.016, $0.025 · 714s, 735s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
 | odoo | **6/6, 6/6** · $0.49, $0.04 · 1215s, 598s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
 
 (kanboard sleep-walker replays: 4/4 app-state objectives verified plus both
 report-only objectives answered from the flow's own step reports — scored
 6/6 here; the codegen arm cannot answer report objectives at all. The grafana
-row is set 21 (fwgr21, build 6313d1d), which replaced set 15's fwgr19 cell of
-6/6, 5/6 · $0.14, $0.25 · 583s, 592s after the set-20/21 defect campaign —
-bench/results-published/fwgr2[01]-* and rpgr[234]-* hold the intermediate
-runs. Both replays verified 5/6 app-side; the sweep did not persist the
-per-objective verifier output, so which objective each missed is not in the
-published artifacts — the partial record shows r2's time range PASSED, so it
-is not the browser-invisible time-range drop this cell used to carry. The r2
-replay ran 8 of 8 steps at tier A with 0 model turns on 7 of them.)
+row is set 23 (fwgr22, build 1d5be69). It replaced set 21's fwgr21 cell of
+5/6, 5/6 · $0.014, $0.003 · 274s, 109s, whose miss was objective 6: the flow
+had no way to publish the dashboard uid, since every read needed a DOM
+element — `read what=url` closed that. All three fwgr22 runs verified 6/6 by
+the sweep's inline verifier (bench/results-published/fwgr22-sweep.json; the
+post-sweep fwgr22-verify.txt shows n1/n2 as "dashboard not found" only
+because the sweep resets the target between runs). Both replays HALTED at
+step 7 — a report-only final-verification step, after all six objectives
+were persisted — on an OpenRouter HTTP 402 (account credits), which is why
+the walls are 714s/735s rather than fwgr21's 274s/109s: that includes the
+failed recovery. Steps 01/02/04 replayed at tier A with 0 turns; 03/05/06
+replayed their skills in full but through 2–3 cheap-model turns each,
+because the tier-A replay of 02-create publishes the uid as `dashboard_url`
+rather than under the recording's `dashboard_uid` name — an unthreaded
+reference, not drift. Earlier intermediate runs: fwgr2[01]-*, rpgr[2-6]-*.)
 
 **Reading it**: the static scripts are free and mostly wrong (14/48 verified
 objectives for the strongest of them, and odoo's authored script confirmed an
 **empty order and left it active** — the wrong-record class sleep-walker's
 effect gates exist to kill). Re-running the agent is reliable and costs the
 full price forever — $1.05–1.51 per repeat on the heavy apps. sleep-walker's
-replays verify 25/26 objectives at $0.00 where the flow has converged
-(repairdesk, kanboard — 19–83 seconds a run) and at $0.04–0.25 where recovery
+replays verify 26/26 objectives at $0.00 where the flow has converged
+(repairdesk, kanboard — 19–83 seconds a run) and at $0.02–0.49 where recovery
 still fires (grafana, odoo — the convergence trend line: odoo fell from
-$0.49 to $0.04 between its two replays). The recurring cost of a known flow
+$0.49 to $0.04 between its two replays, grafana from $0.14/$0.25 at set 15 to
+$0.016/$0.025 here). The recurring cost of a known flow
 trends to zero without the correctness trending anywhere. On the clock: sleep-walker's wall and cost columns are the same metric in
 disguise — both measure how much model the replay still needed. A converged
 replay (zero model turns) runs at the engine's floor of ~20–30s and is the
