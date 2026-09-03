@@ -188,10 +188,12 @@ The grafana row shows the shape of most of this work: the set-24 grafana
 cell as recorded was 4/6 and 5/6, and each miss was a rule in the engine
 (a read discounted as an echo of a recorded scroll; a flow that referenced
 a typed value as another step's output). Fixing the rules and re-exporting
-the same recording gives 6/6 on both replays. A fresh recording between the
-two (fwgr24) happened to take a worse path through an accidental "Discard
-changes?" dialog and replayed badly until that too became a rule (a recorded
-dialog that does not open is conditional UI). Full detail, including the
+the same recording gives 6/6 on both replays. Fresh recordings since then
+(fwgr24, fwgr25, fwgr26) each added a rule of the same kind — an accidental
+"Discard changes?" dialog, a dialog opened and cancelled, transient status
+and alert lines — until fwgr26 compiled clean and instead crashed the tab on
+a Grafana picker click, which the replay now reports as an error page rather
+than pressing on. Full detail, including the
 runs that did not work, is in [bench/MATRIX-SUMMARY.md](bench/MATRIX-SUMMARY.md).
 
 Reading it: static scripts are free and mostly wrong; re-running the agent is reliable and costs
