@@ -1038,6 +1038,14 @@ function readLabel(step: RecordedStep, values: Record<string, unknown>): string 
     observed = step.result;
   }
   const flat = Array.isArray(observed) ? observed.map(String) : [String(observed)];
+  // A list read is the LIST first: a read_all of three panel headings whose
+  // first element happens to equal a per-item value was labelled with that
+  // item (fwgr23: `read_all h2` → panel_title_request_rate) and the value the
+  // report joined from the whole list — panel_titles — was never published.
+  if (flat.length > 1) {
+    const joined = new Set([', ', ' | ', '; ', ' ', '\n', ','].map((sep) => flat.map((f) => f.trim()).join(sep)));
+    for (const [key, v] of Object.entries(values)) if (joined.has(String(v).trim())) return key;
+  }
   for (const [key, v] of Object.entries(values)) {
     const s = String(v).trim();
     if (s && flat.some((f) => f.trim() === s)) return key;

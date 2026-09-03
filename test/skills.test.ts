@@ -155,6 +155,23 @@ describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => 
     const markers = new Set(Array.from(JSON.stringify(s.steps).matchAll(/\{\{(v\d+)\}\}/g), (m) => m[1]));
     for (const m of markers) expect(s.params).toHaveProperty(m);
   });
+  it('labels a list read with the report value made from the whole list, not with one item (fwgr23 01-open)', () => {
+    const text = 'Report the panel titles on the Service Health dashboard.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text, url: `${ORIGIN}/d/health`, fingerprint: [1, 0, 0] },
+      step('click', { target: '@e3' }, [{ kind: 'role', role: 'link', name: 'Service Health' }], {
+        diff: { url: `${ORIGIN}/d/health`, alerts: [], added: ['- heading "Request rate"'] },
+      }),
+      step('read_all', { target: 'h2', what: 'text' }, [{ kind: 'css', selector: 'h2' }], { result: '["Request rate","Error count","Latency by endpoint"]' }),
+    ];
+    const listReport = {
+      status: 'success' as const,
+      summary: 'Three panels.',
+      evidence: { values: { first_title: 'Request rate', panel_titles: 'Request rate, Error count, Latency by endpoint' } },
+    };
+    const s = compileSkill({ entries, instruction: text, report: listReport, session: 's', model: 'm', now: '2026-09-03T00:00:00Z' })!;
+    expect(s.steps[1].label).toBe('panel_titles');
+  });
   it('a number inside a dotted address or version is never a slot', () => {
     const slots = new Map([['d1', '1']]);
     // (a number after `=` is substituteUrlId's business, not substitute()'s)

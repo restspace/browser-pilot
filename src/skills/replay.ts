@@ -5,7 +5,7 @@ import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
 import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
-import { WILDCARD, fillParams, fillParamsDeep, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
+import { WILDCARD, fillParams, fillParamsDeep, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
 import type { Skill, SkillStep } from './store.js';
 
 /** Executes one step against the live page, recording it; throws on failure. */
@@ -290,13 +290,20 @@ export async function replaySkill(
       if (!(key in args)) continue;
       const chain = (fillParamsDeep(step.locators[key] ?? [], params) as LocatorCandidate[]) ?? [];
       const identity = identityOfPrimary(step.locators[key] ?? [], skill, params);
-      const hit = await resolveChain(page, chain, {
+      const policy = {
         rawTarget: typeof args[key] === 'string' ? String(args[key]) : '',
         allowMultiple: step.tool === 'read_all',
         ambiguousNth,
         requireIdentity: identity,
         waitMs: resolveWaitMs(),
-      });
+      };
+      let hit = await resolveChain(page, chain, policy);
+      // A virtualised page renders below-the-fold content only once it has
+      // been scrolled to. The agent's scrolls were evals, which never compile,
+      // so a read of the third panel heading found two headings and was
+      // skipped (fwgr23 01-open, both replays: objective 1 lost). One sweep
+      // of the page before giving up on an observation.
+      if (!hit && isRead && (await sweepPage(page))) hit = await resolveChain(page, chain, { ...policy, waitMs: 0 });
       if (!hit) {
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
         res.misses.push({ step: tag, key, primary: chain[0] ? candidateExpr(chain[0]) : '(none recorded)', used: null });
@@ -659,8 +666,10 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
   // A line carrying a {{vN}} slot is HARD (below). A {{dN}} derived marker
   // is filled like any other param but stays soft — the app minted it.
   const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
-  let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(l, params));
-  const plain = step.expect.addedContains.filter((l) => !isParam(l)).map((l) => fillParams(l, params));
+  // maskVolatile at replay too, so a store compiled before masking existed
+  // (every skill recorded up to set 24) stops failing on the recording's clock.
+  let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(maskVolatile(l), params));
+  const plain = step.expect.addedContains.filter((l) => !isParam(l)).map((l) => fillParams(maskVolatile(l), params));
   // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
   // change: its own echo in a same-role element is what the wrong element
   // produces too (see consequentialExpectations). When the echo is all the
@@ -1032,6 +1041,24 @@ function resolveWaitMs(): number {
   return Number.isFinite(raw) && raw >= 0 ? raw : 3_000;
 }
 const RESOLVE_POLL_MS = 100;
+
+/**
+ * Scroll the page end to end so a virtualised or lazily rendered UI paints
+ * everything it has, then let the DOM settle. Returns false when the page
+ * cannot be scripted (gone, cross-origin frame), in which case the caller
+ * simply does not retry.
+ */
+async function sweepPage(page: Page): Promise<boolean> {
+  try {
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await settleDom(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settleDom(page);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const SETTLE_QUIET_MS = 250;
 const SETTLE_MAX_MS = 2_000;
