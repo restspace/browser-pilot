@@ -1,0 +1,154 @@
+{
+  "flow": "fwgr26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin (skipped the change-password prompt by clicking Skip), navigated to the \"Service health\" dashboard, and found exactly 3 panels displayed on it.",
+      "values": {
+        "panel_titles": "Error count",
+        "read5": "Error count",
+        "read6": "Error count",
+        "read7": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard with a Stat visualization panel titled 'rpgr13-r1 Availability', using the TestData data source with the default Random Walk scenario. Saved the dashboard as 'rpgr13-r1 Bench Dashboard'. The panel title is displayed as 'rpgr13-r1 Availability' on the saved dashboard.",
+      "values": {
+        "panel_title": "rpgr13-r1 Availability",
+        "dashboard_title": "rpgr13-r1 Bench Dashboard",
+        "dashboard_url": "http://127.0.0.1:3000/d/efx671f76bu9sa/rpgr13-r1-bench-dashboard"
+      },
+      "tier": "A",
+      "replayed": "0/14",
+      "repaired": false,
+      "turns": 27
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_783a15; observed panel_title=rpgr13-r1 Notes, panel_text_content=Notes for run rpgr13-r1, screenshot=/home/user/sleep-walker/rpgr13-r1-dashboard-final.png, dashboard_title=rpgr13-r1 Bench Dashboard, other_panel_title=rpgr13-r1 Availability.",
+      "values": {
+        "panel_title": "rpgr13-r1 Notes",
+        "panel_text_content": "Notes for run rpgr13-r1",
+        "screenshot": "/home/user/sleep-walker/rpgr13-r1-dashboard-final.png",
+        "dashboard_title": "rpgr13-r1 Bench Dashboard",
+        "other_panel_title": "rpgr13-r1 Availability"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_783a15"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On 'rpgr13-r1 Bench Dashboard': opened dashboard Settings, added tag 'bench' and saved settings. Then used the time picker to select 'Last 6 hours', opened Save dialog, ticked 'Update default time range', and saved. After saving, verified: tag 'bench' is shown in dashboard settings, and the time range picker shows 'Last 6 hours'.",
+      "values": {
+        "tag_in_settings": "bench",
+        "time_range_displayed": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "6/15",
+      "repaired": false,
+      "turns": 26
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m via the refresh picker (the previous attempt's click on the \"1 minute\" menu item had already taken effect — the picker showed \"1m\" and the URL carried refresh=1m). Saved the dashboard via the save dialog, ticking the \"Update default refresh value\" checkbox (the dialog showed \"No changes to save\" until the checkbox created 1 change), and confirmed the \"Dashboard saved\" alert. Then reloaded the dashboard URL and verified: the refresh picker shows \"1m\" (button \"Choose refresh time interval with current interval 1 minute selected\"), the top bar time range shows \"Last 6 hours\", and the URL is http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr13-r1-bench-dashboard?from=now-6h&to=now.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr13-r1-bench-dashboard?from=now-6h&to=now",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified all five items on dashboard 'rpgr13-r1 Bench Dashboard': (1) breadcrumb shows 'rpgr13-r1 Bench Dashboard'; (2) panel titles are 'rpgr13-r1 Notes' and 'rpgr13-r1 Availability'; (3) time range shows 'Last 6 hours'; (4) auto-refresh interval shows '1m'; (5) dashboard settings lists tag 'bench'. No changes were made.",
+      "values": {
+        "breadcrumb_title": "rpgr13-r1 Bench Dashboard",
+        "panel_titles": "rpgr13-r1 Notes, rpgr13-r1 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench",
+        "h2": "rpgr13-r1 Notes",
+        "h2_2": "rpgr13-r1 Availability"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 11
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 1,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "02-create",
+      "skill": "s_2aa1e0",
+      "similarity": 0.371,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_2aa1e0 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at chrome-error://chromewebdata/) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at chrome-error://chromewebdata/) — nothing was run",
+      "pageUrlPattern": "chrome-error://chromewebdata/"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_f9e95c",
+      "atStep": "7",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('\"Edit\"')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afx5ln7pyqe4ga/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "05-open",
+      "skill": "s_08fe8f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('[data-testid=\"data-testid RefreshPicker interval button\"] div')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    }
+  ],
+  "wallMs": 737194,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 830396,
+    "completionTokens": 8248,
+    "cachedTokens": 665600
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 830396,
+      "completionTokens": 8248,
+      "cachedTokens": 665600
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
