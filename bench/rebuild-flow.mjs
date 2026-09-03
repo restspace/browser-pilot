@@ -200,9 +200,26 @@ function storeFrom(entries, known, valuesByInstruction) {
   /** What was known BEFORE each instruction (by its text), for binding as the daemon would have. */
   const knownBefore = new Map();
   let cur = null;
+  // A group a non-success report closed: a `resume: true` instruction that
+  // follows continues it, the way the daemon compiles from the ORIGINAL
+  // attempt's mark. Compiling the retry alone made the segment start on the
+  // page the retry began from (fwgr25's /dashboard/new), so every replay of
+  // 02-create refused it as "not on the page this procedure starts from".
+  let pending = null;
   let idx = -1;
   for (const e of entries) {
     if (e.k === 'instruction') {
+      if (e.resume && pending) {
+        cur = pending;
+        pending = null;
+        cur.entries.push(e);
+        // The daemon compiles the merged attempts under the RETRY's wording —
+        // that is the instruction the flow step carries and binds against.
+        cur.instruction = e.text ?? cur.instruction;
+        knownBefore.set(cur.instruction, { ...known2 });
+        idx++; // valuesByInstruction is indexed per instruction ENTRY, resumed ones included
+        continue;
+      }
       cur = { instruction: e.text ?? '', entries: [e] };
       knownBefore.set(cur.instruction, { ...known2 });
       idx++;
@@ -236,6 +253,7 @@ function storeFrom(entries, known, valuesByInstruction) {
         // daemon's ledger does (its report entries are post-pipeline too).
         for (const [name, value] of Object.entries(values)) known2[name] = String(value);
       }
+      if (e.status !== 'success') pending = cur;
       cur = null;
     } else cur.entries.push(e);
   }

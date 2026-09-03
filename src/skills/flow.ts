@@ -301,7 +301,7 @@ export function buildFlow(
       // {{04-open.tag}} for the "bench" its own instruction typed; the
       // zero-model replay of 04-open could not publish it, and 05-open went
       // to the model on every replay (19–44 turns).
-      if (replaceToken(g.instruction.text, value, ' ') !== g.instruction.text) continue;
+      if (replaceToken(g.instruction.text, value, ' ') !== g.instruction.text) continue;
       // EVERY reported value becomes a reference. Run 1 makes no judgement
       // about which of them name a record, because it cannot: "New (unsaved)"
       // and "S00021" are both just strings a step reported, and the question
