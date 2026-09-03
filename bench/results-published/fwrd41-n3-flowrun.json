@@ -1,0 +1,157 @@
+{
+  "flow": "fwrd41",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in successfully as Bench User (email bench@example.com). The page navigated from the login screen to the Repair Tickets view at #/tickets, which shows 13 repair tickets in a paginated table (columns: Ref, Title, Customer, Status, Parts, Created) with statuses like Draft and Ready. The navigation bar displays the username \"Bench User\" and a Sign out button, confirming the session is active.",
+      "values": {
+        "signed_in_user": "Bench User"
+      },
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created new repair ticket \"fwrd41-n3 RD Bench Ticket\". The New ticket dialog had two fields: Title (required, marked with *) and Customer (optional). Filled only the title and clicked Create. The ticket appears first in the list at #/tickets with Ref RD-1017, title \"fwrd41-n3 RD Bench Ticket\", status \"Draft\", customer \"Not recorded\", 0 parts, created 2026-09-03. Successfully verified in the tickets table.",
+      "values": {
+        "ticket_title": "fwrd41-n3 RD Bench Ticket",
+        "ticket_ref": "RD-1017",
+        "ticket_status": "Draft",
+        "ticket_customer": "Not recorded"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_cab22e; observed part_name=fwrd41-n3 RD Part A, part_cost=$100.00, part_markup=25%, part_qty=1, part_supplier=No supplier, part_price=$125.00.",
+      "values": {
+        "part_name": "fwrd41-n3 RD Part A",
+        "part_cost": "$100.00",
+        "part_markup": "25%",
+        "part_qty": "1",
+        "part_supplier": "No supplier",
+        "part_price": "$125.00"
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added second part \"fwrd41-n3 RD Part B\" to ticket RD-1017. The add-part dialog fields (Name, Cost, Markup, Quantity [default 1], Supplier [optional]) were filled: Name=\"fwrd41-n3 RD Part B\", Cost=200, Markup=25, Qty=1, Supplier blank. Submitted successfully. The parts table now shows both parts: Part A ($100.00 cost, 25% markup → $125.00 price) and Part B ($200.00 cost, 25% markup → $250.00 price). The app calculates Price = Cost × (1 + Markup%) = $200 × 1.25 = $250.00. The overall Total (price × quantity) displayed is $375.00 ($125.00 + $250.00).",
+      "values": {
+        "part_b_name": "fwrd41-n3 RD Part B",
+        "part_b_price": "$250.00",
+        "overall_total": "$375.00",
+        "part_b_cost": "$200.00",
+        "part_b_markup": "25%",
+        "part_b_supplier": "No supplier"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-edit",
+      "status": "success",
+      "summary": "Edited Part A (\"fwrd41-n3 RD Part A\") via the \"Edit part\" dialog. Changed its cost from $100 to $150, keeping markup at 25% and quantity at 1. The dialog had fields: Name (read-only pre-filled), Cost, Markup, Quantity, and Supplier. After saving, the parts table confirms: Part A now shows Cost $150.00, Markup 25%, Qty 1, Price $187.50 (the app computes Price = Cost × 1.25 = $150 × 1.25 = $187.50). Part B unchanged at $250.00 price. The overall Total (price × qty) is now $437.50 ($187.50 + $250.00).",
+      "values": {
+        "part_a_cost_after_edit": "$150.00",
+        "part_a_markup_after_edit": "25%",
+        "part_a_price_after_edit": "$187.50",
+        "overall_total_after_edit": "$437.50"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Replayed stored procedure s_9d934c; observed status_after_attempt=Draft.",
+      "values": {
+        "status_after_attempt": "Draft"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_adc2ef; observed ticket_status_final=Ready.",
+      "values": {
+        "ticket_status_final": "Ready"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-remove",
+      "status": "success",
+      "summary": "Deleted both parts from ticket RD-1017. Each part row had a Delete button that opened a \"Confirm\" dialog (heading \"Confirm\", with \"Cancel\" and \"Delete part\" buttons). Clicking \"Delete part\" removed the part and the table refreshed. After removing Part A first, then Part B, the parts table now shows \"No parts on this ticket yet.\" — confirming 0 parts remain. The ticket's status stayed \"Ready\" throughout; it did not automatically revert to Draft when parts were removed. The status badge still reads \"Ready\" and the action buttons are \"Mark Draft\" and \"Mark Closed\".",
+      "values": {
+        "ticket_status_after_delete": "Ready"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "09-archive",
+      "status": "success",
+      "summary": "Replayed stored procedure s_d46553; observed ticket_final_status=Ready & Archived.",
+      "values": {
+        "ticket_final_status": "Ready & Archived"
+      },
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "10-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_9aff50; observed check1_archived_list=RD-1017 appears with 'Archived' badge, 0 parts, check2_active_list=RD-1017 absent from the active tickets list.",
+      "values": {
+        "check1_archived_list": "RD-1017 appears with 'Archived' badge, 0 parts",
+        "check2_active_list": "RD-1017 absent from the active tickets list"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 18422,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

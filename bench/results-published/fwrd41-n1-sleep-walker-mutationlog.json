@@ -1,0 +1,232 @@
+[
+  {
+    "seq": 1,
+    "at": "2026-09-03T13:05:26.751Z",
+    "action": "create",
+    "entity": "ticket",
+    "id": "t15",
+    "before": null,
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "fwrd41-n1 RD Bench Ticket",
+      "customer": "",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-09-03T13:05:26.751Z"
+    }
+  },
+  {
+    "seq": 2,
+    "at": "2026-09-03T13:06:00.116Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p18",
+    "before": null,
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-03T13:06:00.116Z",
+      "price": 125
+    }
+  },
+  {
+    "seq": 3,
+    "at": "2026-09-03T13:06:34.463Z",
+    "action": "create",
+    "entity": "part",
+    "id": "p19",
+    "before": null,
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-03T13:06:34.463Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 4,
+    "at": "2026-09-03T13:07:25.229Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part A",
+      "cost": 100,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-03T13:06:00.116Z",
+      "price": 125
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-03T13:06:00.116Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 5,
+    "at": "2026-09-03T13:08:33.224Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-03T13:06:00.116Z",
+      "price": 187.5
+    },
+    "after": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supplies",
+      "createdAt": "2026-09-03T13:06:00.116Z",
+      "price": 187.5
+    }
+  },
+  {
+    "seq": 6,
+    "at": "2026-09-03T13:10:05.604Z",
+    "action": "update",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": null,
+      "createdAt": "2026-09-03T13:06:34.463Z",
+      "price": 250
+    },
+    "after": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supplies",
+      "createdAt": "2026-09-03T13:06:34.463Z",
+      "price": 250
+    }
+  },
+  {
+    "seq": 7,
+    "at": "2026-09-03T13:10:09.436Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "fwrd41-n1 RD Bench Ticket",
+      "customer": "",
+      "status": "Draft",
+      "archived": false,
+      "createdAt": "2026-09-03T13:05:26.751Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "fwrd41-n1 RD Bench Ticket",
+      "customer": "",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-09-03T13:05:26.751Z"
+    }
+  },
+  {
+    "seq": 8,
+    "at": "2026-09-03T13:12:03.317Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p18",
+    "before": {
+      "id": "p18",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part A",
+      "cost": 150,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supplies",
+      "createdAt": "2026-09-03T13:06:00.116Z",
+      "price": 187.5
+    },
+    "after": null
+  },
+  {
+    "seq": 9,
+    "at": "2026-09-03T13:13:25.481Z",
+    "action": "delete",
+    "entity": "part",
+    "id": "p19",
+    "before": {
+      "id": "p19",
+      "ticketId": "t15",
+      "name": "fwrd41-n1 RD Part B",
+      "cost": 200,
+      "markup": 25,
+      "quantity": 1,
+      "supplier": "Acme Supplies",
+      "createdAt": "2026-09-03T13:06:34.463Z",
+      "price": 250
+    },
+    "after": null
+  },
+  {
+    "seq": 10,
+    "at": "2026-09-03T13:13:46.045Z",
+    "action": "update",
+    "entity": "ticket",
+    "id": "t15",
+    "before": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "fwrd41-n1 RD Bench Ticket",
+      "customer": "",
+      "status": "Ready",
+      "archived": false,
+      "createdAt": "2026-09-03T13:05:26.751Z"
+    },
+    "after": {
+      "id": "t15",
+      "ref": "RD-1015",
+      "title": "fwrd41-n1 RD Bench Ticket",
+      "customer": "",
+      "status": "Ready",
+      "archived": true,
+      "createdAt": "2026-09-03T13:05:26.751Z"
+    }
+  }
+]

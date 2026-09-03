@@ -1,0 +1,42 @@
+
+=== fwrd41-n1 === (run self-reported: completed)
+  obj 1  FAIL  no create entry for a ticket titled "fwrd41-n1 RD Bench Ticket"
+  obj 2  FAIL  no create entry for "fwrd41-n1 RD Part A"
+  obj 3  FAIL  no create entry for "fwrd41-n1 RD Part B"
+  obj 4  FAIL  part A was never created, so nothing could be updated
+  obj 5  FAIL  ticket was never created
+  obj 6  FAIL  part A NOT deleted, part B NOT deleted, archive entry ABSENT; state: 0 part(s) surviving, ticket NOT PRESENT
+  claim 2  run reported 125.00, app recorded nothing to compare
+  claim 3  run reported 250.00, app recorded nothing to compare
+  claim 4  run reported 187.50, app recorded nothing to compare
+  summary: 0/6 objectives PASS, 0 price claim mismatch(es), -1 duplicate ticket(s) — RUN NOT CLEAN
+
+=== fwrd41-n2 === (run self-reported: no result file)
+  note: no result file in bench/results — objectives are still scored from the log,
+        but the run's claimed prices cannot be cross-checked.
+  obj 1  FAIL  no create entry for a ticket titled "fwrd41-n2 RD Bench Ticket"
+  obj 2  FAIL  no create entry for "fwrd41-n2 RD Part A"
+  obj 3  FAIL  no create entry for "fwrd41-n2 RD Part B"
+  obj 4  FAIL  part A was never created, so nothing could be updated
+  obj 5  FAIL  ticket was never created
+  obj 6  FAIL  part A NOT deleted, part B NOT deleted, archive entry ABSENT; state: 0 part(s) surviving, ticket NOT PRESENT
+  claim 2  no claim parsed from the run's final report
+  claim 3  no claim parsed from the run's final report
+  claim 4  no claim parsed from the run's final report
+  summary: 0/6 objectives PASS, 0 price claim mismatch(es), -1 duplicate ticket(s) — RUN NOT CLEAN
+
+=== fwrd41-n3 === (run self-reported: no result file)
+  note: no result file in bench/results — objectives are still scored from the log,
+        but the run's claimed prices cannot be cross-checked.
+  obj 1  PASS  seq 1: ticket t15 (RD-1017) "fwrd41-n3 RD Bench Ticket"
+  obj 2  PASS  seq 2 p18 cost=100 markup=25 price=125.00
+  obj 3  PASS  seq 3 p19 cost=200 markup=25 price=250.00
+  obj 4  PASS  seq 4: cost 100 -> 150, price 125.00 -> 187.50 (want 187.50), after the create at seq 2
+  obj 5  PASS  seq 7: status Draft -> Ready
+  obj 6  PASS  part A deleted, part B deleted, archive entry at seq 10; state: 0 part(s) surviving, ticket t15 archived=true
+  claim 2  no claim parsed from the run's final report
+  claim 3  no claim parsed from the run's final report
+  claim 4  no claim parsed from the run's final report
+  summary: 6/6 objectives PASS, 0 price claim mismatch(es), 0 duplicate ticket(s)
+
+App state: 15 tickets total, 1 left by benchmark runs (0 still active), 17 parts total, 10 mutation log entries.
