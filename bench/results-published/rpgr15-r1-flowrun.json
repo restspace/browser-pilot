@@ -1,0 +1,148 @@
+{
+  "flow": "fwgr26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin (skipped the change-password prompt by clicking Skip), navigated to the \"Service health\" dashboard, and found exactly 3 panels displayed on it.",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "read5": "Request rate",
+        "read6": "Error count",
+        "read7": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_16cc25; observed dashboard_title=rpgr15-r1 Bench Dashboard, panel_title=rpgr15-r1 Availability.",
+      "values": {
+        "dashboard_title": "rpgr15-r1 Bench Dashboard",
+        "panel_title": "rpgr15-r1 Availability"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "On the rpgr15-r1 Bench Dashboard, added a new Text panel titled \"rpgr15-r1 Notes\" with content \"Notes for run rpgr15-r1\". Applied the edit and saved the dashboard (confirmed via \"Dashboard saved\" alert). After saving, the panel title reads \"rpgr15-r1 Notes\" and the displayed text content is \"Notes for run rpgr15-r1\".",
+      "values": {
+        "panel_title": "rpgr15-r1 Notes",
+        "panel_content": "Notes for run rpgr15-r1"
+      },
+      "tier": "A",
+      "replayed": "0/21",
+      "repaired": false,
+      "turns": 27
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On the rpgr15-r1 Bench Dashboard: (1) Opened dashboard settings (gear icon) and added the tag 'bench' to the dashboard's tags, then saved the settings. (2) Set the dashboard's time range to 'Last 6 hours' using the time picker in the top bar, then saved the dashboard via the save dialog with the 'Update default time range' checkbox ticked, confirmed by the 'Dashboard saved' alert. After saving, the tag 'bench' is shown in settings and the time range shown in the top bar is 'Last 6 hours'.",
+      "values": {
+        "time_range": "Last 6 hours",
+        "dashboard_tag": "bench"
+      },
+      "tier": "A",
+      "replayed": "6/15",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m via the refresh picker (the previous attempt's click on the \"1 minute\" menu item had already taken effect — the picker showed \"1m\" and the URL carried refresh=1m). Saved the dashboard via the save dialog, ticking the \"Update default refresh value\" checkbox (the dialog showed \"No changes to save\" until the checkbox created 1 change), and confirmed the \"Dashboard saved\" alert. Then reloaded the dashboard URL and verified: the refresh picker shows \"1m\" (button \"Choose refresh time interval with current interval 1 minute selected\"), the top bar time range shows \"Last 6 hours\", and the URL is http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr15-r1-bench-dashboard?from=now-6h&to=now.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr15-r1-bench-dashboard?from=now-6h&to=now",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified the rpgr15-r1 Bench Dashboard: (1) Breadcrumb shows \"rpgr15-r1 Bench Dashboard\". (2) Panel titles: \"rpgr15-r1 Notes\" (Text panel) and \"rpgr15-r1 Availability\" (Stat panel). (3) Time range in top bar: \"Last 6 hours\". (4) Auto-refresh interval in refresh picker: \"1m\" (button labelled \"Choose refresh time interval with current interval 1 minute selected\"). (5) Opened dashboard settings (gear icon): the only tag listed is \"bench\". Closed settings without making changes.",
+      "values": {
+        "breadcrumb_title": "rpgr15-r1 Bench Dashboard",
+        "panel_titles": "rpgr15-r1 Notes, rpgr15-r1 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 15
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "03-open",
+      "skill": "s_783a15",
+      "atStep": "1",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Mark as favorite')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx6lwxb538qob/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_f9e95c",
+      "atStep": "7",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.locator('\"Edit\"')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afx5ln7pyqe4ga/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "05-open",
+      "skill": "s_08fe8f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('[data-testid=\"data-testid RefreshPicker interval button\"] div')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    }
+  ],
+  "wallMs": 462536,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1034013,
+    "completionTokens": 11353,
+    "cachedTokens": 841216
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1034013,
+      "completionTokens": 11353,
+      "cachedTokens": 841216
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

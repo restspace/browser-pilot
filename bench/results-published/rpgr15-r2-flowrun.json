@@ -1,0 +1,142 @@
+{
+  "flow": "fwgr26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin (skipped the change-password prompt by clicking Skip), navigated to the \"Service health\" dashboard, and found exactly 3 panels displayed on it.",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "read5": "Request rate",
+        "read6": "Error count",
+        "read7": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_16cc25; observed dashboard_title=rpgr15-r2 Bench Dashboard, panel_title=rpgr15-r2 Availability.",
+      "values": {
+        "dashboard_title": "rpgr15-r2 Bench Dashboard",
+        "panel_title": "rpgr15-r2 Availability"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "On the rpgr15-r2 Bench Dashboard, added a new Text panel titled \"rpgr15-r2 Notes\" with content \"Notes for run rpgr15-r2\". Applied the edit and saved the dashboard (confirmed via \"Dashboard saved\" alert). After saving, the panel title reads \"rpgr15-r2 Notes\" and the displayed text content is \"Notes for run rpgr15-r2\".",
+      "values": {
+        "panel_title": "rpgr15-r2 Notes",
+        "panel_content": "Notes for run rpgr15-r2"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_2cdc44"
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Completed the instruction on the 'rpgr15-r2 Bench Dashboard' (UID bfx6mmmorwruob). Opened dashboard settings, added the tag 'bench' to the dashboard's tags in the General settings section, and saved the settings. Set the time range to 'Last 6 hours' via the time picker, then saved the dashboard with the 'Update default time range' checkbox ticked so the 6-hour range is persisted. Verified after saving: the tag 'bench' is listed in dashboard settings under Tags, and the top bar time picker shows 'Last 6 hours'. A subsequent save attempt showed 'No changes to save', confirming everything was already persisted.",
+      "values": {
+        "dashboard_title": "rpgr15-r2 Bench Dashboard",
+        "tag_in_settings": "bench",
+        "time_range_in_top_bar": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "4/5",
+      "repaired": false,
+      "turns": 45
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m via the refresh picker (the previous attempt's click on the \"1 minute\" menu item had already taken effect — the picker showed \"1m\" and the URL carried refresh=1m). Saved the dashboard via the save dialog, ticking the \"Update default refresh value\" checkbox (the dialog showed \"No changes to save\" until the checkbox created 1 change), and confirmed the \"Dashboard saved\" alert. Then reloaded the dashboard URL and verified: the refresh picker shows \"1m\" (button \"Choose refresh time interval with current interval 1 minute selected\"), the top bar time range shows \"Last 6 hours\", and the URL is http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr15-r2-bench-dashboard?from=now-6h&to=now.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/rpgr15-r2-bench-dashboard?from=now-6h&to=now",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a5f87c; observed panel_titles=rpgr15-r2 Notes, rpgr15-r2 Availability, breadcrumb_title=rpgr15-r2 Bench Dashboard, time_range=Last 6 hours, auto_refresh_interval=1m.",
+      "values": {
+        "panel_titles": "rpgr15-r2 Notes, rpgr15-r2 Availability",
+        "breadcrumb_title": "rpgr15-r2 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_4870db"
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 2,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_92ead5",
+      "atStep": "5",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx6lwxb538qob/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "05-open",
+      "skill": "s_08fe8f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('[data-testid=\"data-testid RefreshPicker interval button\"] div')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    }
+  ],
+  "wallMs": 261222,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 586966,
+    "completionTokens": 7954,
+    "cachedTokens": 486336
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 363683,
+      "completionTokens": 4809,
+      "cachedTokens": 298752
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 223283,
+      "completionTokens": 3145,
+      "cachedTokens": 187584
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
