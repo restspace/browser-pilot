@@ -406,62 +406,104 @@ export async function replaySkill(
     // second candidate then clicks Create again.
     if (!isRead) res.acted = true;
     const urlBefore = page.url();
-    try {
-      outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: failIndex });
-    } catch (err) {
-      const message = (err instanceof Error ? err.message : String(err)).split('\nCall log:')[0];
-      if (isRead) {
-        res.warnings.push(`step ${tag}: read errored — ${clip(message, 120)}`);
-        res.lines.push(`${head} → skipped (${clip(message, 120)})`);
-        return 'skipped';
-      }
-      res.failedAt = failIndex;
-      res.reason = `${step.tool} failed: ${clip(message, 300)}`;
-      res.lines.push(`${head} → FAILED: ${clip(message, 300)}`);
-      return 'stop';
+
+    // A click that opens a popup (menu, dialog, listbox) is a TOGGLE in most
+    // SPAs: the same click on an already-open popup closes it. When the
+    // recorded effect is already showing before the click, the click would
+    // undo the state the next step depends on — fwgr26's third click on
+    // "New" shut the menu its "New dashboard" link lived in, on every
+    // replay. Skipped as already in effect. Only popup lines count: a
+    // re-usable effect (another row of textboxes) must still be produced.
+    const opener = openerLines(step, params);
+    if (opener.length && (await presentOnPage(page, opener))) {
+      res.warnings.push(`step ${tag}: the recorded effect (${clip(opener[0], 60)}) is already showing — a click would toggle it away; skipped as already in effect`);
+      res.lines.push(`${head} → skipped (already in effect)`);
+      return 'skipped';
     }
 
-    // Bind values this step just minted (derived params) from the live url,
-    // BEFORE the expectation check: the minting step's own expectation refers
-    // to the value it produced, so it must compare against the replay's own.
-    if (skill.derived) {
-      for (const [name, d] of Object.entries(skill.derived)) {
-        if (d.step !== failIndex) continue;
-        const v = urlPart(page.url(), d.at);
-        if (v !== undefined) {
-          params[name] = v;
-          res.derivedValues[name] = v;
+    // A click that produced NO observable change at all (no diff, no url
+    // change, no alert) while the recording shows one most likely landed
+    // during a repaint — React detaches and re-mounts controls between
+    // frames, and Playwright's click can hit the old node. One retry after
+    // the DOM settles; a click that changed anything is never repeated.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        outcome = await opts.exec(step.tool, args, resolved, { skill: skill.id, step: failIndex });
+      } catch (err) {
+        const message = (err instanceof Error ? err.message : String(err)).split('\nCall log:')[0];
+        if (isRead) {
+          res.warnings.push(`step ${tag}: read errored — ${clip(message, 120)}`);
+          res.lines.push(`${head} → skipped (${clip(message, 120)})`);
+          return 'skipped';
         }
-      }
-    }
-
-    // A step declared record-minting has now run: read THIS run's identifier
-    // off the live url and keep it. If the replay later stops, recovery is
-    // told the record already exists and what it is called, instead of being
-    // told only how many steps ran and left to infer the rest — which is how
-    // fwod13 came to create a second and third order.
-    if (step.mints) {
-      // Only a part the step CHANGED: a rejected click leaves the url as it
-      // was, and "new" from /tickets/new is not a record this run created.
-      const made = urlPart(page.url(), step.mints.at);
-      if (made && made !== urlPart(urlBefore, step.mints.at)) res.created.push(made);
-    }
-
-    // Effect gates: did the step leave the page as the recording said it
-    // would? Each gate's warnings and staged generalisations always apply; a
-    // stop ends the replay here, with what ran already in `res`.
-    for (const gate of STEP_GATES) {
-      const verdict = await gate({ page, step, tag, failIndex, args, params, outcome, isRead, positionalResolution });
-      if (!verdict) continue;
-      if (verdict.warnings) res.warnings.push(...verdict.warnings);
-      if (verdict.generalise) res.generalisations.push(verdict.generalise);
-      if (verdict.absentDialog !== undefined) absentDialog = verdict.absentDialog;
-      if (verdict.stop) {
         res.failedAt = failIndex;
-        res.reason = verdict.stop;
-        res.lines.push(`${head} → ran, but ${verdict.stop}`);
+        res.reason = `${step.tool} failed: ${clip(message, 300)}`;
+        res.lines.push(`${head} → FAILED: ${clip(message, 300)}`);
         return 'stop';
       }
+
+      // A navigation renders a route skeleton first; let it hydrate before
+      // the effect gates look for the recorded content.
+      if (page.url() !== urlBefore) await settleDom(page);
+
+      // Bind values this step just minted (derived params) from the live url,
+      // BEFORE the expectation check: the minting step's own expectation refers
+      // to the value it produced, so it must compare against the replay's own.
+      if (skill.derived) {
+        for (const [name, d] of Object.entries(skill.derived)) {
+          if (d.step !== failIndex) continue;
+          const v = urlPart(page.url(), d.at);
+          if (v !== undefined) {
+            params[name] = v;
+            res.derivedValues[name] = v;
+          }
+        }
+      }
+
+      // A step declared record-minting has now run: read THIS run's identifier
+      // off the live url and keep it. If the replay later stops, recovery is
+      // told the record already exists and what it is called, instead of being
+      // told only how many steps ran and left to infer the rest — which is how
+      // fwod13 came to create a second and third order.
+      if (step.mints) {
+        // Only a part the step CHANGED: a rejected click leaves the url as it
+        // was, and "new" from /tickets/new is not a record this run created.
+        const made = urlPart(page.url(), step.mints.at);
+        if (made && made !== urlPart(urlBefore, step.mints.at) && !res.created.includes(made)) res.created.push(made);
+      }
+
+      // Effect gates: did the step leave the page as the recording said it
+      // would? Each gate's warnings and staged generalisations always apply; a
+      // stop ends the replay here, with what ran already in `res`.
+      let stop: StepVerdict | null = null;
+      const warnings: string[] = [];
+      for (const gate of STEP_GATES) {
+        const verdict = await gate({ page, step, tag, failIndex, args, params, outcome, isRead, positionalResolution });
+        if (!verdict) continue;
+        if (verdict.warnings) warnings.push(...verdict.warnings);
+        if (verdict.generalise) res.generalisations.push(verdict.generalise);
+        if (verdict.absentDialog !== undefined) absentDialog = verdict.absentDialog;
+        if (verdict.stop) {
+          stop = verdict;
+          break;
+        }
+      }
+      if (!stop) {
+        res.warnings.push(...warnings);
+        break;
+      }
+      const noEffect =
+        step.tool === 'click' && !!outcome.diff && !outcome.diff.added.length && !outcome.diff.alerts.length && page.url() === urlBefore;
+      if (stop.retryable && noEffect && attempt === 0) {
+        res.warnings.push(`step ${tag}: the click changed nothing on the page — retried once after the DOM settled`);
+        await settleDom(page);
+        continue;
+      }
+      res.warnings.push(...warnings);
+      res.failedAt = failIndex;
+      res.reason = stop.stop!;
+      res.lines.push(`${head} → ran, but ${stop.stop}`);
+      return 'stop';
     }
 
     if (isRead) {
@@ -639,6 +681,8 @@ interface StepVerdict {
    * steps that were going to act inside it are skipped (see runOneStep).
    */
   absentDialog?: string;
+  /** The stop is "the recorded effect did not appear": worth one retry when the action changed nothing at all. */
+  retryable?: boolean;
 }
 
 type StepGate = (g: StepGateInput) => Promise<StepVerdict | null> | StepVerdict | null;
@@ -731,7 +775,7 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
         warnings.push(`step ${tag}: the recorded dialog ${JSON.stringify(dialog)} did not open — conditional UI, treated as absent; steps inside it will be skipped`);
         return { warnings, absentDialog: dialog };
       }
-      return { warnings, stop: `after step ${tag} none of the ${plain.length} recorded page change(s) appeared (e.g. ${JSON.stringify(plain[0])}) — the step ran but did not have its recorded effect` };
+      return { warnings, retryable: true, stop: `after step ${tag} none of the ${plain.length} recorded page change(s) appeared (e.g. ${JSON.stringify(plain[0])}) — the step ran but did not have its recorded effect` };
     }
     warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared in the step diff (found on the page instead)`);
   }
@@ -1190,6 +1234,21 @@ async function settleDom(page: Page): Promise<void> {
   } catch {
     // navigating / detached — the locator resolution will report it
   }
+}
+
+/** A snapshot line that names a popup: the thing a toggle opens and closes. */
+export const OPENER_LINE = /^-?\s*(dialog|alertdialog|menu|menubar|listbox|tooltip)\b/;
+
+/**
+ * The popup lines a click was recorded to open, with params filled — empty
+ * for anything but a click whose plain (unparameterised) effects include a
+ * popup. See runOneStep's already-in-effect skip.
+ */
+export function openerLines(step: SkillStep, params: Record<string, string>): string[] {
+  if (step.tool !== 'click' || !step.expect?.addedContains?.length) return [];
+  const plain = step.expect.addedContains.filter((l) => !TRANSIENT_LINE.test(l) && !/\{\{v\d+\}\}/.test(l));
+  if (!plain.some((l) => OPENER_LINE.test(l))) return [];
+  return plain.map((l) => fillParams(maskVolatile(l), params));
 }
 
 /**

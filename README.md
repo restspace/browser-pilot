@@ -53,6 +53,12 @@ sleep-walker's answer is to treat the recording as evidence to compile, not text
   the recording never saw — stops the replay before the next step acts on the wrong state. An
   identity guard refuses to run a procedure on a page showing a different record than the one it
   was asked for.
+- **Built for single-page apps.** The agent's observation turns were implicit waits; a replay has
+  none, so every step first lets the DOM go quiet, and a navigation is given time to hydrate before
+  its effects are checked. A click recorded to open a popup is skipped when that popup is already
+  showing, because on a React toggle the same click would close it. A click that changed nothing
+  at all while the recording shows an effect is retried once after the page settles. A fallback
+  locator that resolves to a link leaving the app's origin is never taken.
 - **A ladder, not a cliff.** Per step: replay the pinned procedure with zero model calls; if it
   cannot, recover on a cheap model with the partial replay in hand; escalate to the strong model
   only if that reports blocked; halt with per-step state only if that fails too. A recovery that

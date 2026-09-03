@@ -133,6 +133,98 @@ d('skill replay (fixture page)', () => {
     expect(recorded).toHaveLength(5);
   }, 30_000);
 
+  /** A hand-built click skill on the fixture page, for the SPA-resilience cases. */
+  const clickSkill = (id: string, steps: Array<{ name: string; role: 'button' | 'link'; added: string[] }>): Skill => ({
+    id,
+    origin: new URL(fixtureUrl).origin,
+    template: 'open the menu and create',
+    params: {},
+    preconditions: { urlPattern: fixtureUrl },
+    steps: steps.map((s) => ({
+      tool: 'click',
+      args: { target: '@e1' },
+      locators: { target: [{ kind: 'role', role: s.role, name: s.name }] },
+      expect: { urlPattern: fixtureUrl, addedContains: s.added },
+    })),
+    stats: { uses: 1, successes: 1, partial: 0, created: 't', failedAtStep: {}, fallthroughs: 0 },
+    status: 'validated',
+    provenance: { session: 's', instruction: 'i', created: 't' },
+  });
+
+  /**
+   * fwgr26's create head: three recorded clicks on Grafana's "New" (a menu
+   * toggle) then the "New dashboard" link inside the menu. Replayed
+   * literally, the third click shut the menu and the link was gone. A click
+   * whose recorded popup is already showing is skipped as already in effect.
+   */
+  it('skips a toggle click whose recorded popup is already open', async () => {
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    await page.evaluate(() => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'New';
+      const menu = document.createElement('div');
+      menu.setAttribute('role', 'menu');
+      menu.setAttribute('aria-label', 'Actions');
+      menu.hidden = true;
+      const link = document.createElement('a');
+      link.href = '#';
+      link.textContent = 'New dashboard';
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const h = document.createElement('h2');
+        h.textContent = 'Created';
+        document.body.append(h);
+      });
+      menu.append(link);
+      btn.addEventListener('click', () => (menu.hidden = !menu.hidden));
+      document.body.append(btn, menu);
+    });
+    const skill = clickSkill('s_toggle', [
+      { name: 'New', role: 'button', added: ['- menu "Actions"'] },
+      { name: 'New', role: 'button', added: ['- menu "Actions"'] },
+      { name: 'New dashboard', role: 'link', added: ['- heading "Created"'] },
+    ]);
+    session.learn!.put(skill);
+    const out = await run('run_skill', { id: skill.id, params: {} });
+    session.learn!.remove(skill.id);
+    expect(out.replay?.ok).toBe(true);
+    expect(out.replay?.warnings.some((w) => /already in effect/.test(w))).toBe(true);
+    expect(await page.locator('h2', { hasText: 'Created' }).count()).toBe(1);
+  }, 30_000);
+
+  /**
+   * A React control re-mounted between frames can swallow the click that
+   * landed on its old node. A click that changed NOTHING while the recording
+   * shows an effect is retried once after the DOM settles; a click that
+   * changed anything is never repeated.
+   */
+  it('retries once a click that produced no change at all', async () => {
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    await page.evaluate(() => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'Flaky';
+      let clicks = 0;
+      btn.addEventListener('click', () => {
+        if (++clicks < 2) return; // the first click lands on a node React is replacing
+        const h = document.createElement('h2');
+        h.textContent = 'Opened';
+        document.body.append(h);
+      });
+      document.body.append(btn);
+    });
+    const skill = clickSkill('s_flaky', [{ name: 'Flaky', role: 'button', added: ['- heading "Opened"'] }]);
+    session.learn!.put(skill);
+    const out = await run('run_skill', { id: skill.id, params: {} });
+    session.learn!.remove(skill.id);
+    expect(out.replay?.ok).toBe(true);
+    expect(out.replay?.warnings.some((w) => /retried once/.test(w))).toBe(true);
+    expect(await page.locator('h2', { hasText: 'Opened' }).count()).toBe(1);
+  }, 30_000);
+
   it('a goto-first procedure navigates itself: no start-page refusal', async () => {
     const page = await session.getPage();
     await page.goto('about:blank');

@@ -114,7 +114,7 @@ export function parseRefLines(snapshotText: string): Map<string, { role: string;
 }
 
 const INTERACTIVE_ROLES =
-  /\b(button|link|textbox|searchbox|combobox|checkbox|radio|switch|slider|spinbutton|menuitem|option|tab|listbox|grid|row|cell|dialog|alertdialog|heading|alert|status)\b/;
+  /\b(button|link|textbox|searchbox|combobox|checkbox|radio|switch|slider|spinbutton|menu|menubar|menuitem|option|tab|listbox|grid|row|cell|dialog|alertdialog|heading|alert|status)\b/;
 
 /**
  * The per-line heuristic behind filterInteractive; shared with signature
