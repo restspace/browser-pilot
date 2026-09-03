@@ -222,6 +222,9 @@ describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => 
 });
 
 describe('url patterns', () => {
+  it('keeps an opaque-origin url readable instead of printing "null/"', () => {
+    expect(urlPattern('chrome-error://chromewebdata/')).toBe('chrome-error://chromewebdata/');
+  });
   it('reduces id-like segments and drops the query', () => {
     expect(urlPattern('http://h:1/app/tickets/t15?x=1#/tickets/RD-1015')).toBe('http://h:1/app/tickets/:id#/tickets/:id');
     expect(urlPattern('http://h:1/products/8f3a9c2e1b/details')).toBe('http://h:1/products/:id/details');

@@ -738,7 +738,19 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
 };
 
 /** The effect gates a step passes through after its action, in order. */
-const STEP_GATES: StepGate[] = [expectedUrl, unrecordedAlert, expectedAlert, expectedChanges];
+/**
+ * The tab is on a browser error page (a crashed renderer, a navigation the
+ * network refused): nothing recorded can hold there, and every later step
+ * would resolve nothing while the replay pressed on. fwgr26-n2 ran eleven
+ * more steps on chrome-error://chromewebdata/ before the next segment
+ * refused with the unreadable "browser is at null/".
+ */
+const errorPage: StepGate = ({ page, tag }) => {
+  const url = page.url();
+  return /^chrome-error:|^about:neterror/.test(url) ? { stop: `after step ${tag} the browser is on an error page (${url}) — the tab crashed or a navigation failed` } : null;
+};
+
+const STEP_GATES: StepGate[] = [errorPage, expectedUrl, unrecordedAlert, expectedAlert, expectedChanges];
 
 /** Short human label for a loop's guard locator. */
 function chain0Desc(chain: LocatorCandidate[]): string {

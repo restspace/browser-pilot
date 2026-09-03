@@ -826,6 +826,9 @@ export function urlPattern(url: string, slots: Map<string, string> = new Map()):
     return '#' + pairs.join('&');
   };
   const hash = u.hash && u.hash.length > 1 ? normHash(u.hash.slice(1)) : '';
+  // An opaque origin (chrome-error://, about:) prints as "null"; keep the
+  // url itself so a message says what the browser was actually showing.
+  if (u.origin === 'null') return url;
   const origin = u.protocol === 'file:' ? 'file://' : u.origin;
   return `${origin}${norm(u.pathname)}${hash}`;
 }
