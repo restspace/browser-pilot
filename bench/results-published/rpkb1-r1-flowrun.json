@@ -1,0 +1,154 @@
+{
+  "flow": "fwkb3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in successfully as admin/admin. Landed on the dashboard page with heading \"KB Dashboard for admin\". Navigated to Projects management, which shows 1 project listed, and a project named 'Bench Board' is present in the project list.",
+      "values": {
+        "page_heading": "KB Dashboard for admin",
+        "projects_management_link": "Projects management",
+        "project_name": "Bench Board"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened the board for project 'Bench Board'. The board has 4 columns displayed in left-to-right order: Backlog , Ready , Work in progress , Done . Nothing was modified on the board.",
+      "values": {
+        "project_name": "Bench Board",
+        "board_link": "Board",
+        "column_2": "Ready ",
+        "column_1": "Backlog ",
+        "column_3": "Work in progress ",
+        "column_4": "Done "
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_11279a; observed task_title=rpkb1-r1 Bench Task, task_id=#4 , column=Backlog .",
+      "values": {
+        "task_title": "rpkb1-r1 Bench Task",
+        "task_id": "#4 ",
+        "column": "Backlog "
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_68daf6; observed task_title=rpkb1-r1 Bench Task, task_id=#4 , current_column=Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1).",
+      "values": {
+        "task_title": "rpkb1-r1 Bench Task",
+        "task_id": "#4 ",
+        "current_column": "Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1)"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened task Task #4 'rpkb1-r1 Bench Task' page, added a comment with text 'Comment for run rpkb1-r1', saved it, and verified it appears in the task's comments section. The exact comment text shown is 'Comment for run rpkb1-r1'.",
+      "values": {
+        "comment_text": "Comment for run rpkb1-r1",
+        "task_id": "Task #4"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-set",
+      "status": "success",
+      "summary": "Set the due date for task Task #4 'rpkb1-r1 Bench Task' to 2026-12-31. The edit form already had the value filled from the previous replay attempt; clicked Save to submit the form. The task page now displays \"Due date: 12/31/2026 08:16\" confirming the date was saved correctly (December 31, 2026).",
+      "values": {
+        "due_date": "Due date: 12/31/2026 08:16",
+        "task_title": "rpkb1-r1 Bench Task",
+        "task_id": "Task #4"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_7434e6"
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Final read-only verification of task #4 on the Bench Board project. All values confirmed: Task ID is 'Task #4', title is 'rpkb1-r1 Bench Task', description is 'Bench task for run rpkb1-r1', due date is '12/31/2026 08:16', comment text is 'Comment for run rpkb1-r1', and the task is in the 'Work in progress' column. No changes were made.",
+      "values": {
+        "task_id": "Task #4",
+        "task_title": "rpkb1-r1 Bench Task",
+        "column_label": "Column:",
+        "column_with_label": "Column: Work in progress",
+        "description": "Bench task for run rpkb1-r1",
+        "due_date": "12/31/2026 08:16",
+        "comment_text": "Comment for run rpkb1-r1",
+        "column": "Work in progress"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 1,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwkb3",
+      "step": "06-set",
+      "skill": "s_7434e6",
+      "atStep": "4",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByText('Due date: 12/31/2026 07:40', { exact: true })",
+      "fallbackUsed": "page.locator('#task-summary > div > div > div:nth-of-type(4) > ul > li:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    },
+    {
+      "flow": "fwkb3",
+      "step": "06-set",
+      "skill": "s_7434e6",
+      "atStep": "5",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByText('Due date: 12/31/2026 07:40', { exact: true })",
+      "fallbackUsed": "page.locator('#task-summary > div > div > div:nth-of-type(4) > ul > li:nth-of-type(1)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    }
+  ],
+  "wallMs": 56043,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,20 @@
+  · [flow fwkb3] 17 output(s) demonstrated stable by an earlier run: 01-signin.page_heading, 01-signin.project_name, 01-signin.projects_management_link, 02-open.column_1, 02-open.column_2, 02-open.column_3, 02-open.column_4, 02-open.board_link, 02-open.project_name, 03-create.task_id, 03-create.column, 04-edit.task_id, 06-set.task_id, 07-open.task_id, 07-open.column, 07-open.column_label, 07-open.column_with_label
+  · [flow fwkb3] 01-signin: Navigate to http://127.0.0.1:8085/ and sign in with username admin and password 
+  · [skill] trying s_b51a0c (validated, 3/3) without the model
+  · [flow fwkb3] 02-open: Open the board of the project named 'Bench Board' (from the Projects management 
+  · [skill] trying s_bfde03 (validated, 3/3) without the model
+  · [replay] dropped 1 echo read(s) from confident values: project_name
+  · [flow fwkb3] 03-create: On the Bench Board project board, create a new task in the first column (Backlog
+  · [skill] trying s_af9920 (validated, 2/3) without the model
+  · [skill] trying s_11279a (provisional, 1/1) without the model
+  · [replay] dropped 1 echo read(s) from confident values: task_title
+  · [flow fwkb3] 04-edit: Move the task titled 'rpkb1-r1 Bench Task' (task #4 ) on the Bench Board so that
+  · [skill] trying s_68daf6 (validated, 3/3) without the model
+  · [flow fwkb3] 05-open: Open the task page for task #4  titled 'rpkb1-r1 Bench Task' on the Bench Board 
+  · [skill] trying s_2ec6b9 (validated, 3/3) without the model
+  · [replay] dropped 1 echo read(s) from confident values: comment_text
+  · [flow fwkb3] 06-set: On the task page for task #4  titled 'rpkb1-r1 Bench Task', set the task's due d
+  · [skill] trying s_7434e6 (provisional, 1/1) without the model
+  · [flow fwkb3] 06-set: task_id=volatile
+  · [flow fwkb3] 07-open: Final verification, read-only. Open the task page for task #4  titled 'rpkb1-r1 
+  · [skill] trying s_7101b2 (validated, 3/3) without the model
