@@ -1,0 +1,128 @@
+  · [flow fwod32] 4 output(s) demonstrated stable by an earlier run: 01-signin.city, 03-open.second_line_unit_price, 03-open.second_line_quantity, 07-open.status_bar_text
+  · [flow fwod32] 01-signin: Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password ad
+  · [skill] trying s_4c1408 (provisional, 1/1) without the model
+  · [skill] trying s_30bd25 (provisional, 1/1) without the model
+  · [skill] chain s_874ca4: segment 2/5 → s_dd4bd2
+  · [skill] chain s_874ca4: segment 3/5 → s_e22af7
+  · [flow fwod32] 01-signin: falling back to the model — s_e22af7 stopped at step 11 — after step 11 none of the 5 recorded page change(s) appeared (e.g. "- link \"Contacts\"") — the step ran but did not have its recorded effect
+  · [flow fwod32] 01-signin: replay-failed — recovering on deepseek/deepseek-v4-flash (escalates to z-ai/glm-5.3)
+  · [turn 1/30] snapshot {}
+  · [turn 2/30] read {"target":"@e92","what":"value"}
+  · [turn 3/30] batch [3 steps: fill, fill, click]
+  · [turn 4/30] read {"target":"textbox >> nth=0","what":"value","label":"contact_name"}
+  · [turn 4/30] read {"target":"@e105","what":"value","label":"city"}
+  · [turn 4/30] read {"what":"url"}
+  · [turn 4/30] screenshot {}
+  · [turn 5/30] read {"target":"@e92","what":"value","label":"contact_name"}
+  · [turn 6] asking for names for 1 unnamed read value(s): http://127.0.0.1:8069/web#cids=1&menu_id=109&action=156&model=res.partner&view_type=form&id=47
+  · [flow fwod32] 01-signin: contact_name=volatile
+  · [flow fwod32] 02-create: In the Odoo Sales app, create a new quotation for the customer 'rpod3-b2 Bench C
+  · [skill] trying s_68a446 (validated, 2/2) without the model
+  · [skill] chain s_c0edeb: segment 2/5 → s_999686
+  · [flow fwod32] 02-create: falling back to the model — s_999686 stopped at step 3 — after step 3 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=110&model=res.partner&view_type=kanban but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list
+  · [flow fwod32] 02-create: replay-failed — recovering on deepseek/deepseek-v4-flash (escalates to z-ai/glm-5.3)
+  · [history] elided 5 tool result(s) from earlier instructions (~1k tokens/turn saved)
+  · [turn 1/30] snapshot {}
+  · [turn 2/30] click {"target":"@e250"}
+  · [turn 3/30] snapshot {}
+  · [turn 4/30] run_skill {"id":"s_68a446","params":{"v2":"rpod3-b2 Bench Customer"}}
+  · [turn 5/30] click {"target":"@e250"}
+  · [turn 6/30] snapshot {}
+  · [turn 7/30] click {"target":"@e816"}
+  · [turn 8/30] back {}
+  · [turn 9/30] snapshot {}
+  · [turn 10/30] click {"target":"@e1183"}
+  · [turn 11/30] snapshot {}
+  · [turn 12/30] type {"target":"@e1578","text":"rpod3-b2 Bench Customer","delay_ms":30}
+  · [turn 13/30] snapshot {}
+  · [turn 14/30] click {"target":"@e1737"}
+  · [turn 15/30] click {"target":"@e1659"}
+  · [turn 16/30] snapshot {}
+  · [turn 17/30] type {"delay_ms":30,"target":"@e1753","text":"prod"}
+  · [turn 18/30] snapshot {"selector":"[role=option], [role=listbox]"}
+  · [turn 19/30] press {"key":"Escape"}
+  · [turn 20/30] type {"delay_ms":30,"target":"@e1753","text":"cab"}
+  · [turn 21/30] click {"target":"@e1812"}
+  · [turn 22/30] type {"delay_ms":30,"target":"@e1753","text":"cab"}
+  · [turn 23/30] fill {"target":"@e1753","value":"Cabinet"}
+  · [turn 24/30] click {"target":"@e1836"}
+  · [turn 25/30] snapshot {}
+  · [turn 26/30] click {"target":"@e1781"}
+  · [turn 27/30] fill {"target":"@e1760","value":"3"}
+  · [turn 28/30] snapshot {}
+  · [turn 29/30] click {"target":"@e1550"}
+  · [turn 30/30] read_all {"target":"tr.o_data_row td:nth-child(2) input, tr.o_data_row td:nth-child(2) .o_field_text","what":"value"}
+  · [turn 30/30] read {"target":"tr.o_data_row td:nth-child(5) input","what":"value","label":"unit_price"}
+  · [turn 30/30] read {"target":"text=\"£ 420.00\"","what":"text","label":"untaxed_amount"}
+  · [escalating] deepseek/deepseek-v4-flash reported blocked (turn-cap) — retrying on z-ai/glm-5.3 with 45 turns, compacted 17 tool result(s) (~2k tokens/turn saved)
+  · [history] elided 4 tool result(s) from earlier instructions (~0k tokens/turn saved)
+  · [turn 1/45] snapshot {}
+  · [turn 2/45] read {"label":"product_name","target":"@e1826","what":"text"}
+  · [turn 2/45] read {"label":"unit_price","target":"@e1830","what":"text"}
+  · [turn 2/45] read {"label":"untaxed_amount","target":"@e1804","what":"text"}
+  · [turn 2/45] read {"label":"customer_name","target":"@e1578","what":"value"}
+  · [turn 2/45] screenshot {}
+  · [report] published 1 read-time labelled value(s): untaxed_amount_2
+  · [read-back] model sourced 1/4 un-pinnable value(s)
+  · [flow fwod32] 02-create: customer_name=volatile, order_reference=volatile, tax_display=volatile, total_display=volatile
+  · [flow fwod32] 03-open: Open the existing quotation S00024 (for customer 'rpod3-b2 Bench Customer') in t
+  · [skill] trying s_3ba7f9 (validated, 2/2) without the model
+  · [flow fwod32] 03-open: order_reference=volatile, tax_label=stable, total_label=stable
+  · [flow fwod32] 04-open: Open quotation S00024 in the Odoo Sales app. Change the quantity of the FIRST or
+  · [skill] trying s_76b162 (validated, 3/3) without the model
+  · [flow fwod32] 04-open: customizable_desk_quantity=stable, customizable_desk_unit_price=volatile, office_chair_quantity=stable, office_chair_unit_price=stable, untaxed_amount_label=stable, tax_label=stable, total_label=stable
+  · [flow fwod32] 05-open: Open quotation S00024 in the Odoo Sales app and confirm it (click the Confirm bu
+  · [skill] trying s_47d5cc (validated, 3/3) without the model
+  · [flow fwod32] 06-open: Open the confirmed sales order S00024 in the Odoo Sales app and cancel it (use t
+  · [flow fwod32] 06-open: falling back to the model — the flow step has no pinned skill
+  · [flow fwod32] 06-open: adopted — recovering on deepseek/deepseek-v4-flash (escalates to z-ai/glm-5.3)
+  · [history] elided 2 tool result(s) from earlier instructions (~2k tokens/turn saved)
+  · [turn 1/60] run_skill {"id":"s_7b3035","params":{"v1":"S00024"}}
+  · [turn 2/60] snapshot {}
+  · [turn 3/60] click {"target":"@e1818"}
+  · [turn 4/60] dialog_expect {"action":"accept","count":1}
+  · [turn 5/60] snapshot {}
+  · [turn 6/60] click {"target":"@e1974"}
+  · [turn 7/60] snapshot {}
+  · [turn 8/60] click {"target":"@e1971"}
+  · [turn 9/60] click {"target":"@e1971"}
+  · [turn 10/60] click {"target":"@e1974"}
+  · [turn 11/60] snapshot {}
+  · [turn 12/60] snapshot {"selector":"[aria-label=\"Cancel Sales Order\"], .o_dialog_container, .modal-dialog, [role=dialog]"}
+  · [turn 13/60] snapshot {"selector":".o_dialog_container, [role=dialog], .modal-dialog","full":true}
+  · [turn 14/60] eval {"expression":"document.querySelector('[aria-label=\"Cancel Sales Order\"]')?.outerHTML || document.querySelector('h2:co…
+  · [turn 15/60] eval {"expression":"document.querySelector(\"h2\")?.closest(\".o_dialog_container\")?.querySelectorAll(\"button, input, selec…
+  · [turn 16/60] eval {"expression":"document.querySelector(\".o_dialog_container\")?.outerHTML?.substring(0, 2000)"}
+  · [turn 17/60] click {"target":"@e1974"}
+  · [turn 18/60] eval {"expression":"Array.from(document.querySelectorAll('button, input, select, textarea, label, .o_input')).map(el => ({tag…
+  · [turn 19/60] snapshot {}
+  · [turn 20/60] click {"target":"@e1974"}
+  · [turn 20/60] loop detected (period 1); nudging
+  · [turn 21/60] click {"target":"@e1971"}
+  · [turn 22/60] press {"key":"Escape"}
+  · [turn 23/60] press {"key":"Escape"}
+  · [turn 24/60] snapshot {}
+  · [turn 25/60] dialog_expect {"action":"accept"}
+  · [turn 26/60] click {"target":"@e1818"}
+  · [turn 27/60] snapshot {}
+  · [turn 28/60] snapshot {"selector":"#recipient_ids_0, #subject_0, label","full":true}
+  · [turn 29/60] batch [3 steps: fill, fill, click]
+  · [turn 30/60] snapshot {}
+  · [turn 31/60] click {"target":"@e2107"}
+  · [turn 32/60] press {"key":"Escape"}
+  · [turn 33/60] press {"key":"Escape"}
+  · [turn 34/60] snapshot {}
+  · [turn 35/60] click {"target":"@e1818"}
+  · [turn 36/60] snapshot {}
+  · [turn 37/60] batch [3 steps: fill, fill, click]
+  · [turn 38/60] press {"key":"Tab"}
+  · [turn 39/60] press {"key":"Escape"}
+  · [turn 40/60] click {"target":"@e1546"}
+  · [turn 41/60] click {"target":"@e2240"}
+  · [turn 42/60] snapshot {}
+  · [turn 43/60] read {"label":"status_bar_text","target":"@e1563","what":"text"}
+  · [turn 43/60] read {"label":"order_reference","target":"@e1567","what":"text"}
+  · [report] published 1 read-time labelled value(s): current_status
+  · [flow fwod32] 06-open: not re-pinning s_7b3035 — the model drove 25 gesture(s) beyond its replay, so it did not carry the step
+  · [flow fwod32] 07-open: Open sales order S00024 in the Odoo Sales app and report the status shown in its
+  · [skill] trying s_7b3035 (validated, 4/4) without the model

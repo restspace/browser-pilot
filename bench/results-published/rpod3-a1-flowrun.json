@@ -1,0 +1,253 @@
+{
+  "flow": "fwod32",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Odoo 17, navigated to Contacts, created a new Individual contact named \"rpod3-a1 Bench Customer\" with City \"Benchville\", and saved. The saved record shows Name: \"rpod3-a1 Bench Customer\" and City: \"Benchville\" on the contact form at /contacts/44.",
+      "values": {
+        "customer_name": "rpod3-a1 Bench Customer",
+        "customer_city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "2/3",
+      "repaired": false,
+      "turns": 9
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_add80e; observed customer_name=rpod3-a1 Bench Customer, untaxed_amount_2=£ 255.00, quotation_reference=S00021, customer_city=Benchville, unit_price=85.00, quantity=3.00.",
+      "values": {
+        "customer_name": "rpod3-a1 Bench Customer",
+        "untaxed_amount_2": "£ 255.00",
+        "quotation_reference": "S00021",
+        "customer_city": "Benchville",
+        "unit_price": "85.00",
+        "quantity": "3.00"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_0d8f02"
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "On quotation S00021 (customer: rpod3-a1 Bench Customer), added a second order line with product \"Chair\" (quantity 2, unit price 70.00). The first line (Corner Desk Left Sit, qty 3 at 85.00) remained unchanged. New untaxed amount: £395.00. Quotation is not confirmed.",
+      "values": {
+        "order_reference": "S00021",
+        "customer_name": "rpod3-a1 Bench Customer",
+        "second_line_product": "Chair",
+        "second_line_unit_price": "70.00",
+        "second_line_quantity": "2.00",
+        "untaxed_amount_display": "£395.00",
+        "tax_display": "£79.00",
+        "total_display": "£474.00",
+        "o_group_td_span": "£ 395.00"
+      },
+      "tier": "B",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On quotation S00021, changed the quantity of the first order line (Corner Desk Left Sit) from 3 to 5 (unit price 85.00). The line total updated to £425.00. The second line (Office Chair, qty 2 at 70.00) remained unchanged. The quotation now shows: Untaxed Amount £565.00, Tax 20% £113.00, Total £678.00. Quotation is not confirmed.",
+      "values": {
+        "order_reference": "S00021",
+        "first_line_product": "Corner Desk Left Sit",
+        "first_line_quantity": "5.00",
+        "first_line_unit_price": "85.00",
+        "second_line_product": "Office Chair",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "70.00",
+        "untaxed_amount": "£565.00",
+        "tax_amount": "£113.00",
+        "total_amount": "£678.00"
+      },
+      "tier": "B",
+      "replayed": "0/17",
+      "repaired": true,
+      "turns": 12
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened quotation S00021 and confirmed it. The order is now a Sales Order with reference S00021. The status bar shows \"Sales Order\" (active) / \"Quotation Sent\" / \"Quotation\". The quotation was not cancelled — it was successfully converted to a confirmed sales order.",
+      "values": {
+        "order_reference": "S00021",
+        "status_bar_text": "Sales Order",
+        "status": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "On the confirmed sales order S00021 (customer: rpod3-a1 Bench Customer), clicked the Cancel action in the dropdown menu and confirmed the dialog. The order status bar now shows \"Cancelled\" as the active status (Cancelled / Sales Order / Quotation Sent / Quotation).",
+      "values": {
+        "order_reference": "S00021",
+        "status_bar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 2,
+      "repinned": "s_75e47d"
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Sales order S00021 is already cancelled. The status bar reads: Cancelled (active) / Sales Order / Quotation Sent / Quotation. No changes were made.",
+      "values": {
+        "order_reference": "S00021",
+        "status_bar_text": "Cancelled",
+        "current_status": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 2
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 2,
+  "drift": 9,
+  "driftTickets": [
+    {
+      "flow": "fwod32",
+      "step": "01-signin",
+      "skill": "s_c18752",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c18752 stopped at step 3 — after step 3 expected url http://127.0.0.1:8069/web#action=135&cids=1&menu_id=120 but browser is at http://127.0.0.1:8069/web#action=:id&menu_id=:id",
+      "reason": "after step 3 expected url http://127.0.0.1:8069/web#action=135&cids=1&menu_id=120 but browser is at http://127.0.0.1:8069/web#action=:id&menu_id=:id",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id"
+    },
+    {
+      "flow": "fwod32",
+      "step": "02-create",
+      "skill": "s_0d8f02",
+      "atStep": "3",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'New', exact: true })",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "03-open",
+      "skill": "s_3ba7f9",
+      "atStep": "13",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 2,390.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "03-open",
+      "skill": "s_3ba7f9",
+      "atStep": "14",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 478.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "03-open",
+      "skill": "s_3ba7f9",
+      "atStep": "15",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 2,868.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "04-open",
+      "skill": "s_76b162",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.product_name, 02-create.order_reference, 02-create.product_name",
+      "reason": "after step 1 the page did not show \"- combobox \\\"Type to find a product...\\\": Corner Desk Left Sit\" / \"- textbox \\\"\\\": [FURN_0096] Corner Desk Left Sit (Steel, White) 160x80cm, with large legs.\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "05-open",
+      "skill": "s_47d5cc",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "06-open",
+      "skill": "s_75e47d",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('S00022', { exact: true }).nth(1)",
+      "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "07-open",
+      "skill": "s_7b3035",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 212974,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 441140,
+    "completionTokens": 7679,
+    "cachedTokens": 318720
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 441140,
+      "completionTokens": 7679,
+      "cachedTokens": 318720
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

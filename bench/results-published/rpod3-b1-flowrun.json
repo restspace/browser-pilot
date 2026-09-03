@@ -1,0 +1,273 @@
+{
+  "flow": "fwod32",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed into Odoo 17 with admin/admin, navigated to Contacts, created a new individual contact named \"rpod3-b1 Bench Customer\" with City \"Benchville\", and saved successfully. The saved record shows the name \"rpod3-b1 Bench Customer\" and City \"Benchville\" on the contact form view, confirming the contact was properly created and persisted.",
+      "values": {
+        "customer_name": "rpod3-b1 Bench Customer",
+        "city": "Benchville",
+        "current_url": "http://127.0.0.1:8069/web#cids=1&menu_id=109&action=156&model=res.partner&view_type=form&id=46",
+        "screenshot": "/tmp/contact_created.png"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 18
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created quotation S00023 for customer 'rpod3-b1 Bench Customer' with one order line: product \"[E-COM06] Corner Desk Right Sit\", quantity 3, unit price £147.00, untaxed amount £441.00. Quotation is saved and not confirmed (status = Quotation).",
+      "values": {
+        "quotation_reference": "S00023",
+        "product_name": "[E-COM06] Corner Desk Right Sit",
+        "unit_price": "147.00",
+        "quantity": "3",
+        "untaxed_amount": "£ 441.00",
+        "customer": "rpod3-b1 Bench Customer",
+        "untaxed_amount_2": "£ 441.00"
+      },
+      "tier": "A",
+      "replayed": "2/4",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened quotation S00023 for 'rpod3-b1 Bench Customer' and added a second order line: product \"[FURN_7777] Office Chair\" (different from the first line's \"[E-COM06] Corner Desk Right Sit\"), quantity 2, unit price £70.00. The new untaxed amount on the quotation is £581.00 (line 1: £441.00 + line 2: £140.00). Quotation is not confirmed (status shows \"Quotation\").",
+      "values": {
+        "second_product_name": "[FURN_7777] Office Chair",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "70.00",
+        "untaxed_amount_display": "£ 581.00",
+        "tax_display": "£ 116.20",
+        "total_display": "£ 697.20",
+        "quotation_reference": "S00023",
+        "customer_name": "rpod3-b1 Bench Customer",
+        "o_group_td_span": "£ 581.00"
+      },
+      "tier": "B",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Updated quotation S00023: changed the first order line (product \"[E-COM06] Corner Desk Right Sit\") quantity from 3 to 5, unit price £147.00. Saved. The quotation now shows: Untaxed Amount £875.00, TAX 20% £175.00, Total £1,050.00. Quotation is not confirmed (status remains \"Quotation\").",
+      "values": {
+        "order_reference": "S00023",
+        "first_line_product": "[E-COM06] Corner Desk Right Sit",
+        "first_line_quantity": "5.00",
+        "first_line_unit_price": "147.00",
+        "second_line_product": "[FURN_7777] Office Chair",
+        "second_line_quantity": "2.00",
+        "second_line_unit_price": "70.00",
+        "untaxed_amount_display": "£ 875.00",
+        "tax_display": "£ 175.00",
+        "total_display": "£ 1,050.00",
+        "o_group_td_span": "£ 875.00",
+        "o_group_td_span_2": "£ 175.00",
+        "o_group_td_span_3": "£ 1,050.00",
+        "o_group_td_label": "Untaxed Amount",
+        "o_group_td_label_2": "TAX 20%",
+        "o_group_td_label_3": "Total"
+      },
+      "tier": "B",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed quotation S00023 (for customer 'rpod3-b1 Bench Customer') by clicking the Confirm button. The order is now a Sales Order — the status bar shows \"Sales Order\" as the active status, with \"Quotation Sent\" and \"Quotation\" as past states. The order reference is S00023.",
+      "values": {
+        "order_reference": "S00023",
+        "status_bar_text": "Sales Order",
+        "status": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Cancelled sales order S00023 (for customer 'rpod3-b1 Bench Customer'). Clicked the Cancel button, accepted the confirmation dialog, then clicked \"Send and cancel\" in the Cancel Sales Order dialog. The status bar now shows \"Cancelled\" as the active status, with \"Sales Order\", \"Quotation Sent\", and \"Quotation\" as past states.",
+      "values": {
+        "order_reference": "S00023",
+        "status_after_cancel": "Cancelled",
+        "full_status_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "current_status": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 21
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Sales order S00023 is already cancelled. The status bar shows \"Cancelled\" as the active status, with \"Sales Order\", \"Quotation Sent\", and \"Quotation\" as past states. No action needed — the order was already cancelled from a previous step.",
+      "values": {
+        "order_reference": "S00023",
+        "status_bar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 2
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 10,
+  "driftTickets": [
+    {
+      "flow": "fwod32",
+      "step": "02-create",
+      "skill": "s_999686",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_999686 stopped at step 3 — after step 3 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=110&model=res.partner&view_type=kanban but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+      "reason": "after step 3 expected url http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=110&model=res.partner&view_type=kanban but browser is at http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=sale.order&view_type=list"
+    },
+    {
+      "flow": "fwod32",
+      "step": "03-open",
+      "skill": "s_3ba7f9",
+      "atStep": "13",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 2,390.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "03-open",
+      "skill": "s_3ba7f9",
+      "atStep": "14",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 478.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "03-open",
+      "skill": "s_3ba7f9",
+      "atStep": "15",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 2,868.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "04-open",
+      "skill": "s_76b162",
+      "atStep": "12",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 3,890.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "04-open",
+      "skill": "s_76b162",
+      "atStep": "13",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 778.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "04-open",
+      "skill": "s_76b162",
+      "atStep": "14",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.getByText('£ 4,668.00', { exact: true })",
+      "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span')",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "05-open",
+      "skill": "s_47d5cc",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "06-open",
+      "skill": "s_7b3035",
+      "similarity": 0.997,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod32",
+      "step": "07-open",
+      "skill": "s_7b3035",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 475087,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1377753,
+    "completionTokens": 14786,
+    "cachedTokens": 1085696
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1377753,
+      "completionTokens": 14786,
+      "cachedTokens": 1085696
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
