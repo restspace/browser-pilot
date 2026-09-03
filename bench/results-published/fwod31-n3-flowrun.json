@@ -1,0 +1,156 @@
+{
+  "flow": "fwod31",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed into Odoo 17 and created a new customer contact \"fwod31-n3 Bench Customer\" with City \"Benchville\". The record was saved successfully (ID 46). The name field shows \"fwod31-n3 Bench Customer\" and the City field shows \"Benchville\" as verified on the form view.",
+      "values": {
+        "customer_name": "fwod31-n3 Bench Customer",
+        "city": "Benchville",
+        "record_id": "46"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_31851a; observed product_name=Chair floor protection, unit_price=12.00, untaxed_amount_2=£ 36.00, order_reference=S00023.",
+      "values": {
+        "product_name": "Chair floor protection",
+        "unit_price": "12.00",
+        "untaxed_amount_2": "£ 36.00",
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c71486; observed first_product_name=Chair floor protection, second_product_quantity=2.00, order_reference=S00023, second_product_unit_price=150.00, untaxed_amount=£ 336.00, first_line_amount=£ 36.00, second_line_amount=£ 300.00, untaxed_amount_label=Untaxed Amount, untaxed_amount_total=£ 336.00.",
+      "values": {
+        "first_product_name": "Chair floor protection",
+        "second_product_quantity": "2.00",
+        "order_reference": "S00023",
+        "second_product_unit_price": "150.00",
+        "untaxed_amount": "£ 336.00",
+        "first_line_amount": "£ 36.00",
+        "second_line_amount": "£ 300.00",
+        "untaxed_amount_label": "Untaxed Amount",
+        "untaxed_amount_total": "£ 336.00"
+      },
+      "tier": "A",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened quotation S00023, changed the first order line (Chair floor protection) quantity from 3 to 5, saved. The Untaxed Amount in totals is now £360.00 (5 × £12.00 = £60.00 for line 1, plus £300.00 for line 2 Deposit).",
+      "values": {
+        "untaxed_amount_2": "£ 360.00",
+        "order_reference": "S00023",
+        "first_line_quantity": "5.00",
+        "untaxed_amount": "£ 360.00"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_46d6d4; observed order_reference=S00023, order_status_2=Sales Order\nQuotation Sent\nQuotation.",
+      "values": {
+        "order_reference": "S00023",
+        "order_status_2": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_b8a0b5; observed order_status_2=Cancelled\nSales Order\nQuotation Sent\nQuotation, order_reference=S00023.",
+      "values": {
+        "order_status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwod31",
+      "step": "01-signin",
+      "skill": "s_84bda9",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_84bda9 stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Contacts\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Contacts\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+    },
+    {
+      "flow": "fwod31",
+      "step": "02-create",
+      "skill": "s_97570a",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('\"Sales\" >> nth=0')",
+      "fallbackUsed": "page.getByRole('menuitem', { name: 'Sales', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod31",
+      "step": "02-create",
+      "skill": "s_15b2dc",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('\"fwod31-n3 Bench Customer\" >> nth=0')",
+      "fallbackUsed": "page.getByRole('option', { name: 'fwod31-n3 Bench Customer', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 247880,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 56462,
+    "completionTokens": 1232,
+    "cachedTokens": 21504
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 56462,
+      "completionTokens": 1232,
+      "cachedTokens": 21504
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

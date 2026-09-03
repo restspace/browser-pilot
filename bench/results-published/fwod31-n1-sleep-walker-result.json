@@ -1,0 +1,96 @@
+{
+  "arm": "sleep-walker",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "b9ccbca"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod31-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 1094181,
+  "orchestrator": {
+    "input": 3820,
+    "cacheWrite": 0,
+    "cacheRead": 17856,
+    "output": 861
+  },
+  "inner": {
+    "promptTokens": 1550176,
+    "cachedTokens": 1130752,
+    "completionTokens": 11678,
+    "instructions": 6,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1550176,
+        "completionTokens": 11678,
+        "cachedTokens": 1130752,
+        "instructions": 6
+      }
+    },
+    "skills": {
+      "instructions": 6,
+      "offered": 3,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 69,
+      "compiled": 6,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 1063414,
+  "commandBytes": 2798,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwod31-skills",
+    "instructions": 6,
+    "offered": 3,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 69,
+    "compiled": 6,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.0116,
+  "maxUsd": 2,
+  "spendUsd": 0.0503,
+  "finalText": "All six objectives completed successfully:\n\n1. **DONE** — Customer `fwod31-n1 Bench Customer` created with City `Benchville`; verified on the saved contact form.\n2. **DONE** — Quotation S00021 created for that customer with one line: product **Chair floor protection**, quantity 3, unit price **£12.00** (auto-filled), Untaxed Amount **£36.00**.\n3. **DONE** — Second line added: product **Deposit**, quantity 2 (unit price £150.00 auto-filled); new Untaxed Amount **£336.00**.\n4. **DONE** — First line quantity changed from 3 to 5; Untaxed Amount afterwards **£360.00** (5 × £12 = £60 + £300).\n5. **DONE** — Quotation confirmed; order reference **S00021**, status shown **\"Sales Order\"**.\n6. **DONE** — Order cancelled (via the cancellation wizard, \"Send and cancel\"); status shown afterwards **\"Cancelled\"**.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwod31-n1-sleep-walker-transcript.jsonl"
+}

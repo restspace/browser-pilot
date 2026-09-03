@@ -1,0 +1,40 @@
+[
+  {
+    "flow": "fwod31",
+    "step": "01-signin",
+    "skill": "s_84bda9",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_84bda9 stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Contacts\\\"\") — the step ran but did not have its recorded effect",
+    "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- link \\\"Contacts\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&menu_id=:id&model=res.partner&view_type=kanban"
+  },
+  {
+    "flow": "fwod31",
+    "step": "02-create",
+    "skill": "s_97570a",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.999,
+    "missedLocator": "page.locator('\"Sales\" >> nth=0')",
+    "fallbackUsed": "page.getByRole('menuitem', { name: 'Sales', exact: true })",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod31",
+    "step": "02-create",
+    "skill": "s_15b2dc",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.999,
+    "missedLocator": "page.locator('\"fwod31-n2 Bench Customer\" >> nth=0')",
+    "fallbackUsed": "page.getByRole('option', { name: 'fwod31-n2 Bench Customer', exact: true })",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  }
+]

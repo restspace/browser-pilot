@@ -1,0 +1,250 @@
+{
+  "name": "fwod31",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with login 'admin' and password 'admin' (skip the URL if already signed in). Then create a new customer contact named exactly '{{runid}} Bench Customer' with City set to 'Benchville' (Sales app or Contacts app, New). Save and verify the record shows the name and city, then report what you saw.",
+      "skill": "s_4a8224",
+      "params": {
+        "v2": "http://127.0.0.1:8069/",
+        "v3": "{{runid}} Bench Customer",
+        "v4": "Benchville"
+      },
+      "outputs": [
+        "customer_name",
+        "city"
+      ],
+      "recorded": {
+        "customer_name": "fwod31-n1 Bench Customer",
+        "city": "Benchville"
+      },
+      "outputEvidence": {
+        "customer_name": {
+          "same": 0,
+          "differed": 1
+        },
+        "city": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Odoo, go to Sales > Orders > Quotations and create a new quotation for customer '{{runid}} Bench Customer' (choose the customer from the autocomplete dropdown). Add exactly ONE order line: pick any product from the catalogue via the product autocomplete dropdown, quantity 3. Save the quotation. Report: the product name you chose, the unit price the app filled in on the line, and the Untaxed Amount shown in the totals. Do not wait for network idle.",
+      "skill": "s_97570a",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "product_name",
+        "unit_price",
+        "untaxed_amount",
+        "untaxed_amount_2",
+        "order_reference"
+      ],
+      "recorded": {
+        "product_name": "Chair floor protection",
+        "unit_price": "12.00",
+        "untaxed_amount": "£ 36.00",
+        "untaxed_amount_2": "£ 36.00",
+        "order_reference": "S00021"
+      },
+      "outputEvidence": {
+        "product_name": {
+          "same": 2,
+          "differed": 0
+        },
+        "unit_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount_2": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open the existing quotation {{02-create.order_reference}} (customer '{{runid}} Bench Customer') in Odoo Sales. Add a SECOND order line with a DIFFERENT product (chosen from the product autocomplete dropdown), quantity 2. Save. Report the second product's name and the new Untaxed Amount shown in totals.",
+      "skill": "s_c71486",
+      "params": {
+        "v1": "{{02-create.order_reference}}",
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "second_product_name",
+        "second_product_quantity",
+        "second_product_unit_price",
+        "untaxed_amount",
+        "first_product_name",
+        "first_line_amount",
+        "second_line_amount",
+        "untaxed_amount_label",
+        "untaxed_amount_total",
+        "order_reference"
+      ],
+      "recorded": {
+        "second_product_name": "Deposit",
+        "second_product_quantity": "2.00",
+        "second_product_unit_price": "150.00",
+        "untaxed_amount": "£ 336.00",
+        "first_product_name": "Chair floor protection",
+        "first_line_amount": "£ 36.00",
+        "second_line_amount": "£ 300.00",
+        "untaxed_amount_label": "Untaxed Amount",
+        "untaxed_amount_total": "£ 336.00",
+        "order_reference": "S00021"
+      },
+      "outputEvidence": {
+        "second_product_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "second_product_unit_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "first_product_name": {
+          "same": 2,
+          "differed": 0
+        },
+        "first_line_amount": {
+          "same": 2,
+          "differed": 0
+        },
+        "second_line_amount": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount_label": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount_total": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open quotation {{02-create.order_reference}} in Odoo Sales and change the FIRST order line's quantity from 3 to 5 (the line for product '{{02-create.product_name}}'). Save. Report the new {{03-open.untaxed_amount_label}} shown in totals.",
+      "skill": "s_aff41f",
+      "params": {
+        "v1": "{{02-create.order_reference}}",
+        "v2": "{{02-create.product_name}}",
+        "v3": "{{03-open.untaxed_amount_label}}"
+      },
+      "outputs": [
+        "first_line_quantity",
+        "untaxed_amount",
+        "untaxed_amount_2",
+        "order_reference"
+      ],
+      "recorded": {
+        "first_line_quantity": "5.00",
+        "untaxed_amount": "£ 360.00",
+        "untaxed_amount_2": "£ 360.00",
+        "order_reference": "S00021"
+      },
+      "outputEvidence": {
+        "first_line_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount_2": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Open quotation {{02-create.order_reference}} in Odoo Sales and confirm it (click Confirm Order / Confirm) so it becomes a sales order. Report the order reference/name shown and the status the app now displays (e.g. 'Sales Order').",
+      "skill": "s_46d6d4",
+      "params": {
+        "v1": "{{02-create.order_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "order_status",
+        "order_status_2"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "order_status": "Sales Order",
+        "order_status_2": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_status_2": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "Open sales order {{02-create.order_reference}} in Odoo Sales and cancel it (use the Cancel button, confirm any dialog). Report the status the app shows after cancelling (e.g. 'Cancelled').",
+      "skill": "s_b8a0b5",
+      "params": {
+        "v1": "{{02-create.order_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "order_status",
+        "order_status_2"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "order_status": "Cancelled",
+        "order_status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_status_2": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod31-n1",
+    "created": "2026-09-03T07:32:25.542Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
