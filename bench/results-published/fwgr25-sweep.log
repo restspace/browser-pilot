@@ -1,0 +1,125 @@
+
+[sweep] run 1/3: fwgr25-n1 (store: /home/user/sleep-walker/bench/results/fwgr25-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+stopped: fwgr25-n1
+  flow "fwgr25" saved: 8 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwgr25.json
+  warning: warning: 155 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[1].instruction: "TestData" (output) in "Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{runid}} Availability'. For the panel's query, select the 'TestData"
+  flow.steps[1].instruction: "Stat" (output) in "Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{runid}} Availability'. For the panel's query, select the 'TestData"
+  flow.steps[1].params.v2: "Stat" (output) in "Stat"
+  flow.steps[3].instruction: "Last 6 hours" (output) in "On the dashboard '{{runid}} Bench Dashboard': (1) In dashboard Settings > General, add the tag 'bench' to the dashboard's tags. (2) Set the dashboard time range"
+  flow.steps[3].instruction: "bench" (output) in "On the dashboard '{{runid}} Bench Dashboard': (1) In dashboard Settings > General, add the tag 'bench' to the dashboard's tags. (2) Set the dashboard time range"
+  flow.steps[3].params.v3: "bench" (output) in "bench"
+  flow.steps[4].instruction: "Last 6 hours" (output) in "On the dashboard '{{runid}} Bench Dashboard': (1) In the top bar time picker, set the auto-refresh interval to '1m' (open the time picker dropdown, find the aut"
+  flow.steps[4].instruction: "bench" (output) in "On the dashboard '{{runid}} Bench Dashboard': (1) In the top bar time picker, set the auto-refresh interval to '1m' (open the time picker dropdown, find the aut"
+  flow.steps[4].params.v3: "Last 6 hours" (output) in "Last 6 hours"
+  flow.steps[6].instruction: "bench" (output) in "To prove the time range and auto-refresh are persisted in the SAVED dashboard (not just session URL params), navigate the browser to the bare dashboard URL with"
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwgr25-n1 stop=completed
+turns=10 wall=2037.2s
+commands=9 cmdTime=1857.0s cmdBytes=7016 timeouts=0
+orchestrator in=5778 cw=0 cr=33386 out=11195
+inner prompt=4378538 cached=3911579 completion=25934
+spend=$0.4767 maxUsd=2
+learn: A_n=0 replayed=0/8 full=0 repaired=0 compiled=8 variants=0
+-> /home/user/sleep-walker/bench/results/fwgr25-n1-sleep-walker-result.json
+
+fwgr25-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid afx54wt1k2ewwd reported
+
+[sweep] run 2/3: fwgr25-n2 (replay flow fwgr25, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr25-n1 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr25-n2: 7 drift ticket(s) → fwgr25-n2-drift.json
+
+fwgr25-n2: objectives passed 5/6
+  obj 1: FAIL — finalText missing panel titles: Request rate, Error count, Latency by endpoint
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid dfx57c208nb40b reported
+
+[sweep] run 3/3: fwgr25-n3 (replay flow fwgr25, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr25-n2 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr25-n3: 9 drift ticket(s) → fwgr25-n3-drift.json
+
+fwgr25-n3: objectives passed 5/6
+  obj 1: FAIL — finalText missing panel titles: Request rate, Error count, Latency by endpoint
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid bfx5895re5qm8e reported
+
+Learning sweep fwgr25 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr25-n1' │ '6/6'    │ 'completed' │ 10    │ 9    │ 0.4767    │ 0   │ '0/8'        │ 2037   │
+│ 1       │ 2 │ 'fwgr25-n2' │ '5/6'    │ 'success'   │ 96    │ 8    │ 0.1751    │ 1   │ '8/8 (flow)' │ 661    │
+│ 2       │ 3 │ 'fwgr25-n3' │ '5/6'    │ 'success'   │ 184   │ 8    │ 0.5471    │ 1   │ '8/8 (flow)' │ 1864   │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_584676  validated   17 steps  3/3 (100%)
+           Create a NEW dashboard in Grafana. Add a {{v2}} visualization panel. Title the panel exactly '{{v3}}'. For the…
+  s_728ae2  validated    2 steps  3/3 (100%)
+           Create a NEW dashboard in Grafana. Add a {{v2}} visualization panel. Title the panel exactly '{{v3}}'. For the…
+  s_fd4564  demoted     18 steps  1/3 (33%)
+           Create a NEW dashboard in Grafana. Add a {{v2}} visualization panel. Title the panel exactly '{{v3}}'. For the…
+  s_8722af  validated   16 steps  3/3 (100%)
+           On the existing dashboard '{{v1}}' (currently in panel edit view — exit back to the dashboard first if needed)…
+  s_24e8f5  validated   18 steps  2/3 (67%)
+           On the dashboard '{{v1}}': (1) In dashboard Settings > General, add the tag '{{v3}}' to the dashboard's tags. …
+  s_e15b55  validated   15 steps  2/3 (67%)
+           On the dashboard '{{v1}}': (1) In the top bar time picker, set the auto-refresh interval to '1m' (open the tim…
+  s_938f43  demoted      5 steps  1/3 (33%)
+           To prove the time range and auto-refresh are persisted in the SAVED dashboard (not just session URL params), n…
+  s_09986a  validated    7 steps  3/3 (100%)
+           On the dashboard '{{v1}}' (freshly loaded), open the '{{v3}}' panel's edit view (read-only inspection is fine)…
+  s_c4c14e  provisional 10 steps  1/2 (50%)
+           Verify the dashboard '{{v1}}' persisted correctly by loading it FRESH: navigate the browser to the dashboard's…
+  s_23ba10  validated    2 steps  2/2 (100%)  variant of s_6010fa
+           Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password p…
+  s_17c421  validated    1 steps  2/2 (100%)  variant of s_6010fa
+           Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password p…
+  s_daa892  validated    4 steps  2/2 (100%)  variant of s_6010fa
+           Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password p…
+  s_6010fa  demoted      4 steps  1/2 (50%)
+           Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password p…
+  s_7255a4  provisional 15 steps  1/2 (50%)  variant of s_c4c14e
+           Verify the dashboard '{{v1}} Bench Dashboard' persisted correctly by loading it FRESH: navigate the browser to…
+  s_e74c60  provisional  3 steps  1/1 (100%)
+           Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password p…
+  s_3e5027  provisional  4 steps  1/1 (100%)
+           Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password p…
+  s_85f180  provisional  1 steps  1/1 (100%)  variant of s_fd4564
+           Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{v3}}'. For the p…
+  s_dedd8a  provisional 28 steps  1/1 (100%)  variant of s_fd4564
+           Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{v3}}'. For the p…
+  s_471e88  provisional  5 steps  1/1 (100%)  variant of s_938f43
+           To prove the time range and auto-refresh are persisted in the SAVED dashboard (not just session URL params), n…
+  s_894d84  provisional  1 steps  1/1 (100%)  variant of s_fd4564
+           Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{v3}}'. For the p…
+  s_9f0b7c  provisional 17 steps  1/1 (100%)  variant of s_fd4564
+           Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{v3}}'. For the p…
+  s_c0078e  provisional 22 steps  1/1 (100%)  variant of s_24e8f5
+           On the dashboard '{{v1}} Bench Dashboard': (1) In dashboard Settings > General, add the tag '{{v2}}' to the da…
+  s_946d0e  provisional 17 steps  1/1 (100%)  variant of s_e15b55
+           On the dashboard '{{v1}} Bench Dashboard': (1) In the top bar time picker, set the auto-refresh interval to '1…
+  s_116ad3  provisional  6 steps  1/1 (100%)  variant of s_7255a4
+           Verify the dashboard '{{v1}} Bench Dashboard' persisted correctly by loading it FRESH: navigate the browser to…
+  s_21cb4c  provisional  4 steps  1/1 (100%)  variant of s_938f43
+           To prove the time range and auto-refresh are persisted in the SAVED dashboard (not just session URL params), n…
+store: /home/user/sleep-walker/bench/results/fwgr25-skills
+
+summary: /home/user/sleep-walker/bench/results/fwgr25-sweep.json
