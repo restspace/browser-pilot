@@ -1,0 +1,123 @@
+{
+  "flow": "fwgr23",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e0193c; observed panel_title_request_rate=Request rate, panel_title_error_count=Error count.",
+      "values": {
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard in Grafana with a Stat panel using the TestData data source (default Random Walk scenario), titled the panel \"fwgr23-n2 Availability\", and saved the dashboard as \"fwgr23-n2 Bench Dashboard\" (General folder). Verified on screen after saving: dashboard title \"fwgr23-n2 Bench Dashboard\" and panel title \"fwgr23-n2 Availability\" (showing A-series value 92.0).",
+      "values": {
+        "dashboard_title": "fwgr23-n2 Bench Dashboard",
+        "panel_title": "fwgr23-n2 Availability",
+        "panel_value": "92.0"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the \"fwgr23-n2 Bench Dashboard\" and added a new Text panel. Set the panel title to \"fwgr23-n2 Notes\" and entered markdown content reading \"Notes for run fwgr23-n2 - bench dashboard created via automation.\" Saved the dashboard (no default time range change). After saving, the dashboard shows both panels: \"fwgr23-n2 Availability\" (Stat, value 43.3) and \"fwgr23-n2 Notes\" (Text, displaying the notes content).",
+      "values": {
+        "panel_title": "fwgr23-n2 Notes",
+        "panel_content": "Notes for run fwgr23-n2 - bench dashboard created via automation.",
+        "dashboard_title": "fwgr23-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_66bfaa; observed panel_titles=fwgr23-n2 Availability, fwgr23-n2 Notes, dashboard_title=fwgr23-n2 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "panel_titles": "fwgr23-n2 Availability, fwgr23-n2 Notes",
+        "dashboard_title": "fwgr23-n2 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set auto-refresh to 1m on the 'fwgr23-n2 Bench Dashboard'. The save dialog showed \"No changes to save\" (the refresh change was already applied) and no \"Update default time range\" checkbox was present, so I closed the dialog. Reloaded the page and verified: the top bar shows time range \"Last 6 hours\" and refresh \"1m\"; both panels \"fwgr23-n2 Availability\" (Stat, value 52.5) and \"fwgr23-n2 Notes\" (with notes content) are present. The tag 'bench' was already added in a prior step but is not visibly rendered in view mode.",
+      "values": {
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx4aj2mzndogd/fwgr23-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "panel_titles": "fwgr23-n2 Availability, fwgr23-n2 Notes"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 19
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "The current page URL is http://127.0.0.1:3000/d/dfx4aj2mzndogd/fwgr23-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "current_url": "http://127.0.0.1:3000/d/dfx4aj2mzndogd/fwgr23-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr23",
+      "step": "02-create",
+      "skill": "s_c9300d",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('\"Save dashboard\" >> nth=0')",
+      "fallbackUsed": "page.locator('[data-testid=\"data-testid Save dashboard button\"] span')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4aj2mzndogd/:id"
+    }
+  ],
+  "wallMs": 285700,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 202529,
+    "completionTokens": 3788,
+    "cachedTokens": 128512
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 202529,
+      "completionTokens": 3788,
+      "cachedTokens": 128512
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

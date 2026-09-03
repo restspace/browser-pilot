@@ -1,0 +1,129 @@
+{
+  "flow": "fwgr23",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e0193c; observed panel_title_request_rate=Request rate, panel_title_error_count=Error count.",
+      "values": {
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard in Grafana with a Stat panel using the TestData data source (default Random Walk scenario), titled the panel \"fwgr23-n3 Availability\", and saved the dashboard as \"fwgr23-n3 Bench Dashboard\" (General folder). Verified on screen after saving: dashboard title \"fwgr23-n3 Bench Dashboard\" and panel title \"fwgr23-n3 Availability\" (showing A-series value 42.1).",
+      "values": {
+        "dashboard_title": "fwgr23-n3 Bench Dashboard",
+        "panel_title": "fwgr23-n3 Availability",
+        "panel_value": "42.1"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the \"fwgr23-n3 Bench Dashboard\" and added a new Text panel. Set the panel title to \"fwgr23-n3 Notes\" and entered markdown content reading \"Notes for run fwgr23-n3 - bench dashboard created via automation.\" Saved the dashboard (no default time range change). After saving, the dashboard shows both panels: \"fwgr23-n3 Availability\" (Stat, value 43.3) and \"fwgr23-n3 Notes\" (Text, displaying the notes content).",
+      "values": {
+        "panel_title": "fwgr23-n3 Notes",
+        "panel_content": "Notes for run fwgr23-n3 - bench dashboard created via automation.",
+        "dashboard_title": "fwgr23-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_66bfaa; observed panel_titles=fwgr23-n3 Availability, fwgr23-n3 Notes, dashboard_title=fwgr23-n3 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "panel_titles": "fwgr23-n3 Availability, fwgr23-n3 Notes",
+        "dashboard_title": "fwgr23-n3 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh to 1m via the refresh picker, then saved the dashboard — the save dialog showed \"No changes to save\" with an \"Update default refresh value\" checkbox (no \"Update default time range\" checkbox was present, as the 6-hour range was already the saved default); I ticked \"Update default refresh value\" and confirmed, and the page alerted \"Dashboard saved\". After reloading the dashboard URL, the top bar shows time range \"Last 6 hours\" and refresh \"1m\", and both panels \"fwgr23-n3 Availability\" (Stat, value 37.7) and \"fwgr23-n3 Notes\" (Text, \"Notes for run fwgr23-n3 - bench dashboard created via automation.\") are present. The tag slot in the instruction was blank/unresolved; the dashboard's tag from the earlier step is 'bench' (confirmed in dashboard settings), though no tag chip is rendered in the top bar of the live page.",
+      "values": {
+        "time_range": "Last 6 hours",
+        "refresh": "1m",
+        "panels": "fwgr23-n3 Availability, fwgr23-n3 Notes",
+        "tag": "bench (from settings; instruction's tag slot was blank)",
+        "page_url": "http://127.0.0.1:3000/d/cfx4ayh9eiy9sd/fwgr23-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 44
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "The current page URL is http://127.0.0.1:3000/d/cfx4ayh9eiy9sd/fwgr23-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "current_url": "http://127.0.0.1:3000/d/cfx4ayh9eiy9sd/fwgr23-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr23",
+      "step": "02-create",
+      "skill": "s_c9300d",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('\"Save dashboard\" >> nth=0')",
+      "fallbackUsed": "page.locator('[data-testid=\"data-testid Save dashboard button\"] span')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/cfx4ayh9eiy9sd/:id"
+    }
+  ],
+  "wallMs": 601407,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 551048,
+    "completionTokens": 8564,
+    "cachedTokens": 331296
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 342654,
+      "completionTokens": 4694,
+      "cachedTokens": 146688
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 208394,
+      "completionTokens": 3870,
+      "cachedTokens": 184608
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
