@@ -955,8 +955,16 @@ d('identity-scoped locators (fixture page)', () => {
     // single warning.
     await defer();
     const unguarded = await resolveChain(page, chain, { waitMs: 3_000 });
-    expect(unguarded?.index).toBe(1);
-    expect(await unguarded!.locator.first().innerText()).toContain('Part One');
+    // Since rpgr13 a positional guess is held for the window whenever the
+    // chain names the element, so even with the guard disarmed the name wins
+    // once the row is back. With NO window the guess still takes the row
+    // beneath — that is the pre-fix state, kept for the causal claim.
+    expect(unguarded?.index).toBe(0);
+    expect(await unguarded!.locator.first().innerText()).toContain('Part Two');
+    await defer();
+    const instant = await resolveChain(page, chain, { waitMs: 0 });
+    expect(instant?.index).toBe(1);
+    expect(await instant!.locator.first().innerText()).toContain('Part One');
   }, 30_000);
 
   /**
@@ -1001,6 +1009,45 @@ d('identity-scoped locators (fixture page)', () => {
     expect((await resolveChain(page, recorded, { stayOnOrigin: origin }))?.index).toBeUndefined();
     const named: LocatorCandidate[] = [{ kind: 'role', role: 'link', name: 'Support' }, { kind: 'css', selector: '#support' }];
     expect((await resolveChain(page, named, { stayOnOrigin: origin }))?.index).toBe(0);
+  }, 30_000);
+
+  /**
+   * rpgr13, both replays: the panel editor's `toggle-viz-picker` test id was
+   * not rendered yet, and the structural `div > … > button` fallback matched
+   * a header button that opens grafana.com. A positional guess is held for
+   * the whole window when the chain names the element; it stands only when
+   * no name came.
+   */
+  it('holds a positional guess until the named candidate has had the window', async () => {
+    const { resolveChain } = await import('../src/skills/replay.js');
+    const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    await page.evaluate(() => {
+      const box = document.createElement('div');
+      box.id = 'late';
+      const wrong = document.createElement('button');
+      wrong.type = 'button';
+      wrong.textContent = 'Docs';
+      box.append(wrong);
+      document.body.append(box);
+      setTimeout(() => {
+        const right = document.createElement('button');
+        right.type = 'button';
+        right.setAttribute('data-testid', 'toggle-viz-picker');
+        right.textContent = 'Change visualization';
+        box.prepend(right);
+      }, 700);
+    });
+    const chain: LocatorCandidate[] = [
+      { kind: 'testid', attr: 'data-testid', value: 'toggle-viz-picker' },
+      { kind: 'css', selector: '#late > button:nth-of-type(1)' },
+    ];
+    const held = await resolveChain(page, chain, { waitMs: 3_000 });
+    expect(held?.index).toBe(0);
+    expect(await held!.locator.innerText()).toBe('Change visualization');
+    // and with no window the guess stands, as before
+    await page.evaluate(() => document.querySelector('[data-testid="toggle-viz-picker"]')?.remove());
+    const bare = await resolveChain(page, chain, { waitMs: 0 });
+    expect(bare?.index).toBe(1);
   }, 30_000);
 
   it('takes identity from anywhere in the chain, not just its head', async () => {

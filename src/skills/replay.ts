@@ -500,6 +500,20 @@ export async function replaySkill(
         continue;
       }
       res.warnings.push(...warnings);
+      // The step took the tab off the app (an error page, another origin):
+      // whoever picks up from here — recovery, the next segment — needs the
+      // app, not the wreck. Go back to where the step started. rpgr13-r2's
+      // recovery spent its whole budget on chrome-error://chromewebdata/.
+      const landed = page.url();
+      if (landed !== urlBefore && (/^chrome-error:|^about:neterror/.test(landed) || (originOf(landed) ?? '') !== (originOf(urlBefore) ?? ''))) {
+        try {
+          await page.goto(urlBefore, { waitUntil: 'domcontentloaded' });
+          warnings.push(`step ${tag}: the browser was returned to ${urlPattern(urlBefore)} from ${urlPattern(landed)}`);
+          res.warnings.push(warnings[warnings.length - 1]);
+        } catch {
+          // the tab is truly gone; the stop below says where it ended
+        }
+      }
       res.failedAt = failIndex;
       res.reason = stop.stop!;
       res.lines.push(`${head} → ran, but ${stop.stop}`);
@@ -1041,17 +1055,30 @@ export async function resolveChain(
   // waiting on the primary alone) keeps the preference order intact — the
   // best candidate still wins the moment it appears — and the identity guard
   // stops a positional fallback taking the turn while the anchor is pending.
+  //
+  // A structural (positional) hit is not taken on the spot when the chain
+  // also names the element: a path resolves instantly against whatever sits
+  // in that slot while the named control is still rendering. rpgr13 lost
+  // both replays that way — the panel editor's `toggle-viz-picker` test id
+  // was not there yet, `div > … > button` matched a header button that
+  // opens grafana.com, and the tab left the app. The guess is held until the
+  // names have had the whole window; it stands only when none of them came.
+  const named = ordered.some((o) => !structural(o.candidate));
+  const guess = (hit: { candidate: LocatorCandidate } | null) => !!hit && named && structural(hit.candidate);
+  let held: Awaited<ReturnType<typeof walk>> = null;
   const first = await walk();
-  if (first) return first;
+  if (first && !guess(first)) return first;
+  held = first;
   for (let waited = 0; waited < waitMs; waited += RESOLVE_POLL_MS) {
     // A plain timer, not page.waitForTimeout: this path runs precisely when
     // the page is unhappy, and a navigating or detached page makes its own
     // clock throw.
     await new Promise((r) => setTimeout(r, RESOLVE_POLL_MS));
     const hit = await walk();
-    if (hit) return hit;
+    if (hit && !guess(hit)) return hit;
+    if (hit) held = hit;
   }
-  return null;
+  return held;
 }
 
 /**
