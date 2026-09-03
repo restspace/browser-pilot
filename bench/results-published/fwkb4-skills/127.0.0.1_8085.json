@@ -1,0 +1,3348 @@
+[
+ {
+  "id": "s_ce6ea1",
+  "origin": "http://127.0.0.1:8085",
+  "template": "Sign in to the Kanboard app at {{v1}} with username admin and password admin. Then navigate to the project named 'Bench Board' and open its board view. Report the names of the board's columns in their left-to-right order, exactly as shown on the board page.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:8085/",
+    "usedIn": [
+     1
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8085/"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v1}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e5",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Username"
+      },
+      {
+       "kind": "label",
+       "label": "Username"
+      },
+      {
+       "kind": "id",
+       "selector": "#form-username"
+      },
+      {
+       "kind": "css",
+       "selector": "#form-username"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- textbox \"\": admin"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e7",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "id",
+       "selector": "#form-password"
+      },
+      {
+       "kind": "css",
+       "selector": "#form-password"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e9"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Sign in"
+      },
+      {
+       "kind": "css",
+       "selector": "html > body > div > form > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"KB Dashboard for admin\"",
+      "- link \"Dashboard\"",
+      "- link \"My notifications\"",
+      "- link \"\"",
+      "- link \"A\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e32"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Project management"
+      },
+      {
+       "kind": "css",
+       "selector": "#main > div > ul > li:nth-of-type(3) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"KB Projects (1)\"",
+      "- link \"Users overview\"",
+      "- link \"Sort\"",
+      "- link \"#1\"",
+      "- link \"Bench Board\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e51"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Bench Board"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div:nth-of-type(3) > div:nth-of-type(2) > div:nth-of-type(1) > span > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"KB Bench Board\"",
+      "- link \"Configure this project\"",
+      "- link \"Keyboard shortcut: \\\"v o\\\"\"",
+      "- link \"Keyboard shortcut: \\\"v b\\\"\"",
+      "- link \"Keyboard shortcut: \\\"v l\\\"\""
+     ]
+    }
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Successfully signed in to Kanboard with admin/admin, navigated to the 'Bench Board' project, and opened its board view. The board columns from left to right are: Backlog, Ready, Work in progress, Done.",
+   "values": {}
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T13:06:49.872Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T13:13:05.161Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwkb4-n1",
+   "instruction": "Sign in to the Kanboard app at http://127.0.0.1:8085/ with username admin and password admin. Then navigate to the project named 'Bench Board' and open its board view. Report the names of the board's columns in their left-to-right order, exactly as shown on the board page.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T13:06:49.872Z"
+  }
+ },
+ {
+  "id": "s_cfedb4",
+  "origin": "http://127.0.0.1:8085",
+  "template": "On the Kanboard 'Bench Board' project board, create a new task with the exact title '{{v2}}' and a description that includes the text '{{v1}}' (e.g. '{{v3}}'). Do not modify or move any tasks whose titles start with 'Seed:'. After creating it, open the new task's detail page and report the task's numeric ID (shown as #<number>), its title, its description, and which column it currently sits in.",
+  "params": {
+   "v1": {
+    "example": "fwkb4-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwkb4-n1 Bench Task",
+    "usedIn": [
+     2,
+     5,
+     7
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "Bench task for run fwkb4-n1",
+    "usedIn": [
+     3
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8085/",
+   "fingerprint": [
+    0.01,
+    0.026,
+    0.01,
+    0,
+    0.036,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.099,
+    0.052,
+    0,
+    0.005,
+    0.031,
+    0.01,
+    0.01,
+    0.063,
+    0,
+    0.005,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.01,
+    0.005,
+    0.01,
+    0.01,
+    0,
+    0,
+    0.031,
+    0.016,
+    0.016,
+    0,
+    0,
+    0.005,
+    0.021,
+    0,
+    0.005,
+    0.036,
+    0.01,
+    0,
+    0.021,
+    0.01,
+    0.005,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0.01,
+    0.026,
+    0,
+    0.021,
+    0.01,
+    0,
+    0,
+    0.021,
+    0,
+    0.016,
+    0.016,
+    0,
+    0.01,
+    0.005,
+    0.016,
+    0.01,
+    0.089,
+    0,
+    0.005,
+    0,
+    0,
+    0.026,
+    0,
+    0.109,
+    0,
+    0.01,
+    0,
+    0.01,
+    0.01,
+    0,
+    0.156,
+    0,
+    0.01,
+    0,
+    0,
+    0.01,
+    0.136,
+    0,
+    0,
+    0.021,
+    0.005,
+    0.016,
+    0,
+    0.021,
+    0,
+    0,
+    0.156,
+    0.021,
+    0,
+    0.01,
+    0.042,
+    0.031,
+    0,
+    0.005,
+    0.005,
+    0.036,
+    0.016,
+    0.026,
+    0,
+    0.005,
+    0.083,
+    0.005,
+    0.021,
+    0.01,
+    0.089,
+    0,
+    0,
+    0.052,
+    0.031,
+    0.031,
+    0,
+    0,
+    0.01,
+    0.016,
+    0,
+    0,
+    0.01,
+    0.031,
+    0,
+    0.01,
+    0.026,
+    0,
+    0,
+    0.047,
+    0,
+    0.005,
+    0.042,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0.031,
+    0.01,
+    0,
+    0.063,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.031,
+    0.01,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.016,
+    0.005,
+    0.021,
+    0.016,
+    0.031,
+    0,
+    0.005,
+    0.021,
+    0.005,
+    0,
+    0,
+    0,
+    0.01,
+    0.021,
+    0,
+    0.01,
+    0,
+    0.052,
+    0,
+    0.01,
+    0.01,
+    0.01,
+    0.063,
+    0,
+    0,
+    0.068,
+    0,
+    0,
+    0.016,
+    0.068,
+    0.021,
+    0.021,
+    0,
+    0.042,
+    0.036,
+    0,
+    0,
+    0.01,
+    0,
+    0.01,
+    0,
+    0.016,
+    0,
+    0.026,
+    0.01,
+    0,
+    0,
+    0,
+    0.005,
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0.036,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0.057,
+    0,
+    0.01,
+    0.036,
+    0,
+    0.052,
+    0,
+    0.01,
+    0,
+    0.031,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.073,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.031,
+    0.016,
+    0.031,
+    0.016,
+    0.005,
+    0,
+    0.01,
+    0,
+    0.026,
+    0.01,
+    0,
+    0.042,
+    0,
+    0,
+    0.016,
+    0.036,
+    0.042,
+    0,
+    0.01,
+    0.042,
+    0.01,
+    0,
+    0.031,
+    0,
+    0.005,
+    0,
+    0.031,
+    0.031,
+    0,
+    0.042,
+    0,
+    0.156,
+    0,
+    0.016,
+    0.01,
+    0.005,
+    0,
+    0.01,
+    0.01,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0.016,
+    0,
+    0,
+    0.188,
+    0.016,
+    0.021,
+    0.01,
+    0.01,
+    0.021,
+    0.005,
+    0.052,
+    0.01,
+    0.016,
+    0,
+    0.057,
+    0.005,
+    0.01,
+    0.042,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0.047,
+    0,
+    0.01,
+    0.016,
+    0.141,
+    0,
+    0,
+    0.005,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.01,
+    0,
+    0,
+    0.031,
+    0.016,
+    0.01,
+    0.021,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0.026,
+    0,
+    0,
+    0.021,
+    0,
+    0.01,
+    0,
+    0,
+    0.031,
+    0.005,
+    0.021,
+    0,
+    0,
+    0.01,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.057,
+    0,
+    0.031,
+    0.01,
+    0,
+    0.031,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.068,
+    0,
+    0.047,
+    0.016,
+    0,
+    0.005,
+    0.01,
+    0,
+    0.021,
+    0.005,
+    0,
+    0.01,
+    0.031,
+    0.01,
+    0,
+    0,
+    0.042,
+    0.104,
+    0,
+    0,
+    0,
+    0.036,
+    0,
+    0,
+    0.052,
+    0,
+    0.198,
+    0.078,
+    0.016,
+    0.01,
+    0,
+    0,
+    0.021,
+    0.01,
+    0.125,
+    0.031,
+    0.042,
+    0,
+    0.01,
+    0,
+    0.01,
+    0,
+    0,
+    0.026,
+    0.005,
+    0.005,
+    0.005,
+    0,
+    0.01,
+    0.005,
+    0,
+    0,
+    0.021,
+    0.021,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.026,
+    0,
+    0,
+    0.026,
+    0,
+    0,
+    0.047,
+    0,
+    0.532,
+    0,
+    0.031,
+    0,
+    0.021,
+    0.005,
+    0.021,
+    0,
+    0.005,
+    0.094,
+    0,
+    0.021,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0.005,
+    0,
+    0.01,
+    0.182,
+    0.167,
+    0.005,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0.036,
+    0,
+    0.469,
+    0.031,
+    0,
+    0.01,
+    0.031,
+    0,
+    0.021
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e62"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Add a new task",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "tbody > tr:nth-of-type(1) > th:nth-of-type(1) > div:nth-of-type(2) > div > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Bench Board > New task\"",
+      "- textbox \"Title\"",
+      "- link \"Preview\"",
+      "- textbox \"Description\"",
+      "- listbox \"\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e186",
+     "value": "{{v2}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Title"
+      },
+      {
+       "kind": "label",
+       "label": "Title"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Title"
+      },
+      {
+       "kind": "id",
+       "selector": "#form-title"
+      },
+      {
+       "kind": "css",
+       "selector": "#form-title"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- textbox \"Title\": {{v2}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e207",
+     "value": "{{v3}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Description"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Write your text in Markdown"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > div > div:nth-of-type(2) > textarea"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- textbox \"Description\": {{v3}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e256"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "form > div > div:nth-of-type(4) > div > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- link \"#4\"",
+      "- link \"{{v2}}\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e179"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(3) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Task #4\"",
+      "- link \"Summary\"",
+      "- link \"Activity stream\"",
+      "- link \"Transitions\"",
+      "- link \"Analytics\""
+     ]
+    }
+   },
+   {
+    "tool": "read_all",
+    "args": {
+     "target": "dd, dt, td, li, p",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "dd, dt, td, li, p"
+      }
+     ]
+    },
+    "label": "board_name"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "text",
+     "target": "@e122",
+     "label": "task_title"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-summary > h2"
+      }
+     ]
+    },
+    "label": "task_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#main > div > div:nth-of-type(2) > ul > li:nth-of-type(2) > a"
+      }
+     ]
+    },
+    "label": "board_name"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(2) > details:nth-of-type(1) > div > article > p"
+      }
+     ]
+    },
+    "label": "task_description"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Created task \"{{v2}}\" in the Backlog column on the Bench Board. Opened its detail page: Task #4, title \"{{v2}}\", description \"{{v3}}\", and it sits in the Backlog column. No seed tasks were modified.",
+   "values": {
+    "task_title": "{{v2}}",
+    "board_name": "Board",
+    "task_description": "{{v3}}"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T13:07:26.868Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T13:13:07.393Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwkb4-n1",
+   "instruction": "On the Kanboard 'Bench Board' project board, create a new task with the exact title 'fwkb4-n1 Bench Task' and a description that includes the text 'fwkb4-n1' (e.g. 'Bench task for run fwkb4-n1'). Do not modify or move any tasks whose titles start with 'Seed:'. After creating it, open the new task's detail page and report the task's numeric ID (shown as #<number>), its title, its description, and which column it currently sits in.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T13:07:26.868Z"
+  }
+ },
+ {
+  "id": "s_bdc240",
+  "origin": "http://127.0.0.1:8085",
+  "template": "On the Kanboard 'Bench {{v1}}' board, move the task titled '{{v2}}' (task #4) so that it sits in the 'Work in progress' column. You can drag the card or use its card menu / task page to move it. Do not touch any tasks whose titles start with 'Seed:'. Then verify by viewing the board that the task '{{v2}}' is now in the 'Work in progress' column, and report which column it is in.",
+  "params": {
+   "v1": {
+    "example": "Board",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwkb4-n1 Bench Task",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8085/",
+   "fingerprint": [
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.04,
+    0.016,
+    0,
+    0.008,
+    0.008,
+    0,
+    0,
+    0.04,
+    0,
+    0.182,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.008,
+    0,
+    0,
+    0,
+    0.016,
+    0.016,
+    0.008,
+    0.024,
+    0,
+    0,
+    0.032,
+    0.016,
+    0.008,
+    0,
+    0,
+    0.032,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.095,
+    0.024,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.095,
+    0.016,
+    0,
+    0,
+    0.016,
+    0,
+    0.016,
+    0.008,
+    0.008,
+    0.016,
+    0.063,
+    0,
+    0.008,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.032,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.016,
+    0.008,
+    0,
+    0.032,
+    0.008,
+    0.008,
+    0.032,
+    0.126,
+    0,
+    0,
+    0.221,
+    0.047,
+    0.008,
+    0.016,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0.063,
+    0,
+    0.016,
+    0,
+    0,
+    0.024,
+    0.008,
+    0,
+    0.016,
+    0.032,
+    0,
+    0,
+    0.04,
+    0,
+    0.016,
+    0,
+    0.079,
+    0,
+    0.008,
+    0,
+    0.032,
+    0.016,
+    0.008,
+    0.016,
+    0.016,
+    0,
+    0,
+    0,
+    0.032,
+    0,
+    0.008,
+    0.016,
+    0,
+    0.024,
+    0.008,
+    0,
+    0,
+    0.016,
+    0.032,
+    0.016,
+    0.3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.008,
+    0.016,
+    0.008,
+    0.016,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.016,
+    0.047,
+    0.032,
+    0,
+    0.016,
+    0.008,
+    0.016,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.055,
+    0.016,
+    0.016,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0.032,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.095,
+    0.016,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.016,
+    0.016,
+    0,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.016,
+    0.016,
+    0.024,
+    0,
+    0,
+    0.008,
+    0.047,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0.032,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0.095,
+    0,
+    0,
+    0,
+    0.016,
+    0.221,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.008,
+    0.016,
+    0,
+    0.008,
+    0,
+    0.024,
+    0.016,
+    0.024,
+    0.016,
+    0,
+    0.016,
+    0.063,
+    0.016,
+    0.024,
+    0.032,
+    0.063,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0.032,
+    0,
+    0,
+    0.016,
+    0.016,
+    0,
+    0.055,
+    0,
+    0.047,
+    0,
+    0.008,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0,
+    0,
+    0,
+    0,
+    0.19,
+    0,
+    0.032,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.032,
+    0.016,
+    0.032,
+    0,
+    0.04,
+    0.008,
+    0.008,
+    0.032,
+    0.008,
+    0.016,
+    0.016,
+    0.016,
+    0,
+    0.016,
+    0.04,
+    0,
+    0,
+    0,
+    0.198,
+    0,
+    0,
+    0.008,
+    0.016,
+    0,
+    0,
+    0,
+    0.016,
+    0.063,
+    0,
+    0.016,
+    0.016,
+    0.008,
+    0.04,
+    0.032,
+    0,
+    0,
+    0.032,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.079,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.269,
+    0.04,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.016,
+    0.032,
+    0.103,
+    0,
+    0.071,
+    0.008,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0.008,
+    0.008,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.142,
+    0,
+    0,
+    0,
+    0.047,
+    0,
+    0.008,
+    0.079,
+    0,
+    0.063,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.032,
+    0,
+    0.158,
+    0,
+    0.032,
+    0,
+    0.047,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0.008,
+    0,
+    0.008,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.19,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.016,
+    0.008,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.53,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0.008,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0.008,
+    0,
+    0.237,
+    0.119,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.024,
+    0.016,
+    0,
+    0.016,
+    0,
+    0.016,
+    0.032,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e112"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Move position"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(1) > ul:nth-of-type(2) > li:nth-of-type(13) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Move task to another position on the board\"",
+      "- combobox \"Default swimlane\": 1",
+      "- combobox \"Backlog Ready Work in progress Done\": 1",
+      "- combobox \"\": 1",
+      "- radio \"Insert before this task\""
+     ]
+    }
+   },
+   {
+    "tool": "select",
+    "args": {
+     "target": "@e188",
+     "option": "Work in progress"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "combobox",
+       "name": "Column"
+      },
+      {
+       "kind": "label",
+       "label": "Column"
+      },
+      {
+       "kind": "id",
+       "selector": "#form-columns"
+      },
+      {
+       "kind": "css",
+       "selector": "#form-columns"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- combobox \"Backlog Ready Work in progress Done\": 3"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e198"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-content > form > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e35"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#main > div > div:nth-of-type(2) > ul > li:nth-of-type(2) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- row \"\"",
+      "- cell \"\"",
+      "- link \"Add a new task\"",
+      "- link \"Backlog\"",
+      "- cell \"Ready\""
+     ]
+    }
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Moved task #4 \"{{v2}}\" from Backlog to Work in progress using the \"Move position\" action on its detail page. Verified on the board view: task #4 is now in the Work in progress column, while the three Seed: tasks (triage inbox, order missing parts, ship repaired device) remain undisturbed in Backlog.",
+   "values": {}
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T13:09:06.911Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T13:13:08.729Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwkb4-n1",
+   "instruction": "On the Kanboard 'Bench Board' board, move the task titled 'fwkb4-n1 Bench Task' (task #4) so that it sits in the 'Work in progress' column. You can drag the card or use its card menu / task page to move it. Do not touch any tasks whose titles start with 'Seed:'. Then verify by viewing the board that the task 'fwkb4-n1 Bench Task' is now in the 'Work in progress' column, and report which column it is in.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T13:09:06.911Z"
+  }
+ },
+ {
+  "id": "s_4a6dcf",
+  "origin": "http://127.0.0.1:8085",
+  "template": "On the Kanboard task page for task #4 titled '{{v1}}', add a comment whose text includes '{{v2}}' (e.g. '{{v3}}'). Then set the task's due date to {{v4}}. Verify both changes on the task page and report the comment text as displayed and the due date as displayed.",
+  "params": {
+   "v1": {
+    "example": "fwkb4-n1 Bench Task",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "fwkb4-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "Comment for run fwkb4-n1",
+    "usedIn": [
+     3,
+     11
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "2026-12-31",
+    "usedIn": [
+     7
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8085/",
+   "fingerprint": [
+    0.016,
+    0.02,
+    0.008,
+    0,
+    0.049,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.086,
+    0.049,
+    0,
+    0.004,
+    0.025,
+    0.008,
+    0.008,
+    0.061,
+    0,
+    0.004,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.008,
+    0.004,
+    0.008,
+    0.008,
+    0,
+    0,
+    0.033,
+    0.016,
+    0.016,
+    0,
+    0,
+    0.008,
+    0.016,
+    0,
+    0.004,
+    0.037,
+    0.016,
+    0,
+    0.016,
+    0.008,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0.008,
+    0.02,
+    0,
+    0.016,
+    0.008,
+    0,
+    0,
+    0.016,
+    0,
+    0.016,
+    0.012,
+    0,
+    0.008,
+    0.004,
+    0.012,
+    0.008,
+    0.09,
+    0,
+    0.004,
+    0,
+    0,
+    0.02,
+    0,
+    0.094,
+    0,
+    0.008,
+    0,
+    0.008,
+    0.008,
+    0,
+    0.163,
+    0,
+    0.008,
+    0,
+    0,
+    0.008,
+    0.196,
+    0,
+    0,
+    0.016,
+    0.004,
+    0.012,
+    0,
+    0.016,
+    0,
+    0,
+    0.123,
+    0.016,
+    0,
+    0.008,
+    0.033,
+    0.033,
+    0,
+    0.004,
+    0.004,
+    0.033,
+    0.016,
+    0.02,
+    0,
+    0.008,
+    0.074,
+    0.004,
+    0.033,
+    0.008,
+    0.09,
+    0,
+    0,
+    0.041,
+    0.033,
+    0.025,
+    0,
+    0,
+    0.008,
+    0.012,
+    0,
+    0,
+    0.008,
+    0.029,
+    0,
+    0.008,
+    0.025,
+    0.008,
+    0,
+    0.037,
+    0,
+    0.004,
+    0.041,
+    0,
+    0.012,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0.025,
+    0.008,
+    0,
+    0.065,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.025,
+    0.008,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.02,
+    0.004,
+    0.016,
+    0.016,
+    0.033,
+    0,
+    0.004,
+    0.025,
+    0.004,
+    0,
+    0,
+    0,
+    0.008,
+    0.016,
+    0,
+    0.008,
+    0,
+    0.041,
+    0,
+    0.008,
+    0.008,
+    0.008,
+    0.065,
+    0,
+    0,
+    0.065,
+    0,
+    0,
+    0.025,
+    0.061,
+    0.016,
+    0.016,
+    0,
+    0.033,
+    0.041,
+    0.008,
+    0,
+    0.008,
+    0,
+    0.008,
+    0,
+    0.016,
+    0,
+    0.025,
+    0.008,
+    0,
+    0,
+    0,
+    0.004,
+    0,
+    0.041,
+    0,
+    0,
+    0,
+    0,
+    0.053,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.041,
+    0.045,
+    0,
+    0.016,
+    0.037,
+    0,
+    0.049,
+    0,
+    0.008,
+    0,
+    0.033,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.057,
+    0,
+    0,
+    0,
+    0,
+    0.041,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.033,
+    0.016,
+    0.033,
+    0.016,
+    0.004,
+    0,
+    0.008,
+    0,
+    0.02,
+    0.008,
+    0,
+    0.033,
+    0,
+    0,
+    0.012,
+    0.033,
+    0.041,
+    0,
+    0.008,
+    0.033,
+    0.008,
+    0,
+    0.033,
+    0,
+    0.008,
+    0,
+    0.033,
+    0.033,
+    0,
+    0.033,
+    0,
+    0.213,
+    0,
+    0.016,
+    0.008,
+    0.008,
+    0,
+    0.008,
+    0.016,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0.012,
+    0,
+    0.016,
+    0,
+    0,
+    0.163,
+    0.025,
+    0.016,
+    0.008,
+    0.008,
+    0.016,
+    0.004,
+    0.049,
+    0.008,
+    0.012,
+    0,
+    0.049,
+    0.004,
+    0.008,
+    0.041,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0.041,
+    0,
+    0.008,
+    0.016,
+    0.114,
+    0,
+    0,
+    0.004,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0.008,
+    0,
+    0,
+    0.033,
+    0.012,
+    0.008,
+    0.016,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.016,
+    0,
+    0.008,
+    0,
+    0,
+    0.049,
+    0.004,
+    0.016,
+    0,
+    0,
+    0.008,
+    0.008,
+    0,
+    0,
+    0,
+    0.004,
+    0.045,
+    0,
+    0.033,
+    0.016,
+    0,
+    0.033,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0.069,
+    0,
+    0.041,
+    0.016,
+    0,
+    0.004,
+    0.008,
+    0,
+    0.016,
+    0.004,
+    0,
+    0.008,
+    0.049,
+    0.008,
+    0,
+    0,
+    0.033,
+    0.09,
+    0,
+    0,
+    0,
+    0.041,
+    0,
+    0,
+    0.041,
+    0,
+    0.196,
+    0.082,
+    0.012,
+    0.008,
+    0,
+    0,
+    0.016,
+    0.008,
+    0.098,
+    0.033,
+    0.037,
+    0,
+    0.008,
+    0,
+    0.008,
+    0,
+    0,
+    0.025,
+    0.004,
+    0.004,
+    0.004,
+    0,
+    0.008,
+    0.004,
+    0,
+    0,
+    0.016,
+    0.016,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.025,
+    0,
+    0,
+    0.025,
+    0.008,
+    0,
+    0.049,
+    0,
+    0.523,
+    0,
+    0.025,
+    0,
+    0.016,
+    0.004,
+    0.016,
+    0,
+    0.004,
+    0.098,
+    0,
+    0.02,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.041,
+    0,
+    0.004,
+    0,
+    0.008,
+    0.2,
+    0.159,
+    0.004,
+    0,
+    0,
+    0,
+    0.033,
+    0,
+    0.041,
+    0,
+    0.49,
+    0.033,
+    0,
+    0.008,
+    0.033,
+    0,
+    0.016
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e192"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v1}}"
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(3) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Task #4\"",
+      "- link \"Summary\"",
+      "- link \"Activity stream\"",
+      "- link \"Transitions\"",
+      "- link \"Analytics\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e91"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Add a comment"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(1) > ul:nth-of-type(2) > li:nth-of-type(6) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Add a comment\"",
+      "- link \"Preview\"",
+      "- combobox \"Standard users Application managers or more Administrators\": app-user",
+      "- button \"Save\"",
+      "- link \"cancel\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e207",
+     "value": "{{v3}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "New comment"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "Write your text in Markdown"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-content > form > div:nth-of-type(1) > div > div:nth-of-type(2) > textarea"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- textbox \"New comment\": {{v3}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e212"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "#modal-content > form > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- link \"Change sorting\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e76"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Edit the task"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(1) > ul:nth-of-type(2) > li:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Bench Board > {{v1}}\"",
+      "- textbox \"Title\": {{v1}}",
+      "- textbox \"Description\": Bench task for run {{v2}}",
+      "- listbox \"\"",
+      "- combobox \"\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e76"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Edit the task"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(1) > ul:nth-of-type(2) > li:nth-of-type(1) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/"
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "#form-date_due",
+     "value": "{{v4}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#form-date_due"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Due Date"
+      },
+      {
+       "kind": "label",
+       "label": "Due Date"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "09/03/2026 13:10"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- textbox \"{{*}} {{*}}\": {{v4}}",
+      "- row \"Su Mo Tu We Th Fr Sa\"",
+      "- cell \"Su\"",
+      "- cell \"Mo\"",
+      "- cell \"Tu\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e297"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "form > div > div:nth-of-type(4) > div > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/"
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e150",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#task-summary > div > div > div:nth-of-type(4) > ul > li:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "due_date_displayed"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e150",
+     "what": "text",
+     "label": "due_date_displayed"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#task-summary > div > div > div:nth-of-type(4) > ul > li:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "due_date_displayed"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e198",
+     "what": "text",
+     "label": "comment_text_displayed"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "{{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#comment-1 > div:nth-of-type(4) > div > p"
+      }
+     ]
+    },
+    "label": "comment_text_displayed"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "On task #4 \"{{v1}}\" detail page, added comment \"{{v3}}\" (displayed in the Comments section) and set the due date to {{v4}} (displayed as \"Due date: 12/31/2026 13:11\"). Both changes confirmed on the refreshed page.",
+   "values": {
+    "due_date_displayed": "Due date: 12/31/2026 13:11",
+    "comment_text_displayed": "{{v3}}"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T13:11:32.789Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T13:13:22.032Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwkb4-n1",
+   "instruction": "On the Kanboard task page for task #4 titled 'fwkb4-n1 Bench Task', add a comment whose text includes 'fwkb4-n1' (e.g. 'Comment for run fwkb4-n1'). Then set the task's due date to 2026-12-31. Verify both changes on the task page and report the comment text as displayed and the due date as displayed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T13:11:32.789Z"
+  }
+ },
+ {
+  "id": "s_e374db",
+  "origin": "http://127.0.0.1:8085",
+  "template": "Verify the final state of the Kanboard 'Bench {{v1}}' project without changing anything: open the board and confirm which column the task '{{v2}}' sits in; then open that task's detail page and report its numeric ID (as #<number>), its title, its description, its due date, and the text of its comment. Report all these values exactly as displayed.",
+  "params": {
+   "v1": {
+    "example": "Board",
+    "usedIn": [],
+    "known": true
+   },
+   "v2": {
+    "example": "fwkb4-n1 Bench Task",
+    "usedIn": [
+     5,
+     8
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "fwkb4-n1",
+    "usedIn": [
+     3,
+     9,
+     10
+    ],
+    "known": true,
+    "binding": "var:runid"
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:8085/",
+   "fingerprint": [
+    0,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0.052,
+    0.015,
+    0,
+    0.007,
+    0.007,
+    0,
+    0,
+    0.045,
+    0,
+    0.186,
+    0.015,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0.007,
+    0.007,
+    0,
+    0,
+    0,
+    0.015,
+    0.015,
+    0.015,
+    0.022,
+    0,
+    0,
+    0.03,
+    0.015,
+    0.007,
+    0,
+    0,
+    0.03,
+    0,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0.022,
+    0,
+    0,
+    0.015,
+    0.007,
+    0.089,
+    0.015,
+    0,
+    0,
+    0.015,
+    0,
+    0.015,
+    0.007,
+    0.007,
+    0.015,
+    0.06,
+    0,
+    0.007,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0.015,
+    0.015,
+    0,
+    0.03,
+    0.007,
+    0.007,
+    0.03,
+    0.119,
+    0,
+    0,
+    0.209,
+    0.045,
+    0.007,
+    0.015,
+    0,
+    0,
+    0,
+    0.007,
+    0,
+    0.06,
+    0,
+    0.015,
+    0,
+    0,
+    0.022,
+    0.007,
+    0,
+    0.015,
+    0.03,
+    0,
+    0,
+    0.037,
+    0,
+    0.015,
+    0,
+    0.074,
+    0,
+    0.007,
+    0,
+    0.03,
+    0.015,
+    0.007,
+    0.015,
+    0.03,
+    0,
+    0,
+    0,
+    0.03,
+    0.06,
+    0.007,
+    0.015,
+    0,
+    0.022,
+    0.007,
+    0,
+    0,
+    0.015,
+    0.03,
+    0.015,
+    0.283,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.007,
+    0,
+    0,
+    0.045,
+    0,
+    0,
+    0,
+    0.03,
+    0.007,
+    0.007,
+    0.015,
+    0.007,
+    0.022,
+    0,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0.007,
+    0.015,
+    0.045,
+    0.03,
+    0,
+    0.015,
+    0.007,
+    0.015,
+    0,
+    0,
+    0,
+    0.037,
+    0,
+    0,
+    0,
+    0.06,
+    0.015,
+    0.015,
+    0,
+    0,
+    0.007,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0.097,
+    0.015,
+    0,
+    0,
+    0,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0.015,
+    0.015,
+    0,
+    0,
+    0,
+    0.015,
+    0.007,
+    0.015,
+    0.015,
+    0.022,
+    0,
+    0,
+    0.007,
+    0.06,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0.015,
+    0.223,
+    0.022,
+    0.015,
+    0,
+    0,
+    0,
+    0.007,
+    0.022,
+    0.015,
+    0,
+    0.007,
+    0,
+    0.022,
+    0.015,
+    0.022,
+    0.015,
+    0,
+    0.022,
+    0.06,
+    0.015,
+    0.022,
+    0.037,
+    0.06,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0.015,
+    0.015,
+    0,
+    0.06,
+    0,
+    0.045,
+    0,
+    0.022,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0.194,
+    0,
+    0.03,
+    0,
+    0,
+    0.015,
+    0.007,
+    0.03,
+    0.015,
+    0.03,
+    0,
+    0.037,
+    0.007,
+    0.015,
+    0.045,
+    0.007,
+    0.015,
+    0.015,
+    0.015,
+    0,
+    0.015,
+    0.037,
+    0.015,
+    0.007,
+    0,
+    0.194,
+    0.007,
+    0,
+    0.007,
+    0.015,
+    0,
+    0,
+    0,
+    0.015,
+    0.06,
+    0,
+    0.015,
+    0.015,
+    0.007,
+    0.037,
+    0.03,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0.074,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0.268,
+    0.037,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0.015,
+    0.03,
+    0.104,
+    0,
+    0.067,
+    0.007,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0.007,
+    0.007,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.149,
+    0,
+    0,
+    0,
+    0.045,
+    0,
+    0.007,
+    0.074,
+    0,
+    0.074,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0.164,
+    0,
+    0.037,
+    0,
+    0.045,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0.015,
+    0,
+    0.007,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0.007,
+    0.194,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0.015,
+    0.015,
+    0.015,
+    0.015,
+    0,
+    0,
+    0,
+    0.007,
+    0.536,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0.007,
+    0.015,
+    0,
+    0,
+    0.015,
+    0,
+    0.007,
+    0,
+    0.015,
+    0,
+    0,
+    0,
+    0.015,
+    0,
+    0,
+    0.015,
+    0,
+    0.231,
+    0.119,
+    0.007,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0.015,
+    0,
+    0.015,
+    0.015,
+    0.015,
+    0.03,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v1}}",
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read",
+    "args": {
+     "label": "due_date_full",
+     "target": "@e150",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#task-summary > div > div > div:nth-of-type(4) > ul > li:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "due_date_full"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "column_info",
+     "target": "@e136",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Column: Work in progress"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-summary > div > div > div:nth-of-type(2) > ul > li:nth-of-type(2)"
+      }
+     ]
+    },
+    "label": "column_info"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "comment_text",
+     "target": "@e198",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Comment for run {{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#comment-1 > div:nth-of-type(4) > div > p"
+      }
+     ]
+    },
+    "label": "comment_text"
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e36"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "#main > div > div:nth-of-type(2) > ul > li:nth-of-type(2) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- row \"\"",
+      "- cell \"\"",
+      "- link \"Add a new task\"",
+      "- link \"Backlog\"",
+      "- cell \"Ready\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e192"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "td:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(3) > a"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:8085/",
+     "addedContains": [
+      "- heading \"Task #4\"",
+      "- link \"Summary\"",
+      "- link \"Activity stream\"",
+      "- link \"Transitions\"",
+      "- link \"Analytics\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "due_date_value",
+     "target": "@e150",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Due date:"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div:nth-of-type(4) > ul > li:nth-of-type(1) > strong"
+      }
+     ]
+    },
+    "label": "due_date_label"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "task_id_header",
+     "target": "@e58",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "Task #4"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(1) > div:nth-of-type(1) > h2"
+      }
+     ]
+    },
+    "label": "task_id"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "task_title_heading",
+     "target": "@e122",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-summary > h2"
+      }
+     ]
+    },
+    "label": "task_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "description_text",
+     "target": "@e164",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "scoped",
+       "container": "#task-view details.accordion-section",
+       "hasText": "Bench task for run {{v3}}",
+       "selector": "div > article"
+      },
+      {
+       "kind": "text",
+       "text": "Bench task for run {{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#task-view > div:nth-of-type(2) > details:nth-of-type(1) > div > article"
+      }
+     ]
+    },
+    "label": "description_text"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "comment_text_final",
+     "target": "@e197",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Comment for run {{v3}}"
+      },
+      {
+       "kind": "css",
+       "selector": "#comment-1 > div:nth-of-type(4) > div > p"
+      }
+     ]
+    },
+    "label": "comment_text"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "label": "column_text",
+     "target": "@e136",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "text",
+       "text": "Column:"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div:nth-of-type(2) > ul > li:nth-of-type(2) > strong"
+      }
+     ]
+    },
+    "label": "column_label"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Verified final state of Bench {{v1}} — task #4 \"{{v2}}\" sits in the **Work in progress** column. On its detail page: Task #4, title \"{{v2}}\", description \"Bench task for run {{v3}}\", due date \"Due date: 12/31/2026 13:11\", comment \"Comment for run {{v3}}\". All values confirmed on the live page.",
+   "values": {
+    "due_date_full": "Due date: 12/31/2026 13:11",
+    "column_info": "Column: Work in progress",
+    "comment_text": "Comment for run {{v3}}",
+    "due_date_label": "Due date:",
+    "task_id": "Task #4",
+    "task_title": "{{v2}}",
+    "description_text": "Bench task for run {{v3}}",
+    "column_label": "Column:"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T13:12:32.576Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T13:13:23.769Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwkb4-n1",
+   "instruction": "Verify the final state of the Kanboard 'Bench Board' project without changing anything: open the board and confirm which column the task 'fwkb4-n1 Bench Task' sits in; then open that task's detail page and report its numeric ID (as #<number>), its title, its description, its due date, and the text of its comment. Report all these values exactly as displayed.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T13:12:32.576Z"
+  }
+ }
+]

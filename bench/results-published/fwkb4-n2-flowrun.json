@@ -1,0 +1,86 @@
+{
+  "flow": "fwkb4",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Replayed stored procedure s_ce6ea1.",
+      "values": {},
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created task \"fwkb4-n2 Bench Task\" in the Backlog column on the Bench Board. Opened its detail page: Task #4, title \"fwkb4-n2 Bench Task\", description \"Bench task for run fwkb4-n2\", and it sits in the Backlog column. No seed tasks were modified.",
+      "values": {
+        "task_title": "fwkb4-n2 Bench Task",
+        "task_description": "Bench task for run fwkb4-n2",
+        "board_name": "Board"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-verify",
+      "status": "success",
+      "summary": "Moved task #4 \"fwkb4-n2 Bench Task\" from Backlog to Work in progress using the \"Move position\" action on its detail page. Verified on the board view: task #4 is now in the Work in progress column, while the three Seed: tasks (triage inbox, order missing parts, ship repaired device) remain undisturbed in Backlog.",
+      "values": {},
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "On task #4 \"fwkb4-n2 Bench Task\" detail page, added comment \"Comment for run fwkb4-n2\" (displayed in the Comments section) and set the due date to 2026-12-31 (displayed as \"Due date: 12/31/2026 13:12\"). Both changes confirmed on the refreshed page.",
+      "values": {
+        "comment_text_displayed": "Comment for run fwkb4-n2",
+        "due_date_displayed": "Due date: 12/31/2026 13:12"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-verify",
+      "status": "success",
+      "summary": "Verified final state of Bench Board — task #4 \"fwkb4-n2 Bench Task\" sits in the **Work in progress** column. On its detail page: Task #4, title \"fwkb4-n2 Bench Task\", description \"Bench task for run fwkb4-n2\", due date \"Due date: 12/31/2026 13:12\", comment \"Comment for run fwkb4-n2\". All values confirmed on the live page.",
+      "values": {
+        "task_title": "fwkb4-n2 Bench Task",
+        "due_date_full": "Due date: 12/31/2026 13:12",
+        "column_info": "Column: Work in progress",
+        "comment_text": "Comment for run fwkb4-n2",
+        "due_date_label": "Due date:",
+        "task_id": "Task #4",
+        "description_text": "Bench task for run fwkb4-n2",
+        "column_label": "Column:"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 21274,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
