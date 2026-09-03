@@ -902,6 +902,13 @@ d('identity-scoped locators (fixture page)', () => {
     expect((await resolveChain(page, internal, { stayOnOrigin: origin }))?.index).toBe(1);
     // without the recorded origin the old behaviour stands (the pre-fix state)
     expect((await resolveChain(page, external, {}))?.index).toBe(1);
+    // a recorded primary that IS such a link is the recording's business
+    // (rpgr12-r2: a stray click on the "Support" footer link in a sign-in
+    // skill); only a guess is held to the origin
+    const recorded: LocatorCandidate[] = [{ kind: 'css', selector: '#support', nth: 0 }]; // structural head: a guess
+    expect((await resolveChain(page, recorded, { stayOnOrigin: origin }))?.index).toBeUndefined();
+    const named: LocatorCandidate[] = [{ kind: 'role', role: 'link', name: 'Support' }, { kind: 'css', selector: '#support' }];
+    expect((await resolveChain(page, named, { stayOnOrigin: origin }))?.index).toBe(0);
   }, 30_000);
 
   it('takes identity from anywhere in the chain, not just its head', async () => {

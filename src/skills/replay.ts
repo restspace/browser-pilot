@@ -959,7 +959,11 @@ export async function resolveChain(
             missed.push(index);
             continue;
           }
-          if (await leavesOrigin(locator)) {
+          // The recorded primary is trusted even when it is such a link — the
+          // recording clicked it (rpgr12-r2's sign-in skill had a stray click
+          // on Grafana's "Support" footer link, and refusing it cost a
+          // 19-turn recovery). Only a guess may not leave the origin.
+          if ((index > 0 || structural(candidate)) && (await leavesOrigin(locator))) {
             missed.push(index);
             continue;
           }
