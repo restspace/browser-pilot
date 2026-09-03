@@ -6,6 +6,9 @@ import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from
 import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
 import { WILDCARD, fillParams, fillParamsDeep, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
+
+/** Tools that look at or move to an element without setting or choosing anything. */
+const OBSERVATION_TOOLS = new Set(['scroll_into_view', 'wait_for', 'hover', 'scroll', 'focus', 'screenshot', 'peek']);
 import type { Skill, SkillStep } from './store.js';
 
 /** Executes one step against the live page, recording it; throws on failure. */
@@ -325,7 +328,12 @@ export async function replaySkill(
       // Record what this action put on the page (see `interacted`). Only for
       // non-read steps: a read observes, it does not set. The accessible name
       // of a clicked option ("Last 6 hours") is the value it selects.
-      if (!isRead) {
+      // Only a step that can SET or SELECT something counts. A scroll to the
+      // heading "Latency by endpoint" set nothing, but its target's name
+      // landed here and the later read of that heading was discounted as an
+      // echo — fwgr23 published two of three panel titles on every replay
+      // and objective 1 failed each time.
+      if (!isRead && !OBSERVATION_TOOLS.has(step.tool)) {
         for (const cand of chain) {
           const named = (cand as { name?: string; label?: string }).name ?? (cand as { name?: string; label?: string }).label;
           if (named && named.length >= MIN_ECHO_LEN) interacted.add(looseKey(named));
@@ -338,8 +346,9 @@ export async function replaySkill(
       }
     }
     // A typed/filled value is likewise something the skill put on the page.
-    if (!isRead && typeof args.value === 'string' && args.value.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.value));
-    if (!isRead && typeof args.text === 'string' && args.text.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.text));
+    const setsSomething = !isRead && !OBSERVATION_TOOLS.has(step.tool);
+    if (setsSomething && typeof args.value === 'string' && args.value.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.value));
+    if (setsSomething && typeof args.text === 'string' && args.text.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.text));
     if (resolveError) {
       if (isRead) {
         res.warnings.push(`step ${tag}: skipped read — ${resolveError}`);

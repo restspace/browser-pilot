@@ -834,3 +834,22 @@ describe('ignorableRefs (fwgr23 05-open)', () => {
     expect(ignorableRefs(['04.tag'], step, null)).toEqual([]);
   });
 });
+
+describe('input echoes are not outputs (fwgr23 05-open)', () => {
+  it("a later step quoting a value the earlier step's own instruction typed stays a constant, not a {{step.output}}", () => {
+    const entries: RecordedEntry[] = [
+      { k: 'step', tool: 'goto', args: { url: `${ORIGIN}/` }, locators: {} },
+      { k: 'instruction', text: "Open dashboard settings and add the tag 'bench'; report the tag and the time range shown.", url: `${ORIGIN}/d/x` },
+      { k: 'step', tool: 'fill', args: { target: '@e1', value: 'bench' }, locators: { target: { expr: 'x', verified: true, raw: '@e1', chain: [{ kind: 'label', label: 'Tags' }] } } },
+      { k: 'report', status: 'success', summary: 'Added tag bench; time range Last 6 hours.', values: { tag: 'bench', time_range: 'Last 6 hours' }, skill: 's_tag' },
+      { k: 'instruction', text: "Confirm the dashboard carries the tag bench and the range Last 6 hours, then set refresh to 1m.", url: `${ORIGIN}/d/x` },
+      { k: 'step', tool: 'click', args: { target: '@e2' }, locators: { target: { expr: 'x', verified: true, raw: '@e2', chain: [{ kind: 'role', role: 'button', name: '1m' }] } } },
+      { k: 'report', status: 'success', summary: 'Refresh set.', values: { refresh: '1m' }, skill: 's_refresh' },
+    ];
+    const flow = buildFlow(entries, { name: 'f', origin: ORIGIN, startUrl: `${ORIGIN}/`, vars: {}, session: 's' })!;
+    expect(flow.steps[1].instruction).toContain('tag bench');
+    expect(flow.steps[1].instruction).not.toContain('.tag}}');
+    // an observed value (the time range was read, not typed) still threads
+    expect(flow.steps[1].instruction).toContain(`{{${flow.steps[0].id}.time_range}}`);
+  });
+});

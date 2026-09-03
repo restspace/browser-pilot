@@ -293,6 +293,15 @@ export function buildFlow(
     for (const [output, value] of Object.entries(g.report?.values ?? {})) {
       if (typeof value !== 'string' || !value) continue;
       if (minted.some((m) => m.value === value)) continue;
+      // A value the step's own instruction handed it is an INPUT the report
+      // echoed, not something the step observed: a later step quoting it
+      // resolves the way this step did — a var, an earlier reference, or a
+      // constant of the flow — never through this step's output, which a
+      // tier-A replay has no read to republish. fwgr23 05-open referenced
+      // {{04-open.tag}} for the "bench" its own instruction typed; the
+      // zero-model replay of 04-open could not publish it, and 05-open went
+      // to the model on every replay (19–44 turns).
+      if (replaceToken(g.instruction.text, value, ' ') !== g.instruction.text) continue;
       // EVERY reported value becomes a reference. Run 1 makes no judgement
       // about which of them name a record, because it cannot: "New (unsaved)"
       // and "S00021" are both just strings a step reported, and the question
