@@ -175,6 +175,11 @@ export async function replaySkill(
   // echo (confirming the control, not app persistence); see echoedValues.
   // Loosely keyed so "Last 6 hours" matches "last 6 hours".
   const interacted = new Set<string>();
+  // A recorded dialog that did not open (see StepVerdict.absentDialog): while
+  // set, a step whose target cannot be found is skipped as belonging to that
+  // dialog rather than stopping the replay; cleared by the next step that
+  // resolves its target normally.
+  let absentDialog: string | null = null;
   const looseKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
   // Copy the caller's bindings: derived ({{dN}}) values minted mid-replay are
@@ -349,10 +354,16 @@ export async function replaySkill(
     const setsSomething = !isRead && !OBSERVATION_TOOLS.has(step.tool);
     if (setsSomething && typeof args.value === 'string' && args.value.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.value));
     if (setsSomething && typeof args.text === 'string' && args.text.length >= MIN_ECHO_LEN) interacted.add(looseKey(args.text));
+    if (!resolveError) absentDialog = null;
     if (resolveError) {
       if (isRead) {
         res.warnings.push(`step ${tag}: skipped read — ${resolveError}`);
         res.lines.push(`${head} → skipped (${resolveError})`);
+        return 'skipped';
+      }
+      if (absentDialog !== null) {
+        res.warnings.push(`step ${tag}: skipped — acts inside the dialog ${JSON.stringify(absentDialog)}, which did not open this time`);
+        res.lines.push(`${head} → skipped (dialog ${JSON.stringify(absentDialog)} did not open)`);
         return 'skipped';
       }
       // Navigation by recorded destination (PLAN-replay-v2 "order of
@@ -443,6 +454,7 @@ export async function replaySkill(
       if (!verdict) continue;
       if (verdict.warnings) res.warnings.push(...verdict.warnings);
       if (verdict.generalise) res.generalisations.push(verdict.generalise);
+      if (verdict.absentDialog !== undefined) absentDialog = verdict.absentDialog;
       if (verdict.stop) {
         res.failedAt = failIndex;
         res.reason = verdict.stop;
@@ -619,6 +631,13 @@ interface StepVerdict {
   warnings?: string[];
   generalise?: ReplayResult['generalisations'][number];
   stop?: string;
+  /**
+   * The recorded effect was a dialog opening and no dialog opened. A dialog
+   * is conditional UI — "Discard changes?" appears only when there are
+   * changes — so its absence is a legitimate state, not a failed effect; the
+   * steps that were going to act inside it are skipped (see runOneStep).
+   */
+  absentDialog?: string;
 }
 
 type StepGate = (g: StepGateInput) => Promise<StepVerdict | null> | StepVerdict | null;
@@ -696,6 +715,17 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
     // None of the recorded effects in the step diff — check the live page
     // before judging (a change can land outside the diff window).
     if (!(await presentOnPage(page, plain))) {
+      // The recorded effect was a dialog opening. A dialog is conditional
+      // UI: fwgr24's create step recorded "Exit edit" → "Discard changes to
+      // dashboard?" because the RECORDING had unsaved edits at that moment;
+      // a replay whose earlier steps saved cleanly has none, no dialog
+      // opens, and that is the app working — not the step failing. The
+      // steps that would have acted inside the dialog are skipped instead.
+      const dialog = plain.map((l) => /^-\s*dialog\s+"([^"]*)"/.exec(l)?.[1]).find((n) => n !== undefined);
+      if (dialog !== undefined) {
+        warnings.push(`step ${tag}: the recorded dialog ${JSON.stringify(dialog)} did not open — conditional UI, treated as absent; steps inside it will be skipped`);
+        return { warnings, absentDialog: dialog };
+      }
       return { warnings, stop: `after step ${tag} none of the ${plain.length} recorded page change(s) appeared (e.g. ${JSON.stringify(plain[0])}) — the step ran but did not have its recorded effect` };
     }
     warnings.push(`step ${tag}: none of the ${plain.length} expected page change(s) appeared in the step diff (found on the page instead)`);

@@ -234,6 +234,7 @@ function storeFrom(entries, known, valuesByInstruction) {
   return {
     get: (id) => skills.find((s) => s.id === id) ?? null,
     list: (origin) => skills.filter((s) => s.origin === origin),
+    all: () => skills,
   };
 }
 
@@ -281,6 +282,14 @@ for (const { runid, file } of sessions()) {
 
   const startUrl = startUrlOf(entries);
   const store = recompile ? storeFrom(entries, { runid }, valuesByInstruction) : published;
+  // REBUILD_STORE_DIR=<dir>: persist the recompiled skills as a real store, so
+  // a recording can be re-exported with the current engine and REPLAYED
+  // (pair with REBUILD_DUMP for the flow file) without paying for a new,
+  // model-driven recording of a different procedure.
+  if (process.env.REBUILD_STORE_DIR && recompile && store.all) {
+    const out = new SkillStore(process.env.REBUILD_STORE_DIR.replace('{runid}', runid));
+    for (const s of store.all()) out.put(s);
+  }
   if (startUrl && store) {
     const publishedOutputsOf = (id) => {
       const sk = store.get(id);
