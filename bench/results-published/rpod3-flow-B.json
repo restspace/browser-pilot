@@ -1,0 +1,357 @@
+{
+  "name": "fwod32",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new customer contact named exactly '{{runid}} Bench Customer' with City set to 'Benchville' (Sales app or Contacts app, whichever works). Verify the contact is saved and report its name and city as shown on the saved record.",
+      "skill": "s_4c1408",
+      "params": {
+        "v2": "{{runid}} Bench Customer",
+        "v3": "Benchville"
+      },
+      "outputs": [
+        "city",
+        "contact_name",
+        "record_id",
+        "record_url"
+      ],
+      "recorded": {
+        "city": "Benchville",
+        "contact_name": "fwod32-n1 Bench Customer",
+        "record_id": "44",
+        "record_url": "http://127.0.0.1:8069/web#menu_id=109&cids=1&action=156&model=res.partner&view_type=form&id=44"
+      },
+      "outputEvidence": {
+        "city": {
+          "same": 2,
+          "differed": 0
+        },
+        "contact_name": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In the Odoo Sales app, create a new quotation for the customer '{{runid}} Bench Customer' (choose the customer from the autocomplete dropdown). Add exactly ONE order line: pick any product from the product catalogue via the product dropdown, quantity 3. Save the quotation. Report: the product name you chose, the unit price the app filled in for that line, and the untaxed amount the quotation shows. Do not confirm the quotation yet.",
+      "skill": "s_4b74dc",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "customer_name",
+        "order_reference",
+        "product_name",
+        "quantity",
+        "record_id",
+        "tax_20_percent",
+        "total",
+        "unit_price",
+        "untaxed_amount",
+        "untaxed_amount_display",
+        "tax_display",
+        "total_display",
+        "tax_label",
+        "total_label"
+      ],
+      "recorded": {
+        "customer_name": "fwod32-n1 Bench Customer",
+        "order_reference": "S00021",
+        "product_name": "Customizable Desk",
+        "quantity": "3.00",
+        "record_id": "21",
+        "tax_20_percent": "£450.00",
+        "total": "£2,700.00",
+        "unit_price": "750.00",
+        "untaxed_amount": "£2,250.00",
+        "untaxed_amount_display": "£ 2,250.00",
+        "tax_display": "£ 450.00",
+        "total_display": "£ 2,700.00",
+        "tax_label": "TAX 20%",
+        "total_label": "Total"
+      },
+      "outputEvidence": {
+        "product_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "quantity": {
+          "same": 1,
+          "differed": 1
+        },
+        "unit_price": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "customer_name": {
+          "same": 0,
+          "differed": 1
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 1
+        },
+        "tax_display": {
+          "same": 0,
+          "differed": 1
+        },
+        "total_display": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open the existing quotation {{02-create.order_reference}} (for customer '{{runid}} Bench Customer') in the Odoo Sales app. Add a SECOND order line with a DIFFERENT product from the product catalogue (not '{{02-create.product_name}}'), quantity 2. Save. Report: the product name of the new second line, its unit price, and the new untaxed amount the quotation shows. Do not confirm the quotation.",
+      "skill": "s_3ba7f9",
+      "params": {
+        "v1": "{{02-create.order_reference}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-create.product_name}}"
+      },
+      "outputs": [
+        "order_reference",
+        "customer_name",
+        "second_line_product_name",
+        "second_line_unit_price",
+        "second_line_quantity",
+        "second_line_untaxed",
+        "untaxed_amount",
+        "tax_20_percent",
+        "total",
+        "untaxed_amount_display",
+        "tax_display",
+        "total_display",
+        "tax_label",
+        "total_label"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "customer_name": "fwod32-n1 Bench Customer",
+        "second_line_product_name": "[FURN_7777] Office Chair",
+        "second_line_unit_price": "70.00",
+        "second_line_quantity": "2.00",
+        "second_line_untaxed": "£140.00",
+        "untaxed_amount": "£2,390.00",
+        "tax_20_percent": "£478.00",
+        "total": "£2,868.00",
+        "untaxed_amount_display": "£ 2,390.00",
+        "tax_display": "£ 478.00",
+        "total_display": "£ 2,868.00",
+        "tax_label": "TAX 20%",
+        "total_label": "Total"
+      },
+      "outputEvidence": {
+        "customer_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "second_line_unit_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "second_line_quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount_display": {
+          "same": 0,
+          "differed": 2
+        },
+        "tax_display": {
+          "same": 0,
+          "differed": 2
+        },
+        "total_display": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 1
+        },
+        "tax_label": {
+          "same": 1,
+          "differed": 0
+        },
+        "total_label": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open quotation {{02-create.order_reference}} in the Odoo Sales app. Change the quantity of the FIRST order line (product '{{02-create.product_name}}') from 3 to 5. Save. Report the new untaxed amount the quotation shows (and the tax and total if visible). Do not confirm the quotation.",
+      "skill": "s_76b162",
+      "params": {
+        "v1": "{{02-create.order_reference}}",
+        "v2": "{{02-create.product_name}}"
+      },
+      "outputs": [
+        "order_reference",
+        "customizable_desk_quantity",
+        "customizable_desk_unit_price",
+        "customizable_desk_line_total",
+        "office_chair_quantity",
+        "office_chair_unit_price",
+        "office_chair_line_total",
+        "untaxed_amount",
+        "tax_20_percent",
+        "total",
+        "untaxed_amount_display",
+        "tax_display",
+        "total_display",
+        "untaxed_amount_label",
+        "tax_label",
+        "total_label"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "customizable_desk_quantity": "5.00",
+        "customizable_desk_unit_price": "750.00",
+        "customizable_desk_line_total": "£3,750.00",
+        "office_chair_quantity": "2.00",
+        "office_chair_unit_price": "70.00",
+        "office_chair_line_total": "£140.00",
+        "untaxed_amount": "£3,890.00",
+        "tax_20_percent": "£778.00",
+        "total": "£4,668.00",
+        "untaxed_amount_display": "£ 3,890.00",
+        "tax_display": "£ 778.00",
+        "total_display": "£ 4,668.00",
+        "untaxed_amount_label": "Untaxed Amount",
+        "tax_label": "TAX 20%",
+        "total_label": "Total"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "untaxed_amount_display": {
+          "same": 0,
+          "differed": 2
+        },
+        "tax_display": {
+          "same": 0,
+          "differed": 2
+        },
+        "total_display": {
+          "same": 0,
+          "differed": 2
+        },
+        "customizable_desk_quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "customizable_desk_unit_price": {
+          "same": 0,
+          "differed": 1
+        },
+        "office_chair_quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "office_chair_unit_price": {
+          "same": 1,
+          "differed": 0
+        },
+        "untaxed_amount_label": {
+          "same": 1,
+          "differed": 0
+        },
+        "tax_label": {
+          "same": 1,
+          "differed": 0
+        },
+        "total_label": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Open quotation {{02-create.order_reference}} in the Odoo Sales app and confirm it (click the Confirm button so it becomes a sales order). Report the order reference (its name, e.g. {{02-create.order_reference}}) and the status the app now shows on the order (e.g. 'Sales Order' / 'In Progress' or whatever the status bar displays). Do not cancel it yet.",
+      "skill": "s_47d5cc",
+      "params": {
+        "v1": "{{02-create.order_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "status",
+        "status_bar_text"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "status": "Sales Order (confirmed)",
+        "status_bar_text": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "status": {
+          "same": 0,
+          "differed": 1
+        },
+        "status_bar_text": {
+          "same": 1,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "Open the confirmed sales order {{02-create.order_reference}} in the Odoo Sales app and cancel it (use the Cancel action, confirming any dialog if one appears). Report the status the app shows on the order after cancelling (e.g. 'Cancelled' in the status bar).",
+      "outputs": [],
+      "recorded": {},
+      "adopted": true
+    },
+    {
+      "id": "07-open",
+      "instruction": "Open sales order {{02-create.order_reference}} in the Odoo Sales app and report the status shown in its status bar (e.g. 'Cancelled', 'Sales Order', etc.). Do not change anything — just read and report the current status. If it is not cancelled, cancel it via the Cancel action (confirming any dialog) and report the status afterwards.",
+      "skill": "s_7b3035",
+      "params": {
+        "v1": "{{02-create.order_reference}}"
+      },
+      "outputs": [
+        "order_reference",
+        "current_status",
+        "status_bar_text"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "current_status": "Cancelled",
+        "status_bar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "status_bar_text": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod32-n1",
+    "created": "2026-09-03T14:47:16.052Z"
+  }
+}
