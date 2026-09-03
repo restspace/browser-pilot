@@ -1,0 +1,151 @@
+{
+  "flow": "fwgr22",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin, skipped the change-password prompt, navigated to Dashboards, found and opened the provisioned \"Service health\" dashboard (in the \"Bench\" folder). The dashboard displays exactly three panels, with titles: **Request rate**, **Error count**, and **Latency by endpoint** — all confirmed from the live DOM.",
+      "values": {
+        "row_title": "Bench",
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count",
+        "panel_title_latency_by_endpoint": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_278d42; observed panel_titles=fwgr22-n2 Availability, dashboard_url=http://127.0.0.1:3000/d/ffx35k2thq800d/fwgr22-n2-bench-dashboard?from=now-6h&to=now&timezone=browser, dashboard_title=fwgr22-n2 Bench Dashboard.",
+      "values": {
+        "panel_titles": "fwgr22-n2 Availability",
+        "dashboard_url": "http://127.0.0.1:3000/d/ffx35k2thq800d/fwgr22-n2-bench-dashboard?from=now-6h&to=now&timezone=browser",
+        "dashboard_title": "fwgr22-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "22/22",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"fwgr22-n2 Notes\" to the \"fwgr22-n2 Bench Dashboard\" with markdown content \"Notes for run fwgr22-n2 - availability bench dashboard\". Saved the dashboard successfully (confirmed \"Dashboard saved\" alert). The dashboard now shows two panels: **fwgr22-n2 Availability** (Stat) and **fwgr22-n2 Notes** (Text). The Text panel renders the heading \"Notes for run fwgr22-n2 - availability bench dashboard\" as its content.",
+      "values": {
+        "dashboard_title": "fwgr22-n2 Bench Dashboard",
+        "panel_titles": "fwgr22-n2 Availability, fwgr22-n2 Notes",
+        "text_panel_content": "Notes for run fwgr22-n2 - availability bench dashboard",
+        "h2": "fwgr22-n2 Notes",
+        "h2_2": "fwgr22-n2 Availability"
+      },
+      "tier": "B",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_5f5ed9.",
+      "values": {},
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the dashboard time range to \"Last 6 hours\", saved with \"Update default time range\" checked, confirmed \"Dashboard saved\" alert. Reloaded the dashboard fresh at http://127.0.0.1:3000/d/ffx35k2thq800d and the time picker shows \"Last 6 hours\" — the range persisted correctly.",
+      "values": {
+        "time_picker_label": "Last 6 hours"
+      },
+      "tier": "B",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Set the dashboard auto-refresh interval to \"1m\", saved with \"Update default time range\" ticked, confirmed \"Dashboard saved\" alert. Reloaded the dashboard fresh at http://127.0.0.1:3000/d/ffx35k2thq800d and the refresh interval selector shows \"1m\" and the time picker shows \"Last 6 hours\" — both persisted correctly.",
+      "values": {
+        "refresh_interval_label": "1m",
+        "time_picker_label": "Last 6 hours"
+      },
+      "tier": "B",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "07-open",
+      "status": "blocked",
+      "summary": "recovery failed before completing: LLM HTTP 402: {\"error\":{\"message\":\"This request requires more credits, or fewer max_tokens. You requested up to 131072 tokens, but can only afford 102690. To increase, visit https://openrouter.ai/settings/credits and add more credits\",\"code\":402,\"metadata\":{\"limit_source\":\"openrouter_credits\",\"remed",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr22",
+      "step": "03-open",
+      "skill": "s_c723b7",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.save_confirmation_alert, 02-create.save_confirmation_alert",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx35k2thq800d/:id"
+    },
+    {
+      "flow": "fwgr22",
+      "step": "05-open",
+      "skill": "s_b247dd",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.save_confirmation_alert, 02-create.save_confirmation_alert",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx35k2thq800d/:id"
+    },
+    {
+      "flow": "fwgr22",
+      "step": "06-open",
+      "skill": "s_3396bb",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.save_confirmation_alert, 02-create.save_confirmation_alert",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx35k2thq800d/:id"
+    }
+  ],
+  "wallMs": 713651,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 76601,
+    "completionTokens": 1774,
+    "cachedTokens": 54016
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 639511,
+      "completionTokens": 6067,
+      "cachedTokens": 455424
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

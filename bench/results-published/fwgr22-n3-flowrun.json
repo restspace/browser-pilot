@@ -1,0 +1,153 @@
+{
+  "flow": "fwgr22",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin, skipped the change-password prompt, navigated to Dashboards, found and opened the provisioned \"Service health\" dashboard (in the \"Bench\" folder). The dashboard displays exactly three panels, with titles: **Request rate**, **Error count**, and **Latency by endpoint** — all confirmed from the live DOM.",
+      "values": {
+        "row_title": "Bench",
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count",
+        "panel_title_latency_by_endpoint": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_278d42; observed panel_titles=fwgr22-n3 Availability, dashboard_url=http://127.0.0.1:3000/d/dfx36mfdjy77ka/fwgr22-n3-bench-dashboard?from=now-6h&to=now&timezone=browser, dashboard_title=fwgr22-n3 Bench Dashboard.",
+      "values": {
+        "panel_titles": "fwgr22-n3 Availability",
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx36mfdjy77ka/fwgr22-n3-bench-dashboard?from=now-6h&to=now&timezone=browser",
+        "dashboard_title": "fwgr22-n3 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "22/22",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel titled \"fwgr22-n3 Notes\" to the dashboard with content including the runid string. Saved the dashboard successfully (\"Dashboard saved\" confirmation appeared). The dashboard now shows two panels: (1) \"fwgr22-n3 Notes\" with heading text \"Notes for run fwgr22-n3 - availability bench dashboard\" and paragraph text \"This panel records observations for run fwgr22-n3.\"; (2) \"fwgr22-n3 Availability\" (Stat panel, showing value 57.7).",
+      "values": {
+        "dashboard_title": "fwgr22-n3 Bench Dashboard",
+        "panel_title_notes": "fwgr22-n3 Notes",
+        "panel_title_availability": "fwgr22-n3 Availability",
+        "text_panel_rendered_heading": "Notes for run fwgr22-n3 - availability bench dashboard",
+        "text_panel_additional_content": "This panel records observations for run fwgr22-n3."
+      },
+      "tier": "B",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_5f5ed9.",
+      "values": {},
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the dashboard time range to \"Last 6 hours\", saved with \"Update default time range\" ticked, confirmed the \"Dashboard saved\" alert. After reloading the dashboard fresh with no from/to query parameters, the time picker in the top bar shows \"Last 6 hours\", confirming the range was persisted correctly.",
+      "values": {
+        "time_picker_label": "Last 6 hours",
+        "alert_text": "Dashboard saved"
+      },
+      "tier": "B",
+      "replayed": "17/17",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to '1m', saved the dashboard (with 'Update default time range' ticked), confirmed the 'Dashboard saved' alert, then reloaded fresh at /d/dfx36mfdjy77ka. After reload, the refresh interval selector shows \"1m\" and the time picker shows \"Last 6 hours\" — both persisted correctly.",
+      "values": {
+        "refresh_interval_label": "1m",
+        "time_picker_label": "Last 6 hours",
+        "alert_text": "Dashboard saved"
+      },
+      "tier": "B",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "07-open",
+      "status": "blocked",
+      "summary": "recovery failed before completing: LLM HTTP 402: {\"error\":{\"message\":\"This request requires more credits, or fewer max_tokens. You requested up to 128000 tokens, but can only afford 88472. To increase, visit https://openrouter.ai/settings/credits and add more credits\",\"code\":402,\"metadata\":{\"limit_source\":\"openrouter_credits\",\"remedy",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 7,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr22",
+      "step": "03-open",
+      "skill": "s_c723b7",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.save_confirmation_alert, 02-create.save_confirmation_alert",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx36mfdjy77ka/:id"
+    },
+    {
+      "flow": "fwgr22",
+      "step": "05-open",
+      "skill": "s_b247dd",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.save_confirmation_alert, 02-create.save_confirmation_alert",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx36mfdjy77ka/:id"
+    },
+    {
+      "flow": "fwgr22",
+      "step": "06-open",
+      "skill": "s_3396bb",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.save_confirmation_alert, 02-create.save_confirmation_alert",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx36mfdjy77ka/:id"
+    }
+  ],
+  "wallMs": 735265,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 100042,
+    "completionTokens": 1525,
+    "cachedTokens": 8704
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 677476,
+      "completionTokens": 5812,
+      "cachedTokens": 300800
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
