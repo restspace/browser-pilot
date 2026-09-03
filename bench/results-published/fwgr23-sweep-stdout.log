@@ -1,0 +1,102 @@
+
+[sweep] run 1/3: fwgr23-n1 (store: /home/user/sleep-walker/bench/results/fwgr23-skills)
+[harness] grafana: defaulting APP_URL
+[harness] grafana: defaulting APP_EMAIL
+[harness] grafana: defaulting APP_PASSWORD
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[harness] grafana responded 302 at http://127.0.0.1:3000/
+stopped: fwgr23-n1
+  flow "fwgr23" saved: 6 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwgr23.json
+  warning: warning: 92 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[2].instruction: "bench" (output) in "In Grafana, open the dashboard titled '{{runid}} Bench Dashboard' (find it via Dashboards browse if it is not already open). Add a NEW Text panel to it: use the"
+  flow.steps[2].params.v4: "bench" (output) in "Notes for run {{runid}} - bench dashboard created via automation."
+  flow.steps[3].instruction: "Last 6 hours" (output) in "In Grafana, on the dashboard titled '{{runid}} Bench Dashboard' (open it via Dashboards browse if not already open), do two things and save them together: (1) O"
+  flow.steps[3].instruction: "bench" (output) in "In Grafana, on the dashboard titled '{{runid}} Bench Dashboard' (open it via Dashboards browse if not already open), do two things and save them together: (1) O"
+  s_ff747b.steps[1].expect.urlPattern: "bench" (output) in "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  s_ee4b8f.preconditions.urlPattern: "bench" (output) in "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  s_ee4b8f.steps[0].expect.urlPattern: "bench" (output) in "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  s_c07127.reportTemplate.summary: "43.3" (output) in "Created a new dashboard in Grafana with a Stat panel using the TestData data source (default Random Walk scenario), titled the panel \"{{v2}}\", and saved the das"
+  s_c07127.reportTemplate.values.dashboard_uid: "bfx49jtc746bkb" (url) in "bfx49jtc746bkb"
+  s_c07127.reportTemplate.values.panel_value: "43.3" (output) in "43.3"
+  warning: {{04-open.tag}} (used by 05-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwgr23-n1 stop=completed
+turns=7 wall=1253.4s
+commands=6 cmdTime=1113.8s cmdBytes=3872 timeouts=0
+orchestrator in=12132 cw=0 cr=12608 out=8486
+inner prompt=1971122 cached=1337216 completion=14712
+spend=$0.1801 maxUsd=2
+learn: A_n=0 replayed=0/6 full=0 repaired=0 compiled=6 variants=0
+-> /home/user/sleep-walker/bench/results/fwgr23-n1-sleep-walker-result.json
+
+fwgr23-n1: objectives passed 6/6
+  obj 1: PASS — all 3 provisioned titles reported
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid bfx49jtc746bkb reported
+
+[sweep] run 2/3: fwgr23-n2 (replay flow fwgr23, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr23-n1 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr23-n2: 1 drift ticket(s) → fwgr23-n2-drift.json
+
+fwgr23-n2: objectives passed 4/6
+  obj 1: FAIL — finalText missing panel titles: Latency by endpoint
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: FAIL — refresh=undefined
+  obj 6: PASS — uid dfx4aj2mzndogd reported
+
+[sweep] run 3/3: fwgr23-n3 (replay flow fwgr23, no orchestrator)
+[reset] grafana: deleted leftover dashboard "fwgr23-n2 Bench Dashboard" (200)
+[reset] grafana: deleted leftover dashboard "Service Health" (400)
+[sweep] fwgr23-n3: 1 drift ticket(s) → fwgr23-n3-drift.json
+
+fwgr23-n3: objectives passed 5/6
+  obj 1: FAIL — finalText missing panel titles: Latency by endpoint
+  obj 2: PASS — type=stat, datasource ok=true
+  obj 3: PASS — type=text, content includes runid=true
+  obj 4: PASS — tags=["bench"], time=now-6h..now
+  obj 5: PASS — refresh="1m"
+  obj 6: PASS — uid cfx4ayh9eiy9sd reported
+
+Learning sweep fwgr23 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwgr23-n1' │ '6/6'    │ 'completed' │ 7     │ 6    │ 0.1801    │ 0   │ '0/6'        │ 1253   │
+│ 1       │ 2 │ 'fwgr23-n2' │ '4/6'    │ 'success'   │ 19    │ 6    │ 0.0059    │ 1   │ '6/6 (flow)' │ 286    │
+│ 2       │ 3 │ 'fwgr23-n3' │ '5/6'    │ 'success'   │ 44    │ 6    │ 0.1111    │ 1   │ '6/6 (flow)' │ 601    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:3000
+  s_27e601  validated    3 steps  3/3 (100%)
+           Open {{v1}} in the browser. If a login page appears, sign in with username 'admin' and password 'admin'; if a …
+  s_ff747b  validated    2 steps  3/3 (100%)
+           Open {{v1}} in the browser. If a login page appears, sign in with username 'admin' and password 'admin'; if a …
+  s_e0193c  validated    8 steps  3/3 (100%)
+           Open {{v1}} in the browser. If a login page appears, sign in with username 'admin' and password 'admin'; if a …
+  s_25ea81  validated    2 steps  3/3 (100%)
+           Open {{v1}} in the browser. If a login page appears, sign in with username 'admin' and password 'admin'; if a …
+  s_c9300d  validated    9 steps  3/3 (100%)
+           In Grafana, create a NEW dashboard: use the New/+ button and choose 'New dashboard' (a blank dashboard with an…
+  s_c07127  validated    4 steps  3/3 (100%)
+           In Grafana, create a NEW dashboard: use the New/+ button and choose 'New dashboard' (a blank dashboard with an…
+  s_ee4b8f  validated    2 steps  3/3 (100%)
+           In Grafana, create a NEW dashboard: use the New/+ button and choose 'New dashboard' (a blank dashboard with an…
+  s_a2ee26  validated   14 steps  3/3 (100%)
+           In Grafana, open the dashboard titled '{{v1}}' (find it via Dashboards browse if it is not already open). Add …
+  s_66bfaa  validated   11 steps  3/3 (100%)
+           In Grafana, on the dashboard titled '{{v1}}' (open it via Dashboards browse if not already open), do two thing…
+  s_c36577  validated    1 steps  3/3 (100%)
+           In the browser, report the exact URL of the currently open page (the Grafana dashboard '{{v1}}'). Read it from…
+  s_a11c2d  provisional 13 steps  1/1 (100%)
+           In Grafana, on the dashboard titled '{{v1}}' (open via Dashboards browse if needed): set the auto-refresh inte…
+  s_330d3c  provisional  8 steps  1/1 (100%)
+           In Grafana, on the dashboard titled '{{v1}} Bench Dashboard' (open via Dashboards browse if needed): set the a…
+  s_1d65c8  provisional 22 steps  1/1 (100%)
+           In Grafana, on the dashboard titled '{{v3}}' (open via Dashboards browse if needed): set the auto-refresh inte…
+store: /home/user/sleep-walker/bench/results/fwgr23-skills
+
+summary: /home/user/sleep-walker/bench/results/fwgr23-sweep.json

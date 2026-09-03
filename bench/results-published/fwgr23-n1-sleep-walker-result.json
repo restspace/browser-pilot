@@ -1,0 +1,103 @@
+{
+  "arm": "sleep-walker",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "b9ccbca"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwgr23-n1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 7,
+  "wallMs": 1253413,
+  "orchestrator": {
+    "input": 12132,
+    "cacheWrite": 0,
+    "cacheRead": 12608,
+    "output": 8486
+  },
+  "inner": {
+    "promptTokens": 1971122,
+    "cachedTokens": 1337216,
+    "completionTokens": 14712,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1819153,
+        "completionTokens": 13386,
+        "cachedTokens": 1210880,
+        "instructions": 6
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 151969,
+        "completionTokens": 1326,
+        "cachedTokens": 126336,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 6,
+      "offered": 3,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 70,
+      "compiled": 6,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 6,
+  "subcommands": {
+    "do": 6
+  },
+  "invocationCount": 6,
+  "commandMs": 1113769,
+  "commandBytes": 3872,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwgr23-skills",
+    "instructions": 6,
+    "offered": 3,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 70,
+    "compiled": 6,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Together",
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.0565,
+  "maxUsd": 2,
+  "spendUsd": 0.1801,
+  "finalText": "All objectives are complete. Final report:\n\n1. **DONE** — Panels on the provisioned `Service health` dashboard, in order: **Request rate**, **Error count**, **Latency by endpoint**.\n2. **DONE** — New dashboard **`fwgr23-n1 Bench Dashboard`** created and saved, containing a **Stat** panel titled **`fwgr23-n1 Availability`** whose query uses the **TestData** data source (default Random Walk scenario; panel displayed a live value, e.g. 43.3).\n3. **DONE** — The dashboard also contains a **Text** panel titled **`fwgr23-n1 Notes`** with content \"Notes for run fwgr23-n1 - bench dashboard created via automation.\" (includes the runid). Saved.\n4. **DONE** — Dashboard has the tag **`bench`** and its time range is **Last 6 hours**, saved with the save dialog's \"Update default time range\" box ticked so it persisted into the saved dashboard.\n5. **DONE** — Auto-refresh interval set to **1m** and saved (with the \"Update default refresh value\" box ticked).\n6. **DONE** — Dashboard URL read from the browser's page URL: **http://127.0.0.1:3000/d/bfx49jtc746bkb/fwgr23-n1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m** (UID: `bfx49jtc746bkb`).\n\nPersistence was verified by reloading the page after the final save: the top bar still showed \"Last 6 hours\" and \"1m\", the tag `bench` remained in settings, and both panels were present.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwgr23-n1-sleep-walker-transcript.jsonl"
+}
