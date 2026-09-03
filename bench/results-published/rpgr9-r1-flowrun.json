@@ -1,0 +1,51 @@
+{
+  "flow": "fwgr23",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Logged into Grafana as admin, skipped the password change prompt, navigated to the \"Service Health\" dashboard via the search menu, and identified all 3 panels on the dashboard. In order from top to bottom: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count",
+        "panel_title_latency_by_endpoint": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "failure",
+      "summary": "Created a new blank dashboard and configured the panel: selected TestData data source with Random Walk scenario, switched visualization to Stat, and set panel title to 'rpgr9-r1 Availability'. However, was unable to click the Save button in the toolbar before hitting the turn limit, so the dashboard was not saved with the name 'rpgr9-r1 Bench Dashboard'.",
+      "values": {},
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 30
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 323378,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 310762,
+    "completionTokens": 4154,
+    "cachedTokens": 255744
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 310762,
+      "completionTokens": 4154,
+      "cachedTokens": 255744
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

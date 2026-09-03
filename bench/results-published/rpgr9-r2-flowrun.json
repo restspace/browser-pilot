@@ -1,0 +1,148 @@
+{
+  "flow": "fwgr23",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Opened the Grafana instance at http://127.0.0.1:3000/, was already at the home page (the stored procedure had already completed step 1 - navigation). Navigated to the 'Service health' dashboard by clicking it from the breadcrumb/recent list. The dashboard displays 3 panels in order: (1) Request rate, (2) Error count, and (3) Latency by endpoint.",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "1/2",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created the dashboard \"rpgr9-r2 Bench Dashboard\" and verified it saved correctly. The dashboard contains a single panel with title \"rpgr9-r2 Availability\" as shown on screen. The panel uses the TestData data source, Stat visualization type, and shows a value (72.6 for the A-series scenario).",
+      "values": {
+        "dashboard_title": "rpgr9-r2 Bench Dashboard",
+        "panel_title": "rpgr9-r2 Availability"
+      },
+      "tier": "A",
+      "replayed": "13/14",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the \"rpgr9-r2 Bench Dashboard\" and added a new Text panel. Set the panel title to \"rpgr9-r2 Notes\" and entered markdown content reading \"Notes for run rpgr9-r2 - bench dashboard created via automation.\" Saved the dashboard (no default time range change). After saving, the dashboard shows both panels: \"rpgr9-r2 Availability\" (Stat, value 43.3) and \"rpgr9-r2 Notes\" (Text, displaying the notes content).",
+      "values": {
+        "panel_title": "rpgr9-r2 Notes",
+        "panel_content": "Notes for run rpgr9-r2 - bench dashboard created via automation.",
+        "dashboard_title": "rpgr9-r2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_66bfaa; observed dashboard_title=rpgr9-r2 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "dashboard_title": "rpgr9-r2 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "After steps 1-6 (set auto-refresh to 1m, saved with Update default time range ticked, page reloaded), all elements verified on the 'rpgr9-r2 Bench Dashboard': time range shows 'Last 6 hours', refresh picker shows '1m', tag 'bench' is persisted in dashboard settings, and both panels 'rpgr9-r2 Availability' (Stat showing 34.3) and 'rpgr9-r2 Notes' (displaying the markdown content) are present.",
+      "values": {
+        "dashboard_title": "rpgr9-r2 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "notes_panel_title": "rpgr9-r2 Notes",
+        "availability_panel_title": "rpgr9-r2 Availability",
+        "current_url": "http://127.0.0.1:3000/d/ffx4yvjrrdhc0c/rpgr9-r2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": "A",
+      "replayed": "6/13",
+      "repaired": false,
+      "turns": 27
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "The current page URL is http://127.0.0.1:3000/d/ffx4yvjrrdhc0c/rpgr9-r2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "current_url": "http://127.0.0.1:3000/d/ffx4yvjrrdhc0c/rpgr9-r2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr23",
+      "step": "01-open",
+      "skill": "s_25ea81",
+      "atStep": "2",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Username input field')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr23",
+      "step": "02-create",
+      "skill": "s_72aeb1",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_72aeb1 stopped at step 14 — after step 14 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Back to dashboard\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 14 none of the 5 recorded page change(s) appeared (e.g. \"- button \\\"Back to dashboard\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4zntbgbfnkb/new-dashboard"
+    },
+    {
+      "flow": "fwgr23",
+      "step": "05-open",
+      "skill": "s_a11c2d",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.998,
+      "missedLocator": "page.locator('\"rpgr9-r2 Bench Dashboard\"')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx49jtc746bkb/:id"
+    }
+  ],
+  "wallMs": 459445,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 695861,
+    "completionTokens": 11385,
+    "cachedTokens": 570880
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 695861,
+      "completionTokens": 11385,
+      "cachedTokens": 570880
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
