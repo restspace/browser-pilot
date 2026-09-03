@@ -12,9 +12,9 @@ bench/results-published/.
 
 ## Matrix 1 — first contact (success / cost / clock)
 
-sleep-walker cells are the set-24 recordings (2026-09-03, build b9ccbca:
+sleep-walker cells are the set-26 recordings (2026-09-03, build e048128:
 fresh goal, learning on, release 0.3.0 stack: glm-5.3 orchestrator,
-deepseek-v4-flash inner with glm-5.3 escalation), with the set-15 cell they
+deepseek-v4-flash inner with glm-5.3 escalation), with the set-24 cell they
 replaced in parentheses. agent-browser cells are the set-17 phase-A runs
 (2026-09-02, same commit era, glm-5.3). playwright-mcp and browser-use ran
 only in the v0.1 depth slice (repairdesk); those cells are quoted from
@@ -24,7 +24,7 @@ MATRIX-v0.1.md unchanged.
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 7/7 (7/7) | $0.14 ($0.04) | 1120s (495s) |
+| sleep-walker | 7/7 (7/7) | $0.09 ($0.14) | 819s (1120s) |
 | agent-browser | 6/6 | $0.19 | 67s |
 | playwright-mcp (v0.1, ×3) | 6/6, 6/6, 6/6 | $0.42–0.50 | ~275s median |
 | browser-use (v0.1, ×3) | 0/6, 0/6, 0/6 | $0.01–0.04 | ~154s median |
@@ -33,29 +33,29 @@ MATRIX-v0.1.md unchanged.
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 6/6 (6/6) | $0.07 ($0.05) | 1074s (398s) |
+| sleep-walker | 6/6 (6/6) | $0.04 ($0.07) | 385s (1074s) |
 | agent-browser | **2/6 (turn-cap)** | $0.77 | 118s |
 
 ### grafana (React SPA)
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 6/6 (6/6) | $0.18 ($0.75) | 1253s (1609s) |
+| sleep-walker | 6/6 (6/6) | $0.48 ($0.18) | 2037s (1253s) |
 | agent-browser | 6/6 | $1.05 | 448s |
 
 ### odoo (dense server-rendered CRUD)
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 6/6 (6/6) | $0.05 ($0.57) | 1094s (1827s) |
+| sleep-walker | 6/6 (6/6) | $0.59 ($0.05) | 1651s (1094s) |
 | agent-browser | 6/6 | $1.51 | 302s |
 
-(Set 24 recordings: the two heavy apps got 3–11× cheaper and ~30–40%
-faster than set 15; the two light apps got slower — repairdesk's 1120s
-holds one inner-model instruction that hit its 300s timeout after 16 turns
-and was rescued by the glm-5.3 escalation, $0.094 of the $0.14. Recording
-time is dominated by the inner model's latency, not the engine: fwrd40's
-eight instructions replayed in 17 seconds total.)
+(Set 26 recordings against set 24: the two light apps got cheaper and
+faster, the two heavy apps dearer and slower — a first-contact recording is
+a model-driven procedure and varies run to run; set 24's odoo and grafana
+recordings happened to be efficient ones, set 26's took longer paths.
+Recording time is dominated by the inner model's latency, not the engine:
+fwrd41's ten instructions replayed in 18 seconds total.)
 
 v0.1 corroboration for agent-browser (older build, K=3): odoo 6/6 ×3 at
 $0.93–1.07; grafana 6/6, 0/6 (spend-cap), 6/6 at $1.33–2.02; repairdesk
@@ -88,14 +88,30 @@ bench, plus the null option of just running the agent again:
 
 | target | sleep-walker (r1, r2) | agent-browser re-run | authored script (r1, r2) | codegen (r1, r2) |
 |---|---|---|---|---|
-| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 17s, 17s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
-| kanboard | **6/6, 6/6** · $0.010, $0.014 · 272s, 555s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
-| grafana | **6/6, 6/6** · ≈$0.01, ≈$0.08 · 151s, 272s (rpgr10; set 24 as recorded: 4/6, 5/6 · $0.006, $0.11 · 286s, 601s) | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
-| odoo | **6/6, 6/6** · $0.002, $0.002 · 175s, 248s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
+| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 18s, 18s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
+| kanboard | **6/6, 6/6** · $0.00, $0.00 · 21s, 21s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
+| grafana | **5/6, 5/6** · $0.18, $0.55 · 661s, 1864s (set 26 as recorded; the set-24 recording re-exported on the fixed engine, rpgr10: 6/6, 6/6 · ≈$0.01, ≈$0.08 · 151s, 272s) | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
+| odoo | **6/6, 6/6** · $0.16, $0.01 · 661s, 189s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
 
-(sleep-walker cells are set 24 — fwrd40, fwkb3, fwgr23, fwod31 on build
-b9ccbca, 2026-09-03 — replacing set 15 for repairdesk/kanboard/odoo and set
-23 (fwgr22) for grafana. Success is the sweep's inline verifier, run right
+(sleep-walker cells are set 26 — fwrd41, fwkb4, fwgr25, fwod32 on build
+e048128, 2026-09-03 — replacing set 24. Set 26 in one line: repairdesk and
+kanboard replay every step at tier A with zero model turns, 18s and 21s,
+$0.00; odoo verified 6/6 on all three runs but its replays paid 91 and 35
+turns where set 24 paid 6 — the fresh recording's sign-in navigated to the
+recording run's own action id (a minted value the compiler left literal
+after `=`) and expected a `cids` url key odoo did not add this time, both
+fixed on c64270f; grafana's fresh recording verified 6/6 and both replays
+5/6 at 96 and 184 turns — its sign-in's only recorded effect was a transient
+"Loading" status line (fixed on 46ace89), its create step went through a
+Cancel click on a dialog that does not recur, and objective 1 fails because
+that recording never read the provisioned panel titles back from the page,
+so a replay has nothing to republish. The grafana row therefore keeps the
+rpgr10 cell alongside: same task, the set-24 recording, re-exported by the
+fixed engine, 6/6 on both replays. What follows is the set-24 account,
+kept because its diagnosis is what the fixes above came from.
+
+Set 24 — fwrd40, fwkb3, fwgr23, fwod31 on build b9ccbca — replaced set 15
+for repairdesk/kanboard/odoo and set 23 (fwgr22) for grafana. Success is the sweep's inline verifier, run right
 after each replay; the post-sweep `*-verify.txt` files show earlier runs as
 "not found" only because the sweep resets the target between runs. kanboard
 replays: 4/4 app-state objectives verified plus both report-only objectives
@@ -202,6 +218,8 @@ odoo codegen: 8s to die on the Apps page).
   failure. Exit codes and the truth are uncorrelated in static replay; the
   success columns above are the verifier's, not the scripts'.
 
-Sets: 24 (fwrd40/fwkb3/fwgr23/fwod31 @ b9ccbca), 24b (rpkb1/rpgr7 @
-f727c89), 15 (fwrd39/fwkb2/fwgr19/fwod30 @ b12636a), 16 (cg\*), 17 (au\*)
-@ 2c5f427/a9ca517, v0.1 depth/breadth (d\*/b\*/agr\*).
+Sets: 26 (fwrd41/fwkb4/fwgr25/fwod32 @ e048128), 25 (fwgr24 @ 58579d3;
+rpgr9/rpgr10 re-exports @ 5c124dc/08cf104), 24 (fwrd40/fwkb3/fwgr23/fwod31
+@ b9ccbca), 24b (rpkb1/rpgr7 @ f727c89; rpgr8 @ 4b15bb4), 15
+(fwrd39/fwkb2/fwgr19/fwod30 @ b12636a), 16 (cg\*), 17 (au\*) @
+2c5f427/a9ca517, v0.1 depth/breadth (d\*/b\*/agr\*).

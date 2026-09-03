@@ -143,20 +143,20 @@ app-side verifier's count (mutation log, JSON-RPC or HTTP API state), never an a
 All cells are cloud runs on identical hardware, one box per target; full detail in
 [bench/MATRIX-SUMMARY.md](bench/MATRIX-SUMMARY.md).
 
-**Matrix 1 — first contact.** sleep-walker: set 24 (2026-09-03, build b9ccbca; glm-5.3
+**Matrix 1 — first contact.** sleep-walker: set 26 (2026-09-03, build e048128; glm-5.3
 orchestrator, deepseek-v4-flash inner with glm-5.3 escalation). agent-browser: set 17, same era,
 glm-5.3.
 
 | target | sleep-walker | agent-browser |
 |---|---|---|
-| repairdesk (in-repo SPA) | 7/7 · $0.14 · 1120s | 6/6 · $0.19 · 67s |
-| kanboard (PHP, drag-and-drop) | 6/6 · $0.07 · 1074s | **2/6 (turn-cap)** · $0.77 · 118s |
-| grafana (React SPA) | 6/6 · $0.18 · 1253s | 6/6 · $1.05 · 448s |
-| odoo (dense CRUD) | 6/6 · $0.05 · 1094s | 6/6 · $1.51 · 302s |
+| repairdesk (in-repo SPA) | 7/7 · $0.09 · 819s | 6/6 · $0.19 · 67s |
+| kanboard (PHP, drag-and-drop) | 6/6 · $0.04 · 385s | **2/6 (turn-cap)** · $0.77 · 118s |
+| grafana (React SPA) | 6/6 · $0.48 · 2037s | 6/6 · $1.05 · 448s |
+| odoo (dense CRUD) | 6/6 · $0.59 · 1651s | 6/6 · $1.51 · 302s |
 
 On first contact sleep-walker is the slowest arm on every target, by design: it drives a cheap
 inner model and spends the extra time recording verified locators, value provenance and effect
-expectations. What that buys is the lowest cost on every target (3–30× cheaper), a 25/25 objective
+expectations. What that buys is the lowest cost on every target (2–19× cheaper), a 25/25 objective
 record including the board that turn-capped agent-browser at 2/6, and the recording that makes
 Matrix 2 exist.
 
@@ -166,10 +166,10 @@ from its own run, and against literal codegen from the recording.
 
 | target | sleep-walker replay (r1, r2) | agent re-run | authored script | codegen |
 |---|---|---|---|---|
-| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 17s, 17s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
-| kanboard | **6/6, 6/6** · $0.010, $0.014 · 272s, 555s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
-| grafana | **6/6, 6/6** · ≈$0.01, ≈$0.08 · 151s, 272s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
-| odoo | **6/6, 6/6** · $0.002, $0.002 · 175s, 248s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
+| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 18s, 18s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
+| kanboard | **6/6, 6/6** · $0.00, $0.00 · 21s, 21s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
+| grafana | 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s (set 26); **6/6, 6/6** · ≈$0.01, ≈$0.08 · 151s, 272s (set-24 recording re-exported on the fixed engine) | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
+| odoo | **6/6, 6/6** · $0.16, $0.01 · 661s, 189s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
 
 Set 24 also caught two engine regressions of its own (kanboard's replays at 22 and 37 turns
 where set 15 needed none; grafana's replays losing objective 1 and recovering one step at 19 and
