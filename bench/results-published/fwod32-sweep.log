@@ -1,0 +1,144 @@
+
+[sweep] run 1/3: fwod32-n1 (store: /home/user/sleep-walker/bench/results/fwod32-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod32-n1
+  flow "fwod32" saved: 7 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwod32.json
+  warning: note: 1 step(s) adopted from non-success instruction(s) whose work the session continued from (06-open) — they replay model-first with doubled budget, and a non-success there does not halt the flow
+  warning: warning: 127 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "Benchville" (output) in "Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new customer contact named exactly '{{runid}} Bench Customer'"
+  flow.steps[0].params.v4: "Benchville" (output) in "Benchville"
+  flow.steps[5].instruction: "Cancelled" (output) in "Open the confirmed sales order {{02-create.order_reference}} in the Odoo Sales app and cancel it (use the Cancel action, confirming any dialog if one appears). "
+  flow.steps[6].instruction: "Cancelled" (output) in "Open sales order {{02-create.order_reference}} in the Odoo Sales app and report the status shown in its status bar (e.g. 'Cancelled', 'Sales Order', etc.). Do n"
+  s_2b5d89.reportTemplate.summary: "44" (url) in "Signed in to Odoo 17 as admin, then created a new contact in the Contacts app: name \"{{v3}}\" with City \"{{v4}}\". The record saved as res.partner id=44 (URL show"
+  s_2b5d89.reportTemplate.values.record_id: "44" (url) in "44"
+  s_2b5d89.reportTemplate.values.record_url: "http://127.0.0.1:8069/web#menu_id=109&cids=1&action=156&model=res.partner&view_type=form&id=44" (output) in "http://127.0.0.1:8069/web#menu_id=109&cids=1&action=156&model=res.partner&view_type=form&id=44"
+  s_2b5d89.reportTemplate.values.record_url: "44" (url) in "http://127.0.0.1:8069/web#menu_id=109&cids=1&action=156&model=res.partner&view_type=form&id=44"
+  s_c5a14d.steps[4].expect.urlPattern: "account.move" (url) in "http://127.0.0.1:8069/web#action={{d5}}&menu_id={{d6}}&model=account.move&view_type=list"
+  s_be18a0.preconditions.urlPattern: "account.move" (url) in "http://127.0.0.1:8069/web#action={{d5}}&menu_id={{d6}}&model=account.move&view_type=list"
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwod32-n1 stop=completed
+turns=8 wall=1651.3s
+commands=7 cmdTime=1626.2s cmdBytes=14402 timeouts=0
+orchestrator in=7223 cw=0 cr=33312 out=1161
+inner prompt=3718482 cached=3029632 completion=26452
+spend=$0.5876 maxUsd=2
+learn: A_n=0 replayed=0/7 full=0 repaired=0 compiled=6 variants=0
+-> /home/user/sleep-walker/bench/results/fwod32-n1-sleep-walker-result.json
+
+fwod32-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod32-n2 (replay flow fwod32, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod32-n2: 8 drift ticket(s) → fwod32-n2-drift.json
+
+fwod32-n2: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00022
+
+[sweep] run 3/3: fwod32-n3 (replay flow fwod32, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod32-n3: 8 drift ticket(s) → fwod32-n3-drift.json
+
+fwod32-n3: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod32 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod32-n1' │ '6/6'    │ 'completed' │ 8     │ 7    │ 0.5876    │ 0   │ '0/7'        │ 1651   │
+│ 1       │ 2 │ 'fwod32-n2' │ '6/6'    │ 'success'   │ 91    │ 7    │ 0.1618    │ 1   │ '7/7 (flow)' │ 661    │
+│ 2       │ 3 │ 'fwod32-n3' │ '6/6'    │ 'success'   │ 35    │ 7    │ 0.0119    │ 1   │ '7/7 (flow)' │ 189    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_86fad0  validated    2 steps  3/3 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_7e4944  validated    1 steps  3/3 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_22b9c0  validated   11 steps  3/3 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_4c1408  validated    2 steps  3/3 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_c18752  demoted      3 steps  1/3 (33%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_3ba7f9  validated   17 steps  3/3 (100%)
+           Open the existing quotation {{v1}} (for customer '{{v2}}') in the Odoo Sales app. Add a SECOND order line with…
+  s_76b162  validated   17 steps  2/3 (67%)
+           Open quotation {{v1}} in the Odoo Sales app. Change the quantity of the FIRST order line (product '{{v2}}') fr…
+  s_47d5cc  validated    3 steps  3/3 (100%)
+           Open quotation {{v1}} in the Odoo Sales app and confirm it (click the Confirm button so it becomes a sales ord…
+  s_7b3035  validated    2 steps  3/3 (100%)
+           Open sales order {{v1}} in the Odoo Sales app and report the status shown in its status bar (e.g. 'Cancelled',…
+  s_4effdb  validated    1 steps  2/2 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose the customer from the autocomp…
+  s_add80e  validated   17 steps  2/2 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose the customer from the autocomp…
+  s_0d8f02  validated    3 steps  2/2 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v2}}' (choose the customer from the autocomp…
+  s_75e47d  validated   16 steps  2/2 (100%)
+           Open the confirmed sales order in the Odoo Sales app and cancel it (use the Cancel action, confirming any dial…
+  s_8e8b00  provisional  1 steps  1/1 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_afce02  provisional  1 steps  1/1 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_2b5d89  provisional  4 steps  1/1 (100%)
+           Sign in to Odoo 17 at {{v2}} with username admin and password admin. Then create a new customer contact named …
+  s_4b74dc  provisional  3 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_b96a40  provisional  6 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_3cc784  provisional  3 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_c5a14d  provisional  5 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_be18a0  provisional  2 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_b97fc2  provisional  1 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_fc39f6  provisional 21 steps  1/1 (100%)
+           In the Odoo Sales app, create a new quotation for the customer '{{v1}}' (choose the customer from the autocomp…
+  s_92f9ea  provisional  1 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_cb09ca  provisional  3 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_64c807  provisional  1 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_900def  provisional  3 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_3954d4  provisional  2 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_34fe63  provisional  1 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_6e8af8  provisional  3 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_bf6d7b  provisional  1 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_6dd9a8  provisional  3 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_1cf499  provisional  2 steps  1/1 (100%)  variant of s_c18752
+           Sign in to Odoo 17 at http://127.0.0.1:8069/ with username admin and password admin. Then create a new custome…
+  s_3a6d99  provisional 18 steps  1/1 (100%)  variant of s_76b162
+           Open quotation in the Odoo Sales app. Change the quantity of the FIRST order line (product '') from 3 to 5. Sa…
+store: /home/user/sleep-walker/bench/results/fwod32-skills
+
+summary: /home/user/sleep-walker/bench/results/fwod32-sweep.json

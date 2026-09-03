@@ -1,0 +1,100 @@
+[
+  {
+    "flow": "fwod32",
+    "step": "01-signin",
+    "skill": "s_c18752",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_c18752 stopped at step 3 — after step 3 expected url http://127.0.0.1:8069/web#action=135&cids=1&menu_id=120 but browser is at http://127.0.0.1:8069/web#action=:id&menu_id=:id",
+    "reason": "after step 3 expected url http://127.0.0.1:8069/web#action=135&cids=1&menu_id=120 but browser is at http://127.0.0.1:8069/web#action=:id&menu_id=:id",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id"
+  },
+  {
+    "flow": "fwod32",
+    "step": "03-open",
+    "skill": "s_3ba7f9",
+    "atStep": "13",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 2,390.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "03-open",
+    "skill": "s_3ba7f9",
+    "atStep": "14",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 478.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "03-open",
+    "skill": "s_3ba7f9",
+    "atStep": "15",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 2,868.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "04-open",
+    "skill": "s_76b162",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.product_name, 02-create.order_reference, 02-create.product_name",
+    "reason": "after step 1 the page did not show \"- combobox \\\"Type to find a product...\\\": Corner Desk Left Sit\" / \"- textbox \\\"\\\": [FURN_0096] Corner Desk Left Sit (Steel, White) 160x80cm, with large legs.\" as it did when recorded — the step ran but probably acted on the wrong element",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "05-open",
+    "skill": "s_47d5cc",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference, 02-create.order_reference",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "06-open",
+    "skill": "s_75e47d",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('S00022', { exact: true }).nth(1)",
+    "fallbackUsed": "page.locator('div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > h1 > div > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "07-open",
+    "skill": "s_7b3035",
+    "similarity": 0.999,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  }
+]
