@@ -1,4 +1,4 @@
-# sleep-walker vs the field — the two matrices that matter (2026-09-02)
+# sleep-walker vs the field — the two matrices that matter (2026-09-03)
 
 Two questions decide whether this tool earns its place, and each gets one
 matrix. **First contact**: given a goal it has never seen, how does
@@ -12,9 +12,10 @@ bench/results-published/.
 
 ## Matrix 1 — first contact (success / cost / clock)
 
-sleep-walker cells are the set-15 recordings (fresh goal, learning on,
-current release 0.3.0 stack: glm-5.3 orchestrator, deepseek-v4-flash inner
-with glm-5.3 escalation). agent-browser cells are the set-17 phase-A runs
+sleep-walker cells are the set-24 recordings (2026-09-03, build b9ccbca:
+fresh goal, learning on, release 0.3.0 stack: glm-5.3 orchestrator,
+deepseek-v4-flash inner with glm-5.3 escalation), with the set-15 cell they
+replaced in parentheses. agent-browser cells are the set-17 phase-A runs
 (2026-09-02, same commit era, glm-5.3). playwright-mcp and browser-use ran
 only in the v0.1 depth slice (repairdesk); those cells are quoted from
 MATRIX-v0.1.md unchanged.
@@ -23,7 +24,7 @@ MATRIX-v0.1.md unchanged.
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 7/7 | $0.04 | 495s |
+| sleep-walker | 7/7 (7/7) | $0.14 ($0.04) | 1120s (495s) |
 | agent-browser | 6/6 | $0.19 | 67s |
 | playwright-mcp (v0.1, ×3) | 6/6, 6/6, 6/6 | $0.42–0.50 | ~275s median |
 | browser-use (v0.1, ×3) | 0/6, 0/6, 0/6 | $0.01–0.04 | ~154s median |
@@ -32,22 +33,29 @@ MATRIX-v0.1.md unchanged.
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 6/6 | $0.05 | 398s |
+| sleep-walker | 6/6 (6/6) | $0.07 ($0.05) | 1074s (398s) |
 | agent-browser | **2/6 (turn-cap)** | $0.77 | 118s |
 
 ### grafana (React SPA)
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 6/6 | $0.75 | 1609s |
+| sleep-walker | 6/6 (6/6) | $0.18 ($0.75) | 1253s (1609s) |
 | agent-browser | 6/6 | $1.05 | 448s |
 
 ### odoo (dense server-rendered CRUD)
 
 | arm | verified | cost | wall |
 |---|---|---|---|
-| sleep-walker | 6/6 | $0.57 | 1827s |
+| sleep-walker | 6/6 (6/6) | $0.05 ($0.57) | 1094s (1827s) |
 | agent-browser | 6/6 | $1.51 | 302s |
+
+(Set 24 recordings: the two heavy apps got 3–11× cheaper and ~30–40%
+faster than set 15; the two light apps got slower — repairdesk's 1120s
+holds one inner-model instruction that hit its 300s timeout after 16 turns
+and was rescued by the glm-5.3 escalation, $0.094 of the $0.14. Recording
+time is dominated by the inner model's latency, not the engine: fwrd40's
+eight instructions replayed in 17 seconds total.)
 
 v0.1 corroboration for agent-browser (older build, K=3): odoo 6/6 ×3 at
 $0.93–1.07; grafana 6/6, 0/6 (spend-cap), 6/6 at $1.33–2.02; repairdesk
@@ -80,52 +88,88 @@ bench, plus the null option of just running the agent again:
 
 | target | sleep-walker (r1, r2) | agent-browser re-run | authored script (r1, r2) | codegen (r1, r2) |
 |---|---|---|---|---|
-| repairdesk | **7/7, 7/7** · $0.004, $0.003 · 80s, 83s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
-| kanboard | **6/6, 6/6** · $0.00, $0.00 · 19s, 19s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
-| grafana | **6/6, 6/6** · $0.016, $0.025 · 714s, 735s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
-| odoo | **6/6, 6/6** · $0.49, $0.04 · 1215s, 598s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
+| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 17s, 17s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
+| kanboard | **6/6, 6/6** · $0.010, $0.014 · 272s, 555s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
+| grafana | **4/6, 5/6** · $0.006, $0.11 · 286s, 601s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
+| odoo | **6/6, 6/6** · $0.002, $0.002 · 175s, 248s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
 
-(kanboard sleep-walker replays: 4/4 app-state objectives verified plus both
-report-only objectives answered from the flow's own step reports — scored
-6/6 here; the codegen arm cannot answer report objectives at all. The grafana
-row is set 23 (fwgr22, build 1d5be69). It replaced set 21's fwgr21 cell of
-5/6, 5/6 · $0.014, $0.003 · 274s, 109s, whose miss was objective 6: the flow
-had no way to publish the dashboard uid, since every read needed a DOM
-element — `read what=url` closed that. All three fwgr22 runs verified 6/6 by
-the sweep's inline verifier (bench/results-published/fwgr22-sweep.json; the
-post-sweep fwgr22-verify.txt shows n1/n2 as "dashboard not found" only
-because the sweep resets the target between runs). Both replays HALTED at
-step 7 — a report-only final-verification step, after all six objectives
-were persisted — on an OpenRouter HTTP 402 (account credits), which is why
-the walls are 714s/735s rather than fwgr21's 274s/109s: that includes the
-failed recovery. Steps 01/02/04 replayed at tier A with 0 turns; 03/05/06
-replayed their skills in full but through 2–3 cheap-model turns each,
-because the tier-A replay of 02-create publishes the uid as `dashboard_url`
-rather than under the recording's `dashboard_uid` name — an unthreaded
-reference, not drift. Earlier intermediate runs: fwgr2[01]-*, rpgr[2-6]-*.)
+(sleep-walker cells are set 24 — fwrd40, fwkb3, fwgr23, fwod31 on build
+b9ccbca, 2026-09-03 — replacing set 15 for repairdesk/kanboard/odoo and set
+23 (fwgr22) for grafana. Success is the sweep's inline verifier, run right
+after each replay; the post-sweep `*-verify.txt` files show earlier runs as
+"not found" only because the sweep resets the target between runs. kanboard
+replays: 4/4 app-state objectives verified plus both report-only objectives
+answered from the flow's own step reports — scored 6/6, as in set 15; the
+codegen arm cannot answer report objectives at all.
+
+What moved, and why. repairdesk converged: both replays ran all eight steps
+at tier A with zero model turns in 17 seconds (set 15 spent ~12 turns
+re-deriving its first step). odoo's recovery cascade is gone: 182 and 121
+turns fell to 6 and 6, all in the sign-in step, whose second recorded click
+does not show its recorded page changes within the gate. kanboard and
+grafana REGRESSED against their previous cells (0 turns/19s; 6/6, 6/6),
+and every cause was engine-side, introduced by the correctness pass that
+b9ccbca carries (f24bdf9) or exposed by it: a slot used only in a recorded
+expectation had become a required param bound by origin, so a skill whose
+origin value was not published refused to bind at all (grafana 05-open at
+19 and 44 turns; kanboard-n3 03-create at 14); kanboard's due-date textbox
+is named after the current clock minute, so the fill's expectation could
+never match (12–23 turns per replay); a column name published with a
+trailing space was an identity marker compared byte-for-byte (kanboard
+03-create refused on n2); and grafana renders its third panel heading only
+on scroll, so the replay read two titles and objective 1 failed on both
+replays. The rebuild gate (test/rebuild.test.ts) had measured the first of
+these — fwod27 38→32 and fwgr14 20→18 cross-step refs — but ran against a
+stale dist/ and passed. All four are fixed on f727c89 (0d59158, 24ac868,
+f727c89: expectation slots re-inlined rather than parameterised; clock and
+calendar tokens masked at compile and replay; whitespace-insensitive
+identity; an unresolved reference the pinned procedure cannot use no longer
+skips tier A; one page sweep before a read is skipped; the gate refuses a
+dist older than src). The set-24b rows below replay the SAME set-24 flows
+and stores on f727c89, which is the only clean A/B of those fixes; set 24's
+own cells stand as recorded. Earlier intermediate runs: fwgr2[0-2]-*,
+rpgr[2-6]-*.)
+
+### Set 24b — the same flows on the fixed build (replay-only A/B)
+
+| target | set 24 replays (b9ccbca) | set 24b replays (f727c89) |
+|---|---|---|
+| kanboard (fwkb3 flow, rpkb1) | 22 and 37 turns · 272s, 555s · $0.010, $0.014 | **0 and 0 turns · 56s, 56s · $0.00** · 4/4 app-state objectives both; every step tier A |
+| grafana (fwgr23 flow, rpgr7) | 4/6, 5/6 · 19 and 44 turns · 286s, 601s | 4/6, 6/6 · 23 and 56 turns · 399s, 815s — not fixed by f727c89; see below |
+
+(rpgr7 showed the two grafana fixes on f727c89 had the wrong diagnosis. The
+third panel title was never a scroll problem: the recording's own
+scroll_into_view to that heading put its name in the set of values the skill
+"set", so the later read of it was discounted as an echo and dropped. And
+05-open's blank `{{04-open.tag}}` is bound to a param the skill DOES use —
+the tag word also sits in the dashboard url slug — so the "unused reference"
+rule could not apply; the real defect is that the flow referenced, as
+04-open's output, a value 04-open's own instruction had typed. Both fixed on
+4b15bb4: only a step that can set or select something contributes to the
+echo set, and a report value that echoes the step's own instruction is an
+input, not an output. The second is a flow-export rule and needs a fresh
+recording to show; the first applies to the stored skills as they are, and
+rpgr8 replays the same fwgr23 flow on 4b15bb4 to measure it.)
 
 **Reading it**: the static scripts are free and mostly wrong (14/48 verified
 objectives for the strongest of them, and odoo's authored script confirmed an
 **empty order and left it active** — the wrong-record class sleep-walker's
 effect gates exist to kill). Re-running the agent is reliable and costs the
 full price forever — $1.05–1.51 per repeat on the heavy apps. sleep-walker's
-replays verify 26/26 objectives at $0.00 where the flow has converged
-(repairdesk, kanboard — 19–83 seconds a run) and at $0.02–0.49 where recovery
-still fires (grafana, odoo — the convergence trend line: odoo fell from
-$0.49 to $0.04 between its two replays, grafana from $0.14/$0.25 at set 15 to
-$0.016/$0.025 here). The recurring cost of a known flow
-trends to zero without the correctness trending anywhere. On the clock: sleep-walker's wall and cost columns are the same metric in
-disguise — both measure how much model the replay still needed. A converged
-replay (zero model turns) runs at the engine's floor of ~20–30s and is the
-fastest *correct* repeat on record: kanboard 19s here, and repairdesk's
-previous sweep (fwrd38) replayed at 27s with 0 turns — 2.5–6× faster than
-re-running the agent. The slower cells above are un-converged flows paying
-for recovery turns: fwrd39's 80s includes ~12 turns re-deriving its first
-step (a tracked recording-quality regression), and grafana/odoo carry
-74–182 turns from the two open drift defects — falling with the cost as
-repair folds them in (odoo 1215s → 598s, 182 → 121 turns). The statics'
-short walls elsewhere are mostly time-to-crash, not time-to-done (grafana
-authored: 17s to die at login; odoo codegen: 8s to die on the Apps page).
+set-24 replays verify 47/50 objectives; the three misses are grafana's, all
+from the engine defects named above, not from drift in the app. Where the
+flow has converged the repeat is free and fast — repairdesk at $0.00 and 17
+seconds, 4× faster than re-running the agent and the fastest *correct*
+repeat on record; odoo, the densest app in the set, at $0.002 and 3–4
+minutes, down from $0.49/$0.04 and 20/10 minutes in set 15. sleep-walker's
+wall and cost columns are the same metric in disguise — both measure how
+much model the replay still needed — and a converged replay runs at the
+engine's floor of ~20s. The recurring cost of a known flow trends to zero
+without the correctness trending anywhere, and when it does not (kanboard
+and grafana here) the cause has each time been a specific, testable engine
+rule rather than the app. The statics' short walls elsewhere are mostly
+time-to-crash, not time-to-done (grafana authored: 17s to die at login;
+odoo codegen: 8s to die on the Apps page).
 
 ## Conditions and caveats, so the numbers stay honest
 
@@ -142,5 +186,6 @@ authored: 17s to die at login; odoo codegen: 8s to die on the Apps page).
   failure. Exit codes and the truth are uncorrelated in static replay; the
   success columns above are the verifier's, not the scripts'.
 
-Sets: 15 (fwrd39/fwkb2/fwgr19/fwod30), 16 (cg\*), 17 (au\*), v0.1 depth/breadth
-(d\*/b\*/agr\*). Commits: set 15 @ b12636a, sets 16–17 @ 2c5f427/a9ca517.
+Sets: 24 (fwrd40/fwkb3/fwgr23/fwod31 @ b9ccbca), 24b (rpkb1/rpgr7 @
+f727c89), 15 (fwrd39/fwkb2/fwgr19/fwod30 @ b12636a), 16 (cg\*), 17 (au\*)
+@ 2c5f427/a9ca517, v0.1 depth/breadth (d\*/b\*/agr\*).
