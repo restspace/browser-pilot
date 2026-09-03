@@ -1,0 +1,182 @@
+{
+  "name": "fwgr26",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:3000/ in the browser and sign in with username admin and password admin (if a 'change password' prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use search if needed) and report the exact titles of all panels shown on that dashboard, exactly as displayed.",
+      "skill": "s_a0dc8b",
+      "params": {
+        "v1": "http://127.0.0.1:3000/"
+      },
+      "outputs": [
+        "panel_titles"
+      ],
+      "recorded": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint"
+      },
+      "outputEvidence": {
+        "panel_titles": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In Grafana at 127.0.0.1:3000, create a NEW dashboard. Add a Stat visualization panel. Set the panel title to exactly '{{runid}} Availability'. Set its data source to 'TestData' (the TestData DB data source) and leave the default scenario query. Then save the dashboard with the title exactly '{{runid}} Bench Dashboard' (save it, confirming any folder/name dialog). Report what you did and the panel title shown after saving.",
+      "skill": "s_ad7881",
+      "params": {
+        "v2": "{{runid}} Availability",
+        "v3": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "dashboard_title",
+        "data_source",
+        "panel_title",
+        "visualization"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr26-n1 Bench Dashboard",
+        "data_source": "TestData",
+        "panel_title": "fwgr26-n1 Availability",
+        "visualization": "Stat"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "data_source": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "On the currently open dashboard '{{runid}} Bench Dashboard' in Grafana, add a new Text panel. Set its title to exactly '{{runid}} Notes' and set its text content to include the runid '{{runid}}' (e.g. 'Notes for run {{runid}}'). Apply the edit, then explicitly SAVE the dashboard (confirm the save dialog). Report the panel title and text content shown after saving.",
+      "skill": "s_530cf0",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "Text",
+        "v4": "{{runid}} Notes",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "panel_title",
+        "panel_content_text",
+        "dashboard_title"
+      ],
+      "recorded": {
+        "panel_title": "fwgr26-n1 Notes",
+        "panel_content_text": "Notes for run fwgr26-n1",
+        "dashboard_title": "fwgr26-n1 Bench Dashboard"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "On the currently open dashboard '{{runid}} Bench Dashboard' in Grafana: open the dashboard settings (gear icon) and add the tag 'bench' to the dashboard's tags (in the General settings section), then save the settings. Then set the dashboard's time range to 'Last 6 hours' using the time picker in the top bar, and SAVE the dashboard via the save dialog, making sure to TICK the 'Update default time range' checkbox in the save dialog so the 6-hour range is persisted into the saved dashboard. Report the tag shown in settings and the time range shown in the top bar after saving.",
+      "skill": "s_3c3c0f",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "bench"
+      },
+      "outputs": [
+        "tag",
+        "time_range"
+      ],
+      "recorded": {
+        "tag": "bench",
+        "time_range": "Last 6 hours"
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "On the currently open dashboard '{{runid}} Bench Dashboard' in Grafana: set the auto-refresh interval to '1m' using the refresh picker in the top bar (the dropdown next to the refresh button — choose 1m as the selected interval). Then SAVE the dashboard via the save dialog, ticking the 'Update default time range' checkbox if present, and confirm the 'Dashboard saved' alert. After saving, RELOAD the page (navigate to the dashboard URL again) and report: the selected auto-refresh interval shown in the refresh picker, the time range shown in the top bar, and the dashboard's URL from the browser address bar.",
+      "skill": "s_08fe8f",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "auto_refresh_interval",
+        "time_range",
+        "url"
+      ],
+      "recorded": {
+        "auto_refresh_interval": "1m",
+        "time_range": "Last 6 hours",
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/fwgr26-n1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "outputEvidence": {
+        "time_range": {
+          "same": 1,
+          "differed": 0
+        },
+        "url": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "On the currently open dashboard at http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard, verify and report: (1) the dashboard title shown in the breadcrumb, (2) the exact titles of all panels on the dashboard, (3) the time range shown in the top bar, (4) the selected auto-refresh interval in the refresh picker, and (5) open dashboard settings (gear icon) and report the tags listed for the dashboard, then close settings. Do not change anything.",
+      "skill": "s_1903aa",
+      "params": {
+        "v1": "{{02-create.url.p1}}",
+        "v2": "{{runid}}-bench-dashboard",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "breadcrumb_title",
+        "panel_titles",
+        "time_range",
+        "auto_refresh_interval",
+        "tags",
+        "breadcrumb_full_path",
+        "notes_panel_title",
+        "availability_panel_title"
+      ],
+      "recorded": {
+        "breadcrumb_title": "fwgr26-n1 Bench Dashboard",
+        "panel_titles": "fwgr26-n1 Notes, fwgr26-n1 Availability",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench",
+        "breadcrumb_full_path": "Home\nDashboards\nfwgr26-n1 Bench Dashboard",
+        "notes_panel_title": "fwgr26-n1 Notes",
+        "availability_panel_title": "fwgr26-n1 Availability"
+      },
+      "outputEvidence": {
+        "panel_titles": {
+          "same": 0,
+          "differed": 1
+        },
+        "auto_refresh_interval": {
+          "same": 1,
+          "differed": 0
+        },
+        "tags": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr26-n1",
+    "created": "2026-09-03T21:56:55.602Z"
+  }
+}

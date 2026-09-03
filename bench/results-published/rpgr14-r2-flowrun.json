@@ -1,0 +1,70 @@
+{
+  "flow": "fwgr26",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin (skipped the change-password prompt by clicking Skip), navigated to the \"Service health\" dashboard, and found exactly 3 panels displayed on it.",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "read5": "Request rate",
+        "read6": "Error count",
+        "read7": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "blocked",
+      "summary": "Turn cap (45) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": "A",
+      "replayed": "0/14",
+      "repaired": false,
+      "turns": 75
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "02-create",
+      "skill": "s_2aa1e0",
+      "similarity": 0.371,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_2aa1e0 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at chrome-error://chromewebdata/) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:3000/dashboard/new, browser is at chrome-error://chromewebdata/) — nothing was run",
+      "pageUrlPattern": "chrome-error://chromewebdata/"
+    }
+  ],
+  "wallMs": 401398,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 896059,
+    "completionTokens": 10149,
+    "cachedTokens": 815872
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 304842,
+      "completionTokens": 4148,
+      "cachedTokens": 256512
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 591217,
+      "completionTokens": 6001,
+      "cachedTokens": 559360
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
