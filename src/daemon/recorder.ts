@@ -32,6 +32,17 @@ export type LocatorCandidate = (
    * own identity — every later step then worked the wrong ticket.
    */
   | { kind: 'scoped'; container: string; hasText: string; selector?: string }
+  /**
+   * Where the element WAS: its box in document coordinates and the viewport
+   * it was recorded in, plus the role (or tag) it had. Last in every chain.
+   * Two jobs: the element under the recorded point, walked up to its
+   * actionable ancestor, is a final candidate that stands only when its role
+   * matches — a locator, not a blind click; and the box is the yardstick a
+   * positional guess is measured against (see resolveChain's plausible):
+   * rpgr13's structural fallback resolved a header button when the recorded
+   * control sat in the editor's side pane, and nothing could say so.
+   */
+  | { kind: 'point'; x: number; y: number; w: number; h: number; role: string | null; tag: string; vw: number; vh: number }
 ) & {
   nth?: number;
   /**
@@ -84,8 +95,73 @@ export function makeLocator(page: Page, c: LocatorCandidate): Locator {
       loc = c.selector ? within.locator(c.selector) : within;
       break;
     }
+    case 'point':
+      // Resolved in two moves: markPoint() finds the element under the
+      // recorded point and tags it; this locator then names the tag.
+      loc = page.locator(`[${POINT_MARK}=${JSON.stringify(pointToken(c))}]`);
+      break;
   }
   return c.nth !== undefined ? loc.nth(c.nth) : loc;
+}
+
+/** The attribute markPoint leaves on the element it found, so a sync Locator can name it. */
+export const POINT_MARK = 'data-sleep-walker-point';
+export function pointToken(c: { x: number; y: number }): string {
+  return `${c.x},${c.y}`;
+}
+
+/**
+ * Find the element under a recorded point, walk up to its actionable
+ * ancestor, and tag it for makeLocator — but only when it is the KIND of
+ * thing recorded (same role, or same tag when the recording had no role).
+ * Returns what it found, or null when nothing of that kind is there. Scrolls
+ * the window so the point is on screen first; a point in an inner scroller
+ * is found only when that scroller sits where it was recorded.
+ */
+export async function markPoint(page: Page, c: Extract<LocatorCandidate, { kind: 'point' }>): Promise<{ role: string | null; tag: string } | null> {
+  try {
+    return await page.evaluate(
+      ({ x, y, role, tag, mark, token }) => {
+        const ACTIONABLE = 'button,a[href],input,select,textarea,summary,[role],[tabindex],label';
+        const targetY = y - window.innerHeight / 2;
+        if (Math.abs(window.scrollY - targetY) > window.innerHeight / 2 || x - window.scrollX > window.innerWidth) {
+          window.scrollTo(Math.max(0, x - window.innerWidth / 2), Math.max(0, targetY));
+        }
+        const hit = document.elementFromPoint(x - window.scrollX, y - window.scrollY);
+        if (!hit) return null;
+        const el = (hit.closest(ACTIONABLE) as Element | null) ?? hit;
+        const tagOf = el.tagName.toLowerCase();
+        const type = (el.getAttribute('type') || '').toLowerCase();
+        const implicit = (): string | null => {
+          if (tagOf === 'button') return 'button';
+          if (tagOf === 'a') return el.hasAttribute('href') ? 'link' : null;
+          if (tagOf === 'select') return el.hasAttribute('multiple') ? 'listbox' : 'combobox';
+          if (tagOf === 'textarea') return 'textbox';
+          if (tagOf === 'img') return 'img';
+          if (/^h[1-6]$/.test(tagOf)) return 'heading';
+          if (tagOf === 'input') {
+            if (type === 'checkbox') return 'checkbox';
+            if (type === 'radio') return 'radio';
+            if (type === 'submit' || type === 'button' || type === 'reset') return 'button';
+            if (type === 'search') return 'searchbox';
+            if (type === 'number') return 'spinbutton';
+            if (['text', 'email', 'tel', 'url', 'password', ''].includes(type)) return 'textbox';
+            return null;
+          }
+          return null;
+        };
+        const roleOf = el.getAttribute('role') || implicit();
+        const same = role ? roleOf === role : tagOf === tag;
+        if (!same) return null;
+        for (const old of Array.from(document.querySelectorAll(`[${mark}]`))) old.removeAttribute(mark);
+        el.setAttribute(mark, token);
+        return { role: roleOf, tag: tagOf };
+      },
+      { x: c.x, y: c.y, role: c.role, tag: c.tag, mark: POINT_MARK, token: pointToken(c) },
+    );
+  } catch {
+    return null;
+  }
 }
 
 /** Source text for a candidate, e.g. `page.getByRole('button', { name: 'Save' })`. */
@@ -114,6 +190,9 @@ export function candidateExpr(c: LocatorCandidate): string {
     case 'scoped':
       expr = `page.locator(${q(c.container)}, { hasText: ${q(c.hasText)} })` + (c.selector ? `.locator(${q(c.selector)})` : '');
       break;
+    case 'point':
+      expr = `elementAt(${c.x}, ${c.y}) /* ${c.role ?? c.tag} */`;
+      break;
   }
   return c.nth !== undefined ? `${expr}.nth(${c.nth})` : expr;
 }
@@ -131,7 +210,7 @@ export function candidateExpr(c: LocatorCandidate): string {
  */
 export function positionalExpr(expr: string): boolean {
   if (/hasText:/.test(expr)) return false;
-  return /nth-of-type|nth-child|>>\s*nth=|\.nth\(/.test(expr) || (expr.match(/>/g) ?? []).length > 2;
+  return /^elementAt\(/.test(expr) || /nth-of-type|nth-child|>>\s*nth=|\.nth\(/.test(expr) || (expr.match(/>/g) ?? []).length > 2;
 }
 
 /**
@@ -570,6 +649,9 @@ interface ElementInfo {
    * input's own attributes churning while still naming a REGION.
    */
   anchor: { attr: string; value: string } | null;
+  /** The element's box in document coordinates (viewport rect + scroll), null when it has no layout. */
+  box: { x: number; y: number; w: number; h: number } | null;
+  viewport: { w: number; h: number };
 }
 
 interface Candidate {
@@ -829,6 +911,10 @@ async function readBackFromHandle(page: Page, handle: ElementHandle<Node>, v: st
     if (candidateIdentity(candidate.spec) === v) continue;
     // Same uniqueness rule as verifiedChain: an ambiguous anchor is not identity.
     if (candidate.spec.kind === 'scoped' && (await candidate.make(page).count().catch(() => 0)) !== 1) continue;
+    if (candidate.spec.kind === 'point') {
+      chain.push(candidate.spec);
+      continue;
+    }
     const loc = candidate.make(page);
     const match = await matchIndex(loc, handle);
     if (match === null) continue;
@@ -984,7 +1070,9 @@ async function verifiedChain(
     // at replay, where ambiguity in the primary reads as drift — so prove it
     // singles the record out HERE, while the page that produced it is live.
     if (candidate.spec.kind === 'scoped' && (await candidate.make(page).count().catch(() => 0)) !== 1) continue;
-    if (winner) {
+    // The point is where the element IS, so it always "matches"; it is never
+    // the winner because it names no element, only a place.
+    if (winner || candidate.spec.kind === 'point') {
       chain.push(candidate.spec);
       continue;
     }
@@ -1056,6 +1144,11 @@ function candidatesFor(info: ElementInfo): Candidate[] {
     out.push(cand({ kind: 'css', selector: `[${info.anchor.attr}=${JSON.stringify(info.anchor.value)}] ${info.tag}` }));
   }
   out.push(cand({ kind: 'css', selector: info.cssPath }));
+  // Where it was, last of all — see LocatorCandidate 'point'.
+  if (info.box) {
+    const { x, y, w, h } = info.box;
+    out.push(cand({ kind: 'point', x: Math.round(x + w / 2), y: Math.round(y + h / 2), w, h, role: info.role, tag: info.tag, vw: info.viewport.w, vh: info.viewport.h }));
+  }
   return out;
 }
 
@@ -1288,6 +1381,13 @@ function describeInPage(node: Node): ElementInfo {
     cssPath: cssPath(),
     row: rowOf(),
     anchor: anchorOf(),
+    box: (() => {
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return null;
+      const round = (n: number) => Math.round(n * 10) / 10;
+      return { x: round(r.left + window.scrollX), y: round(r.top + window.scrollY), w: round(r.width), h: round(r.height) };
+    })(),
+    viewport: { w: window.innerWidth, h: window.innerHeight },
   };
 }
 

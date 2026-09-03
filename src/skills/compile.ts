@@ -646,7 +646,7 @@ function occursAsToken(text: string, value: string): boolean {
  * on its own for a read that names a record.
  */
 function positional(c: LocatorCandidate): boolean {
-  return c.kind === 'css' || c.nth !== undefined;
+  return c.kind === 'css' || c.kind === 'point' || c.nth !== undefined;
 }
 
 export function stranded(c: LocatorCandidate, runValues: string[]): boolean {

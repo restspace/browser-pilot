@@ -180,7 +180,10 @@ d('repair on the fixture page (closed loop)', () => {
   it('dead chain → patchSegment stores a verified provisional variant that replays', async () => {
     const page = await session.getPage();
     await page.goto(fixtureUrl);
-    // remove the recorded control entirely and provide a differently-named stand-in
+    // remove the recorded control entirely and provide a differently-named
+    // stand-in SOMEWHERE ELSE: a renamed control in the same place is found
+    // by the chain's point candidate (where it was, same kind), which is the
+    // geometry rung doing its job — a dead chain needs the place gone too.
     await page.evaluate(() => {
       const old = document.getElementById('qty')!;
       const input = document.createElement('input');
@@ -188,8 +191,10 @@ d('repair on the fixture page (closed loop)', () => {
       input.type = 'number';
       input.setAttribute('data-testid', 'quantity');
       const label = document.createElement('label');
+      label.style.cssText = 'display:block;margin-top:1500px';
       label.append('Amount ', input);
-      old.closest('label')!.replaceWith(label);
+      old.closest('label')!.remove();
+      document.body.append(label);
     });
     const drifted = await run('run_skill', { id: skill.id, params: { v1: 'Ada', v2: '7' } });
     expect(drifted.replay?.ok).toBe(false);

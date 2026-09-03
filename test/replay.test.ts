@@ -110,6 +110,14 @@ d('skill replay (fixture page)', () => {
     const chain = skill.steps[2].locators.target;
     expect(chain[0]).toEqual({ kind: 'role', role: 'button', name: 'Submit' });
     expect(chain.some((c) => c.kind === 'id' && c.selector === '#submit')).toBe(true);
+    // and where it was, last of all: a box in document coordinates plus the viewport
+    const last = chain[chain.length - 1];
+    expect(last.kind).toBe('point');
+    if (last.kind === 'point') {
+      expect(last.role).toBe('button');
+      expect(last.w).toBeGreaterThan(0);
+      expect(last.vw).toBeGreaterThan(0);
+    }
     expect(skill.steps[4].label).toBe('banner');
     // the wait_for text carries the slot too, so a new name is waited for, not the old one
     expect(skill.steps[3].args.text).toBe('Saved {{v1}}');
@@ -1048,6 +1056,62 @@ d('identity-scoped locators (fixture page)', () => {
     await page.evaluate(() => document.querySelector('[data-testid="toggle-viz-picker"]')?.remove());
     const bare = await resolveChain(page, chain, { waitMs: 0 });
     expect(bare?.index).toBe(1);
+  }, 30_000);
+
+  /**
+   * Geometry as a locator kind. The element under a recorded point, walked
+   * up to its actionable ancestor, is a final candidate — accepted only when
+   * it is the KIND of thing recorded, so it is a locator, not a blind click.
+   */
+  it('resolves a point candidate to the actionable element there, only if the role matches', async () => {
+    const { resolveChain } = await import('../src/skills/replay.js');
+    const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    const geom = await page.evaluate(() => {
+      const b = document.getElementById('submit')!;
+      const r = b.getBoundingClientRect();
+      return { x: Math.round(r.left + r.width / 2 + window.scrollX), y: Math.round(r.top + r.height / 2 + window.scrollY), w: r.width, h: r.height, vw: window.innerWidth, vh: window.innerHeight };
+    });
+    const asButton: LocatorCandidate[] = [
+      { kind: 'role', role: 'button', name: 'Gone' },
+      { kind: 'point', ...geom, role: 'button', tag: 'button' },
+    ];
+    const hit = await resolveChain(page, asButton, { waitMs: 0 });
+    expect(hit?.index).toBe(1);
+    expect(await hit!.locator.getAttribute('id')).toBe('submit');
+    // the same place, but the recording had a link there: not the same kind
+    const asLink: LocatorCandidate[] = [{ kind: 'point', ...geom, role: 'link', tag: 'a' }];
+    expect(await resolveChain(page, asLink, { waitMs: 0 })).toBeNull();
+  }, 30_000);
+
+  /**
+   * rpgr13: `div > … > button` resolved a header button for a control that
+   * sat in the editor's side pane. With the recorded box in the chain, a
+   * positional guess that lands far from it is a different element.
+   */
+  it('refuses a structural guess that resolves far from the recorded box', async () => {
+    const { resolveChain } = await import('../src/skills/replay.js');
+    const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    const geom = await page.evaluate(() => {
+      const far = document.createElement('div');
+      far.id = 'far';
+      far.style.cssText = 'position:absolute;top:3000px;left:0';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'Docs';
+      far.append(b);
+      document.body.append(far);
+      const r = document.getElementById('submit')!.getBoundingClientRect();
+      return { x: Math.round(r.left + r.width / 2 + window.scrollX), y: Math.round(r.top + r.height / 2 + window.scrollY), w: r.width, h: r.height, vw: window.innerWidth, vh: window.innerHeight };
+    });
+    const chain: LocatorCandidate[] = [
+      { kind: 'testid', attr: 'data-testid', value: 'toggle-viz-picker' }, // not on this page
+      { kind: 'css', selector: '#far > button:nth-of-type(1)' }, // resolves at once, 3000px away
+      { kind: 'point', ...geom, role: 'button', tag: 'button' },
+    ];
+    const hit = await resolveChain(page, chain, { waitMs: 0 });
+    expect(hit?.index).toBe(2);
+    expect(await hit!.locator.getAttribute('id')).toBe('submit');
+    expect(hit?.missed).toContain(1);
   }, 30_000);
 
   it('takes identity from anywhere in the chain, not just its head', async () => {

@@ -2,7 +2,7 @@ import type { Locator, Page } from 'playwright-core';
 import { clip } from '../shared/text.js';
 import { captureSignature } from '../daemon/diff.js';
 import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
-import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
+import { candidateExpr, makeLocator, markPoint, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
 import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
 import { TRANSIENT_LINE, WILDCARD, fillParams, fillParamsDeep, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
@@ -854,6 +854,7 @@ export interface ElementSpec {
  */
 export function structural(c: LocatorCandidate): boolean {
   if (c.nth !== undefined) return true;
+  if (c.kind === 'point') return true; // where it was, not what it is
   if (c.kind !== 'css') return false;
   return /[>+~]|:nth-/.test(c.selector);
 }
@@ -1006,14 +1007,43 @@ export async function resolveChain(
    * the pass that actually resolved is evidence about the locators, because
    * only then do we know the element was there to be found.
    */
+  // The recorded geometry, when the chain carries it: the yardstick a guess
+  // is measured against. A structural fallback that resolves far from where
+  // the recorded element sat is a different element — rpgr13's `div > … >
+  // button` took a header button for a control in the editor's side pane.
+  const recordedBox = candidates.find((c): c is Extract<LocatorCandidate, { kind: 'point' }> => c.kind === 'point') ?? null;
+  const plausible = async (locator: Locator): Promise<boolean> => {
+    if (!recordedBox) return true;
+    try {
+      const box = await locator.first().boundingBox();
+      if (!box) return true; // nothing to measure — let the other guards judge
+      const scroll = await page.evaluate(() => ({ x: window.scrollX, y: window.scrollY }));
+      const cx = box.x + box.width / 2 + scroll.x;
+      const cy = box.y + box.height / 2 + scroll.y;
+      const limit = Math.max(recordedBox.vw, recordedBox.vh) / 3;
+      return Math.hypot(cx - recordedBox.x, cy - recordedBox.y) <= limit;
+    } catch {
+      return true;
+    }
+  };
   const walk = async (): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate; missed: number[] } | null> => {
     const missed: number[] = [];
     for (const { index, candidate } of ordered) {
       try {
+        // A point names a place; find what is there (of the recorded kind)
+        // before a locator can name it.
+        if (candidate.kind === 'point' && !(await markPoint(page, candidate))) {
+          missed.push(index);
+          continue;
+        }
         const locator = makeLocator(page, candidate);
         const count = await locator.count();
         if (count === 1) {
           if (!(await keepsIdentity(index, candidate, locator))) {
+            missed.push(index);
+            continue;
+          }
+          if ((index > 0 || structural(candidate)) && candidate.kind !== 'point' && !(await plausible(locator))) {
             missed.push(index);
             continue;
           }

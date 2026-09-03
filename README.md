@@ -42,7 +42,10 @@ sleep-walker's answer is to treat the recording as evidence to compile, not text
 - **Durable locators with fallbacks.** Each action stores a chain of candidates — role and name,
   label, test id, a structural path last — and records which ones actually resolved on each replay,
   so a volatile candidate is retired by measurement, not by guesswork. A click on a table row is
-  retargeted to the record's own link, whose name is its identifier.
+  retargeted to the record's own link, whose name is its identifier. Each chain ends with where
+  the element was: its box and the viewport. That box is the yardstick a positional guess is
+  measured against, and, when every name has failed, the element at that point is taken as a last
+  candidate only if it is the same kind of control. A locator, never a blind click.
 - **Parameters, not literals.** Values you typed become slots. Values you *declared* (`var
   runid=k7`) become `{{runid}}`. A value one step read back and a later step used becomes
   `{{step.output}}`, threaded live between steps. A record id that first appeared in a url after a
