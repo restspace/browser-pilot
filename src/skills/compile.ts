@@ -1028,13 +1028,21 @@ export function urlPart(url: string, label: string): string | undefined {
   return urlParts(url).find((p) => p.label === label)?.value;
 }
 
+/** Page lines that describe the page in transit (spinners, progress bars), never a step's lasting effect. */
+export const TRANSIENT_LINE = /^-?\s*(status|progressbar)\b/;
+
 function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExpectation | undefined {
   if (!step.diff) return undefined;
   const out: StepExpectation = {};
   if (step.diff.url) out.urlPattern = urlPattern(step.diff.url, slots);
   if (step.diff.alerts[0]) out.alertContains = substitute(step.diff.alerts[0], slots).slice(0, 120);
   if (step.diff.added.length) {
-    out.addedContains = step.diff.added.slice(0, MAX_ADDED_LINES).map((l) => maskVolatile(substitute(l, slots)).slice(0, 120));
+    // A status or progress indicator is the page in transit, not where the
+    // step left it: fwgr25's sign-in recorded `- status "Loading"` as its
+    // click's only page change, and every replay — which caught the page
+    // after the spinner — stopped there and recovered for 24 turns.
+    const lasting = step.diff.added.filter((l) => !TRANSIENT_LINE.test(l));
+    if (lasting.length) out.addedContains = lasting.slice(0, MAX_ADDED_LINES).map((l) => maskVolatile(substitute(l, slots)).slice(0, 120));
   }
   return Object.keys(out).length ? out : undefined;
 }

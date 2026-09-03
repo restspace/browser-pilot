@@ -182,6 +182,21 @@ describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => 
     const s = compileSkill({ entries, instruction: text, report: listReport, session: 's', model: 'm', now: '2026-09-03T00:00:00Z' })!;
     expect(s.steps[1].label).toBe('panel_titles');
   });
+  it('a transient status or progress line is never a recorded effect (fwgr25 sign-in)', () => {
+    const text = 'Sign in and open the board.';
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text, url: `${ORIGIN}/`, fingerprint: [1, 0, 0] },
+      step('click', { target: '@e3' }, [{ kind: 'role', role: 'button', name: 'Sign in' }], {
+        diff: { url: `${ORIGIN}/home`, alerts: [], added: ['- status "Loading"'] },
+      }),
+      step('click', { target: '@e4' }, [{ kind: 'role', role: 'link', name: 'Board' }], {
+        diff: { url: `${ORIGIN}/home`, alerts: [], added: ['- progressbar', '- heading "Board"'] },
+      }),
+    ];
+    const s = compileSkill({ entries, instruction: text, report, session: 's', model: 'm', now: '2026-09-03T00:00:00Z' })!;
+    expect(s.steps[0].expect?.addedContains).toBeUndefined();
+    expect(s.steps[1].expect?.addedContains).toEqual(['- heading "Board"']);
+  });
   it('a minted url part is rewritten in a navigation url at its own position only (fwod32 sign-in)', () => {
     const minted = [
       { name: 'd2', value: '135', at: 'q.action' },

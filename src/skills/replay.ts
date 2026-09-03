@@ -5,7 +5,7 @@ import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
 import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
-import { WILDCARD, fillParams, fillParamsDeep, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
+import { TRANSIENT_LINE, WILDCARD, fillParams, fillParamsDeep, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
 
 /** Tools that look at or move to an element without setting or choosing anything. */
 const OBSERVATION_TOOLS = new Set(['scroll_into_view', 'wait_for', 'hover', 'scroll', 'focus', 'screenshot', 'peek']);
@@ -696,8 +696,12 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
   const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
   // maskVolatile at replay too, so a store compiled before masking existed
   // (every skill recorded up to set 24) stops failing on the recording's clock.
-  let parameterised = step.expect.addedContains.filter(isParam).map((l) => fillParams(maskVolatile(l), params));
-  const plain = step.expect.addedContains.filter((l) => !isParam(l)).map((l) => fillParams(maskVolatile(l), params));
+  // Transient lines (spinners, progress bars) are dropped here too, so a
+  // store compiled before TRANSIENT_LINE existed stops failing on them.
+  const lines = step.expect.addedContains.filter((l) => !TRANSIENT_LINE.test(l));
+  if (!lines.length) return null;
+  let parameterised = lines.filter(isParam).map((l) => fillParams(maskVolatile(l), params));
+  const plain = lines.filter((l) => !isParam(l)).map((l) => fillParams(maskVolatile(l), params));
   // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
   // change: its own echo in a same-role element is what the wrong element
   // produces too (see consequentialExpectations). When the echo is all the
