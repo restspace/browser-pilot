@@ -168,7 +168,7 @@ from its own run, and against literal codegen from the recording.
 |---|---|---|---|---|
 | repairdesk | **7/7, 7/7** · $0.00, $0.00 · 17s, 17s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
 | kanboard | **6/6, 6/6** · $0.010, $0.014 · 272s, 555s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
-| grafana | **4/6, 5/6** · $0.006, $0.11 · 286s, 601s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
+| grafana | **6/6, 6/6** · ≈$0.01, ≈$0.08 · 151s, 272s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
 | odoo | **6/6, 6/6** · $0.002, $0.002 · 175s, 248s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
 
 Set 24 also caught two engine regressions of its own (kanboard's replays at 22 and 37 turns
@@ -181,7 +181,17 @@ The clean A/B is to replay the same set-24 flows and stores on the fixed build (
 | target | set 24 replays (b9ccbca) | set 24b replays (f727c89) |
 |---|---|---|
 | kanboard | 22 and 37 turns · 272s, 555s | **0 and 0 turns · 56s, 56s** · 4/4 app-state objectives both |
-| grafana | 4/6, 5/6 · 19 and 44 turns | 5/6, 5/6 · 30 and 30 turns on 4b15bb4 — objective 1 fixed (all three titles read at tier A); step 05 still recovers on the model until the flow is re-recorded, and that recovery does not persist the refresh setting |
+| grafana | 4/6, 5/6 · 19 and 44 turns | **6/6, 6/6** · 29 and 44 turns · 151s, 272s on 08cf104, with the same recording's flow re-exported by the fixed engine (one export rule needed that) and paired with its replay-refined store |
+
+The grafana row shows the shape of most of this work: the set-24 grafana
+cell as recorded was 4/6 and 5/6, and each miss was a rule in the engine
+(a read discounted as an echo of a recorded scroll; a flow that referenced
+a typed value as another step's output). Fixing the rules and re-exporting
+the same recording gives 6/6 on both replays. A fresh recording between the
+two (fwgr24) happened to take a worse path through an accidental "Discard
+changes?" dialog and replayed badly until that too became a rule (a recorded
+dialog that does not open is conditional UI). Full detail, including the
+runs that did not work, is in [bench/MATRIX-SUMMARY.md](bench/MATRIX-SUMMARY.md).
 
 Reading it: static scripts are free and mostly wrong; re-running the agent is reliable and costs
 the full price forever; sleep-walker's repeat cost trends to zero without the correctness trending

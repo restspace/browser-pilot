@@ -90,7 +90,7 @@ bench, plus the null option of just running the agent again:
 |---|---|---|---|---|
 | repairdesk | **7/7, 7/7** · $0.00, $0.00 · 17s, 17s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
 | kanboard | **6/6, 6/6** · $0.010, $0.014 · 272s, 555s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
-| grafana | **4/6, 5/6** · $0.006, $0.11 · 286s, 601s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
+| grafana | **6/6, 6/6** · ≈$0.01, ≈$0.08 · 151s, 272s (rpgr10; set 24 as recorded: 4/6, 5/6 · $0.006, $0.11 · 286s, 601s) | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
 | odoo | **6/6, 6/6** · $0.002, $0.002 · 175s, 248s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
 
 (sleep-walker cells are set 24 — fwrd40, fwkb3, fwgr23, fwod31 on build
@@ -137,6 +137,19 @@ rpgr[2-6]-*.)
 | kanboard (fwkb3 flow, rpkb1) | 22 and 37 turns · 272s, 555s · $0.010, $0.014 | **0 and 0 turns · 56s, 56s · $0.00** · 4/4 app-state objectives both; every step tier A |
 | grafana (fwgr23 flow, rpgr7) | 4/6, 5/6 · 19 and 44 turns · 286s, 601s | 4/6, 6/6 · 23 and 56 turns · 399s, 815s — not fixed by f727c89; see below |
 | grafana (fwgr23 flow, rpgr8 on 4b15bb4) | as above | **5/6, 5/6** · 30 and 30 turns · 415s, 272s — objective 1 now passes on both (all three titles read at tier A); objective 5 fails on both because 05-open is still a model recovery that does not persist the refresh setting |
+| grafana (fresh recording fwgr24 on 58579d3, set 25) | — | n1 6/6 · $0.50 · 1839s; **n2 halted 2/6** (59 turns); n3 6/6 · 120 turns · 1062s — the model's create step went through an accidental "Discard changes?" dialog that the compiler made a required effect; fixed on 5c124dc (a recorded dialog that does not open is conditional UI) |
+| grafana (fwgr23 recording re-exported on 5c124dc, rpgr9: flow AND skills recompiled) | as above | r1 halted 1/6; r2 6/6 · 51 turns · 459s — the raw recompile was poorer than the published, replay-refined store, and the rebuild bound two steps with no params (fixed 08cf104) |
+| grafana (fwgr23 recording, flow re-exported on 08cf104 + published store, rpgr10) | as above | **6/6, 6/6** · 29 and 44 turns · 151s, 272s · ≈$0.01, ≈$0.08 — steps 01–04 and 06 at tier A with 0 turns; 05 still recovers on a drifted locator in its stored skill |
+
+(The set-25 rows measure one thing: the flow-export rule "an echoed input is
+not an output" (4b15bb4) can only show on a flow exported by the fixed
+engine. A fresh model-driven recording is a different procedure every time
+and fwgr24's happened to be a bad one, so the honest way to isolate the
+export rule was to re-export the known-good fwgr23 recording deterministically
+— bench/rebuild-flow.mjs does exactly that — and replay it. rpgr10 is the
+resulting cell. Costs for replay-only runs are estimated from set 24's rates
+for the same models and turn counts; the sweep's own runs carry OpenRouter's
+accounted cost.)
 
 (rpgr7 showed the two grafana fixes on f727c89 had the wrong diagnosis. The
 third panel title was never a scroll problem: the recording's own
@@ -157,8 +170,10 @@ objectives for the strongest of them, and odoo's authored script confirmed an
 **empty order and left it active** — the wrong-record class sleep-walker's
 effect gates exist to kill). Re-running the agent is reliable and costs the
 full price forever — $1.05–1.51 per repeat on the heavy apps. sleep-walker's
-set-24 replays verify 47/50 objectives; the three misses are grafana's, all
-from the engine defects named above, not from drift in the app. Where the
+set-24 replays verified 47/50 objectives as recorded, and with the grafana
+flow re-exported on the fixed engine (rpgr10) the four flows replay 50/50;
+the three set-24 misses were all engine defects named above, not drift in
+the app. Where the
 flow has converged the repeat is free and fast — repairdesk at $0.00 and 17
 seconds, 4× faster than re-running the agent and the fastest *correct*
 repeat on record; odoo, the densest app in the set, at $0.002 and 3–4
