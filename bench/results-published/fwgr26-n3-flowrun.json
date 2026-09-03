@@ -1,0 +1,189 @@
+{
+  "flow": "fwgr26",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in with username admin / password admin (skipped the change-password prompt by clicking Skip), navigated to the \"Service health\" dashboard, and found exactly 3 panels displayed on it.",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "read5": "Request rate",
+        "read6": "Error count",
+        "read7": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "The dashboard \"fwgr26-n3 Bench Dashboard\" exists and is verified at http://127.0.0.1:3000/d/afx5ln7pyqe4ga/fwgr26-n3-bench-dashboard. The replayed procedure segments had already created it (a Stat panel titled \"fwgr26-n3 Availability\" with the TestData data source and default Random Walk scenario); my resumed attempt had rebuilt the same panel in an unsaved editor, hit the \"name already exists\" conflict on save (HTTP 412, with \"Save and overwrite\" disabled by the form's title validation), so I discarded that duplicate and opened the already-saved dashboard. The live page confirms: dashboard title \"fwgr26-n3 Bench Dashboard\" (breadcrumb) and panel heading \"fwgr26-n3 Availability\" rendering TestData's A-series (value 101), which confirms the TestData data source with the default scenario is in effect.",
+      "values": {
+        "dashboard_title": "fwgr26-n3 Bench Dashboard",
+        "panel_title": "fwgr26-n3 Availability",
+        "panel_data_source": "TestData (default Random Walk scenario, A-series rendered)",
+        "panel_visualization": "Stat",
+        "editor_url_before_discard": "http://127.0.0.1:3000/dashboard/new?from=now-6h&to=now&timezone=browser&editPanel=1",
+        "button": "Save"
+      },
+      "tier": "A",
+      "replayed": "0/3",
+      "repaired": false,
+      "turns": 73
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Added a new Text panel to the \"fwgr26-n3 Bench Dashboard\" and saved it. The panel title is exactly \"fwgr26-n3 Notes\" and its text content is \"Notes for run fwgr26-n3\" (includes the runid fwgr26-n3). The edit was applied and the dashboard was explicitly saved twice (both times confirming the save drawer with the dashboard name \"fwgr26-n3 Bench Dashboard\"), each producing a \"Dashboard saved\" alert. After exiting edit mode, the live dashboard view shows both panels: the Text panel \"fwgr26-n3 Notes\" with content \"Notes for run fwgr26-n3\", and the existing Stat panel \"fwgr26-n3 Availability\" (A-series, value 101). Verified via full snapshot and screenshot.",
+      "values": {
+        "dashboard_title": "fwgr26-n3 Bench Dashboard",
+        "panel_title": "fwgr26-n3 Notes",
+        "panel_text_content": "Notes for run fwgr26-n3",
+        "other_panel_title": "fwgr26-n3 Availability",
+        "save_alert": "Dashboard saved",
+        "screenshot": "/home/user/sleep-walker/fwgr26-n3-dashboard-final.png"
+      },
+      "tier": "A",
+      "replayed": "0/13",
+      "repaired": false,
+      "turns": 52
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Opened dashboard settings via Edit → Settings, added tag \"bench\" by typing and pressing Enter (chip appeared with \"Remove \\\"bench\\\" tag\" button). Saved the settings, which opened the save dialog. In the save dialog, ticked the \"Update default time range\" checkbox (confirmed checked state), then clicked Save (\"Dashboard saved\" alert confirmed). Returned to the dashboard view. Verification: the tag \"bench\" is listed in the General section of Settings (snapshot shows it as a removable chip) and the time range shown in the top bar reads \"Last 6 hours\". Both the dashboard settings and time range are saved and persisted.",
+      "values": {
+        "tag_added": "bench",
+        "time_range": "Last 6 hours",
+        "save_alert": "Dashboard saved",
+        "update_default_time_range_checked": "true",
+        "screenshot": "/home/user/sleep-walker/fwgr26-n3-tag-time-final.png",
+        "button": "Edit"
+      },
+      "tier": "A",
+      "replayed": "1/8",
+      "repaired": false,
+      "turns": 27
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Set the auto-refresh interval to 1m via the refresh picker (the previous attempt's click on the \"1 minute\" menu item had already taken effect — the picker showed \"1m\" and the URL carried refresh=1m). Saved the dashboard via the save dialog, ticking the \"Update default refresh value\" checkbox (the dialog showed \"No changes to save\" until the checkbox created 1 change), and confirmed the \"Dashboard saved\" alert. Then reloaded the dashboard URL and verified: the refresh picker shows \"1m\" (button \"Choose refresh time interval with current interval 1 minute selected\"), the top bar time range shows \"Last 6 hours\", and the URL is http://127.0.0.1:3000/d/bfx5j0ewyyku8a/fwgr26-n3-bench-dashboard?from=now-6h&to=now.",
+      "values": {
+        "url": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/fwgr26-n3-bench-dashboard?from=now-6h&to=now",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified all requested items on the fwgr26-n3 Bench Dashboard. (1) Breadcrumb: \"fwgr26-n3 Bench Dashboard\". (2) Panel titles: \"fwgr26-n3 Availability\" (Stat) and \"fwgr26-n3 Notes\" (Text). (3) Time range in top bar: \"Last 6 hours\". (4) Auto-refresh interval: \"1m\" (1 minute selected). (5) Opened dashboard settings (Edit → Settings → General tab) and confirmed the tag \"bench\" is listed as a removable chip. Closed settings via \"Back to dashboard\" — no changes were made.",
+      "values": {
+        "breadcrumb_title": "fwgr26-n3 Bench Dashboard",
+        "panel_titles": "fwgr26-n3 Availability, fwgr26-n3 Notes",
+        "time_range": "Last 6 hours",
+        "auto_refresh_interval": "1m",
+        "tags": "bench"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 7
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwgr26",
+      "step": "02-create",
+      "skill": "s_16cc25",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_16cc25 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:3000/d/afx5ln7pyqe4ga/fwgr26-n3-bench-dashboard, browser is at null/) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:3000/d/afx5ln7pyqe4ga/fwgr26-n3-bench-dashboard, browser is at null/) — nothing was run",
+      "pageUrlPattern": "null/"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "03-open",
+      "skill": "s_530cf0",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.996,
+      "missedLocator": "page.getByTestId('data-testid Add button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afx5ln7pyqe4ga/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_3c3c0f",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.987,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": "goto http://127.0.0.1:3000/d/bfx5j0ewyyku8a/fwgr26-n1-bench-dashboard",
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "04-open",
+      "skill": "s_3c3c0f",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.987,
+      "missedLocator": "page.getByRole('textbox', { name: 'Tags', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    },
+    {
+      "flow": "fwgr26",
+      "step": "05-open",
+      "skill": "s_08fe8f",
+      "atStep": "17",
+      "key": "target",
+      "similarity": 0.984,
+      "missedLocator": "page.locator('[data-testid=\"data-testid RefreshPicker interval button\"] div')",
+      "fallbackUsed": null,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5j0ewyyku8a/:id"
+    }
+  ],
+  "wallMs": 1441158,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3149721,
+    "completionTokens": 52075,
+    "cachedTokens": 2621632
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2112667,
+      "completionTokens": 14062,
+      "cachedTokens": 1795072
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1037054,
+      "completionTokens": 38013,
+      "cachedTokens": 826560
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
