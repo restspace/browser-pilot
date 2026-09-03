@@ -1,0 +1,158 @@
+{
+  "flow": "fwkb3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in successfully as admin/admin. Landed on the dashboard page with heading \"KB Dashboard for admin\". Navigated to Projects management, which shows 1 project listed, and a project named 'Bench Board' is present in the project list.",
+      "values": {
+        "page_heading": "KB Dashboard for admin",
+        "projects_management_link": "Projects management",
+        "project_name": "Bench Board"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened the board for project 'Bench Board'. The board has 4 columns displayed in left-to-right order: Backlog , Ready , Work in progress , Done . Nothing was modified on the board.",
+      "values": {
+        "project_name": "Bench Board",
+        "board_link": "Board",
+        "column_2": "Ready ",
+        "column_1": "Backlog ",
+        "column_3": "Work in progress ",
+        "column_4": "Done "
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Created task '#4' titled 'fwkb3-n2 Bench Task' in the Backlog column of the Bench Board project board. The task card is visible on the board with the description provided. Task numeric ID is #4 as displayed on the task card.",
+      "values": {
+        "task_id": "#4",
+        "task_title": "fwkb3-n2 Bench Task",
+        "column": "Backlog"
+      },
+      "tier": "B",
+      "replayed": "0/13",
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_68daf6; observed task_title=fwkb3-n2 Bench Task, task_id=#4 , current_column=Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1).",
+      "values": {
+        "task_title": "fwkb3-n2 Bench Task",
+        "task_id": "#4 ",
+        "current_column": "Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1)"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened task Task #4 'fwkb3-n2 Bench Task' page, added a comment with text 'Comment for run fwkb3-n2', saved it, and verified it appears in the task's comments section. The exact comment text shown is 'Comment for run fwkb3-n2'.",
+      "values": {
+        "comment_text": "Comment for run fwkb3-n2",
+        "task_id": "Task #4"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-set",
+      "status": "success",
+      "summary": "Set the due date for task #4 'fwkb3-n2 Bench Task' to 2026-12-31 via the edit form and saved successfully. The task page now displays the due date as \"12/31/2026 07:31\" (December 31, 2026).",
+      "values": {
+        "due_date_displayed": "12/31/2026 07:31",
+        "due_date_raw_value": "2026-12-31",
+        "task_title": "fwkb3-n2 Bench Task",
+        "task_id": "#4"
+      },
+      "tier": "A",
+      "replayed": "1/5",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Final read-only verification of task #4 on the Bench Board project. All values confirmed: Task ID is 'Task #4', title is 'fwkb3-n2 Bench Task', description is 'Bench task for run fwkb3-n2', due date is '12/31/2026 07:31', comment text is 'Comment for run fwkb3-n2', and the task is in the 'Work in progress' column. No changes were made.",
+      "values": {
+        "task_id": "Task #4",
+        "task_title": "fwkb3-n2 Bench Task",
+        "column_label": "Column:",
+        "column_with_label": "Column: Work in progress",
+        "description": "Bench task for run fwkb3-n2",
+        "due_date": "12/31/2026 07:31",
+        "comment_text": "Comment for run fwkb3-n2",
+        "column": "Work in progress"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwkb3",
+      "step": "03-create",
+      "skill": "s_bfde03",
+      "similarity": 0.703,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "every candidate refused — s_11279a: the page at http://127.0.0.1:8085/ does not show \"Backlog \" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:8085/ does not show \"Bench Board\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    },
+    {
+      "flow": "fwkb3",
+      "step": "06-set",
+      "skill": "s_c99609",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c99609 stopped at step 2 — after step 2 the page did not show \"- textbox \\\"09/03/2026 07:22\\\": 2026-12-31\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 2 the page did not show \"- textbox \\\"09/03/2026 07:22\\\": 2026-12-31\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    }
+  ],
+  "wallMs": 271783,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 270287,
+    "completionTokens": 3306,
+    "cachedTokens": 128512
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 270287,
+      "completionTokens": 3306,
+      "cachedTokens": 128512
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

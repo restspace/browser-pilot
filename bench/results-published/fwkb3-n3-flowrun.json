@@ -1,0 +1,145 @@
+{
+  "flow": "fwkb3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in successfully as admin/admin. Landed on the dashboard page with heading \"KB Dashboard for admin\". Navigated to Projects management, which shows 1 project listed, and a project named 'Bench Board' is present in the project list.",
+      "values": {
+        "page_heading": "KB Dashboard for admin",
+        "projects_management_link": "Projects management",
+        "project_name": "Bench Board"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened the board for project 'Bench Board'. The board has 4 columns displayed in left-to-right order: Backlog , Ready , Work in progress , Done . Nothing was modified on the board.",
+      "values": {
+        "project_name": "Bench Board",
+        "board_link": "Board",
+        "column_2": "Ready ",
+        "column_1": "Backlog ",
+        "column_3": "Work in progress ",
+        "column_4": "Done "
+      },
+      "tier": "A",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-create",
+      "status": "success",
+      "summary": "Created task 'fwkb3-n3 Bench Task' in the Backlog column of the Bench Board project. The app assigned numeric ID #4 to the task, and the task card appears on the board in the Backlog column (visible as \"#4  fwkb3-n3 Bench Task\"). A green success banner \"Task created successfully.\" was displayed.",
+      "values": {
+        "task_id": "#4",
+        "task_title": "fwkb3-n3 Bench Task",
+        "column": "Backlog"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 14
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_68daf6; observed task_title=fwkb3-n3 Bench Task, task_id=#4 , current_column=Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1).",
+      "values": {
+        "task_title": "fwkb3-n3 Bench Task",
+        "task_id": "#4 ",
+        "current_column": "Work in progress  \nTask count\n1  (\nTotal number of tasks in this column across all swimlanes\n1)"
+      },
+      "tier": "A",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Opened task Task #4 'fwkb3-n3 Bench Task' page, added a comment with text 'Comment for run fwkb3-n3', saved it, and verified it appears in the task's comments section. The exact comment text shown is 'Comment for run fwkb3-n3'.",
+      "values": {
+        "comment_text": "Comment for run fwkb3-n3",
+        "task_id": "Task #4"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-set",
+      "status": "success",
+      "summary": "Set the due date for task #4 'fwkb3-n3 Bench Task' to 2026-12-31. The edit form already had the value filled from the previous replay attempt; clicked Save to submit the form. The task page now displays \"Due date: 12/31/2026 07:40\" confirming the date was saved correctly (December 31, 2026).",
+      "values": {
+        "due_date": "Due date: 12/31/2026 07:40",
+        "task_id": "#4",
+        "task_title": "fwkb3-n3 Bench Task"
+      },
+      "tier": "A",
+      "replayed": "1/7",
+      "repaired": false,
+      "turns": 23
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Final read-only verification of task #4 on the Bench Board project. All values confirmed: Task ID is 'Task #4', title is 'fwkb3-n3 Bench Task', description is 'Bench task for run fwkb3-n3', due date is '12/31/2026 07:40', comment text is 'Comment for run fwkb3-n3', and the task is in the 'Work in progress' column. No changes were made.",
+      "values": {
+        "task_id": "Task #4",
+        "task_title": "fwkb3-n3 Bench Task",
+        "column_label": "Column:",
+        "column_with_label": "Column: Work in progress",
+        "description": "Bench task for run fwkb3-n3",
+        "due_date": "12/31/2026 07:40",
+        "comment_text": "Comment for run fwkb3-n3",
+        "column": "Work in progress"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwkb3",
+      "step": "06-set",
+      "skill": "s_bdbb6a",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_bdbb6a stopped at step 2 — after step 2 the page did not show \"- textbox \\\"09/03/2026 07:31\\\": 2026-12-31\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 2 the page did not show \"- textbox \\\"09/03/2026 07:31\\\": 2026-12-31\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://127.0.0.1:8085/"
+    }
+  ],
+  "wallMs": 555297,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 486881,
+    "completionTokens": 5533,
+    "cachedTokens": 303872
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 486881,
+      "completionTokens": 5533,
+      "cachedTokens": 303872
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
