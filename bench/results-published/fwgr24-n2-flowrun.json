@@ -1,0 +1,70 @@
+{
+  "flow": "fwgr24",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with the admin credentials, skipped the password-update prompt, searched for and opened the \"Service health\" dashboard. The dashboard contains exactly 3 panels with these titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "first_panel_title": "Request rate",
+        "second_panel_title": "Error count",
+        "third_panel_title": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "blocked",
+      "summary": "Turn cap (30) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": "A",
+      "replayed": "1/7",
+      "repaired": false,
+      "turns": 59
+    }
+  ],
+  "passed": 1,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr24",
+      "step": "02-create",
+      "skill": "s_bf449f",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_bf449f stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"Discard changes to dashboard?\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"Discard changes to dashboard?\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4u9hs76waod/:id"
+    }
+  ],
+  "wallMs": 751918,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 684118,
+    "completionTokens": 7496,
+    "cachedTokens": 580096
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 307754,
+      "completionTokens": 4517,
+      "cachedTokens": 218880
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 376364,
+      "completionTokens": 2979,
+      "cachedTokens": 361216
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

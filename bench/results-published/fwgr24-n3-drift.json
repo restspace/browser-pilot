@@ -1,0 +1,39 @@
+[
+  {
+    "flow": "fwgr24",
+    "step": "02-create",
+    "skill": "s_bf449f",
+    "similarity": 0.999,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_bf449f stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"Discard changes to dashboard?\\\"\") — the step ran but did not have its recorded effect",
+    "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"Discard changes to dashboard?\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id"
+  },
+  {
+    "flow": "fwgr24",
+    "step": "03-add",
+    "skill": "s_5c263d",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 0.995,
+    "missedLocator": "page.getByTestId('data-testid Add button')",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+    "fallbackIndex": 3,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id"
+  },
+  {
+    "flow": "fwgr24",
+    "step": "06-open",
+    "skill": "s_41c4ef",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_41c4ef stopped at step 1 — the page at http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id does not show \"fwgr24-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id does not show \"fwgr24-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id"
+  }
+]
