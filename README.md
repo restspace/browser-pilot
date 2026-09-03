@@ -181,7 +181,7 @@ The clean A/B is to replay the same set-24 flows and stores on the fixed build (
 | target | set 24 replays (b9ccbca) | set 24b replays (f727c89) |
 |---|---|---|
 | kanboard | 22 and 37 turns · 272s, 555s | **0 and 0 turns · 56s, 56s** · 4/4 app-state objectives both |
-| grafana | 4/6, 5/6 · 19 and 44 turns | 4/6, 6/6 · 23 and 56 turns on f727c89 — the two grafana causes were misdiagnosed there and are fixed on 4b15bb4; rpgr8 measures it |
+| grafana | 4/6, 5/6 · 19 and 44 turns | 5/6, 5/6 · 30 and 30 turns on 4b15bb4 — objective 1 fixed (all three titles read at tier A); step 05 still recovers on the model until the flow is re-recorded, and that recovery does not persist the refresh setting |
 
 Reading it: static scripts are free and mostly wrong; re-running the agent is reliable and costs
 the full price forever; sleep-walker's repeat cost trends to zero without the correctness trending

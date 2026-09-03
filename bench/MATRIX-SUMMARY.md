@@ -136,6 +136,7 @@ rpgr[2-6]-*.)
 |---|---|---|
 | kanboard (fwkb3 flow, rpkb1) | 22 and 37 turns · 272s, 555s · $0.010, $0.014 | **0 and 0 turns · 56s, 56s · $0.00** · 4/4 app-state objectives both; every step tier A |
 | grafana (fwgr23 flow, rpgr7) | 4/6, 5/6 · 19 and 44 turns · 286s, 601s | 4/6, 6/6 · 23 and 56 turns · 399s, 815s — not fixed by f727c89; see below |
+| grafana (fwgr23 flow, rpgr8 on 4b15bb4) | as above | **5/6, 5/6** · 30 and 30 turns · 415s, 272s — objective 1 now passes on both (all three titles read at tier A); objective 5 fails on both because 05-open is still a model recovery that does not persist the refresh setting |
 
 (rpgr7 showed the two grafana fixes on f727c89 had the wrong diagnosis. The
 third panel title was never a scroll problem: the recording's own
