@@ -255,7 +255,7 @@ export function compileSkills(input: CompileInput): Skill[] {
       return out;
     });
     const mintedForStart = mintedMap((m) => m.keptIndex < base);
-    return { sg, segParams, mintedForStart, folded: foldLoops(coalesceControls(dropSupersededNavigation(skillSteps))) };
+    return { sg, segParams, mintedForStart, folded: foldLoops(coalesceControls(dropDismissedDialogs(dropSupersededNavigation(skillSteps)))) };
   });
 
   // Derived-param metadata lands on the MINTING segment: which post-fold step
@@ -1186,6 +1186,42 @@ export function coalesceControls(steps: SkillStep[]): SkillStep[] {
  */
 export function dropSupersededNavigation(steps: SkillStep[]): SkillStep[] {
   return steps.filter((step, i) => !(step.tool === 'goto' && steps[i + 1]?.tool === 'goto'));
+}
+
+/** Button names that dismiss a dialog without acting — UI convention, not app knowledge. */
+const DISMISSAL = /^(cancel|close|dismiss|no|not now|back|keep editing)$/i;
+
+/**
+ * Drop a dialog the recording opened and immediately dismissed. fwgr25's
+ * create step recorded Exit edit → "Discard changes to dashboard?" → Cancel,
+ * because the RECORDING had unsaved edits when the model clicked Exit edit
+ * and then thought better of it. The pair did nothing to the app, but a
+ * replay with nothing unsaved has no dialog to cancel: Exit edit simply
+ * exits, and every step that expected to still be in edit mode fails (5/18
+ * on both replays, 23–49 model turns). Evidence-based: step N's recorded
+ * effect includes a dialog, step N+1 clicks a button that dialog listed,
+ * that button is named as a dismissal, and step N+1 recorded no page change
+ * of its own. A confirm ("Discard", "Delete", "Save") never matches.
+ */
+export function dropDismissedDialogs(steps: SkillStep[]): SkillStep[] {
+  const out: SkillStep[] = [];
+  for (let i = 0; i < steps.length; i++) {
+    const opener = steps[i];
+    const closer = steps[i + 1];
+    const added = opener.expect?.addedContains ?? [];
+    const opensDialog = added.some((l) => /^-\s*dialog\b/.test(l));
+    if (opensDialog && closer?.tool === 'click' && !closer.expect?.addedContains?.length) {
+      const primary = (closer.locators.target ?? [])[0] as { kind?: string; role?: string; name?: string; text?: string } | undefined;
+      const name = primary?.kind === 'role' && primary.role === 'button' ? primary.name : primary?.kind === 'text' ? primary.text : undefined;
+      const listed = name !== undefined && added.some((l) => l.includes(`button "${name}"`));
+      if (name && listed && DISMISSAL.test(name.trim())) {
+        i += 1; // skip the closer too
+        continue;
+      }
+    }
+    out.push(opener);
+  }
+  return out;
 }
 
 /** Replace id-like whole tokens in a string with `*`, so per-record ids collapse. */

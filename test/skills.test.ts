@@ -9,7 +9,7 @@ import { maskVolatile, stranded } from '../src/skills/compile.js';
 import { volatileMatcher } from '../src/shared/text.js';
 import { recordCandidateEvidence, retired } from '../src/skills/repair.js';
 import { SkillStore } from '../src/skills/store.js';
-import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, substituteUrlParts, urlDiff, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, dropDismissedDialogs, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, substituteUrlParts, urlDiff, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
@@ -1259,5 +1259,26 @@ describe('a read-back carries the name it was captured for', () => {
     const report = { status: 'success' as const, summary: 'read it', evidence: { values: { total: '999.00' } } };
     const s = compileSkill({ entries: readBack('unit_price'), instruction: 'Read the unit price', report, session: 's' })!;
     expect(s.steps.find((st) => st.tool === 'read')?.label).toBeUndefined();
+  });
+});
+
+describe('dropDismissedDialogs (fwgr25: a dialog opened and cancelled is a no-op pair)', () => {
+  const click = (name: string, added?: string[]): SkillStep => ({
+    tool: 'click',
+    args: { target: `@${name}` },
+    locators: { target: [{ kind: 'role', role: 'button', name }] },
+    ...(added ? { expect: { urlPattern: 'http://x/d/:id/:id', addedContains: added } } : { expect: { urlPattern: 'http://x/d/:id/:id' } }),
+  });
+  const DIALOG = ['- dialog "Discard changes to dashboard?"', '- heading "Discard changes to dashboard?"', '- button "Close"', '- button "Cancel"', '- button "Discard"'];
+  it('drops the opener and its Cancel, keeps everything else in order', () => {
+    const steps = [click('Back to dashboard', ['- button "Exit edit"']), click('Exit edit', DIALOG), click('Cancel'), click('Save dashboard', ['- dialog "Drawer title Save dashboard"'])];
+    expect(dropDismissedDialogs(steps).map((s) => s.args.target)).toEqual(['@Back to dashboard', '@Save dashboard']);
+  });
+  it('keeps a confirm click, and a dismissal the dialog did not list', () => {
+    expect(dropDismissedDialogs([click('Exit edit', DIALOG), click('Discard')]).length).toBe(2);
+    expect(dropDismissedDialogs([click('Exit edit', DIALOG), click('Not now')]).length).toBe(2);
+  });
+  it('keeps a Cancel that recorded its own page change', () => {
+    expect(dropDismissedDialogs([click('Exit edit', DIALOG), click('Cancel', ['- heading "Something appeared"'])]).length).toBe(2);
   });
 });
