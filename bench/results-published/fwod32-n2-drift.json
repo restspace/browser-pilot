@@ -1,0 +1,103 @@
+[
+  {
+    "flow": "fwod32",
+    "step": "01-signin",
+    "skill": "s_c18752",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_c18752 stopped at step 3 — after step 3 expected url http://127.0.0.1:8069/web#action=135&cids=1&menu_id=120 but browser is at http://127.0.0.1:8069/web#action=:id&menu_id=:id",
+    "reason": "after step 3 expected url http://127.0.0.1:8069/web#action=135&cids=1&menu_id=120 but browser is at http://127.0.0.1:8069/web#action=:id&menu_id=:id",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id"
+  },
+  {
+    "flow": "fwod32",
+    "step": "03-open",
+    "skill": "s_3ba7f9",
+    "atStep": "13",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 2,390.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "03-open",
+    "skill": "s_3ba7f9",
+    "atStep": "14",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 478.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "03-open",
+    "skill": "s_3ba7f9",
+    "atStep": "15",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 2,868.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "04-open",
+    "skill": "s_76b162",
+    "atStep": "12",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 3,890.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "04-open",
+    "skill": "s_76b162",
+    "atStep": "13",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 778.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "04-open",
+    "skill": "s_76b162",
+    "atStep": "14",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('£ 4,668.00', { exact: true })",
+    "fallbackUsed": "page.locator('div > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > span')",
+    "fallbackIndex": 1,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  },
+  {
+    "flow": "fwod32",
+    "step": "05-open",
+    "skill": "s_47d5cc",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference, 02-create.order_reference",
+    "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+  }
+]
