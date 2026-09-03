@@ -6,6 +6,7 @@ import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
 import { lineShows, specOf } from '../src/skills/replay.js';
 import { maskVolatile, stranded } from '../src/skills/compile.js';
+import { volatileMatcher } from '../src/shared/text.js';
 import { recordCandidateEvidence, retired } from '../src/skills/repair.js';
 import { SkillStore } from '../src/skills/store.js';
 import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
@@ -123,6 +124,15 @@ describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => 
     expect(maskVolatile('- cell "2026-12-31"')).toBe('- cell "{{*}}"');
     expect(maskVolatile('- row "Su Mo Tu We Th Fr Sa"')).toBe('- row "Su Mo Tu We Th Fr Sa"');
     expect(maskVolatile('- link "RD-1015"')).toBe('- link "RD-1015"');
+  });
+  it('volatileMatcher leaves a plain name alone and wildcards clock/date tokens in a recorded one', () => {
+    expect(volatileMatcher('Save dashboard')).toBe('Save dashboard');
+    const m = volatileMatcher('Due date: 12/31/2026 07:40');
+    expect(m).toBeInstanceOf(RegExp);
+    expect((m as RegExp).test('Due date: 12/31/2026 07:55')).toBe(true);
+    expect((m as RegExp).test('Due date: 01/02/2027 18:00')).toBe(true);
+    expect((m as RegExp).test('Start date: 12/31/2026 07:40')).toBe(false);
+    expect((m as RegExp).test('Due date: 12/31/2026 07:40 (overdue)')).toBe(false);
   });
   it('lineShows matches a wildcard line and ignores whitespace on both sides', () => {
     const live = ['- textbox "09/03/2026 07:31": 2026-12-31', '- link "Backlog"  ', '- heading "Bench   Board"'];

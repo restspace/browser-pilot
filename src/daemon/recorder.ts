@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ElementHandle, Locator, Page } from 'playwright-core';
 import { ensureSessionDir } from '../shared/paths.js';
+import { volatileMatcher } from '../shared/text.js';
 import { isRefTarget, refHint, resolveTarget } from './refs.js';
 import { tagComponent } from '../skills/components.js';
 
@@ -60,16 +61,19 @@ export function makeLocator(page: Page, c: LocatorCandidate): Locator {
       // exact: Playwright's default name match is a case-insensitive substring,
       // so a recorded 'Edit' also matches a sibling 'Exit edit' — which is how
       // rpgr2-r2 left edit mode instead of entering it and halted the flow.
-      loc = page.getByRole(c.role as Parameters<Page['getByRole']>[0], { name: c.name, exact: true });
+      // A name carrying a clock or calendar token ("Due date: 12/31/2026
+      // 07:40") is matched with that token wildcarded — see volatileMatcher —
+      // so a recording's minute does not push the step onto a positional path.
+      loc = page.getByRole(c.role as Parameters<Page['getByRole']>[0], { name: volatileMatcher(c.name), exact: true });
       break;
     case 'label':
-      loc = page.getByLabel(c.label);
+      loc = page.getByLabel(volatileMatcher(c.label));
       break;
     case 'placeholder':
-      loc = page.getByPlaceholder(c.placeholder);
+      loc = page.getByPlaceholder(volatileMatcher(c.placeholder));
       break;
     case 'text':
-      loc = page.getByText(c.text, { exact: true });
+      loc = page.getByText(volatileMatcher(c.text), { exact: true });
       break;
     case 'id':
     case 'css':

@@ -2,6 +2,7 @@ import type { LocatorCandidate, RecordedEntry, RecordedInstruction, RecordedStep
 import type { Report } from '../agent/report.js';
 import { newSkillId, originOf, type Skill, type SkillParam, type SkillStep, type StepExpectation } from './store.js';
 import { identifierLike } from './ledger.js';
+import { maskVolatile } from '../shared/text.js';
 
 /** Args whose string values are candidates for parameter slots. */
 const VALUE_ARGS = new Set(['value', 'text', 'option', 'url', 'prompt_text']);
@@ -1019,11 +1020,7 @@ function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExp
  * becomes a `{{*}}` wildcard that lineShows() matches against anything short
  * of a line break.
  */
-export const WILDCARD = '{{*}}';
-const VOLATILE_TOKEN = /\b\d{1,2}:\d{2}(?::\d{2})?\b|\b\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4}\b/g;
-export function maskVolatile(line: string): string {
-  return line.replace(VOLATILE_TOKEN, WILDCARD);
-}
+export { WILDCARD, maskVolatile } from '../shared/text.js';
 
 /** If a read's result equals one of the report's evidence values, label it with that key. */
 function readLabel(step: RecordedStep, values: Record<string, unknown>): string | undefined {
