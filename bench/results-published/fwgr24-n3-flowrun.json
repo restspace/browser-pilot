@@ -1,0 +1,165 @@
+{
+  "flow": "fwgr24",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in to Grafana with the admin credentials, skipped the password-update prompt, searched for and opened the \"Service health\" dashboard. The dashboard contains exactly 3 panels with these titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate | Error count | Latency by endpoint",
+        "first_panel_title": "Request rate",
+        "second_panel_title": "Error count",
+        "third_panel_title": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Resumed the interrupted attempt: the dashboard \"fwgr24-n3 Bench Dashboard\" (uid dfx4vdwe2jsaoc) already existed with a Stat panel titled \"fwgr24-n3 Availability\" using the TestData data source (Random Walk scenario). I confirmed the configuration in the panel editor, saved the dashboard (Grafana alert \"Dashboard saved\" appeared), and exited edit mode. Verified on screen: panel title \"fwgr24-n3 Availability\", data source TestData (Random Walk), dashboard title \"fwgr24-n3 Bench Dashboard\", URL http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard?from=now-6h&to=now&timezone=browser.",
+      "values": {
+        "dashboard_title": "fwgr24-n3 Bench Dashboard",
+        "dashboard_uid": "dfx4vdwe2jsaoc",
+        "data_source": "TestData",
+        "panel_displayed_text": "fwgr24-n3 Availability 42.2",
+        "panel_title": "fwgr24-n3 Availability",
+        "scenario": "Random Walk",
+        "visualization": "Stat"
+      },
+      "tier": "A",
+      "replayed": "1/7",
+      "repaired": false,
+      "turns": 59
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "The Text panel was already added and saved by the previous attempt; I verified it on screen. The dashboard \"fwgr24-n3 Bench Dashboard\" now shows two panels: \"fwgr24-n3 Notes\" (Text visualization, content \"Notes for run fwgr24-n3\") and \"fwgr24-n3 Availability\" (Stat). The save drawer confirmed \"No changes to save\", meaning the dashboard was already persisted. I exited edit mode; the dashboard is in normal view mode at URL http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard?from=now-6h&to=now&timezone=browser.",
+      "values": {
+        "dashboard_title": "fwgr24-n3 Bench Dashboard",
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard?from=now-6h&to=now&timezone=browser",
+        "panel_title": "fwgr24-n3 Notes",
+        "runid_in_text": "fwgr24-n3",
+        "text_content": "Notes for run fwgr24-n3"
+      },
+      "tier": "A",
+      "replayed": "0/18",
+      "repaired": false,
+      "turns": 40
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_57434d; observed dashboard_url=http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard, dashboard_title=fwgr24-n3 Bench Dashboard, time_range_after_reload=Last 6 hours.",
+      "values": {
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+        "dashboard_title": "fwgr24-n3 Bench Dashboard",
+        "time_range_after_reload": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Set the dashboard's auto-refresh interval to 1m via the top-bar time picker (while in edit mode), then saved the dashboard with the 'Update default refresh value' checkbox ticked in the save dialog (alert 'Dashboard saved' confirmed). After reloading the dashboard URL without query params, the top bar shows '1m' next to the refresh icon (button labelled 'Choose refresh time interval with current interval 1 minute selected'), and the 'Last 6 hours' time range also persisted. Current URL: http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard.",
+      "values": {
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+        "dashboard_title": "fwgr24-n3 Bench Dashboard",
+        "refresh_interval_after_reload": "1m",
+        "time_range_after_reload": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "26/26",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Verified the saved state of the dashboard from a fresh load: (a) Dashboard title \"fwgr24-n3 Bench Dashboard\" shown in breadcrumb; (b) Two panels visible: \"fwgr24-n3 Notes\" (Text viz, shows \"Notes for run fwgr24-n3\") and \"fwgr24-n3 Availability\" (Stat viz, shows a value of 88.5); (c) Time range \"Last 6 hours\" shown in top bar; (d) Auto-refresh \"1m\" shown next to the refresh icon; (e) Tag \"bench\" confirmed present in Dashboard Settings > General > Tags; (f) URL http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "auto_refresh_interval": "1m",
+        "dashboard_title": "fwgr24-n3 Bench Dashboard",
+        "dashboard_url": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "panel_titles": "fwgr24-n3 Availability, fwgr24-n3 Notes",
+        "tag_bench": "bench",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "1/10",
+      "repaired": false,
+      "turns": 21
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 3,
+  "driftTickets": [
+    {
+      "flow": "fwgr24",
+      "step": "02-create",
+      "skill": "s_bf449f",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_bf449f stopped at step 2 — after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"Discard changes to dashboard?\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 5 recorded page change(s) appeared (e.g. \"- dialog \\\"Discard changes to dashboard?\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id"
+    },
+    {
+      "flow": "fwgr24",
+      "step": "03-add",
+      "skill": "s_5c263d",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.995,
+      "missedLocator": "page.getByTestId('data-testid Add button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id"
+    },
+    {
+      "flow": "fwgr24",
+      "step": "06-open",
+      "skill": "s_41c4ef",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_41c4ef stopped at step 1 — the page at http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id does not show \"fwgr24-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id does not show \"fwgr24-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/:id"
+    }
+  ],
+  "wallMs": 1061975,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 2056706,
+    "completionTokens": 18319,
+    "cachedTokens": 1789920
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1492698,
+      "completionTokens": 14176,
+      "cachedTokens": 1270272
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 564008,
+      "completionTokens": 4143,
+      "cachedTokens": 519648
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

@@ -1,0 +1,10130 @@
+[
+ {
+  "id": "s_4ff0d8",
+  "origin": "http://127.0.0.1:3000",
+  "template": "Open {{v1}} and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:3000/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/login"
+  },
+  "steps": [
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e37",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Password input field"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Password"
+      },
+      {
+       "kind": "label",
+       "label": "Password"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "password"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/login",
+     "addedContains": [
+      "- textbox \"password\": admin"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e42"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Login button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Log in"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div > div > form > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/login",
+     "alertContains": "Logged in",
+     "addedContains": [
+      "- status \"Logged in\"",
+      "- button \"Close alert\"",
+      "- heading \"Update your password\"",
+      "- status \"Continuing to use the default password exposes you to security risks.\"",
+      "- textbox \"\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e105"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Skip change password button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Skip"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div > form > div:nth-of-type(5) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/",
+     "addedContains": [
+      "- link \"Skip to main content\"",
+      "- link \"Go to home\"",
+      "- button \"Search or jump to...\"",
+      "- button \"New\"",
+      "- button \"Help\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T10:47:16.364Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:26:29.593Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_e33010",
+   "index": 1,
+   "of": 4
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:47:16.364Z"
+  }
+ },
+ {
+  "id": "s_fa8cef",
+  "origin": "http://127.0.0.1:3000",
+  "template": "Open {{v1}} and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:3000/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/",
+   "fingerprint": [
+    0.044,
+    0,
+    0,
+    0.087,
+    0,
+    0,
+    0.022,
+    0,
+    0.022,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.153,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0.742,
+    0,
+    0.218,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.087,
+    0,
+    0,
+    0.262,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.087,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.218,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.065,
+    0,
+    0,
+    0,
+    0,
+    0.087,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.174,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.393,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.044,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e18"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Search or jump to..."
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"wrapper\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(1) > div:nth-of-type(2) > div > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/",
+     "addedContains": [
+      "- dialog \"\"",
+      "- combobox \"Search or jump to...\"",
+      "- listbox \"\"",
+      "- option \"Recent dashboards\"",
+      "- option \"Service Health\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e164"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "option",
+       "name": "Service Health"
+      },
+      {
+       "kind": "id",
+       "selector": "#kbar-listbox-item-1"
+      },
+      {
+       "kind": "css",
+       "selector": "#kbar-listbox-item-1"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health",
+     "addedContains": [
+      "- link \"Home\"",
+      "- option \"Help\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T10:47:16.364Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:26:30.827Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_e33010",
+   "index": 2,
+   "of": 4
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:47:16.364Z"
+  }
+ },
+ {
+  "id": "s_829e81",
+  "origin": "http://127.0.0.1:3000",
+  "template": "Open {{v1}} and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:3000/",
+    "usedIn": []
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health",
+   "fingerprint": [
+    0.028,
+    0,
+    0.028,
+    0.056,
+    0,
+    0,
+    0.014,
+    0,
+    0.014,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.195,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0.698,
+    0,
+    0.14,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.084,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0.084,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0.167,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0.14,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.14,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.112,
+    0,
+    0,
+    0,
+    0,
+    0.14,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.112,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.056,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.53,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.07,
+    0,
+    0.014,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "read_all",
+    "args": {
+     "target": "h2",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "h2"
+      }
+     ]
+    },
+    "label": "panel_titles"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2",
+       "nth": 0
+      }
+     ]
+    },
+    "label": "first_panel_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2",
+       "nth": 1
+      }
+     ]
+    },
+    "label": "second_panel_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2",
+       "nth": 2
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2",
+       "nth": 2
+      }
+     ]
+    },
+    "label": "third_panel_title"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Signed in to Grafana with the admin credentials, skipped the password-update prompt, searched for and opened the \"Service health\" dashboard. The dashboard contains exactly 3 panels with these titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+   "values": {
+    "panel_titles": "Request rate, Error count, Latency by endpoint",
+    "panel_count": "3",
+    "first_panel_title": "Request rate",
+    "second_panel_title": "Error count",
+    "third_panel_title": "Latency by endpoint"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T10:47:16.364Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:26:31.482Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_e33010",
+   "index": 3,
+   "of": 4
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:47:16.364Z"
+  }
+ },
+ {
+  "id": "s_a702d4",
+  "origin": "http://127.0.0.1:3000",
+  "template": "Open {{v1}} and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:3000/",
+    "usedIn": [
+     1
+    ]
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v1}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e28",
+     "value": "admin"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Username input field"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Email or username"
+      },
+      {
+       "kind": "label",
+       "label": "Email or username"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "email or username"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/login",
+     "addedContains": [
+      "- textbox \"email or username\": admin"
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T10:47:16.364Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:26:31.488Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_e33010",
+   "index": 0,
+   "of": 4
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "Open http://127.0.0.1:3000/ and sign in with username 'admin' and password 'admin' (if a change-password prompt appears, skip it). Then find and open the provisioned dashboard named 'Service health' (use dashboard search/browse). Report the exact titles of every panel on that dashboard, exactly as displayed on screen.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:47:16.364Z"
+  }
+ },
+ {
+  "id": "s_3f6224",
+  "origin": "http://127.0.0.1:3000",
+  "template": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title '{{v2}}', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to '{{v3}}' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+  "params": {
+   "v2": {
+    "example": "fwgr24-n1 Availability",
+    "usedIn": [
+     5
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "fwgr24-n1 Bench Dashboard",
+    "usedIn": [
+     7
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+   "fingerprint": [
+    0.02,
+    0,
+    0.02,
+    0.04,
+    0,
+    0,
+    0.01,
+    0,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.158,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.642,
+    0,
+    0.099,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.059,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.079,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.099,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.158,
+    0,
+    0,
+    0,
+    0,
+    0.138,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.079,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.652,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.049,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e625"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Create new panel button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div > div:nth-of-type(1) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- link \"New dashboard\"",
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel\"",
+      "- checkbox \"toggle-table-view\"",
+      "- heading \"Panel Title\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e916"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid toggle-viz-picker"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Change Visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor content\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e916"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid toggle-viz-picker"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Change Visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor content\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- textbox \"Search for...\"",
+      "- button \"Close\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "[data-testid=\"Plugin visualization item Stat\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"Plugin visualization item Stat\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "Plugin visualization item Stat"
+      },
+      {
+       "kind": "text",
+       "text": "Stat Big stat values & sparklines"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor content\"] div"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(3)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- button \"Change Visualization\"",
+      "- textbox \"Search options\"",
+      "- heading \"Panel options\"",
+      "- textbox \"\": Panel Title",
+      "- textbox \"\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "[data-testid=\"data-testid Panel editor option pane field input Title\"]",
+     "value": "{{v2}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor option pane field input Title\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel editor option pane field input Title"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- heading \"{{v2}}\"",
+      "- button \"Menu for panel with title {{v2}}\"",
+      "- textbox \"\": {{v2}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "[data-testid=\"data-testid Save dashboard button\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Save dashboard button\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(4) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "[data-testid=\"Save dashboard title field\"]",
+     "value": "{{v3}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"Save dashboard title field\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "Save dashboard title field"
+      },
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Save dashboard title field"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- textbox \"Save dashboard title field\": {{v3}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "[data-testid=\"data-testid Save dashboard drawer button\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Save dashboard drawer button\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > form > div:nth-of-type(4) > div > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "mints": {
+     "at": "p1"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- link \"{{v3}}\"",
+      "- button \"More save options\"",
+      "- button \"Show more items\"",
+      "- button \"Toggle top search bar\"",
+      "- status \"Dashboard saved\""
+     ]
+    }
+   }
+  ],
+  "derived": {
+   "d1": {
+    "step": 8,
+    "at": "p1",
+    "example": "efx4sgld4r9c0d"
+   },
+   "d2": {
+    "step": 8,
+    "at": "p2",
+    "example": "fwgr24-n1-bench-dashboard"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T10:54:35.548Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:26:46.064Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_d33ca1",
+   "index": 1,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title 'fwgr24-n1 Availability', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to 'fwgr24-n1 Bench Dashboard' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:54:35.548Z"
+  }
+ },
+ {
+  "id": "s_917a0b",
+  "origin": "http://127.0.0.1:3000",
+  "template": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title '{{v2}}', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to '{{v3}}' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+  "params": {
+   "v2": {
+    "example": "fwgr24-n1 Availability",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "fwgr24-n1 Bench Dashboard",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health",
+   "fingerprint": [
+    0.011,
+    0,
+    0.011,
+    0.023,
+    0,
+    0,
+    0.006,
+    0,
+    0.017,
+    0.011,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0,
+    0.113,
+    0,
+    0,
+    0.034,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.068,
+    0,
+    0,
+    0,
+    0.543,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.017,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0.113,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0.011,
+    0,
+    0.017,
+    0,
+    0,
+    0,
+    0.017,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0.006,
+    0,
+    0.034,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.017,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0.623,
+    0,
+    0.057,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.017,
+    0,
+    0.034,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0.017,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.034,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.068,
+    0,
+    0.125,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0.011,
+    0.034,
+    0.011,
+    0,
+    0.034,
+    0.006,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0.034,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0,
+    0.034,
+    0.006,
+    0,
+    0,
+    0.011,
+    0.011,
+    0,
+    0.006,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.045,
+    0.045,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0.034,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0.068,
+    0,
+    0.023,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0.057,
+    0,
+    0.034,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.023,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.017,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0.011,
+    0.057,
+    0.011,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0.079,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.068,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.079,
+    0,
+    0,
+    0,
+    0,
+    0.045,
+    0,
+    0,
+    0.102,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.045,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.051,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0.006,
+    0.017,
+    0.011,
+    0,
+    0,
+    0.023,
+    0,
+    0,
+    0.017,
+    0.011,
+    0.011,
+    0,
+    0.006,
+    0,
+    0.011,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0.272,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.028,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0.011,
+    0.034,
+    0.328,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.028,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e24"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "New"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"wrapper\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > header > div:nth-of-type(1) > div:nth-of-type(3) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health",
+     "addedContains": [
+      "- menu \"New dashboard Import dashboard New alert rule\"",
+      "- link \"New dashboard\"",
+      "- link \"Import dashboard\"",
+      "- link \"New alert rule\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e542"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "New dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > div > div > a:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/dashboard/new",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Save dashboard\"",
+      "- heading \"Start your new dashboard by adding a visualization\"",
+      "- button \"Add visualization\""
+     ]
+    }
+   }
+  ],
+  "stats": {
+   "uses": 3,
+   "successes": 3,
+   "partial": 0,
+   "created": "2026-09-03T10:54:35.548Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:26:46.825Z"
+  },
+  "status": "validated",
+  "seq": {
+   "chain": "s_d33ca1",
+   "index": 0,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title 'fwgr24-n1 Availability', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to 'fwgr24-n1 Bench Dashboard' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:54:35.548Z"
+  }
+ },
+ {
+  "id": "s_bf449f",
+  "origin": "http://127.0.0.1:3000",
+  "template": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title '{{v2}}', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to '{{v3}}' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+  "params": {
+   "v2": {
+    "example": "fwgr24-n1 Availability",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "fwgr24-n1 Bench Dashboard",
+    "usedIn": [
+     6
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+   "fingerprint": [
+    0.003,
+    0,
+    0.038,
+    0.013,
+    0.008,
+    0,
+    0.002,
+    0,
+    0.002,
+    0.003,
+    0,
+    0.005,
+    0,
+    0,
+    0,
+    0.003,
+    0.052,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.017,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.006,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0.005,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0.538,
+    0,
+    0.016,
+    0.006,
+    0,
+    0.003,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.035,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.072,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0.003,
+    0,
+    0.003,
+    0,
+    0.031,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0.035,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0.009,
+    0,
+    0,
+    0,
+    0,
+    0.022,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0.041,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.002,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.013,
+    0.002,
+    0.003,
+    0,
+    0.005,
+    0.016,
+    0,
+    0.003,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.019,
+    0,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0.003,
+    0.006,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0.025,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0.028,
+    0,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0.06,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.016,
+    0.003,
+    0,
+    0.016,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.006,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.057,
+    0,
+    0,
+    0,
+    0,
+    0.066,
+    0,
+    0,
+    0.009,
+    0,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0.085,
+    0,
+    0.006,
+    0.013,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.002,
+    0.002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0.005,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0.006,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0.003,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.819,
+    0,
+    0,
+    0,
+    0.002,
+    0,
+    0,
+    0.008,
+    0,
+    0.002,
+    0,
+    0.006,
+    0,
+    0,
+    0.008,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v3}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "[data-testid=\"data-testid Back to dashboard button\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Back to dashboard button\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2434"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- dialog \"Discard changes to dashboard?\"",
+      "- heading \"Discard changes to dashboard?\"",
+      "- button \"Close\"",
+      "- button \"Cancel\"",
+      "- button \"Discard\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button >> text=Discard"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button >> text=Discard"
+      },
+      {
+       "kind": "text",
+       "text": "Discard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Confirm Modal Danger Button\"] span"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > form > div:nth-of-type(2) > div > button:nth-of-type(2) > span"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Mark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2505"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v3}} breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2"
+      }
+     ]
+    },
+    "label": "panel_title"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Created a new dashboard in Grafana, added a Stat visualization panel titled '{{v2}}' using the TestData data source (query editor showed TestData with scenario 'Random Walk'), set the dashboard title to '{{v3}}', and saved (alert 'Dashboard saved' appeared). The saved dashboard view displays the panel heading '{{v2}}' with an A-series stat value. Dashboard URL: http://127.0.0.1:3000/d/efx4sgld4r9c0d/{{v1}}-bench-dashboard. Note: the data source name was verified in the query editor during panel setup (TestData selected, Random Walk scenario visible); I did not re-read the data source label on the final saved view before the turn cap.",
+   "values": {
+    "dashboard_title": "{{v3}}",
+    "dashboard_uid": "efx4sgld4r9c0d",
+    "dashboard_url": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/{{v1}}-bench-dashboard?from=now-6h&to=now&timezone=browser",
+    "data_source": "TestData (verified in query editor during setup; not re-read on final view)",
+    "panel_title": "{{v2}}",
+    "visualization": "Stat"
+   }
+  },
+  "stats": {
+   "uses": 3,
+   "successes": 1,
+   "partial": 2,
+   "created": "2026-09-03T10:54:35.548Z",
+   "failedAtStep": {
+    "2": 2
+   },
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:37:20.254Z",
+   "lastFailedAt": 2
+  },
+  "status": "demoted",
+  "seq": {
+   "chain": "s_d33ca1",
+   "index": 2,
+   "of": 3
+  },
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title 'fwgr24-n1 Availability', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to 'fwgr24-n1 Bench Dashboard' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T10:54:35.548Z"
+  }
+ },
+ {
+  "id": "s_4c0ca3",
+  "origin": "http://127.0.0.1:3000",
+  "template": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title '{{v2}}', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to '{{v3}}' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+  "params": {
+   "v2": {
+    "example": "fwgr24-n3 Availability",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "fwgr24-n3 Bench Dashboard",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "[data-testid=\"data-testid Back to dashboard button\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "mints": {
+     "at": "p1"
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\""
+     ]
+    },
+    "via": {
+     "skill": "s_bf449f",
+     "step": 1
+    }
+   }
+  ],
+  "derived": {
+   "d1": {
+    "step": 1,
+    "at": "p1",
+    "example": "dfx4vdwe2jsaoc"
+   },
+   "d2": {
+    "step": 1,
+    "at": "p2",
+    "example": "fwgr24-n3-bench-dashboard"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-03T11:37:20.291Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_e00b3c",
+   "index": 0,
+   "of": 2
+  },
+  "variantOf": "s_bf449f",
+  "provenance": {
+   "session": "fwgr24-n3",
+   "instruction": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title 'fwgr24-n3 Availability', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to 'fwgr24-n3 Bench Dashboard' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:37:20.291Z"
+  }
+ },
+ {
+  "id": "s_cc6b45",
+  "origin": "http://127.0.0.1:3000",
+  "template": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title '{{v2}}', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to '{{v3}}' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+  "params": {
+   "v2": {
+    "example": "fwgr24-n3 Availability",
+    "usedIn": [
+     5,
+     6,
+     16,
+     18
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "fwgr24-n3 Bench Dashboard",
+    "usedIn": [
+     22
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2434"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Mark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    },
+    "via": {
+     "skill": "s_bf449f",
+     "step": 2
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e67"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e136"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Dashboard settings"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Settings"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- link \"{{v3}}\"",
+      "- button \"Back to dashboard\"",
+      "- heading \"Settings\"",
+      "- tab \"General\"",
+      "- tab \"Annotations\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e160"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Time range selected: Last 6 hours\"",
+      "- button \"Zoom out time range\"",
+      "- button \"Refresh\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e431"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel header {{v2}}"
+      },
+      {
+       "kind": "label",
+       "label": "{{v2}}"
+      },
+      {
+       "kind": "text",
+       "text": "{{v2}} 42.2"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > div:nth-of-type(1) > div > section"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e454"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel menu {{v2}}"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Menu for panel with title {{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > section > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- link \"View v\"",
+      "- link \"Edit e\"",
+      "- menuitem \"Share p s\"",
+      "- link \"Explore p x\"",
+      "- menuitem \"More...\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e500"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel menu item Edit"
+      },
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Edit e"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > div > div > a:nth-of-type(2)"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > a:nth-of-type(2) > div > span"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- link \"{{v3}}\"",
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel changes\"",
+      "- checkbox \"toggle-table-view\"",
+      "- tab \"Queries1\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e587"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(4) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e651"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"uplot-main-div\"] div",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div > div > div > div"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel changes\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\"",
+      "- button \"Toggle top search bar\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e587"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(4) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e558"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Search or jump to..."
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"wrapper\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(1) > div:nth-of-type(2) > div > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e558"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Search or jump to..."
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"wrapper\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(1) > div:nth-of-type(2) > div > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Back to dashboard\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Back to dashboard\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1351"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1423"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Mark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "@e1390",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "heading",
+       "name": "{{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2"
+      }
+     ]
+    },
+    "label": "panel_title"
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Edit\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Edit\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button[aria-label=\"Menu for panel with title {{v2}}\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button[aria-label=\"Menu for panel with title {{v2}}\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel menu {{v2}}"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Menu for panel with title {{v2}}"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > section > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- link \"View v\"",
+      "- link \"Edit e\"",
+      "- menuitem \"Share p s\"",
+      "- link \"Explore p x\"",
+      "- menuitem \"More...\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "a:has-text(\"Edit\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "a:has-text(\"Edit\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel menu item Edit"
+      },
+      {
+       "kind": "role",
+       "role": "link",
+       "name": "Edit e"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > div > div > a:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- link \"{{v3}}\"",
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel changes\"",
+      "- checkbox \"toggle-table-view\"",
+      "- tab \"Queries1\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Back to dashboard\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Back to dashboard\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1461"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{d1}}/{{d2}}",
+     "addedContains": [
+      "- button \"Mark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v3}} breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Resumed the interrupted attempt: the dashboard \"{{v3}}\" (uid dfx4vdwe2jsaoc) already existed with a Stat panel titled \"{{v2}}\" using the TestData data source (Random Walk scenario). I confirmed the configuration in the panel editor, saved the dashboard (Grafana alert \"Dashboard saved\" appeared), and exited edit mode. Verified on screen: panel title \"{{v2}}\", data source TestData (Random Walk), dashboard title \"{{v3}}\", URL http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/{{v1}}-bench-dashboard?from=now-6h&to=now&timezone=browser.",
+   "values": {
+    "dashboard_title": "{{v3}}",
+    "dashboard_uid": "dfx4vdwe2jsaoc",
+    "data_source": "TestData",
+    "panel_displayed_text": "{{v2}} 42.2",
+    "panel_title": "{{v2}}",
+    "scenario": "Random Walk",
+    "visualization": "Stat"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-03T11:37:20.291Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "seq": {
+   "chain": "s_e00b3c",
+   "index": 1,
+   "of": 2
+  },
+  "variantOf": "s_bf449f",
+  "provenance": {
+   "session": "fwgr24-n3",
+   "instruction": "In Grafana at http://127.0.0.1:3000, create a NEW dashboard. Add a 'Stat' visualization panel, give the panel the title 'fwgr24-n3 Availability', and set its data source to the 'TestData' data source (a query editor with TestData options like scenario 'Random Walk' should appear). Then set the dashboard title to 'fwgr24-n3 Bench Dashboard' and SAVE the dashboard (confirm the save). Report the panel title and data source as shown on screen, and the dashboard's URL from the browser address bar.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:37:20.291Z"
+  }
+ },
+ {
+  "id": "s_5c263d",
+  "origin": "http://127.0.0.1:3000",
+  "template": "On the existing dashboard '{{v1}}' (URL http://127.0.0.1:3000/d/{{v3}}/{{v4}}), add a 'Text' visualization panel. Give it the title '{{v5}}' and set its text content to include the runid '{{v2}}' (e.g. '{{v6}}'). Apply the changes and SAVE the dashboard (confirm the save). Report the panel title and the text content as displayed on the saved dashboard.",
+  "params": {
+   "v1": {
+    "example": "fwgr24-n1 Bench Dashboard",
+    "usedIn": [
+     16
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "fwgr24-n1",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "efx4sgld4r9c0d",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "fwgr24-n1-bench-dashboard",
+    "usedIn": [],
+    "known": true
+   },
+   "v5": {
+    "example": "fwgr24-n1 Notes",
+    "usedIn": [
+     5
+    ],
+    "known": true
+   },
+   "v6": {
+    "example": "Notes for run fwgr24-n1",
+    "usedIn": [
+     6
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+   "fingerprint": [
+    0.021,
+    0,
+    0.021,
+    0.042,
+    0,
+    0,
+    0.011,
+    0,
+    0.011,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.159,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.063,
+    0,
+    0,
+    0.021,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0.011,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0.719,
+    0,
+    0.106,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.063,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0.021,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.085,
+    0,
+    0,
+    0,
+    0.032,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0,
+    0.127,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.042,
+    0,
+    0,
+    0.085,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.106,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.116,
+    0,
+    0,
+    0,
+    0,
+    0.085,
+    0,
+    0,
+    0.063,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.085,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0,
+    0.021,
+    0,
+    0.011,
+    0.011,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0.032,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.011,
+    0.021,
+    0.021,
+    0.571,
+    0,
+    0,
+    0,
+    0,
+    0.021,
+    0,
+    0.042,
+    0,
+    0.011,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v2}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2554"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Add button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- menuitem \"Visualization\"",
+      "- menuitem \"Import from library\"",
+      "- menuitem \"Row\"",
+      "- menuitem \"Paste panel\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2605"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Add new visualization menu item"
+      },
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > div > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- link \"{{v1}}\"",
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel\"",
+      "- checkbox \"toggle-table-view\"",
+      "- heading \"Panel Title\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2897"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid toggle-viz-picker"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Change Visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor content\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- textbox \"Search for...\"",
+      "- button \"Close\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "[data-testid=\"Plugin visualization item Text\"]"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"Plugin visualization item Text\"]"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "Plugin visualization item Text"
+      },
+      {
+       "kind": "text",
+       "text": "Text Supports markdown and html content"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor content\"] div"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(12)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- heading \"Title\"",
+      "- link \"commonmark.org/help\"",
+      "- button \"Change Visualization\"",
+      "- textbox \"Search options\"",
+      "- heading \"Panel options\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e3720",
+     "value": "{{v5}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel editor option pane field input Title"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- heading \"{{v5}}\"",
+      "- button \"Menu for panel with title {{v5}}\"",
+      "- textbox \"\": {{v5}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e3808",
+     "value": "{{v6}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Editor content;Press Alt+F1 for Accessibility Options."
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid ReactMonacoEditor editorLazy\"] textarea"
+      },
+      {
+       "kind": "css",
+       "selector": "div > section > div > div > div:nth-of-type(1) > textarea"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- textbox \"Editor content;Press Alt+F1 for Accessibility Options.\": {{v6}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2650"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(4) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3863"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\"",
+      "- button \"Toggle top search bar\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2639"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- heading \"{{v2}} Availability\"",
+      "- button \"Menu for panel with title {{v2}} Availability\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3897"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- dialog \"Discard changes to dashboard?\"",
+      "- heading \"Discard changes to dashboard?\"",
+      "- button \"Close\"",
+      "- button \"Cancel\"",
+      "- button \"Discard\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button >> text=Cancel"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button >> text=Cancel"
+      },
+      {
+       "kind": "text",
+       "text": "Cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > form > div:nth-of-type(2) > div > button:nth-of-type(1) > span"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3901"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4015"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3897"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}",
+     "addedContains": [
+      "- button \"Mark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v1}} breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2",
+       "nth": 0
+      }
+     ]
+    },
+    "label": "panel_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"TextPanel-converted-content\"] p"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div:nth-of-type(3) > div > div:nth-of-type(1) > div > p"
+      }
+     ]
+    },
+    "label": "text_content"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Added a Text visualization panel titled '{{v5}}' with content '{{v6}}' to the '{{v1}}', applied the changes, and saved (alert 'Dashboard saved' confirmed twice). The saved dashboard displays the panel heading '{{v5}}' with the text '{{v6}}', alongside the existing '{{v2}} Availability' stat panel. Dashboard URL: http://127.0.0.1:3000/d/{{v3}}/{{v4}}.",
+   "values": {
+    "dashboard_title": "{{v1}}",
+    "dashboard_url": "http://127.0.0.1:3000/d/{{v3}}/{{v4}}?from=now-6h&to=now&timezone=browser",
+    "panel_title": "{{v5}}",
+    "text_content": "{{v6}}"
+   }
+  },
+  "stats": {
+   "uses": 2,
+   "successes": 1,
+   "partial": 1,
+   "created": "2026-09-03T11:00:12.936Z",
+   "failedAtStep": {
+    "1": 1
+   },
+   "fallthroughs": 1,
+   "lastUsed": "2026-09-03T11:40:19.394Z",
+   "lastFailedAt": 1
+  },
+  "status": "provisional",
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "On the existing dashboard 'fwgr24-n1 Bench Dashboard' (URL http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard), add a 'Text' visualization panel. Give it the title 'fwgr24-n1 Notes' and set its text content to include the runid 'fwgr24-n1' (e.g. 'Notes for run fwgr24-n1'). Apply the changes and SAVE the dashboard (confirm the save). Report the panel title and the text content as displayed on the saved dashboard.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:00:12.936Z"
+  }
+ },
+ {
+  "id": "s_8896cd",
+  "origin": "http://127.0.0.1:3000",
+  "template": "On the existing dashboard '{{v1}} Bench Dashboard' (URL http://127.0.0.1:3000/d/{{v2}}/{{v3}}), add a 'Text' visualization panel. Give it the title '{{v4}}' and set its text content to include the runid '{{v1}}' (e.g. '{{v5}}'). Apply the changes and SAVE the dashboard (confirm the save). Report the panel title and the text content as displayed on the saved dashboard.",
+  "params": {
+   "v1": {
+    "example": "fwgr24-n3",
+    "usedIn": [
+     16
+    ],
+    "known": true
+   },
+   "v2": {
+    "example": "dfx4vdwe2jsaoc",
+    "usedIn": [],
+    "known": true
+   },
+   "v3": {
+    "example": "fwgr24-n3-bench-dashboard",
+    "usedIn": [],
+    "known": true
+   },
+   "v4": {
+    "example": "fwgr24-n3 Notes",
+    "usedIn": [
+     7
+    ],
+    "known": true
+   },
+   "v5": {
+    "example": "Notes for run fwgr24-n3",
+    "usedIn": [
+     8
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}"
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2554"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Mark as favorite"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Mark as favorite"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "alertContains": "Dashboard starred",
+     "addedContains": [
+      "- button \"Unmark as favorite\"",
+      "- status \"Dashboard starred\"",
+      "- button \"Close alert\""
+     ]
+    },
+    "via": {
+     "skill": "s_5c263d",
+     "step": 1
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1530"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Add\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Add\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Add button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Add"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- menuitem \"Visualization\"",
+      "- menuitem \"Import from library\"",
+      "- menuitem \"Row\"",
+      "- menuitem \"Paste panel\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1586"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Add new visualization menu item"
+      },
+      {
+       "kind": "role",
+       "role": "menuitem",
+       "name": "Visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div > div > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- link \"{{v1}} Bench Dashboard\"",
+      "- button \"Back to dashboard\"",
+      "- button \"Discard panel\"",
+      "- checkbox \"toggle-table-view\"",
+      "- heading \"Panel Title\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1878"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid toggle-viz-picker"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Change Visualization"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Panel editor content\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- textbox \"Search for...\"",
+      "- button \"Close\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "div:has-text(\"Text\"):not(:has(div))"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "div:has-text(\"Text\"):not(:has(div))"
+      },
+      {
+       "kind": "text",
+       "text": "Text"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"Plugin visualization item Text\"] div"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div:nth-of-type(12) > div:nth-of-type(1) > div"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- heading \"Title\"",
+      "- link \"commonmark.org/help\"",
+      "- button \"Change Visualization\"",
+      "- textbox \"Search options\"",
+      "- heading \"Panel options\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2827",
+     "value": "{{v4}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Panel editor option pane field input Title"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div:nth-of-type(2) > div > div > div > input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- heading \"{{v4}}\"",
+      "- button \"Menu for panel with title {{v4}}\"",
+      "- textbox \"\": {{v4}}"
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e2915",
+     "value": "{{v5}}"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Editor content;Press Alt+F1 for Accessibility Options."
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid ReactMonacoEditor editorLazy\"] textarea"
+      },
+      {
+       "kind": "css",
+       "selector": "div > section > div > div > div:nth-of-type(1) > textarea"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- textbox \"Editor content;Press Alt+F1 for Accessibility Options.\": {{v5}}"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e1620"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- heading \"{{v1}} Availability\"",
+      "- button \"Menu for panel with title {{v1}} Availability\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2937"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3051"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2937"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e3070"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Drawer close"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Close"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div > div > div:nth-of-type(2) > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e2933"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}",
+     "addedContains": [
+      "- button \"Unmark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v1}} Bench Dashboard breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"header-container\"] h2",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > section > div:nth-of-type(2) > div:nth-of-type(1) > h2",
+       "nth": 0
+      }
+     ]
+    },
+    "label": "panel_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"TextPanel-converted-content\"] p"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div:nth-of-type(3) > div > div:nth-of-type(1) > div > p"
+      }
+     ]
+    },
+    "label": "text_content"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "The Text panel was already added and saved by the previous attempt; I verified it on screen. The dashboard \"{{v1}} Bench Dashboard\" now shows two panels: \"{{v4}}\" (Text visualization, content \"{{v5}}\") and \"{{v1}} Availability\" (Stat). The save drawer confirmed \"No changes to save\", meaning the dashboard was already persisted. I exited edit mode; the dashboard is in normal view mode at URL http://127.0.0.1:3000/d/{{v2}}/{{v3}}?from=now-6h&to=now&timezone=browser.",
+   "values": {
+    "dashboard_title": "{{v1}} Bench Dashboard",
+    "dashboard_url": "http://127.0.0.1:3000/d/{{v2}}/{{v3}}?from=now-6h&to=now&timezone=browser",
+    "panel_title": "{{v4}}",
+    "runid_in_text": "{{v1}}",
+    "text_content": "{{v5}}"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-03T11:40:19.410Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "variantOf": "s_5c263d",
+  "provenance": {
+   "session": "fwgr24-n3",
+   "instruction": "On the existing dashboard 'fwgr24-n3 Bench Dashboard' (URL http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard), add a 'Text' visualization panel. Give it the title 'fwgr24-n3 Notes' and set its text content to include the runid 'fwgr24-n3' (e.g. 'Notes for run fwgr24-n3'). Apply the changes and SAVE the dashboard (confirm the save). Report the panel title and the text content as displayed on the saved dashboard.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:40:19.410Z"
+  }
+ },
+ {
+  "id": "s_57434d",
+  "origin": "http://127.0.0.1:3000",
+  "template": "On the dashboard '{{v1}}' ({{v5}}), do two things and save: (1) Add the tag 'bench' to the dashboard (via dashboard settings > General, add tag 'bench'). (2) Set the dashboard's time range to 'Last 6 hours' AND make sure it is persisted into the saved dashboard — when saving, tick the 'Update default time range' checkbox in the save dialog so the 6-hour range is stored as the dashboard's default. Save and confirm. Report the tag shown in dashboard settings and the time range shown in the top bar after a page reload.",
+  "params": {
+   "v1": {
+    "example": "fwgr24-n1 Bench Dashboard",
+    "usedIn": [
+     13
+    ],
+    "known": true
+   },
+   "v5": {
+    "example": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard",
+    "usedIn": [
+     9,
+     12
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/:var/:id",
+   "fingerprint": [
+    0.02,
+    0,
+    0.02,
+    0.04,
+    0,
+    0,
+    0.01,
+    0,
+    0.01,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.131,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.02,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.01,
+    0.04,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.746,
+    0,
+    0.101,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.161,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.04,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0.01,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.121,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.06,
+    0.02,
+    0,
+    0.081,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.03,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.101,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.091,
+    0,
+    0,
+    0,
+    0,
+    0.081,
+    0,
+    0,
+    0.161,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.081,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.081,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.02,
+    0,
+    0.504,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.04,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4034"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4041"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Dashboard settings"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Settings"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- link \"{{v1}}\"",
+      "- button \"Back to dashboard\"",
+      "- heading \"Settings\"",
+      "- tab \"General\"",
+      "- tab \"Annotations\""
+     ]
+    }
+   },
+   {
+    "tool": "fill",
+    "args": {
+     "target": "@e4129",
+     "value": "bench"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Tags"
+      },
+      {
+       "kind": "label",
+       "label": "Tags"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "New tag (enter key to add)"
+      },
+      {
+       "kind": "id",
+       "selector": "#tags-input"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "#tags-input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- textbox \"New tag (enter key to add)\": bench"
+     ]
+    }
+   },
+   {
+    "tool": "press",
+    "args": {
+     "target": "@e4129",
+     "key": "Enter"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "textbox",
+       "name": "Tags"
+      },
+      {
+       "kind": "label",
+       "label": "Tags"
+      },
+      {
+       "kind": "placeholder",
+       "placeholder": "New tag (enter key to add)"
+      },
+      {
+       "kind": "id",
+       "selector": "#tags-input"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"input-wrapper\"] input"
+      },
+      {
+       "kind": "css",
+       "selector": "#tags-input"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- textbox \"New tag (enter key to add)\"",
+      "- button \"Remove \\\"bench\\\" tag\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4062"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Time range selected: Last 6 hours\"",
+      "- button \"Zoom out time range\"",
+      "- button \"Refresh\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4300"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "check",
+    "args": {
+     "target": "@e4403",
+     "checked": true
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "Dashboard settings Save Dashboard Modal Save timerange checkbox"
+      },
+      {
+       "kind": "role",
+       "role": "checkbox",
+       "name": "Update default time rangeWill make current time range the new default"
+      },
+      {
+       "kind": "label",
+       "label": "Update default time rangeWill make current time range the new default"
+      },
+      {
+       "kind": "id",
+       "selector": "#save-timerange"
+      },
+      {
+       "kind": "css",
+       "selector": "#save-timerange"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- tab \"Changes2\"",
+      "- checkbox \"Update default time rangeWill make current time range the new default\" [checked]"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e4417"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v5}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e67"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e148"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Dashboard settings"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Settings"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- link \"{{v1}}\"",
+      "- button \"Back to dashboard\"",
+      "- heading \"Settings\"",
+      "- tab \"General\"",
+      "- tab \"Annotations\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v5}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v1}} breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid TimePicker Open Button\"] span",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1) > div > span > span:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "time_range_after_reload"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Added the tag 'bench' via dashboard Settings > General (tag input filled and confirmed; Settings page shows the 'bench' tag), and saved the dashboard with the 'Update default time range' checkbox ticked so 'Last 6 hours' is stored as the dashboard default. After reloading the dashboard URL without any time-range query params ({{v5}}), the top bar shows 'Last 6 hours', confirming the default persisted. Both panels ('{{v2}} Notes' and '{{v2}} Availability') render on the saved dashboard.",
+   "values": {
+    "dashboard_title": "{{v1}}",
+    "dashboard_url": "{{v5}}",
+    "tag": "bench",
+    "time_range_after_reload": "Last 6 hours"
+   }
+  },
+  "stats": {
+   "uses": 2,
+   "successes": 2,
+   "partial": 0,
+   "created": "2026-09-03T11:05:38.994Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:40:25.606Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "On the dashboard 'fwgr24-n1 Bench Dashboard' (http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard), do two things and save: (1) Add the tag 'bench' to the dashboard (via dashboard settings > General, add tag 'bench'). (2) Set the dashboard's time range to 'Last 6 hours' AND make sure it is persisted into the saved dashboard — when saving, tick the 'Update default time range' checkbox in the save dialog so the 6-hour range is stored as the dashboard's default. Save and confirm. Report the tag shown in dashboard settings and the time range shown in the top bar after a page reload.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:05:38.994Z"
+  }
+ },
+ {
+  "id": "s_9495b1",
+  "origin": "http://127.0.0.1:3000",
+  "template": "On the dashboard '{{v1}}' ({{v3}}), set the dashboard's auto-refresh interval to '1m' (open the time picker in the top bar, set the auto-refresh interval to 1m so it shows '1m' next to the refresh icon). Then SAVE the dashboard so the refresh interval persists (use the save dialog; if there is an option to update default settings, tick it). After saving, reload the page and report whether the refresh interval still shows '1m' in the top bar, and report the browser's current page URL.",
+  "params": {
+   "v1": {
+    "example": "fwgr24-n1 Bench Dashboard",
+    "usedIn": [
+     24
+    ],
+    "known": true
+   },
+   "v3": {
+    "example": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard",
+    "usedIn": [
+     23
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/:var/:id",
+   "fingerprint": [
+    0.02,
+    0,
+    0.02,
+    0.04,
+    0,
+    0,
+    0.01,
+    0,
+    0.01,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.128,
+    0,
+    0,
+    0.04,
+    0,
+    0.02,
+    0.02,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.01,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.771,
+    0,
+    0.099,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.158,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.04,
+    0.04,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0.01,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.119,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.04,
+    0,
+    0,
+    0.079,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.099,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.089,
+    0,
+    0,
+    0,
+    0,
+    0.079,
+    0,
+    0,
+    0.119,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.079,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.02,
+    0.04,
+    0.494,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.04,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "steps": [
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e101"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker interval button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Auto refresh turned off. Choose refresh time interval"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e161"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitemradio",
+       "name": "1 minute"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > button:nth-of-type(6)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Choose refresh time interval with current interval 1 minute selected\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e67"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e195"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e255"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e204"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker interval button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Choose refresh time interval with current interval 1 minute selected"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e279"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitemradio",
+       "name": "1 minute"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > button:nth-of-type(6)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e84"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid TimePicker Open Button"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- dialog \"\"",
+      "- textbox \"Search quick ranges\"",
+      "- checkbox \"\"",
+      "- checkbox \"\"",
+      "- checkbox \"\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e200"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker run button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Refresh"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e84"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid TimePicker Open Button"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- dialog \"\"",
+      "- textbox \"Search quick ranges\"",
+      "- checkbox \"\"",
+      "- checkbox \"\"",
+      "- checkbox \"\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e84"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid TimePicker Open Button"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e195"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e496"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Cancel"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e204"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker interval button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Choose refresh time interval with current interval 1 minute selected"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e505"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitemradio",
+       "name": "Turn off auto refresh"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Auto refresh turned off. Choose refresh time interval\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e204"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker interval button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Auto refresh turned off. Choose refresh time interval"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e204"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker interval button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Auto refresh turned off. Choose refresh time interval"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e204"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid RefreshPicker interval button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Auto refresh turned off. Choose refresh time interval"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > div > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var"
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e561"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "role",
+       "role": "menuitemradio",
+       "name": "1 minute"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid dashboard controls\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > button:nth-of-type(6)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- button \"Choose refresh time interval with current interval 1 minute selected\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e195"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(6) > div > button:nth-of-type(1)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- dialog \"\"",
+      "- dialog \"Drawer title Save dashboard\"",
+      "- button \"Close\"",
+      "- heading \"Save dashboard\"",
+      "- tab \"Details\""
+     ]
+    }
+   },
+   {
+    "tool": "check",
+    "args": {
+     "target": "@e610",
+     "checked": true
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "Dashboard settings Save Dashboard Modal Save refresh checkbox"
+      },
+      {
+       "kind": "role",
+       "role": "checkbox",
+       "name": "Update default refresh valueWill make the current refresh the new default"
+      },
+      {
+       "kind": "label",
+       "label": "Update default refresh valueWill make the current refresh the new default"
+      },
+      {
+       "kind": "id",
+       "selector": "#save-refresh"
+      },
+      {
+       "kind": "css",
+       "selector": "#save-refresh"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "addedContains": [
+      "- tab \"Changes1\"",
+      "- checkbox \"Update default refresh valueWill make the current refresh the new default\" [checked]"
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e624"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Save dashboard drawer button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Save"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(3) > div:nth-of-type(1) > div > div > div:nth-of-type(3) > button:nth-of-type(2)"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/:var/:var",
+     "alertContains": "Dashboard saved",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v3}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v1}} breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid RefreshPicker interval button\"] div"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div > button > div"
+      }
+     ]
+    },
+    "label": "refresh_interval_after_reload"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid TimePicker Open Button\"] span",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1) > div > span > span:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "time_range_after_reload"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Set the dashboard's auto-refresh interval to 1m via the top-bar time picker (while in edit mode), then saved the dashboard with the 'Update default refresh value' checkbox ticked in the save dialog (alert 'Dashboard saved' confirmed). After reloading the dashboard URL without query params, the top bar shows '1m' next to the refresh icon (button labelled 'Choose refresh time interval with current interval 1 minute selected'), and the 'Last 6 hours' time range also persisted. Current URL: {{v3}}.",
+   "values": {
+    "dashboard_title": "{{v1}}",
+    "dashboard_url": "{{v3}}",
+    "refresh_interval_after_reload": "1m",
+    "time_range_after_reload": "Last 6 hours"
+   }
+  },
+  "stats": {
+   "uses": 2,
+   "successes": 2,
+   "partial": 0,
+   "created": "2026-09-03T11:09:48.838Z",
+   "failedAtStep": {},
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:40:34.749Z"
+  },
+  "status": "validated",
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "On the dashboard 'fwgr24-n1 Bench Dashboard' (http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard), set the dashboard's auto-refresh interval to '1m' (open the time picker in the top bar, set the auto-refresh interval to 1m so it shows '1m' next to the refresh icon). Then SAVE the dashboard so the refresh interval persists (use the save dialog; if there is an option to update default settings, tick it). After saving, reload the page and report whether the refresh interval still shows '1m' in the top bar, and report the browser's current page URL.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:09:48.838Z"
+  }
+ },
+ {
+  "id": "s_41c4ef",
+  "origin": "http://127.0.0.1:3000",
+  "template": "Open {{v1}} fresh (no query params) and verify the saved state of the dashboard: report (a) the dashboard title shown, (b) the exact titles of all panels visible, (c) the time range shown in the top bar, (d) the auto-refresh interval shown next to the refresh icon, (e) whether the tag '{{v5}}' appears (check dashboard settings > General if not visible on the main view), and (f) the exact current browser page URL. Do not change anything.",
+  "params": {
+   "v1": {
+    "example": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard",
+    "usedIn": [
+     1
+    ],
+    "known": true
+   },
+   "v4": {
+    "example": "fwgr24-n1",
+    "usedIn": [
+     7
+    ],
+    "known": true,
+    "binding": "var:runid"
+   },
+   "v5": {
+    "example": "bench",
+    "usedIn": [],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/{{v4}}-{{v5}}-dashboard",
+   "fingerprint": [
+    0.02,
+    0,
+    0.02,
+    0.039,
+    0,
+    0,
+    0.01,
+    0,
+    0.01,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0.127,
+    0,
+    0,
+    0.039,
+    0,
+    0.02,
+    0.02,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.039,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.039,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.01,
+    0,
+    0.039,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.774,
+    0,
+    0.098,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.039,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.039,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.157,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0.039,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.039,
+    0.039,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.039,
+    0.01,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.039,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.039,
+    0,
+    0,
+    0.118,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.039,
+    0,
+    0,
+    0.078,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.098,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.088,
+    0,
+    0,
+    0,
+    0,
+    0.078,
+    0,
+    0,
+    0.118,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.078,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0.01,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0.01,
+    0,
+    0.02,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.029,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.01,
+    0.02,
+    0.039,
+    0.49,
+    0,
+    0,
+    0,
+    0,
+    0.02,
+    0,
+    0.039,
+    0,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "requireText": [
+    "{{v4}}"
+   ]
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v1}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e67"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e149"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Dashboard settings"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Settings"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard",
+     "addedContains": [
+      "- link \"{{v4}} Bench Dashboard\"",
+      "- button \"Back to dashboard\"",
+      "- heading \"Settings\"",
+      "- tab \"General\"",
+      "- tab \"Annotations\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e185"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard",
+     "addedContains": [
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Time range selected: Last 6 hours\"",
+      "- button \"Zoom out time range\"",
+      "- button \"Refresh\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v4}} Bench Dashboard breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid TimePicker Open Button\"] span",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1) > div > span > span:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "time_range"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid RefreshPicker interval button\"] div"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div > button > div"
+      }
+     ]
+    },
+    "label": "refresh_interval"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"TextPanel-converted-content\"] p"
+      },
+      {
+       "kind": "css",
+       "selector": "section > div:nth-of-type(3) > div > div:nth-of-type(1) > div > p"
+      }
+     ]
+    },
+    "label": "panel_text_content"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Verified all saved state on the dashboard loaded fresh: (a) Dashboard title: \"{{v4}} Bench Dashboard\"; (b) Panel titles: \"{{v4}} Notes\" (content: \"Notes for run {{v4}}\") and \"{{v4}} Availability\" (stat value \"41.4\"); (c) Time range: \"Last 6 hours\"; (d) Auto-refresh interval: \"1m\" (button labelled \"Choose refresh time interval with current interval 1 minute selected\"); (e) Tag '{{v5}}' confirmed in Dashboard Settings > General (shows \"Tags {{v5}}\"); (f) Current URL: {{v1}}?from=now-6h&to=now&timezone=browser&refresh=1m",
+   "values": {
+    "dashboard_title": "{{v4}} Bench Dashboard",
+    "panel_titles": "{{v4}} Notes, {{v4}} Availability",
+    "time_range": "Last 6 hours",
+    "refresh_interval": "1m",
+    "tag_bench": "confirmed in Dashboard Settings > General",
+    "panel_text_content": "Notes for run {{v4}}",
+    "dashboard_url": "{{v1}}?from=now-6h&to=now&timezone=browser&refresh=1m"
+   }
+  },
+  "stats": {
+   "uses": 2,
+   "successes": 1,
+   "partial": 1,
+   "created": "2026-09-03T11:13:31.904Z",
+   "failedAtStep": {
+    "2": 1
+   },
+   "fallthroughs": 0,
+   "lastUsed": "2026-09-03T11:44:08.692Z",
+   "lastFailedAt": 2
+  },
+  "status": "provisional",
+  "provenance": {
+   "session": "fwgr24-n1",
+   "instruction": "Open http://127.0.0.1:3000/d/efx4sgld4r9c0d/fwgr24-n1-bench-dashboard fresh (no query params) and verify the saved state of the dashboard: report (a) the dashboard title shown, (b) the exact titles of all panels visible, (c) the time range shown in the top bar, (d) the auto-refresh interval shown next to the refresh icon, (e) whether the tag 'bench' appears (check dashboard settings > General if not visible on the main view), and (f) the exact current browser page URL. Do not change anything.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:13:31.904Z"
+  }
+ },
+ {
+  "id": "s_e6e3e1",
+  "origin": "http://127.0.0.1:3000",
+  "template": "Open {{v4}} fresh (no query params) and verify the saved state of the dashboard: report (a) the dashboard title shown, (b) the exact titles of all panels visible, (c) the time range shown in the top bar, (d) the auto-refresh interval shown next to the refresh icon, (e) whether the tag 'bench' appears (check dashboard settings > General if not visible on the main view), and (f) the exact current browser page URL. Do not change anything.",
+  "params": {
+   "v3": {
+    "example": "fwgr24-n3",
+    "usedIn": [
+     14
+    ],
+    "known": true,
+    "binding": "runid"
+   },
+   "v4": {
+    "example": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+    "usedIn": [
+     1,
+     2
+    ],
+    "known": true
+   }
+  },
+  "preconditions": {
+   "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/{{v3}}-bench-dashboard"
+  },
+  "steps": [
+   {
+    "tool": "goto",
+    "args": {
+     "url": "{{v4}}"
+    },
+    "locators": {}
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e67"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Settings\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Settings\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Dashboard settings"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Settings"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- link \"{{v3}} Bench Dashboard\"",
+      "- button \"Back to dashboard\"",
+      "- heading \"Settings\"",
+      "- tab \"General\"",
+      "- tab \"Annotations\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e152"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Time range selected: Last 6 hours\"",
+      "- button \"Zoom out time range\"",
+      "- button \"Refresh\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e386"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- button \"Unmark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e474"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Edit dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- button \"Add\"",
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Save dashboard\"",
+      "- button \"More save options\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "button:has-text(\"Settings\")"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "button:has-text(\"Settings\")"
+      },
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Dashboard settings"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Settings"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(3) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- link \"{{v3}} Bench Dashboard\"",
+      "- button \"Back to dashboard\"",
+      "- heading \"Settings\"",
+      "- tab \"General\"",
+      "- tab \"Annotations\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e494"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Back to dashboard button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Back to dashboard"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(1) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- button \"Settings\"",
+      "- button \"Exit edit\"",
+      "- button \"Time range selected: Last 6 hours\"",
+      "- button \"Zoom out time range\"",
+      "- button \"Refresh\""
+     ]
+    }
+   },
+   {
+    "tool": "click",
+    "args": {
+     "target": "@e728"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid Exit edit mode button"
+      },
+      {
+       "kind": "role",
+       "role": "button",
+       "name": "Exit edit"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] button"
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button"
+      }
+     ]
+    },
+    "expect": {
+     "urlPattern": "http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard",
+     "addedContains": [
+      "- button \"Unmark as favorite\"",
+      "- button \"Share\"",
+      "- button \"Edit\""
+     ]
+    }
+   },
+   {
+    "tool": "read",
+    "args": {
+     "what": "url"
+    },
+    "locators": {},
+    "label": "dashboard_url"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid RefreshPicker interval button\"] div"
+      },
+      {
+       "kind": "css",
+       "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div > button > div"
+      }
+     ]
+    },
+    "label": "auto_refresh_interval"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "testid",
+       "attr": "data-testid",
+       "value": "data-testid {{v3}} Bench Dashboard breadcrumb"
+      },
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid Nav toolbar\"] span",
+       "nth": 0
+      },
+      {
+       "kind": "css",
+       "selector": "header > div:nth-of-type(2) > nav > ol > li:nth-of-type(3) > span"
+      }
+     ]
+    },
+    "label": "dashboard_title"
+   },
+   {
+    "tool": "read",
+    "args": {
+     "target": "(read-back)",
+     "what": "text"
+    },
+    "locators": {
+     "target": [
+      {
+       "kind": "css",
+       "selector": "[data-testid=\"data-testid TimePicker Open Button\"] span",
+       "nth": 1
+      },
+      {
+       "kind": "css",
+       "selector": "div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1) > div > span > span:nth-of-type(1)"
+      }
+     ]
+    },
+    "label": "time_range"
+   }
+  ],
+  "reportTemplate": {
+   "summary": "Verified the saved state of the dashboard from a fresh load: (a) Dashboard title \"{{v3}} Bench Dashboard\" shown in breadcrumb; (b) Two panels visible: \"{{v3}} Notes\" (Text viz, shows \"Notes for run {{v3}}\") and \"{{v3}} Availability\" (Stat viz, shows a value of 88.5); (c) Time range \"Last 6 hours\" shown in top bar; (d) Auto-refresh \"1m\" shown next to the refresh icon; (e) Tag \"bench\" confirmed present in Dashboard Settings > General > Tags; (f) URL {{v4}}?from=now-6h&to=now&timezone=browser&refresh=1m",
+   "values": {
+    "auto_refresh_interval": "1m",
+    "dashboard_title": "{{v3}} Bench Dashboard",
+    "dashboard_url": "{{v4}}?from=now-6h&to=now&timezone=browser&refresh=1m",
+    "panel_titles": "{{v3}} Availability, {{v3}} Notes",
+    "tag_bench": "bench",
+    "time_range": "Last 6 hours"
+   }
+  },
+  "stats": {
+   "uses": 1,
+   "successes": 1,
+   "partial": 0,
+   "created": "2026-09-03T11:44:08.705Z",
+   "failedAtStep": {},
+   "fallthroughs": 0
+  },
+  "status": "provisional",
+  "variantOf": "s_41c4ef",
+  "provenance": {
+   "session": "fwgr24-n3",
+   "instruction": "Open http://127.0.0.1:3000/d/dfx4vdwe2jsaoc/fwgr24-n3-bench-dashboard fresh (no query params) and verify the saved state of the dashboard: report (a) the dashboard title shown, (b) the exact titles of all panels visible, (c) the time range shown in the top bar, (d) the auto-refresh interval shown next to the refresh icon, (e) whether the tag 'bench' appears (check dashboard settings > General if not visible on the main view), and (f) the exact current browser page URL. Do not change anything.",
+   "model": "deepseek/deepseek-v4-flash",
+   "created": "2026-09-03T11:44:08.705Z"
+  }
+ }
+]
