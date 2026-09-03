@@ -297,12 +297,18 @@ for (const { runid, file } of sessions()) {
       bind: (id, instr) => {
         const sk = store.get(id);
         const bound = sk ? bindSkill(sk, instr, { runid }) : null;
-        if (process.env.REBUILD_TRACE) console.error(`  bind ${id}: skill=${sk ? 'found' : 'MISSING'} params=${bound ? JSON.stringify(Object.keys(bound)) : 'NULL'}`);
+        if (process.env.REBUILD_TRACE) {
+          console.error(`  bind ${id}: skill=${sk ? 'found' : 'MISSING'} params=${bound ? JSON.stringify(Object.keys(bound)) : 'NULL'}`);
+          if (sk && !bound) console.error(`    template: ${sk.template}\n    params: ${JSON.stringify(sk.params)}\n    instr: ${instr}`);
+        }
         return bound;
       },
     });
     if (flow) {
       const text = JSON.stringify(flow);
+      // REBUILD_DUMP=<file>: write the rebuilt flow itself, so a moved number
+      // can be read as a diff of the flow rather than guessed at.
+      if (process.env.REBUILD_DUMP) fs.writeFileSync(process.env.REBUILD_DUMP.replace('{runid}', runid), JSON.stringify(flow, null, 2));
       run.flow = {
         steps: flow.steps.length,
         adopted: flow.steps.filter((s) => s.adopted).map((s) => s.id),

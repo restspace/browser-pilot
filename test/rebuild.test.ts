@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -32,6 +33,20 @@ const root = path.resolve(__dirname, '..');
 const TAGS = ['fwod24', 'fwod25', 'fwod26', 'fwod27', 'fwgr14', 'fwrd35'];
 
 describe('recorded-flow rebuild', () => {
+  // rebuild-flow.mjs runs the BUILT engine. A stale dist/ makes this gate
+  // measure the previous build and pass — which is how f24bdf9 shipped a
+  // compile change that moved fwod27 (38 -> 32 refs) and fwgr14 (20 -> 18)
+  // with the gate green. So refuse to measure anything older than the sources.
+  it('dist/ is not older than src/ (run `npm run build` first)', () => {
+    const newest = (dir: string): number =>
+      Math.max(
+        0,
+        ...fs.readdirSync(dir, { withFileTypes: true }).map((e) => (e.isDirectory() ? newest(path.join(dir, e.name)) : fs.statSync(path.join(dir, e.name)).mtimeMs)),
+      );
+    const src = newest(path.join(root, 'src'));
+    const dist = newest(path.join(root, 'dist'));
+    expect(dist, `dist/ is ${Math.round((src - dist) / 1000)}s older than src/ — run npm run build`).toBeGreaterThanOrEqual(src);
+  });
   for (const tag of TAGS) {
     it(`${tag} still compiles to its pinned flow`, () => {
       // Throws on a non-zero exit, and rebuild-flow.mjs exits 1 on a diff with

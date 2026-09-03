@@ -4,8 +4,8 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { InstructionResult } from '../src/agent/loop.js';
 import type { RecordedEntry, RecordedStep } from '../src/daemon/recorder.js';
-import { specOf } from '../src/skills/replay.js';
-import { stranded } from '../src/skills/compile.js';
+import { lineShows, specOf } from '../src/skills/replay.js';
+import { maskVolatile, stranded } from '../src/skills/compile.js';
 import { recordCandidateEvidence, retired } from '../src/skills/repair.js';
 import { SkillStore } from '../src/skills/store.js';
 import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
@@ -116,6 +116,54 @@ const report = {
   summary: "Added part 'x7 RD Part A' (cost 100, markup 25); the app computed price 125.00.",
   evidence: { values: { partName: 'x7 RD Part A', partPrice: '125.00' } },
 };
+
+describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => {
+  it('masks clock and calendar tokens the recording happened to see, keeping the slot', () => {
+    expect(maskVolatile('- textbox "09/03/2026 07:22": {{v3}}')).toBe('- textbox "{{*}} {{*}}": {{v3}}');
+    expect(maskVolatile('- cell "2026-12-31"')).toBe('- cell "{{*}}"');
+    expect(maskVolatile('- row "Su Mo Tu We Th Fr Sa"')).toBe('- row "Su Mo Tu We Th Fr Sa"');
+    expect(maskVolatile('- link "RD-1015"')).toBe('- link "RD-1015"');
+  });
+  it('lineShows matches a wildcard line and ignores whitespace on both sides', () => {
+    const live = ['- textbox "09/03/2026 07:31": 2026-12-31', '- link "Backlog"  ', '- heading "Bench   Board"'];
+    expect(lineShows(live, ['- textbox "{{*}} {{*}}": 2026-12-31'])).toBe(true);
+    expect(lineShows(live, ['- textbox "{{*}} {{*}}": 2026-12-30'])).toBe(false);
+    expect(lineShows(live, ['Backlog '])).toBe(true);
+    expect(lineShows(live, ['Bench Board'])).toBe(true);
+    expect(lineShows(live, ['Ready'])).toBe(false);
+    // a wildcard never spans lines
+    expect(lineShows(['- a "x"', '- b "y"'], ['- a "{{*}}b "y"'])).toBe(false);
+  });
+  it('re-inlines a slot that survives only in an expectation: no orphan marker, no phantom param (fwgr23 05-open)', () => {
+    // '125.00' is a run value the instruction only names inside '£125.00', so
+    // its marker is swallowed in the template and it is typed nowhere; the
+    // recording merely SAW it in a row. It must neither stay behind as an
+    // unfillable {{vN}} in the expectation nor become a param bound by origin
+    // that refuses the skill when that origin is not published.
+    const text = "Add part 'x7 RD Part A' to ticket t15; the row should total £125.00.";
+    const entries: RecordedEntry[] = [
+      { k: 'instruction', text, url: `${ORIGIN}/#/tickets/t15`, fingerprint: [1, 0, 0] },
+      step('fill', { target: '@e10', value: 'x7 RD Part A' }, [{ kind: 'label', label: 'Name' }]),
+      step('click', { target: '@e13' }, [{ kind: 'role', role: 'button', name: 'Save' }], {
+        diff: { url: `${ORIGIN}/#/tickets/t15`, alerts: [], added: ['- row "x7 RD Part A 125.00"'] },
+      }),
+    ];
+    const s = compileSkill({ entries, instruction: text, report, session: 's', model: 'm', now: '2026-09-03T00:00:00Z', knownValues: { total: '£125.00', price: '125.00' } })!;
+    expect(s).toBeTruthy();
+    expect(Object.values(s.params).map((p) => p.example)).not.toContain('125.00');
+    expect(s.steps[1].expect?.addedContains?.[0]).toMatch(/^- row "\{\{v\d+\}\} 125\.00"$/);
+    const markers = new Set(Array.from(JSON.stringify(s.steps).matchAll(/\{\{(v\d+)\}\}/g), (m) => m[1]));
+    for (const m of markers) expect(s.params).toHaveProperty(m);
+  });
+  it('a number inside a dotted address or version is never a slot', () => {
+    const slots = new Map([['d1', '1']]);
+    // (a number after `=` is substituteUrlId's business, not substitute()'s)
+    expect(substitute('http://127.0.0.1:8069/web#action=5&cids=1 page 1', slots)).toBe('http://127.0.0.1:8069/web#action=5&cids=1 page {{d1}}');
+    expect(substitute('version 1.2.3, qty 1', slots)).toBe('version 1.2.3, qty {{d1}}');
+    // a sentence-final number still substitutes
+    expect(substitute('qty 1.', slots)).toBe('qty {{d1}}.');
+  });
+});
 
 describe('url patterns', () => {
   it('reduces id-like segments and drops the query', () => {
@@ -535,8 +583,9 @@ describe('compileSkill', () => {
     expect(s.preconditions.urlPattern).toBe(`${ORIGIN}/#/tickets/:id`);
     expect(s.preconditions.fingerprint).toEqual([1, 0, 0]);
     expect(Object.keys(s.params)).toEqual(['v1', 'v2', 'v3']);
-    // step 5's alert expectation carries the slot too, so it counts as a use
-    expect(s.params.v1).toEqual({ example: 'x7 RD Part A', usedIn: [2, 5, 6, 7] });
+    // step 5's alert expectation carries the slot too, but only args and
+    // locators count as use (an expectation-only slot must not become a param)
+    expect(s.params.v1).toEqual({ example: 'x7 RD Part A', usedIn: [2, 6, 7] });
     // args, locators and expectations all carry the slot
     expect(s.steps[1].args.value).toBe('{{v1}}');
     expect(s.steps[6].locators.target[0]).toEqual({ kind: 'css', selector: 'tr:has-text("{{v1}}") td.price' });

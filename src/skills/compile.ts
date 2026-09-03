@@ -237,9 +237,14 @@ export function compileSkills(input: CompileInput): Skill[] {
       const targetless = step.tool === 'read' && step.args.what === 'url';
       if (label && (targetless || Object.values(locators).some((chain) => chain.length))) out.label = label;
       if (step.via) out.via = step.via;
-      // Expectations count as use: a slot dropped as "unused" would leave an
-      // orphan {{vN}} in addedContains, which replay treats as a HARD line.
-      for (const name of slotsUsed(JSON.stringify({ args, locators, expect: out.expect }))) segParams[name]?.usedIn.push(i + 1);
+      // Args and locators are use; expectations are NOT. Counting them (f24bdf9)
+      // kept a slot the procedure never types — a price the recording saw in
+      // a row, a uid in a post-save url — as a param bound by ORIGIN, and
+      // bindSkill then refused the whole skill whenever that origin had not
+      // been published (fwgr23 05-open, fwkb3-n3 03-create: tier null, 14-44
+      // model turns). The orphan-marker hazard it was fixing is handled below
+      // by re-inlining every dropped slot into the steps, expectations included.
+      for (const name of slotsUsed(JSON.stringify({ args, locators }))) segParams[name]?.usedIn.push(i + 1);
       return out;
     });
     const mintedForStart = mintedMap((m) => m.keptIndex < base);
@@ -302,6 +307,13 @@ export function compileSkills(input: CompileInput): Skill[] {
       continue;
     }
     keptSlots.delete(name);
+  }
+  // Every slot that did not survive is re-inlined as its recorded literal —
+  // in args, locators AND expectations. A dropped slot whose marker lingered
+  // only in addedContains was an orphan {{vN}} that replay treated as a HARD,
+  // unfillable line.
+  for (const [name, value] of slots) {
+    if (keptSlots.has(name)) continue;
     for (const b of built) b.folded = fillParamsDeep(b.folded, { [name]: value }) as SkillStep[];
   }
 
@@ -384,10 +396,15 @@ function derivesFromKnown(value: string, known: Set<string>): boolean {
 function identityOf(startText: string | undefined, slots: Map<string, string>, known: Set<string>): string[] {
   if (!startText) return [];
   const out: string[] = [];
-  for (const [name, value] of slots) {
+  for (const [name, raw] of slots) {
     if (out.length >= MAX_IDENTITY) break;
-    if (!derivesFromKnown(value, known) || value.length < MIN_IDENTITY_LEN || /^https?:/i.test(value)) continue;
-    if (!startText.includes(value)) continue;
+    // Whitespace is not identity. fwkb3 published a column name as "Backlog "
+    // (trailing space, copied from the header's text), the slot became a
+    // requireText marker, and every replay refused the create step because
+    // the live page showed "Backlog" — the same word.
+    const value = raw.replace(/\s+/g, ' ').trim();
+    if (!derivesFromKnown(raw, known) || value.length < MIN_IDENTITY_LEN || /^https?:/i.test(value)) continue;
+    if (!startText.replace(/\s+/g, ' ').includes(value)) continue;
     out.push(`{{${name}}}`);
   }
   return out;
@@ -687,8 +704,11 @@ export function substitute(text: string, slots: Map<string, string>): string {
     // Whole-token only, and a bare number never rewrites a selector index:
     // a cost of "25" must not touch the 25 in `:nth-of-type(25)` or `nth=25`.
     const numeric = /^\d+$/.test(value);
+    // A number inside a dotted run of numbers (127.0.0.1, 1.2.3) is part of
+    // that address or version, never a slot: fwod31 compiled the odoo start
+    // url as `http://127.0.0.{{d1}}:8069/...` after `cids=1` minted d1 = "1".
     const re = numeric
-      ? new RegExp(`(?<![A-Za-z0-9(=])${escapeRe(value)}(?![A-Za-z0-9)])`, 'g')
+      ? new RegExp(`(?<![A-Za-z0-9(=]|\\d\\.)${escapeRe(value)}(?![A-Za-z0-9)]|\\.\\d)`, 'g')
       : new RegExp(`(?<![A-Za-z0-9])${escapeRe(value)}(?![A-Za-z0-9])`, 'g');
     out = out.replace(re, `{{${name}}}`);
   }
@@ -983,9 +1003,26 @@ function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExp
   if (step.diff.url) out.urlPattern = urlPattern(step.diff.url, slots);
   if (step.diff.alerts[0]) out.alertContains = substitute(step.diff.alerts[0], slots).slice(0, 120);
   if (step.diff.added.length) {
-    out.addedContains = step.diff.added.slice(0, MAX_ADDED_LINES).map((l) => substitute(l, slots).slice(0, 120));
+    out.addedContains = step.diff.added.slice(0, MAX_ADDED_LINES).map((l) => maskVolatile(substitute(l, slots)).slice(0, 120));
   }
   return Object.keys(out).length ? out : undefined;
+}
+
+/**
+ * Clock and calendar tokens in a recorded page line are the RECORDING's
+ * moment, not the procedure's effect: kanboard names its due-date textbox
+ * after the current minute ("09/03/2026 07:22"), so the fill's expectation
+ * `- textbox "09/03/2026 07:22": {{v3}}` — HARD, because it carries the slot
+ * — could never match a replay nine minutes later, and fwkb3 sent every
+ * due-date step to recovery. The caller's own date is already a slot by the
+ * time this runs (substitute() went first), so what is left is volatile and
+ * becomes a `{{*}}` wildcard that lineShows() matches against anything short
+ * of a line break.
+ */
+export const WILDCARD = '{{*}}';
+const VOLATILE_TOKEN = /\b\d{1,2}:\d{2}(?::\d{2})?\b|\b\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4}\b/g;
+export function maskVolatile(line: string): string {
+  return line.replace(VOLATILE_TOKEN, WILDCARD);
 }
 
 /** If a read's result equals one of the report's evidence values, label it with that key. */

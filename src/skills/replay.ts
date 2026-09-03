@@ -5,7 +5,7 @@ import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
 import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
-import { fillParams, fillParamsDeep, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
+import { WILDCARD, fillParams, fillParamsDeep, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
 import type { Skill, SkillStep } from './store.js';
 
 /** Executes one step against the live page, recording it; throws on failure. */
@@ -656,7 +656,6 @@ const expectedAlert: StepGate = ({ outcome, step, params, tag }) => {
 const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, page, positionalResolution }) => {
   if (!outcome.diff || !step.expect?.addedContains?.length) return null;
   const warnings: string[] = [];
-  const seen = outcome.diff.added.join('\n');
   // A line carrying a {{vN}} slot is HARD (below). A {{dN}} derived marker
   // is filled like any other param but stays soft — the app minted it.
   const isParam = (l: string) => /\{\{v\d+\}\}/.test(l);
@@ -672,10 +671,10 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
     if (consequential.length) parameterised = consequential;
     else warnings.push(`step ${tag}: resolved positionally and its only recorded effect is the fill's own echo — the effect gate cannot tell right element from wrong here`);
   }
-  if (parameterised.length && !parameterised.some((w) => seen.includes(w)) && !(await presentOnPage(page, parameterised))) {
+  if (parameterised.length && !lineShows(outcome.diff.added, parameterised) && !(await presentOnPage(page, parameterised))) {
     return { warnings, stop: `after step ${tag} the page did not show ${parameterised.map((w) => JSON.stringify(w)).join(' / ')} as it did when recorded — the step ran but probably acted on the wrong element` };
   }
-  if (plain.length && !plain.some((w) => seen.includes(w))) {
+  if (plain.length && !lineShows(outcome.diff.added, plain)) {
     // None of the recorded effects in the step diff — check the live page
     // before judging (a change can land outside the diff window).
     if (!(await presentOnPage(page, plain))) {
@@ -1080,8 +1079,31 @@ async function settleDom(page: Page): Promise<void> {
 async function presentOnPage(page: Page, lines: string[]): Promise<boolean> {
   const sig = await captureSignature(page);
   if (!sig) return false;
-  const all = sig.lines.join('\n');
-  return lines.some((l) => all.includes(l));
+  return lineShows(sig.lines, lines);
+}
+
+const normWs = (s: string) => s.replace(/\s+/g, ' ').trim();
+
+/**
+ * Does any of `wants` appear in `haystack` (recorded page lines, or a diff's
+ * added lines)? Whitespace-insensitive on both sides — a marker copied with
+ * a trailing space is the same word — and a `{{*}}` wildcard (see
+ * maskVolatile) matches anything within one line.
+ */
+export function lineShows(haystack: string[], wants: string[]): boolean {
+  const all = haystack.map(normWs).join('\n');
+  return wants.some((raw) => {
+    const want = normWs(raw);
+    if (!want) return false;
+    if (!want.includes(WILDCARD)) return all.includes(want);
+    const re = new RegExp(
+      want
+        .split(WILDCARD)
+        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('[^\\n]*?'),
+    );
+    return re.test(all);
+  });
 }
 
 function parseRead(result: string): string {
