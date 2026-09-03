@@ -1,0 +1,88 @@
+{
+  "flow": "fwgr25",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Successfully navigated to the 'Service Health' dashboard in Grafana. The dashboard contains exactly 3 panels with the following titles: Request rate, Error count, Latency by endpoint. All panels were confirmed via the live DOM and a full-page screenshot was captured.",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "h2": "Request rate",
+        "h2_2": "Error count",
+        "h2_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "1/3",
+      "repaired": false,
+      "turns": 15
+    },
+    {
+      "id": "02-create",
+      "status": "failure",
+      "summary": "Instruction incomplete at turn cap. On the new-dashboard panel editor (editPanel=1): the Stat visualization was successfully applied, and the TestData DB data source is selected with its default Random Walk scenario — both confirmed in the live DOM. However, the panel title 'rpgr11-r2 Availability' could NOT be set: the Panel options section expands (aria-expanded=true, a \"Title\" label at ~(996,233)) but Grafana re-renders/collapses it and no stable selector (placeholder \"Panel Title\", aria-label, id/name) resolved, so every fill attempt timed out. The dashboard title was never set and the dashboard was never saved. The stored skill s_728ae2 also failed at its step 1 for the same reason.",
+      "values": {
+        "dashboard_saved": "no — not reached",
+        "dashboard_title": "not set — instruction incomplete",
+        "panel_title_current": "not set (Panel options section open, 'Title' field present but unfilled)",
+        "visualization": "Stat (changed from default Time series, confirmed in live DOM)",
+        "data_source": "TestData DB (selected, default Random Walk scenario, confirmed in live DOM)"
+      },
+      "tier": "B",
+      "replayed": "0/3",
+      "repaired": false,
+      "turns": 74
+    }
+  ],
+  "passed": 1,
+  "total": 8,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr25",
+      "step": "01-signin",
+      "skill": "s_ad3901",
+      "similarity": 0.86,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_ad3901 stopped at step 2 — after step 2 none of the 2 recorded page change(s) appeared (e.g. \"- alert \\\"Error loading RSS feed\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 2 recorded page change(s) appeared (e.g. \"- alert \\\"Error loading RSS feed\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_728ae2",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.989,
+      "missedLocator": "page.getByRole('textbox', { name: 'Title', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    }
+  ],
+  "wallMs": 516582,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1145731,
+    "completionTokens": 14685,
+    "cachedTokens": 993920
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 518064,
+      "completionTokens": 5925,
+      "cachedTokens": 413952
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 627667,
+      "completionTokens": 8760,
+      "cachedTokens": 579968
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

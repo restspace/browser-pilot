@@ -1,0 +1,82 @@
+{
+  "flow": "fwgr25",
+  "status": "halted",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Signed in to Grafana with admin/admin (no password change prompt appeared). Navigated to the \"Service health\" dashboard via search. The dashboard contains exactly 3 panels with these exact titles: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_titles": "Request rate, Error count, Latency by endpoint",
+        "panel_1": "Request rate",
+        "panel_2": "Error count",
+        "panel_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "1/3",
+      "repaired": false,
+      "turns": 12
+    },
+    {
+      "id": "02-create",
+      "status": "blocked",
+      "summary": "Turn cap (45) reached without a final report. Work may be partially complete — check the actions log and verify current state before resuming. Do not blindly repeat state-changing actions like submit/delete/move.",
+      "values": {},
+      "tier": "B",
+      "replayed": "0/3",
+      "repaired": false,
+      "turns": 75
+    }
+  ],
+  "passed": 1,
+  "total": 8,
+  "repinned": 0,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwgr25",
+      "step": "01-signin",
+      "skill": "s_ad3901",
+      "similarity": 0.86,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_ad3901 stopped at step 2 — after step 2 none of the 2 recorded page change(s) appeared (e.g. \"- alert \\\"Error loading RSS feed\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 2 none of the 2 recorded page change(s) appeared (e.g. \"- alert \\\"Error loading RSS feed\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_728ae2",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.909,
+      "missedLocator": "page.getByRole('textbox', { name: 'Title', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/dashboard/new"
+    }
+  ],
+  "wallMs": 832184,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1184411,
+    "completionTokens": 10922,
+    "cachedTokens": 1030176
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 482949,
+      "completionTokens": 6744,
+      "cachedTokens": 376576
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 701462,
+      "completionTokens": 4178,
+      "cachedTokens": 653600
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
