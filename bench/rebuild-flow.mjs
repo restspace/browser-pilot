@@ -191,12 +191,20 @@ function storeFrom(entries, known, valuesByInstruction) {
   // skills far poorer: s_c995ae bound 1 param here against 4 in the store, and
   // the rebuilt flow carried 10 cross-step references against the 19 that
   // shipped. That gap was my reconstruction, not a regression.
+  // The daemon's ledger keys a declared var as `var:<name>` (bindingKey), and
+  // a skill param whose value came from a var binds through that key —
+  // s_a11c2d's v2 carried binding "var:runid" and bound NULL here with only
+  // `runid` known, so 04-open and 05-open exported with no params at all.
   const known2 = { ...known };
+  for (const [k, v] of Object.entries(known)) known2[`var:${k}`] = v;
+  /** What was known BEFORE each instruction (by its text), for binding as the daemon would have. */
+  const knownBefore = new Map();
   let cur = null;
   let idx = -1;
   for (const e of entries) {
     if (e.k === 'instruction') {
       cur = { instruction: e.text ?? '', entries: [e] };
+      knownBefore.set(cur.instruction, { ...known2 });
       idx++;
     } else if (!cur) continue;
     else if (e.k === 'report') {
@@ -235,6 +243,7 @@ function storeFrom(entries, known, valuesByInstruction) {
     get: (id) => skills.find((s) => s.id === id) ?? null,
     list: (origin) => skills.filter((s) => s.origin === origin),
     all: () => skills,
+    knownBefore,
   };
 }
 
@@ -281,7 +290,8 @@ for (const { runid, file } of sessions()) {
   }
 
   const startUrl = startUrlOf(entries);
-  const store = recompile ? storeFrom(entries, { runid }, valuesByInstruction) : published;
+  const rebuilt = storeFrom(entries, { runid }, valuesByInstruction);
+  const store = recompile ? rebuilt : published;
   // REBUILD_STORE_DIR=<dir>: persist the recompiled skills as a real store, so
   // a recording can be re-exported with the current engine and REPLAYED
   // (pair with REBUILD_DUMP for the flow file) without paying for a new,
@@ -305,7 +315,7 @@ for (const { runid, file } of sessions()) {
       session: runid,
       bind: (id, instr) => {
         const sk = store.get(id);
-        const bound = sk ? bindSkill(sk, instr, { runid }) : null;
+        const bound = sk ? bindSkill(sk, instr, rebuilt.knownBefore.get(instr) ?? { runid, 'var:runid': runid }) : null;
         if (process.env.REBUILD_TRACE) {
           console.error(`  bind ${id}: skill=${sk ? 'found' : 'MISSING'} params=${bound ? JSON.stringify(Object.keys(bound)) : 'NULL'}`);
           if (sk && !bound) console.error(`    template: ${sk.template}\n    params: ${JSON.stringify(sk.params)}\n    instr: ${instr}`);
