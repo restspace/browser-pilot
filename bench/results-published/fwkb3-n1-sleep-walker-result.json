@@ -1,0 +1,96 @@
+{
+  "arm": "sleep-walker",
+  "target": "kanboard",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "b9ccbca"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwkb3-n1",
+  "task": "bench/tasks/kanboard-board-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1073883,
+  "orchestrator": {
+    "input": 4225,
+    "cacheWrite": 0,
+    "cacheRead": 21483,
+    "output": 4560
+  },
+  "inner": {
+    "promptTokens": 1315560,
+    "cachedTokens": 774912,
+    "completionTokens": 10369,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1315560,
+        "completionTokens": 10369,
+        "cachedTokens": 774912,
+        "instructions": 7
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 64,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1008021,
+  "commandBytes": 3389,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwkb3-skills",
+    "instructions": 7,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 64,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Fireworks"
+  ],
+  "orReportedCostUsd": 0.0316,
+  "maxUsd": 2,
+  "spendUsd": 0.0707,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE:** The `Bench Board` board has 4 columns, in left-to-right order: **Backlog, Ready, Work in progress, Done**.\n\n**Objective 2 — DONE:** Task titled `fwkb3-n1 Bench Task` exists on the `Bench Board` project, with description `Bench task for run fwkb3-n1` (includes the runid `fwkb3-n1`). It was created in the Backlog column.\n\n**Objective 3 — DONE:** The task was dragged from Backlog into the **Work in progress** column; verified on the board and on the task page (Column: Work in progress). The seed tasks (#1, #2, #3) were left untouched in Backlog.\n\n**Objective 4 — DONE:** The task has a comment with text `Comment for run fwkb3-n1`, verified in the task's comments section.\n\n**Objective 5 — DONE:** The task's due date was set to 2026-12-31; the task page displays it as `12/31/2026 07:23` (date portion 12/31/2026).\n\n**Objective 6 — DONE:** The task's numeric ID as displayed by the app is **#4** (shown as `Task #4` on the task page and `#4` on the board card).",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwkb3-n1-sleep-walker-transcript.jsonl"
+}

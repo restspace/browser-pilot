@@ -1,0 +1,93 @@
+
+[sweep] run 1/3: fwkb3-n1 (store: /home/user/sleep-walker/bench/results/fwkb3-skills)
+[harness] kanboard: defaulting APP_URL
+[harness] kanboard: defaulting APP_EMAIL
+[harness] kanboard: defaulting APP_PASSWORD
+[reset] kanboard: no leftover bench tasks
+[harness] kanboard responded 302 at http://127.0.0.1:8085/
+stopped: fwkb3-n1
+  flow "fwkb3" saved: 7 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwkb3.json
+  warning: warning: 51 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "Bench Board" (output) in "Navigate to http://127.0.0.1:8085/ and sign in with username admin and password admin. Report the heading of the page you land on after login and whether a proj"
+  flow.steps[0].instruction: "Board" (output) in "Navigate to http://127.0.0.1:8085/ and sign in with username admin and password admin. Report the heading of the page you land on after login and whether a proj"
+  flow.steps[1].instruction: "Board" (output) in "Open the board of the project named '{{01-signin.project_name}}' (from the {{01-signin.projects_management_link}} page, click the Board link for {{01-signin.pro"
+  s_68daf6.steps[0].expect.addedContains[0]: "Task #4" (output) in "- heading \"Task #4\""
+  s_68daf6.reportTemplate.summary: "Backlog" (output) in "Moved task #4 '{{v1}}' from Backlog to {{v5}} on the {{v3}} by dragging the card. Verified that the task now sits in the {{v5}} column. The Seed tasks (#1, #2, "
+  s_2ec6b9.steps[0].expect.addedContains[0]: "Task #4" (output) in "- heading \"Task #4\""
+  s_2ec6b9.steps[5].locators.target[0].name: "Task #4" (output) in "Task #4"
+  s_c99609.steps[0].expect.addedContains[0]: "Bench Board" (output) in "- heading \"Bench Board > {{v1}}\""
+  s_c99609.steps[0].expect.addedContains[0]: "Board" (output) in "- heading \"Bench Board > {{v1}}\""
+  s_c99609.steps[4].locators.target[0].name: "Task #4" (output) in "Task #4"
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwkb3-n1 stop=completed
+turns=8 wall=1073.9s
+commands=7 cmdTime=1008.0s cmdBytes=3389 timeouts=0
+orchestrator in=4225 cw=0 cr=21483 out=4560
+inner prompt=1315560 cached=774912 completion=10369
+spend=$0.0707 maxUsd=2
+learn: A_n=0 replayed=0/7 full=0 repaired=0 compiled=7 variants=0
+-> /home/user/sleep-walker/bench/results/fwkb3-n1-sleep-walker-result.json
+
+fwkb3-n1: objectives passed 6/6
+  obj 1: PASS — all 4 column names reported (Backlog | Ready | Work in progress | Done)
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: PASS — task id 4 reported
+
+[sweep] run 2/3: fwkb3-n2 (replay flow fwkb3, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+[sweep] fwkb3-n2: 2 drift ticket(s) → fwkb3-n2-drift.json
+
+fwkb3-n2: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+[sweep] run 3/3: fwkb3-n3 (replay flow fwkb3, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+[sweep] fwkb3-n3: 1 drift ticket(s) → fwkb3-n3-drift.json
+
+fwkb3-n3: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+Learning sweep fwkb3 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwkb3-n1' │ '6/6'    │ 'completed' │ 8     │ 7    │ 0.0707    │ 0   │ '0/7'        │ 1074   │
+│ 1       │ 2 │ 'fwkb3-n2' │ '4/4'    │ 'success'   │ 22    │ 7    │ 0.0095    │ 1   │ '7/7 (flow)' │ 272    │
+│ 2       │ 3 │ 'fwkb3-n3' │ '4/4'    │ 'success'   │ 37    │ 7    │ 0.0139    │ 1   │ '7/7 (flow)' │ 555    │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8085
+  s_b51a0c  validated   10 steps  3/3 (100%)
+           Navigate to {{v1}} and sign in with username admin and password admin. Report the heading of the page you land…
+  s_bfde03  validated   13 steps  3/3 (100%)
+           Open the board of the project named '{{v1}}' (from the {{v2}} page, click the Board link for {{v1}}). On the b…
+  s_af9920  validated   11 steps  2/3 (67%)
+           On the {{v1}} project board, create a new task in the first column ({{v2}} ) with title exactly '{{v4}}' and d…
+  s_68daf6  validated    9 steps  3/3 (100%)
+           Move the task titled '{{v1}}' (task #4) on the {{v3}} so that it sits in the '{{v5}}' column. You may drag the…
+  s_2ec6b9  validated    6 steps  3/3 (100%)
+           Open the task page for task #4 titled '{{v1}}' on the {{v3}} project, and add a comment whose text includes '{…
+  s_7101b2  validated   10 steps  3/3 (100%)
+           Final verification, read-only. Open the task page for task #4 titled '{{v1}}' on the {{v3}} project and report…
+  s_c99609  provisional  5 steps  1/2 (50%)
+           On the task page for task #4 titled '{{v1}}', set the task's due date to {{v3}} (December 31, 2026). Use the t…
+  s_bdbb6a  provisional  7 steps  1/2 (50%)  variant of s_c99609
+           On the task page for task {{v1}} titled '{{v2}} Bench Task', set the task's due date to {{v3}} (December 31, 2…
+  s_11279a  provisional  8 steps  1/1 (100%)
+           On the {{v1}} project board, create a new task in the first column ({{v3}}) with title exactly '{{v5}}' and de…
+  s_7434e6  provisional  7 steps  1/1 (100%)  variant of s_bdbb6a
+           On the task page for task {{v1}} titled '{{v2}} Bench Task', set the task's due date to {{v3}} (December 31, 2…
+store: /home/user/sleep-walker/bench/results/fwkb3-skills
+
+summary: /home/user/sleep-walker/bench/results/fwkb3-sweep.json
