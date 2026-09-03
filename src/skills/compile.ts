@@ -1028,8 +1028,13 @@ export function urlPart(url: string, label: string): string | undefined {
   return urlParts(url).find((p) => p.label === label)?.value;
 }
 
-/** Page lines that describe the page in transit (spinners, progress bars), never a step's lasting effect. */
-export const TRANSIENT_LINE = /^-?\s*(status|progressbar)\b/;
+/**
+ * Page lines that describe the page in transit — spinners, progress bars,
+ * and toasts (an alert that happened to be on screen, such as fwgr25's
+ * "Error loading RSS feed", is not what the step did; a step's own alert is
+ * carried by alertContains, which stays soft). Never a lasting effect.
+ */
+export const TRANSIENT_LINE = /^-?\s*(status|progressbar|alert)\b/;
 
 function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExpectation | undefined {
   if (!step.diff) return undefined;
