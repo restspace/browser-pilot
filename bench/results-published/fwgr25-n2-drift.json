@@ -1,0 +1,87 @@
+[
+  {
+    "flow": "fwgr25",
+    "step": "01-signin",
+    "skill": "s_6010fa",
+    "similarity": 0.999,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_6010fa stopped at step 4 — after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+    "reason": "after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://127.0.0.1:3000/"
+  },
+  {
+    "flow": "fwgr25",
+    "step": "02-create",
+    "skill": "s_fd4564",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByRole('button', { name: 'Cancel', exact: true })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+  },
+  {
+    "flow": "fwgr25",
+    "step": "02-create",
+    "skill": "s_fd4564",
+    "atStep": "4",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByTestId('data-testid Save dashboard button')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+  },
+  {
+    "flow": "fwgr25",
+    "step": "02-create",
+    "skill": "s_fd4564",
+    "atStep": "5",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByTestId('data-testid Save dashboard drawer button')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+  },
+  {
+    "flow": "fwgr25",
+    "step": "02-create",
+    "skill": "s_fd4564",
+    "atStep": "6",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "page.getByTestId('data-testid Exit edit mode button')",
+    "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button')",
+    "fallbackIndex": 3,
+    "recovered": true,
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+  },
+  {
+    "flow": "fwgr25",
+    "step": "06-verify",
+    "skill": "s_c4c14e",
+    "similarity": 0.996,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_c4c14e stopped at step 1 — the page at http://127.0.0.1:3000/d/afx54wt1k2ewwd/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/d/afx54wt1k2ewwd/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/afx54wt1k2ewwd/:id"
+  },
+  {
+    "flow": "fwgr25",
+    "step": "07-report",
+    "skill": "s_938f43",
+    "similarity": 0.994,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_938f43 stopped at step 1 — the page at http://127.0.0.1:3000/d/dfx57c208nb40b/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://127.0.0.1:3000/d/dfx57c208nb40b/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+  }
+]

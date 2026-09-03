@@ -1,0 +1,239 @@
+{
+  "flow": "fwgr25",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Successfully signed into Grafana with admin/admin (skipped password change prompt) and navigated to the \"Service health\" dashboard. The dashboard contains exactly 3 panels with the following titles:",
+      "values": {},
+      "tier": "A",
+      "replayed": "3/4",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created and saved the dashboard \"fwgr25-n2 Bench Dashboard\" (uid dfx57c208nb40b) with a Stat panel titled \"fwgr25-n2 Availability\" using the TestData data source with the default Random Walk scenario. Save verified: the save drawer reported \"No changes to save\" with a disabled Save button, and the \"Discard panel changes\" button is disabled, confirming the dashboard is no longer in unsaved-edit mode. Panel title, TestData data source (with TestData logo and \"(TestData)\" label in the query editor row), Stat visualization, and Random Walk scenario were all confirmed in the live panel editor.",
+      "values": {
+        "dashboard_title": "fwgr25-n2 Bench Dashboard",
+        "dashboard_uid": "dfx57c208nb40b",
+        "data_source_name": "TestData",
+        "panel_title": "fwgr25-n2 Availability",
+        "scenario": "Random Walk",
+        "visualization": "Stat"
+      },
+      "tier": "A",
+      "replayed": "5/18",
+      "repaired": false,
+      "turns": 49
+    },
+    {
+      "id": "03-edit",
+      "status": "success",
+      "summary": "Added a new Text visualization panel titled 'fwgr25-n2 Notes' with text content 'Notes for run fwgr25-n2' to the 'fwgr25-n2 Bench Dashboard'. Saved the dashboard explicitly — a 'Dashboard saved' alert appeared and the dashboard exited edit mode cleanly with no discard prompt, confirming persistence. Panel title and text content verified on the saved dashboard view: region heading 'fwgr25-n2 Notes' and paragraph 'Notes for run fwgr25-n2' are both visible.",
+      "values": {
+        "new_panel_title": "fwgr25-n2 Notes",
+        "new_panel_text_content": "Notes for run fwgr25-n2",
+        "dashboard_title": "fwgr25-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added tags 'bench' and 'fwgr25-n2' in dashboard settings, verified both present. The top bar time range shows 'Last 6 hours' as set. Saved the dashboard with 'Update default time range' checkbox ticked — a 'Dashboard saved' alert appeared, and the dashboard exited edit mode cleanly with no discard dialog, confirming persistence. Both panels visible as before.",
+      "values": {
+        "dashboard_tags": "bench, fwgr25-n2",
+        "time_range_displayed": "Last 6 hours",
+        "dashboard_title": "fwgr25-n2 Bench Dashboard",
+        "panel_1_title": "fwgr25-n2 Availability",
+        "panel_2_title": "fwgr25-n2 Notes",
+        "panel_2_text_content": "Notes for run fwgr25-n2"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "Replayed stored procedure s_e15b55; observed auto_refresh=1m, dashboard_title=fwgr25-n2 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "auto_refresh": "1m",
+        "dashboard_title": "fwgr25-n2 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-verify",
+      "status": "success",
+      "summary": "Freshly loaded the 'fwgr25-n2 Bench Dashboard' (UID dfx57c208nb40b). All verification items confirmed from the live page: (1) URL: http://127.0.0.1:3000/d/dfx57c208nb40b/fwgr25-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m; (2) Dashboard title: 'fwgr25-n2 Bench Dashboard'; (3) Panel titles: 'fwgr25-n2 Notes' and 'fwgr25-n2 Availability'; (4) Time range: 'Last 6 hours'; (5) Auto-refresh: '1m'; (6) Tags: only 'bench' (verified in dashboard settings); (7) Notes panel text: 'Notes for run fwgr25-n2'. No modifications made.",
+      "values": {
+        "page_url": "http://127.0.0.1:3000/d/dfx57c208nb40b/fwgr25-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "dashboard_title": "fwgr25-n2 Bench Dashboard",
+        "panel_1_title": "fwgr25-n2 Notes",
+        "panel_2_title": "fwgr25-n2 Availability",
+        "time_range_displayed": "Last 6 hours",
+        "auto_refresh": "1m",
+        "tags": "bench",
+        "notes_panel_text": "Notes for run fwgr25-n2",
+        "dashboard_uid": "dfx57c208nb40b"
+      },
+      "tier": "A",
+      "replayed": "1/10",
+      "repaired": false,
+      "turns": 19
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Navigated to the bare dashboard URL (http://127.0.0.1:3000/d/dfx57c208nb40b/fwgr25-n2-bench-dashboard) with no query string. Grafana applied the dashboard's saved defaults, resulting in URL: http://127.0.0.1:3000/d/dfx57c208nb40b/fwgr25-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m. The top bar time picker shows 'Last 6 hours' and the auto-refresh interval shows '1m', confirming both are persisted in the saved dashboard settings.",
+      "values": {
+        "page_url_bare": "http://127.0.0.1:3000/d/dfx57c208nb40b/fwgr25-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "time_range_on_fresh_load": "Last 6 hours",
+        "auto_refresh_on_fresh_load": "1m",
+        "dashboard_title": "fwgr25-n2 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "1/5",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened the 'fwgr25-n2 Availability' panel in the panel editor and confirmed: (1) Visualization type: 'Stat' (shown on the \"Change Visualization\" button); (2) Panel title: 'fwgr25-n2 Availability'; (3) Data source: 'TestData' (shown as the placeholder in the data source selector and \"(TestData)\" next to Query A). Exited edit mode via \"Back to dashboard\" cleanly without any discard prompt, leaving the dashboard unchanged.",
+      "values": {
+        "panel_title_in_editor": "fwgr25-n2 Availability",
+        "visualization_type": "Stat",
+        "datasource_name": "TestData"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 7,
+  "driftTickets": [
+    {
+      "flow": "fwgr25",
+      "step": "01-signin",
+      "skill": "s_6010fa",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_6010fa stopped at step 4 — after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 1 recorded page change(s) appeared (e.g. \"- status \\\"Loading\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:3000/"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Cancel', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Save dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Save dashboard drawer button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Exit edit mode button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "06-verify",
+      "skill": "s_c4c14e",
+      "similarity": 0.996,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c4c14e stopped at step 1 — the page at http://127.0.0.1:3000/d/afx54wt1k2ewwd/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/afx54wt1k2ewwd/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/afx54wt1k2ewwd/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "07-report",
+      "skill": "s_938f43",
+      "similarity": 0.994,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_938f43 stopped at step 1 — the page at http://127.0.0.1:3000/d/dfx57c208nb40b/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/dfx57c208nb40b/:id does not show \"fwgr25-n2\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+    }
+  ],
+  "wallMs": 660784,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1367970,
+    "completionTokens": 19875,
+    "cachedTokens": 1120256
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1117825,
+      "completionTokens": 11818,
+      "cachedTokens": 915968
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 250145,
+      "completionTokens": 8057,
+      "cachedTokens": 204288
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

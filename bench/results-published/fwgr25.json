@@ -1,0 +1,338 @@
+{
+  "name": "fwgr25",
+  "origin": "http://127.0.0.1:3000",
+  "startUrl": "http://127.0.0.1:3000/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Sign in to Grafana at http://127.0.0.1:3000 with username 'admin' and password 'admin' (skip/change password prompt if it appears — if asked to set a new password, keep it as 'admin' or skip it). Then navigate to the provisioned dashboard named 'Service health' (use search/dashboards to find it) and report the exact titles of all panels on that dashboard, exactly as shown on screen, one per line. Do not create or modify anything.",
+      "skill": "s_daa892",
+      "params": {},
+      "outputs": [
+        "request_rate_panel_title",
+        "error_count_panel_title",
+        "latency_by_endpoint_panel_title"
+      ],
+      "recorded": {
+        "request_rate_panel_title": "Request rate",
+        "error_count_panel_title": "Error count",
+        "latency_by_endpoint_panel_title": "Latency by endpoint"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "Create a NEW dashboard in Grafana. Add a Stat visualization panel. Title the panel exactly '{{runid}} Availability'. For the panel's query, select the 'TestData' data source (it may be called 'TestData DB' or similar — pick the TestData one) and leave the default scenario. Then set the dashboard title (in dashboard settings) to exactly '{{runid}} Bench Dashboard'. Save the dashboard (Save dashboard button / Ctrl+S), confirming any save dialog. Verify the save succeeded (a 'Dashboard saved' toast or the dashboard is no longer in unsaved-edit mode) and report what you observed, including the panel title shown and the data source name used.",
+      "skill": "s_728ae2",
+      "params": {
+        "v2": "Stat",
+        "v3": "{{runid}} Availability",
+        "v4": "{{runid}} Bench Dashboard"
+      },
+      "outputs": [
+        "dashboard_title",
+        "dashboard_uid",
+        "data_source_name",
+        "panel_title",
+        "scenario",
+        "visualization"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr25-n1 Bench Dashboard",
+        "dashboard_uid": "afx54wt1k2ewwd",
+        "data_source_name": "TestData",
+        "panel_title": "fwgr25-n1 Availability",
+        "scenario": "Random Walk",
+        "visualization": "Stat"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "dashboard_uid": {
+          "same": 0,
+          "differed": 1
+        },
+        "data_source_name": {
+          "same": 2,
+          "differed": 0
+        },
+        "panel_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "scenario": {
+          "same": 1,
+          "differed": 0
+        },
+        "visualization": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "03-edit",
+      "instruction": "On the existing dashboard '{{runid}} Bench Dashboard' (currently in panel edit view — exit back to the dashboard first if needed), add a NEW Text visualization panel. Title the panel exactly '{{runid}} Notes' and set its text content to include the runid '{{runid}}' (e.g. markdown text like 'Notes for run {{runid}}'). Then SAVE the dashboard explicitly (Save dashboard / Ctrl+S, confirm the save dialog) so the change persists. Verify the save succeeded and report the panel title and the text content you entered, plus confirmation the dashboard is saved.",
+      "skill": "s_8722af",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "Text",
+        "v4": "{{runid}} Notes",
+        "v2": "{{runid}}",
+        "v5": "Notes for run {{runid}}"
+      },
+      "outputs": [
+        "dashboard_title",
+        "new_panel_title",
+        "new_panel_text_content"
+      ],
+      "recorded": {
+        "dashboard_title": "fwgr25-n1 Bench Dashboard",
+        "new_panel_title": "fwgr25-n1 Notes",
+        "new_panel_text_content": "Notes for run fwgr25-n1"
+      },
+      "outputEvidence": {
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "new_panel_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "new_panel_text_content": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "04-add",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard': (1) In dashboard Settings > General, add the tag 'bench' to the dashboard's tags. (2) Set the dashboard time range in the top bar time picker to 'Last 6 hours'. (3) Then SAVE the dashboard, and in the save dialog make sure the 'Update default time range' checkbox IS ticked before confirming, so the 6-hour range is persisted into the saved dashboard. Verify the save succeeded (toast / clean exit from edit mode) and report: the tags shown in dashboard settings, the time range shown in the top bar, and whether the 'Update default time range' box was ticked when you saved.",
+      "skill": "s_24e8f5",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "bench",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "dashboard_tags",
+        "dashboard_title",
+        "time_range_displayed",
+        "update_default_time_range_ticked",
+        "panel_1_title",
+        "panel_2_title",
+        "panel_2_text_content"
+      ],
+      "recorded": {
+        "dashboard_tags": "bench, fwgr25-n1",
+        "dashboard_title": "fwgr25-n1 Bench Dashboard",
+        "time_range_displayed": "Last 6 hours",
+        "update_default_time_range_ticked": "true",
+        "panel_1_title": "fwgr25-n1 Availability",
+        "panel_2_title": "fwgr25-n1 Notes",
+        "panel_2_text_content": "Notes for run fwgr25-n1"
+      },
+      "outputEvidence": {
+        "dashboard_tags": {
+          "same": 0,
+          "differed": 1
+        },
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "time_range_displayed": {
+          "same": 1,
+          "differed": 0
+        },
+        "panel_1_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "panel_2_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "panel_2_text_content": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "05-set",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard': (1) In the top bar time picker, set the auto-refresh interval to '1m' (open the time picker dropdown, find the auto-refresh / refresh interval section, choose 1m). Do NOT change the time range itself (it should stay 'Last 6 hours'). (2) In dashboard Settings > General, remove the extra tag '{{runid}}' so the ONLY tag remaining is 'bench'. (3) Save the dashboard explicitly; if the save dialog shows an 'Update default time range' checkbox, tick it (current range is Last 6 hours) before confirming. Verify the save succeeded and report: the auto-refresh value shown in the top bar, the tags now listed in settings, and the time range shown.",
+      "skill": "s_e15b55",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "Last 6 hours",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "auto_refresh",
+        "dashboard_tags",
+        "dashboard_title",
+        "time_range",
+        "update_default_refresh_ticked"
+      ],
+      "recorded": {
+        "auto_refresh": "1m",
+        "dashboard_tags": "bench",
+        "dashboard_title": "fwgr25-n1 Bench Dashboard",
+        "time_range": "Last 6 hours",
+        "update_default_refresh_ticked": "true"
+      },
+      "outputEvidence": {
+        "auto_refresh": {
+          "same": 2,
+          "differed": 0
+        },
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "time_range": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-verify",
+      "instruction": "Verify the dashboard '{{runid}} Bench Dashboard' persisted correctly by loading it FRESH: navigate the browser to the dashboard's URL (or reload the page so it is re-fetched from the server, not just re-rendered from session state). Then report, from what is shown on the freshly loaded page: (1) the exact URL in the browser address bar / page URL; (2) the dashboard title; (3) the titles of all panels; (4) the time range shown in the top bar time picker; (5) the auto-refresh interval shown; (6) the tags (visible in settings or anywhere on the page); (7) the text content of the '{{runid}} Notes' panel. Do not modify anything.",
+      "skill": "s_c4c14e",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{runid}} Notes",
+        "v2": "{{runid}}"
+      },
+      "outputs": [
+        "page_url",
+        "dashboard_title",
+        "panel_titles",
+        "time_range_displayed",
+        "auto_refresh",
+        "tags",
+        "notes_panel_text"
+      ],
+      "recorded": {
+        "page_url": "http://127.0.0.1:3000/d/afx54wt1k2ewwd/fwgr25-n1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "dashboard_title": "fwgr25-n1 Bench Dashboard",
+        "panel_titles": "fwgr25-n1 Availability, fwgr25-n1 Notes",
+        "time_range_displayed": "Last 6 hours",
+        "auto_refresh": "1m",
+        "tags": "bench",
+        "notes_panel_text": "Notes for run fwgr25-n1"
+      },
+      "outputEvidence": {
+        "page_url": {
+          "same": 0,
+          "differed": 2
+        },
+        "dashboard_title": {
+          "same": 0,
+          "differed": 2
+        },
+        "time_range_displayed": {
+          "same": 2,
+          "differed": 0
+        },
+        "auto_refresh": {
+          "same": 2,
+          "differed": 0
+        },
+        "tags": {
+          "same": 1,
+          "differed": 0
+        },
+        "notes_panel_text": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "07-report",
+      "instruction": "To prove the time range and auto-refresh are persisted in the SAVED dashboard (not just session URL params), navigate the browser to the bare dashboard URL with NO query string: http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard — then report exactly what the top bar time picker shows for the time range and for the auto-refresh interval on that freshly loaded page with no URL parameters, plus the page URL as shown. Do not modify anything.",
+      "skill": "s_938f43",
+      "params": {
+        "v5": "http://127.0.0.1:3000/d/{{02-create.url.p1}}/{{runid}}-bench-dashboard",
+        "v3": "{{runid}}"
+      },
+      "outputs": [
+        "page_url_bare",
+        "time_range_on_fresh_load",
+        "auto_refresh_on_fresh_load",
+        "dashboard_title"
+      ],
+      "recorded": {
+        "page_url_bare": "http://127.0.0.1:3000/d/afx54wt1k2ewwd/fwgr25-n1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "time_range_on_fresh_load": "Last 6 hours",
+        "auto_refresh_on_fresh_load": "1m",
+        "dashboard_title": "fwgr25-n1 Bench Dashboard"
+      },
+      "outputEvidence": {
+        "page_url_bare": {
+          "same": 0,
+          "differed": 1
+        },
+        "time_range_on_fresh_load": {
+          "same": 1,
+          "differed": 0
+        },
+        "auto_refresh_on_fresh_load": {
+          "same": 1,
+          "differed": 0
+        },
+        "dashboard_title": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "On the dashboard '{{runid}} Bench Dashboard' (freshly loaded), open the '{{runid}} Availability' panel's edit view (read-only inspection is fine) and report: the visualization type selected (should be Stat), the panel title, and the data source name selected for its query. Then exit edit mode WITHOUT changing or discarding anything (use Back/Close; if asked to discard, choose to keep/discard nothing — make no modifications). Report exactly what you saw.",
+      "skill": "s_09986a",
+      "params": {
+        "v1": "{{runid}} Bench Dashboard",
+        "v3": "{{runid}} Availability",
+        "v4": "Stat"
+      },
+      "outputs": [
+        "panel_title_in_editor",
+        "visualization_type",
+        "datasource_name"
+      ],
+      "recorded": {
+        "panel_title_in_editor": "fwgr25-n1 Availability",
+        "visualization_type": "Stat",
+        "datasource_name": "TestData"
+      },
+      "outputEvidence": {
+        "panel_title_in_editor": {
+          "same": 0,
+          "differed": 2
+        },
+        "visualization_type": {
+          "same": 2,
+          "differed": 0
+        },
+        "datasource_name": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwgr25-n1",
+    "created": "2026-09-03T13:39:35.326Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

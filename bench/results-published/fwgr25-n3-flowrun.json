@@ -1,0 +1,263 @@
+{
+  "flow": "fwgr25",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Replayed stored procedure s_17c421.",
+      "values": {},
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_daa892"
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard \"fwgr25-n3 Bench Dashboard\" with a Stat visualization panel titled \"fwgr25-n3 Availability\" using the TestData data source (default Random Walk scenario). Saved the dashboard successfully (\"Dashboard saved\" toast confirmed). Panel title on dashboard displays as \"fwgr25-n3 Availability\" and breadcrumb shows \"fwgr25-n3 Bench Dashboard\".",
+      "values": {
+        "panel_title_on_dashboard": "fwgr25-n3 Availability",
+        "dashboard_title_breadcrumb": "fwgr25-n3 Bench Dashboard",
+        "visualization_type": "Stat",
+        "datasource_name": "TestData",
+        "data_source_name": "TestData"
+      },
+      "tier": "A",
+      "replayed": "5/18",
+      "repaired": true,
+      "turns": 23
+    },
+    {
+      "id": "03-edit",
+      "status": "success",
+      "summary": "Added a new Text visualization panel titled \"fwgr25-n3 Notes\" with markdown content \"Notes for run fwgr25-n3\" to the \"fwgr25-n3 Bench Dashboard\", removed a stray empty \"Panel Title\" panel left behind by the earlier failed attempt, saved the dashboard explicitly via the Save dashboard dialog (\"Dashboard saved\" toast appeared), and exited edit mode cleanly. The saved dashboard in view mode shows the \"fwgr25-n3 Notes\" panel rendering its text \"Notes for run fwgr25-n3\" alongside the existing \"fwgr25-n3 Availability\" panel.",
+      "values": {
+        "dashboard_title": "fwgr25-n3 Bench Dashboard",
+        "new_panel_title": "fwgr25-n3 Notes",
+        "new_panel_text_content": "Notes for run fwgr25-n3",
+        "save_confirmation": "Dashboard saved (alert toast observed)"
+      },
+      "tier": "B",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 53
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "On 'fwgr25-n3 Bench Dashboard': added the tag 'bench' in Settings > General, set/confirmed the top-bar time range to 'Last 6 hours', and saved via the Save dashboard dialog. Save succeeded (\"Dashboard saved\" toast) and edit mode exited cleanly. The Changes tab of the save dialog confirmed the pending change was exactly tags [] → [\"bench\"]. Note: the 'Update default time range' checkbox was NOT present in the save dialog (verified by exhaustive DOM search — zero checkboxes/toggles in the dialog), because the current 'Last 6 hours' range already matched the dashboard's saved default; there was nothing to tick. Post-save verification in Settings > General showed the single 'bench' tag chip, and the top bar still reads 'Last 6 hours'.",
+      "values": {
+        "dashboard_title": "fwgr25-n3 Bench Dashboard",
+        "tags_in_settings": "bench (only tag; confirmed as chip in Settings > General Tags field, and in save diff: \"tags\": [] → [\"bench\"])",
+        "time_range_top_bar": "Last 6 hours",
+        "update_default_time_range_checkbox": "Not present in save dialog — no checkbox/toggle matching 'Update default time range' existed anywhere in the dialog (exhaustive DOM search). The current range 'Last 6 hours' already matched the dashboard's default, so Grafana did not offer the option.",
+        "save_confirmation": "Dashboard saved (alert toast observed after clicking Save)"
+      },
+      "tier": "A",
+      "replayed": "1/18",
+      "repaired": false,
+      "turns": 68
+    },
+    {
+      "id": "05-set",
+      "status": "success",
+      "summary": "On 'fwgr25-n3 Bench Dashboard': (1) Auto-refresh set to '1m' via the top-bar time picker — confirmed button reads \"1m\" with \"current interval 1 minute selected\". (2) In Settings > General, the only tag present was 'bench'; there was no 'fwgr25-n3' tag to remove. (3) Saved the dashboard explicitly after ticking the 'Update default refresh value' checkbox in the save dialog (the 'Update default time range' checkbox was not shown, as only the refresh interval changed). Save confirmed by \"Dashboard saved\" alert toast. Time range remained \"Last 6 hours\" throughout.",
+      "values": {
+        "auto_refresh": "1m",
+        "time_range": "Last 6 hours",
+        "dashboard_title": "fwgr25-n3 Bench Dashboard",
+        "tags_in_settings": "bench (only tag; no 'fwgr25-n3' tag was present)",
+        "save_confirmation": "Dashboard saved (alert toast observed)"
+      },
+      "tier": "A",
+      "replayed": "2/15",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "06-verify",
+      "status": "success",
+      "summary": "Dashboard 'fwgr25-n3 Bench Dashboard' verified fresh from server. URL: http://127.0.0.1:3000/d/bfx5895re5qm8e/fwgr25-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m. Dashboard title (breadcrumb): \"fwgr25-n3 Bench Dashboard\". Panels: (1) \"fwgr25-n3 Notes\" with text content \"Notes for run fwgr25-n3\", (2) \"fwgr25-n3 Availability\" showing value \"68.3\" with \"A-series\". Time range in top bar: \"Last 6 hours\". Auto-refresh: \"1m\". Tags (in Settings > General): single tag \"bench\". No modifications made.",
+      "values": {
+        "page_url": "http://127.0.0.1:3000/d/bfx5895re5qm8e/fwgr25-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "dashboard_title": "fwgr25-n3 Bench Dashboard",
+        "panel_1_title": "fwgr25-n3 Notes",
+        "panel_2_title": "fwgr25-n3 Availability",
+        "time_range_displayed": "Last 6 hours",
+        "auto_refresh": "1m",
+        "tags_in_settings": "bench (only tag shown in Tags field)",
+        "notes_panel_text": "Notes for run fwgr25-n3"
+      },
+      "tier": "A",
+      "replayed": "2/15",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "07-report",
+      "status": "success",
+      "summary": "Navigated to the bare URL http://127.0.0.1:3000/d/bfx5895re5qm8e/fwgr25-n3-bench-dashboard (no query string). Grafana appended its own params on load: ?from=now-6h&to=now&timezone=browser&refresh=1m. The top bar time picker shows \"Last 6 hours\" and the auto-refresh picker shows \"1m\" — both persisted correctly from the saved dashboard default settings, not derived from the URL.",
+      "values": {
+        "page_url": "http://127.0.0.1:3000/d/bfx5895re5qm8e/fwgr25-n3-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "time_range_displayed": "Last 6 hours",
+        "auto_refresh": "1m"
+      },
+      "tier": "A",
+      "replayed": "1/5",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened the 'fwgr25-n3 Availability' panel in the panel editor and confirmed: (1) Visualization type: 'Stat' (shown on the \"Change Visualization\" button); (2) Panel title: 'fwgr25-n3 Availability'; (3) Data source: 'TestData' (shown as the placeholder in the data source selector and \"(TestData)\" next to Query A). Exited edit mode via \"Back to dashboard\" cleanly without any discard prompt, leaving the dashboard unchanged.",
+      "values": {
+        "panel_title_in_editor": "fwgr25-n3 Availability",
+        "visualization_type": "Stat",
+        "datasource_name": "TestData"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 1,
+  "drift": 9,
+  "driftTickets": [
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByRole('button', { name: 'Cancel', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Save dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "5",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Save dashboard drawer button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "02-create",
+      "skill": "s_fd4564",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 1,
+      "missedLocator": "page.getByTestId('data-testid Exit edit mode button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "03-edit",
+      "skill": "s_8722af",
+      "similarity": 0.911,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "every candidate refused — s_8722af: the page at http://127.0.0.1:3000/d/bfx5895re5qm8e/:id does not show \"fwgr25-n3 Bench Dashboard\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "04-add",
+      "skill": "s_24e8f5",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.765,
+      "missedLocator": "page.getByTestId('data-testid Dashboard settings')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "05-set",
+      "skill": "s_e15b55",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.987,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": "page.locator('div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(5) > button')",
+      "fallbackIndex": 3,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "06-verify",
+      "skill": "s_7255a4",
+      "atStep": "3",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-testid Edit dashboard button')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/dfx57c208nb40b/:id"
+    },
+    {
+      "flow": "fwgr25",
+      "step": "07-report",
+      "skill": "s_938f43",
+      "similarity": 0.883,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_938f43 stopped at step 1 — the page at http://127.0.0.1:3000/d/bfx5895re5qm8e/:id does not show \"fwgr25-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "reason": "the page at http://127.0.0.1:3000/d/bfx5895re5qm8e/:id does not show \"fwgr25-n3\" — it matches this procedure's page template but is a different record — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bfx5895re5qm8e/:id"
+    }
+  ],
+  "wallMs": 1864403,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 4218517,
+    "completionTokens": 32549,
+    "cachedTokens": 3615264
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2930004,
+      "completionTokens": 20895,
+      "cachedTokens": 2418176
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1288513,
+      "completionTokens": 11654,
+      "cachedTokens": 1197088
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

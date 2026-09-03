@@ -1,0 +1,103 @@
+{
+  "arm": "sleep-walker",
+  "target": "grafana",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "e048128"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwgr25-n1",
+  "task": "bench/tasks/grafana-dashboard-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 10,
+  "wallMs": 2037161,
+  "orchestrator": {
+    "input": 5778,
+    "cacheWrite": 0,
+    "cacheRead": 33386,
+    "output": 11195
+  },
+  "inner": {
+    "promptTokens": 4378538,
+    "cachedTokens": 3911579,
+    "completionTokens": 25934,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3452692,
+        "completionTokens": 19633,
+        "cachedTokens": 3060480,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 925846,
+        "completionTokens": 6301,
+        "cachedTokens": 851099,
+        "instructions": 2
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 100,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 9,
+  "subcommands": {
+    "open": 1,
+    "do": 8
+  },
+  "invocationCount": 9,
+  "commandMs": 1857027,
+  "commandBytes": 7016,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwgr25-skills",
+    "instructions": 8,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 100,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Fireworks"
+  ],
+  "orReportedCostUsd": 0.066,
+  "maxUsd": 2,
+  "spendUsd": 0.4767,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE.** The provisioned dashboard `Service health` has 3 panels, titled exactly:\n- `Request rate`\n- `Error count`\n- `Latency by endpoint`\n\n**Objective 2 — DONE.** New dashboard `fwgr25-n1 Bench Dashboard` exists and is saved. It contains a **Stat** panel titled `fwgr25-n1 Availability` whose query uses the `TestData` data source (default `Random Walk` scenario). Verified in the panel editor after a fresh reload: visualization button reads \"Stat\", panel title `fwgr25-n1 Availability`, data source selector shows `TestData`.\n\n**Objective 3 — DONE.** The dashboard also contains a **Text** panel titled `fwgr25-n1 Notes` with content `Notes for run fwgr25-n1` (includes the runid). Saved — a \"Dashboard saved\" alert appeared and the dashboard exited edit mode with no discard prompt.\n\n**Objective 4 — DONE.** Dashboard tags are exactly `bench` (an extra `fwgr25-n1` tag was added by the editor and I removed it, leaving only `bench`). Time range is `Last 6 hours`, and it was persisted by ticking the save dialog's \"Update default time range\" box before confirming. Proof of persistence: loading the bare URL with no query string caused Grafana to re-apply `from=now-6h&to=now` from the saved defaults, and the top bar showed \"Last 6 hours\".\n\n**Objective 5 — DONE.** Auto-refresh interval is `1m`, persisted by ticking the save dialog's \"Update default refresh value\" box. On the fresh bare-URL load, Grafana re-applied `refresh=1m` from saved defaults and the top bar showed `1m`.\n\n**Objective 6 — DONE.** URL read from the browser's page URL: `http://127.0.0.1:3000/d/afx54wt1k2ewwd/fwgr25-n1-bench-dashboard` (UID `afx54wt1k2ewwd`; Grafana appends `?from=now-6h&to=now&timezone=browser&refresh=1m` from the saved defaults).\n\nNotes: Signed in as `«redacted»`/`«redacted»` and skipped the change-password prompt. All edits were explicitly saved via the save dialog; persistence was confirmed by re-fetching the dashboard from the server on a fresh page load rather than trusting the in-session time picker.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwgr25-n1-sleep-walker-transcript.jsonl"
+}
