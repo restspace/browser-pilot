@@ -1,0 +1,128 @@
+{
+  "flow": "fwgr23",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Logged into Grafana as admin, skipped the password change prompt, navigated to the \"Service Health\" dashboard via the search menu, and identified all 3 panels on the dashboard. In order from top to bottom: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panel_title_request_rate": "Request rate",
+        "panel_title_error_count": "Error count",
+        "panel_title_latency_by_endpoint": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new dashboard in Grafana with a Stat panel using the TestData data source (default Random Walk scenario), titled the panel \"rpgr8-r1 Availability\", and saved the dashboard as \"rpgr8-r1 Bench Dashboard\" (General folder). Verified on screen after saving: dashboard title \"rpgr8-r1 Bench Dashboard\" and panel title \"rpgr8-r1 Availability\" (showing A-series value 106).",
+      "values": {
+        "dashboard_title": "rpgr8-r1 Bench Dashboard",
+        "panel_title": "rpgr8-r1 Availability",
+        "panel_value": "106"
+      },
+      "tier": "A",
+      "replayed": "15/15",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened the \"rpgr8-r1 Bench Dashboard\" and added a new Text panel. Set the panel title to \"rpgr8-r1 Notes\" and entered markdown content reading \"Notes for run rpgr8-r1 - bench dashboard created via automation.\" Saved the dashboard (no default time range change). After saving, the dashboard shows both panels: \"rpgr8-r1 Availability\" (Stat, value 43.3) and \"rpgr8-r1 Notes\" (Text, displaying the notes content).",
+      "values": {
+        "panel_title": "rpgr8-r1 Notes",
+        "panel_content": "Notes for run rpgr8-r1 - bench dashboard created via automation.",
+        "dashboard_title": "rpgr8-r1 Bench Dashboard"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_66bfaa; observed panel_titles=rpgr8-r1 Availability, rpgr8-r1 Notes, dashboard_title=rpgr8-r1 Bench Dashboard, time_range=Last 6 hours.",
+      "values": {
+        "panel_titles": "rpgr8-r1 Availability, rpgr8-r1 Notes",
+        "dashboard_title": "rpgr8-r1 Bench Dashboard",
+        "time_range": "Last 6 hours"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "On the \"rpgr8-r1 Bench Dashboard\", set auto-refresh to 1m via the refresh picker. Saved the dashboard (no changes to save dialog appeared since the refresh was already applied via URL). Reloaded the page and verified: top bar shows time range \"Last 6 hours\", refresh picker shows \"1m\", both panels \"rpgr8-r1 Availability\" (Stat, value 52.3) and \"rpgr8-r1 Notes\" (Text, showing notes content) are present. The tag \"bench\" was confirmed present in the dashboard settings (General section).",
+      "values": {
+        "dashboard_url": "http://127.0.0.1:3000/d/efx4ihnrwz4zkf/rpgr8-r1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "panel_1_title": "rpgr8-r1 Availability",
+        "panel_1_value": "52.3",
+        "panel_2_title": "rpgr8-r1 Notes",
+        "panel_2_content": "Notes for run rpgr8-r1 - bench dashboard created via automation.",
+        "dashboard_tag": "bench"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 30
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "The current page URL is http://127.0.0.1:3000/d/efx4ihnrwz4zkf/rpgr8-r1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+      "values": {
+        "current_url": "http://127.0.0.1:3000/d/efx4ihnrwz4zkf/rpgr8-r1-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m"
+      },
+      "tier": "A",
+      "replayed": "1/1",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 1,
+  "driftTickets": [
+    {
+      "flow": "fwgr23",
+      "step": "02-create",
+      "skill": "s_c9300d",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.999,
+      "missedLocator": "page.locator('\"Save dashboard\" >> nth=0')",
+      "fallbackUsed": "page.locator('[data-testid=\"data-testid Save dashboard button\"] span')",
+      "fallbackIndex": 2,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/efx4ihnrwz4zkf/:id"
+    }
+  ],
+  "wallMs": 414666,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 344251,
+    "completionTokens": 6530,
+    "cachedTokens": 146688
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 344251,
+      "completionTokens": 6530,
+      "cachedTokens": 146688
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
