@@ -179,6 +179,12 @@ export function compileSkills(input: CompileInput): Skill[] {
       // value the ledger banked from a q.id url position — a cost of "21"
       // coinciding with a record id must not bind the url to the cost.
       if (typeof args.url === 'string' && urlIdSlots.size) args.url = substituteUrlId(args.url, urlIdSlots);
+      // The same `=` guard hides a MINTED value in a navigation url: fwod32's
+      // sign-in recorded `goto #action=135&menu_id=120` right after the step
+      // that minted action=135 and menu_id=120, so every replay navigated to
+      // the RECORDING run's action id. A minted value is rewritten at the
+      // url position it was minted from, and nowhere else.
+      if (typeof args.url === 'string') args.url = substituteUrlParts(args.url, minted.filter((m) => m.keptIndex < g));
       const locators: Record<string, LocatorCandidate[]> = {};
       for (const [key, loc] of Object.entries(step.locators)) {
         const filled = (loc.chain ?? []).map((c) => substituteDeep(substituteDeep(c, slots), mintedBefore) as LocatorCandidate);
@@ -581,6 +587,22 @@ export function discoverSlots(
 }
 
 /** Rewrite `id=<value>` url params to slot markers — see the call site. */
+/**
+ * Rewrite minted url parts inside a navigation url at the position each was
+ * minted from: a value minted at `q.action` replaces `action=<value>` (query
+ * or hash state) with `action={{dN}}`, and nothing else — a "135" elsewhere
+ * in the url is left alone.
+ */
+export function substituteUrlParts(url: string, minted: { name: string; value: string; at: string }[]): string {
+  let out = url;
+  for (const m of minted) {
+    if (!m.value || !m.at.startsWith('q.')) continue;
+    const key = m.at.slice(2);
+    out = out.replace(new RegExp(`([?&#]${escapeRe(key)}=)${escapeRe(m.value)}(?=[&#]|$)`, 'g'), `$1{{${m.name}}}`);
+  }
+  return out;
+}
+
 export function substituteUrlId(url: string, slots: Map<string, string>): string {
   let out = url;
   for (const [name, value] of slots) {
@@ -930,7 +952,15 @@ export function urlDiff(pattern: string, url: string): UrlSegDiff[] | null {
   } else if (p.hashKind === 'state') {
     if (l.hashKind !== 'state') return null;
     for (const [key, val] of p.hashState) {
-      if (!l.hashState.has(key)) return null;
+      // A key the pattern only knows as a wildcard (`:id`, a {{dN}} it never
+      // learned a value for) is app-minted state, not identity: odoo adds
+      // `cids=1` to a url on one run and not the next, and fwod32's sign-in
+      // stopped on every replay because the live url lacked it. A missing
+      // key with a LITERAL value is still a different page.
+      if (!l.hashState.has(key)) {
+        if (isWildcardSeg(val)) continue;
+        return null;
+      }
       const lv = l.hashState.get(key)!;
       if (!isWildcardSeg(val) && val !== lv) diffs.push({ where: 'hashState', key, expected: val, actual: lv });
     }

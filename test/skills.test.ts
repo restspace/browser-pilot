@@ -9,7 +9,7 @@ import { maskVolatile, stranded } from '../src/skills/compile.js';
 import { volatileMatcher } from '../src/shared/text.js';
 import { recordCandidateEvidence, retired } from '../src/skills/repair.js';
 import { SkillStore } from '../src/skills/store.js';
-import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
+import { coalesceControls, compileSkill, dropSupersededNavigation, compileSkills, discoverSlots, fillParams, fillParamsDeep, foldLoops, isIdLike, sameProcedure, softUrlMatch, stableFirst, substitute, substituteUrlParts, urlDiff, urlMatches, urlParts, urlPattern } from '../src/skills/compile.js';
 import type { LocatorCandidate } from '../src/daemon/recorder.js';
 import type { SkillStep } from '../src/skills/store.js';
 import { bindSkill, canAdoptPin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../src/skills/learn.js';
@@ -181,6 +181,20 @@ describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => 
     };
     const s = compileSkill({ entries, instruction: text, report: listReport, session: 's', model: 'm', now: '2026-09-03T00:00:00Z' })!;
     expect(s.steps[1].label).toBe('panel_titles');
+  });
+  it('a minted url part is rewritten in a navigation url at its own position only (fwod32 sign-in)', () => {
+    const minted = [
+      { name: 'd2', value: '135', at: 'q.action' },
+      { name: 'd3', value: '120', at: 'q.menu_id' },
+    ];
+    expect(substituteUrlParts('http://127.0.0.1:8069/web#action=135&menu_id=120', minted)).toBe('http://127.0.0.1:8069/web#action={{d2}}&menu_id={{d3}}');
+    // the same digits at another key or elsewhere are not touched
+    expect(substituteUrlParts('http://127.0.0.1:8069/web?page=135#action=1350&id=135', minted)).toBe('http://127.0.0.1:8069/web?page=135#action=1350&id=135');
+  });
+  it('a state key the pattern only knows as a wildcard may be absent from the live url; a literal one may not', () => {
+    expect(urlDiff('http://x/web#action=:id&cids=:id&menu_id=:id', 'http://x/web#action=9&menu_id=8')).toEqual([]);
+    expect(urlDiff('http://x/web#action=:id&cids={{d1}}&menu_id=:id', 'http://x/web#action=9&menu_id=8')).toEqual([]);
+    expect(urlDiff('http://x/web#action=:id&cids=1&menu_id=:id', 'http://x/web#action=9&menu_id=8')).toBeNull();
   });
   it('a number inside a dotted address or version is never a slot', () => {
     const slots = new Map([['d1', '1']]);
