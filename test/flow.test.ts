@@ -4,6 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { RecordedEntry } from '../src/daemon/recorder.js';
 import {
+  ignorableRefs,
   consumedUrlOutputs, buildFlow, lintFlowRefs, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, stableOutputs, unbankedMutations, urlOutputs, type Flow, type FlowStep } from '../src/skills/flow.js';
 import { bindSkill, publishedOutputs, synthesizeReport } from '../src/skills/learn.js';
 import type { Skill } from '../src/skills/store.js';
@@ -804,5 +805,32 @@ describe('consumedUrlOutputs', () => {
       step('02-b', 'use {{01-a.ticket_ref}} then {{01-a.url.h1#rows.0}}'),
     ]);
     expect(wanted.get('01-a')).toEqual(new Set(['url.h1']));
+  });
+});
+
+describe('ignorableRefs (fwgr23 05-open)', () => {
+  const skill = {
+    params: {
+      v1: { example: 'Bench Dashboard', usedIn: [2] },
+      v3: { example: 'Last 6 hours', usedIn: [] },
+      v4: { example: 'bench', usedIn: [] },
+      v5: { example: 'Bench Board', usedIn: [] },
+    },
+    preconditions: { urlPattern: 'http://x/', requireText: ['{{v5}}'] },
+  } as unknown as Skill;
+  const step = {
+    id: '05-open',
+    instruction: "On '{{01.title}}' with tag {{04.tag}} and range {{04.range}}, on board {{02.board}}",
+    skill: 's_1',
+    params: { v1: '{{01.title}}', v3: '{{04.range}}', v4: '{{04.tag}}', v5: '{{02.board}}' },
+  } as unknown as Parameters<typeof ignorableRefs>[1];
+  it('a reference that reaches only unused params, or only the wording, is ignorable', () => {
+    expect(ignorableRefs(['04.tag', '04.range', '09.note'], step, skill)).toEqual(['04.tag', '04.range', '09.note']);
+  });
+  it('a reference a step types by, or that names the record (requireText), is not', () => {
+    expect(ignorableRefs(['01.title', '02.board', '04.tag'], step, skill)).toEqual(['04.tag']);
+  });
+  it('without a pinned skill nothing is ignorable', () => {
+    expect(ignorableRefs(['04.tag'], step, null)).toEqual([]);
   });
 });

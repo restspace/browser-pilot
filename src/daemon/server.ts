@@ -8,7 +8,7 @@ import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/
 import type { DriftTicket } from '../skills/repair.js';
 import type { Page } from 'playwright-core';
 import { agentGesturesOutsideReplay, bindSkill, canAdoptPin, decideRepin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, consumedUrlOutputs, lintFlowRefs, listFlows, loadFlow, loadFlowFile, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
+import { buildFlow, consumedUrlOutputs, ignorableRefs, lintFlowRefs, listFlows, loadFlow, loadFlowFile, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
@@ -877,7 +877,13 @@ ${describeLeaks(leaks.slice(0, 10))}`);
       // skipped and the step goes to recovery on the strong model, built from
       // what IS known (softResolve keeps the resolved title even when the id is
       // missing). Only a genuine failure there halts.
-      const unresolved = missing.length > 0 || Boolean(bound && bound.missing.length);
+      // ...unless the pinned skill cannot be affected by the reference at all
+      // (see ignorableRefs): then the zero-model replay runs as pinned.
+      const allMissing = [...missing, ...(bound?.missing ?? [])];
+      const ignorable = ignorableRefs(allMissing, step, step.skill ? (this.browser.learn?.get(step.skill) ?? null) : null);
+      const blocking = allMissing.filter((r) => !ignorable.includes(r));
+      if (allMissing.length && !blocking.length) opts.progress(`[flow ${flow.name}] ${step.id}: reference(s) ${ignorable.join(', ')} unresolved but unused by the pinned procedure — replaying as pinned`);
+      const unresolved = blocking.length > 0;
       const recoveryText = unresolved ? softResolveInstruction(step, varsIn, outputs, stable) : text;
       opts.progress(`[flow ${flow.name}] ${step.id}: ${(unresolved ? recoveryText : text).slice(0, 80)}`);
       const mark = this.browser.script?.mark() ?? 0;

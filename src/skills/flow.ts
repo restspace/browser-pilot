@@ -1,3 +1,4 @@
+import type { Skill } from './store.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { RecordedEntry, RecordedInstruction, RecordedReport } from '../daemon/recorder.js';
@@ -734,6 +735,29 @@ export function softResolveInstruction(
 }
 
 /** Resolve a step's stored param bindings from run vars and prior outputs. */
+/**
+ * Which of a step's unresolved references its pinned skill can do without.
+ *
+ * A reference lives in the step's wording and, sometimes, in a param. The
+ * pinned procedure is fixed: only a param some step TYPES or LOCATES by, or
+ * that names the record the skill must find (requireText), can change what
+ * it does. A reference that reaches nothing else — a tag the instruction
+ * mentions for context, a price quoted from the recording — cannot alter a
+ * zero-model replay, so its absence is no reason to skip one. fwgr23 05-open
+ * went to 19–44 model turns on both replays because `{{04-open.tag}}` was
+ * blank, bound to a param no step used.
+ */
+export function ignorableRefs(missing: string[], step: FlowStep, skill: Skill | null | undefined): string[] {
+  if (!skill) return [];
+  const needed = new Set<string>();
+  for (const [name, p] of Object.entries(skill.params)) if (p.usedIn.length) needed.add(name);
+  for (const marker of skill.preconditions.requireText ?? []) for (const m of marker.matchAll(/\{\{(v\d+)\}\}/g)) needed.add(m[1]);
+  return [...new Set(missing)].filter((ref) => {
+    const token = `{{${ref}}}`;
+    return !Object.entries(step.params ?? {}).some(([name, tmpl]) => needed.has(name) && tmpl.includes(token));
+  });
+}
+
 export function resolveStepParams(
   step: FlowStep,
   vars: Record<string, string>,
