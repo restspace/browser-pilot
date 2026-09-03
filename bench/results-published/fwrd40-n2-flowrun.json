@@ -1,0 +1,125 @@
+{
+  "flow": "fwrd40",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in as bench@example.com, then created a new ticket titled \"fwrd40-n2 RD Bench Ticket\". The form had only one required visible field — the Title textbox — and a \"Create ticket\" button. After submission, the ticket appeared in the list with ref RD-1016. Its initial status is \"Draft\".",
+      "values": {
+        "ticket_title": "fwrd40-n2 RD Bench Ticket",
+        "ticket_ref": "RD-1016",
+        "ticket_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-open",
+      "status": "success",
+      "summary": "Opened ticket RD-1016 (\"fwrd40-n2 RD Bench Ticket\"), clicked \"Add part\", filled the required fields (Part name: \"fwrd40-n2 RD Part A\", Cost: 100, Markup: 25%; Quantity defaulted to 1, Supplier was optional), and submitted. The part row appears in the table. The computed price for the part is $125.00 (cost $100.00 + 25% markup). The exact row text is: \"fwrd40-n2 RD Part A $100.00 25% 1 No supplier $125.00 Edit Delete\".",
+      "values": {
+        "part_row_text": "fwrd40-n2 RD Part A\t$100.00\t25%\t1\tNo supplier\t$125.00\tEdit Delete"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a second part \"fwrd40-n2 RD Part B\" to ticket RD-1016 with cost 200 and markup 25%. The form required Part name, Cost, and Markup (Quantity defaulted to 1, Supplier left blank). The computed price for Part B is $250.00 (cost $200.00 + 25% markup × qty 1). Both part rows now appear in the table: Part A row is \"fwrd40-n2 RD Part A $100.00 25% 1 No supplier $125.00 Edit Delete\" and Part B row is \"fwrd40-n2 RD Part B $200.00 25% 1 No supplier $250.00 Edit Delete\". The total shown is $375.00.",
+      "values": {
+        "part_a_row_text": "fwrd40-n2 RD Part A\t$100.00\t25%\t1\tNo supplier\t$125.00\tEdit Delete",
+        "part_b_row_text": "fwrd40-n2 RD Part B\t$200.00\t25%\t1\tNo supplier\t$250.00\tEdit Delete",
+        "part_b_price": "$250.00"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-edit",
+      "status": "success",
+      "summary": "Edited Part A on ticket RD-1016 (\"fwrd40-n2 RD Bench Ticket\"), changing its cost from $100 to $150 while keeping markup at 25%. The app now computes a price of $187.50 ($150.00 cost + 25% markup × qty 1). The part row reads: \"fwrd40-n2 RD Part A $150.00 25% 1 No supplier $187.50 Edit Delete\". The new total shown is $437.50.",
+      "values": {
+        "part_a_row_text_final": "fwrd40-n2 RD Part A\t$150.00\t25%\t1\tNo supplier\t$187.50\tEdit Delete",
+        "part_a_price_final": "$187.50"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-change",
+      "status": "success",
+      "summary": "Clicked \"Mark Ready\" on ticket RD-1016 (\"fwrd40-n2 RD Bench Ticket\"). The app rejected the status change with an alert: \"Ticket is not ready Part \"fwrd40-n2 RD Part A\" has no supplier Part \"fwrd40-n2 RD Part B\" has no supplier\". The ticket's status remained \"Draft\".",
+      "values": {
+        "ticket_status": "Draft"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-create",
+      "status": "success",
+      "summary": "Fixed the missing suppliers on ticket RD-1016: the Supplier field in the part edit dialog is a free-text textbox (not a dropdown), so no supplier record needed to be created — I edited each part (Part A and Part B) and typed the supplier name \"Acme Supplies\" into the Supplier field, leaving cost/markup unchanged (Part A $150/25%, Part B $200/25%). After both parts had a supplier, clicking \"Mark Ready\" succeeded with no error dialog — the status buttons changed to \"Mark Draft\"/\"Mark Closed\" and the ticket's status is now \"Ready\" (verified on the live page). Part rows now read: \"fwrd40-n2 RD Part A $150.00 25% 1 Acme Supplies $187.50 Edit Delete\" and \"fwrd40-n2 RD Part B $200.00 25% 1 Acme Supplies $250.00 Edit Delete\"; total $437.50. The earlier refusal message was: \"Ticket is not ready Part \"fwrd40-n2 RD Part A\" has no supplier Part \"fwrd40-n2 RD Part B\" has no supplier\".",
+      "values": {
+        "ticket_status_final": "Ready",
+        "part_a_row_text": "fwrd40-n2 RD Part A\t$150.00\t25%\t1\tAcme Supplies\t$187.50\tEdit Delete",
+        "part_b_row_text": "fwrd40-n2 RD Part B\t$200.00\t25%\t1\tAcme Supplies\t$250.00\tEdit Delete"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "07-verify",
+      "status": "success",
+      "summary": "Verified ticket RD-1016 status is \"Ready\". Deleted Part A: clicked Delete, a modal appeared saying \"Delete the part \"fwrd40-n2 RD Part A\" from this ticket? This cannot be undone.\" with Cancel/Delete part buttons — clicked \"Delete part\" and the part was removed. Deleted Part B: same modal text for Part B, clicked \"Delete part\" and it was removed. Both parts are confirmed gone — the parts table now shows \"No parts on this ticket yet.\" Archived the ticket: clicked \"Archive ticket\" (no confirmation dialog appeared), the button changed to \"Unarchive ticket\". The ticket now shows both \"Ready\" and \"Archived\" badges on the detail page, and remains visible in the active ticket list with the Archived indicator.",
+      "values": {
+        "ticket_status_label": "Status",
+        "ticket_archived_badge": "Archived",
+        "status_line": "Status\nReady\nArchived"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-report",
+      "status": "success",
+      "summary": "Ticket RD-1016 (\"fwrd40-n2 RD Bench Ticket\") does NOT appear in the default active ticket list — it is hidden. The list has a \"Show archived\" checkbox toggle (unchecked by default). When \"Show archived\" is checked, RD-1016 appears in the list with an \"Archived\" badge, status \"Ready\", 0 parts, and customer \"Not recorded\". The row reads: \"RD-1016 fwrd40-n2 RD Bench Ticket Archived Not recorded Ready 0 2026-09-03\". The parts table on the ticket detail page is empty (\"No parts on this ticket yet.\"), confirming both parts were successfully deleted.",
+      "values": {
+        "ticket_ref": "RD-1016"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 0,
+  "wallMs": 17467,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

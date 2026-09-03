@@ -1,0 +1,104 @@
+{
+  "arm": "sleep-walker",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "b9ccbca"
+  },
+  "mutationLogPath": "/home/user/sleep-walker/bench/results/fwrd40-n1-sleep-walker-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd40-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 1120282,
+  "orchestrator": {
+    "input": 15478,
+    "cacheWrite": 0,
+    "cacheRead": 18432,
+    "output": 2554
+  },
+  "inner": {
+    "promptTokens": 1718108,
+    "cachedTokens": 1195072,
+    "completionTokens": 12853,
+    "instructions": 9,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1671287,
+        "completionTokens": 11287,
+        "cachedTokens": 1181696,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 46821,
+        "completionTokens": 1566,
+        "cachedTokens": 13376,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 5,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 69,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 1059395,
+  "commandBytes": 5680,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwrd40-skills",
+    "instructions": 8,
+    "offered": 5,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 69,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Together",
+    "Modal",
+    "BaseTen"
+  ],
+  "orReportedCostUsd": 0.037,
+  "maxUsd": 2,
+  "spendUsd": 0.1358,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE:** Ticket `fwrd40-n1 RD Bench Ticket` created (ref **RD-1015**), initial status Draft. The create form required only the Title field.\n\n**Objective 2 — DONE:** Part `fwrd40-n1 RD Part A` (cost 100, markup 25%) added. Computed price: **$125.00** ($100.00 + 25% markup, qty 1).\n\n**Objective 3 — DONE:** Part `fwrd40-n1 RD Part B` (cost 200, markup 25%) added. Computed price: **$250.00** ($200.00 + 25% markup, qty 1). Ticket total at that point: $375.00.\n\n**Objective 4 — DONE:** Part A's cost changed from 100 to 150 (markup unchanged at 25%). Computed price afterwards: **$187.50** ($150.00 + 25% markup). Ticket total: $437.50.\n\n**Objective 5 — DONE:** Status set to **Ready**. The precondition the app enforces: **every part on the ticket must have a supplier**. The first \"Mark Ready\" attempt was rejected with the alert: *\"Ticket is not ready Part \"fwrd40-n1 RD Part A\" has no supplier Part \"fwrd40-n1 RD Part B\" has no supplier\"*. The Supplier field on each part was a free-text textbox (no supplier record needed to be created); I set supplier \"Acme Supplies\" on both parts, after which \"Mark Ready\" succeeded with no error and the status became Ready (buttons changed to \"Mark Draft\"/\"Mark Closed\").\n\n**Objective 6 — DONE:** Both parts deleted (each with a confirmation modal: *\"Delete the part \"…\" from this ticket? This cannot be undone.\"* → \"Delete part\"); the parts table now shows \"No parts on this ticket yet.\" The ticket was then archived via the \"Archive ticket\" button (no confirmation dialog), which changed to \"Unarchive ticket\". The ticket now carries both \"Ready\" and \"Archived\" badges and no longer appears in the default active ticket list — it only shows when the \"Show archived\" checkbox is checked (row: \"RD-1015 fwrd40-n1 RD Bench Ticket Archived Not recorded Ready 0 2026-09-03\"). Nothing created by this run remains active.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwrd40-n1-sleep-walker-transcript.jsonl"
+}
