@@ -187,10 +187,10 @@ describe('volatile expectations and whitespace identity (fwkb3, fwod31)', () => 
     const entries: RecordedEntry[] = [
       { k: 'instruction', text, url: `${ORIGIN}/`, fingerprint: [1, 0, 0] },
       step('click', { target: '@e3' }, [{ kind: 'role', role: 'button', name: 'Sign in' }], {
-        diff: { url: `${ORIGIN}/home`, alerts: [], added: ['- status "Loading"'] },
+        diff: { url: `${ORIGIN}/`, alerts: [], added: ['- status "Loading"'] },
       }),
       step('click', { target: '@e4' }, [{ kind: 'role', role: 'link', name: 'Board' }], {
-        diff: { url: `${ORIGIN}/home`, alerts: [], added: ['- progressbar', '- heading "Board"'] },
+        diff: { url: `${ORIGIN}/`, alerts: [], added: ['- progressbar', '- heading "Board"'] },
       }),
     ];
     const s = compileSkill({ entries, instruction: text, report, session: 's', model: 'm', now: '2026-09-03T00:00:00Z' })!;
