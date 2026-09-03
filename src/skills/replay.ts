@@ -9,7 +9,7 @@ import { TRANSIENT_LINE, WILDCARD, fillParams, fillParamsDeep, maskVolatile, sof
 
 /** Tools that look at or move to an element without setting or choosing anything. */
 const OBSERVATION_TOOLS = new Set(['scroll_into_view', 'wait_for', 'hover', 'scroll', 'focus', 'screenshot', 'peek']);
-import type { Skill, SkillStep } from './store.js';
+import { originOf, type Skill, type SkillStep } from './store.js';
 
 /** Executes one step against the live page, recording it; throws on failure. */
 export type StepExecutor = (
@@ -304,6 +304,7 @@ export async function replaySkill(
         ambiguousNth,
         requireIdentity: identity,
         waitMs: resolveWaitMs(),
+        stayOnOrigin: originOf(step.expect?.urlPattern ?? '') ?? originOf(page.url()) ?? undefined,
       };
       let hit = await resolveChain(page, chain, policy);
       // A virtualised page renders below-the-fold content only once it has
@@ -857,6 +858,15 @@ export interface ResolvePolicy {
    */
   requireIdentity?: string[];
   /**
+   * The origin the recorded step stayed on. A candidate that resolves to a
+   * link leaving that origin cannot be the recorded control: diaggr1's
+   * replay of fwgr26 fell from `link "New dashboard"` (its menu had been
+   * toggled shut) to the structural `div > … > a:nth-of-type(1)`, which
+   * matched Grafana's footer link to grafana.com; the offline box answered
+   * with an error page and the whole create step went to recovery.
+   */
+  stayOnOrigin?: string;
+  /**
    * How long to keep re-trying the WHOLE chain when nothing resolves.
    *
    * The agent never needed this: a model turn is seconds and it re-snapshots
@@ -878,7 +888,28 @@ export async function resolveChain(
   chain: LocatorCandidate[],
   policy: ResolvePolicy = {},
 ): Promise<{ locator: Locator; index: number; candidate: LocatorCandidate; missed: number[] } | null> {
-  const { rawTarget = '', allowMultiple = false, ambiguousNth, requireIdentity = [], waitMs = 0 } = policy;
+  const { rawTarget = '', allowMultiple = false, ambiguousNth, requireIdentity = [], waitMs = 0, stayOnOrigin } = policy;
+  /** Does the resolved element sit inside a link that leaves the recorded origin? */
+  const leavesOrigin = async (locator: Locator): Promise<boolean> => {
+    if (!stayOnOrigin) return false;
+    try {
+      return await locator.first().evaluate((el, origin) => {
+        const a = (el as Element).closest('a[href]');
+        if (!a) return false;
+        try {
+          const target = new URL((a as HTMLAnchorElement).href, location.href);
+          // file:// pages have an opaque origin; a link there is "home" when
+          // it stays on the same scheme.
+          if (target.origin === 'null' || location.origin === 'null') return target.protocol !== location.protocol;
+          return target.origin !== origin;
+        } catch {
+          return false;
+        }
+      }, stayOnOrigin);
+    } catch {
+      return false;
+    }
+  };
   const candidates = chain.length || !rawTarget || isRefTarget(rawTarget) ? chain : [{ kind: 'css', selector: rawTarget } as LocatorCandidate];
   // Identity, then handles, then paths — each keeping its recorded order, and
   // each carrying its index in the STORED chain so drift still reports which
@@ -925,6 +956,10 @@ export async function resolveChain(
         const count = await locator.count();
         if (count === 1) {
           if (!(await keepsIdentity(index, candidate, locator))) {
+            missed.push(index);
+            continue;
+          }
+          if (await leavesOrigin(locator)) {
             missed.push(index);
             continue;
           }

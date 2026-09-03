@@ -191,9 +191,11 @@ a typed value as another step's output). Fixing the rules and re-exporting
 the same recording gives 6/6 on both replays. Fresh recordings since then
 (fwgr24, fwgr25, fwgr26) each added a rule of the same kind — an accidental
 "Discard changes?" dialog, a dialog opened and cancelled, transient status
-and alert lines — until fwgr26 compiled clean and instead crashed the tab on
-a Grafana picker click, which the replay now reports as an error page rather
-than pressing on. Full detail, including the
+and alert lines — until fwgr26 compiled clean and instead lost the tab to an
+error page: a structural fallback locator had matched Grafana's footer link
+to grafana.com on a box with no network. The replay now stops on an error
+page instead of pressing on, and a fallback that resolves to a link leaving
+the recorded origin is never taken. Full detail, including the
 runs that did not work, is in [bench/MATRIX-SUMMARY.md](bench/MATRIX-SUMMARY.md).
 
 Reading it: static scripts are free and mostly wrong; re-running the agent is reliable and costs

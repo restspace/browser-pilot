@@ -867,6 +867,43 @@ d('identity-scoped locators (fixture page)', () => {
     expect(await unguarded!.locator.first().innerText()).toContain('Part One');
   }, 30_000);
 
+  /**
+   * diaggr1 (fwgr26 replay): `link "New dashboard"` did not resolve because
+   * its menu had been toggled shut, so the chain fell to the structural
+   * `div > … > a:nth-of-type(1)`, which matched Grafana's footer link to
+   * grafana.com. The offline box answered with an error page and the whole
+   * create step went to recovery. A candidate that leaves the recorded
+   * origin cannot be the recorded control.
+   */
+  it('never takes a fallback that resolves to a link leaving the recorded origin', async () => {
+    const { resolveChain } = await import('../src/skills/replay.js');
+    const { page } = await recordRowRead(['Part Two'], { record: 'Part Two' });
+    await page.evaluate(() => {
+      const ext = document.createElement('a');
+      ext.id = 'support';
+      ext.href = 'https://grafana.example/products/enterprise/?utm_source=grafana_footer';
+      ext.textContent = 'Support';
+      const int = document.createElement('a');
+      int.id = 'home';
+      int.href = '#top';
+      int.textContent = 'Home';
+      document.body.append(ext, int);
+    });
+    const external: LocatorCandidate[] = [
+      { kind: 'role', role: 'link', name: 'New dashboard' },
+      { kind: 'css', selector: '#support' },
+    ];
+    const internal: LocatorCandidate[] = [
+      { kind: 'role', role: 'link', name: 'New dashboard' },
+      { kind: 'css', selector: '#home' },
+    ];
+    const origin = 'file://';
+    expect(await resolveChain(page, external, { stayOnOrigin: origin })).toBeNull();
+    expect((await resolveChain(page, internal, { stayOnOrigin: origin }))?.index).toBe(1);
+    // without the recorded origin the old behaviour stands (the pre-fix state)
+    expect((await resolveChain(page, external, {}))?.index).toBe(1);
+  }, 30_000);
+
   it('takes identity from anywhere in the chain, not just its head', async () => {
     const { identityOfPrimary } = await import('../src/skills/replay.js');
     const skill = { params: { v5: { example: 'x7 RD Bench Ticket', usedIn: [], known: true as const } } } as unknown as Skill;
