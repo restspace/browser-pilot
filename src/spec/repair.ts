@@ -235,3 +235,15 @@ export function reloadStaged(staged: Pick<StagedRepair, 'flowFile' | 'skillsDir'
   const flow = JSON.parse(fs.readFileSync(staged.flowFile, 'utf8')) as Flow;
   return flowToSpec(flow, new SkillStore(staged.skillsDir));
 }
+
+/**
+ * Per-run values for a converge loop. Every converge iteration is a REAL run
+ * against the app, so a flow that creates a record named after a var finds
+ * the previous iteration's record next time and the gate fails for a reason
+ * that is not drift. A `{n}` token in a --var value is replaced by the run
+ * number (0 for the repair run, 1..n for the converge runs) so each run
+ * works its own records without the app being reset in between.
+ */
+export function mintVars(vars: Record<string, string>, n: number): Record<string, string> {
+  return Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, v.split('{n}').join(String(n))]));
+}

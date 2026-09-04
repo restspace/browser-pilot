@@ -14,6 +14,7 @@ import { SkillStore, successRate, type Skill } from './skills/store.js';
 import { listFlows, loadFlow } from './skills/flow.js';
 import { patchSegment, promoteFallback, triage, type DriftTicket, type ProposeLocator, type TriageAction } from './skills/repair.js';
 import { compileFlow } from './spec/index.js';
+import { mintVars } from './spec/repair.js';
 import { emitFlowFile } from './spec/emit.js';
 import { flowToSpec, type SpecFlow } from './spec/ir.js';
 import { LiftError, liftFlowFile } from './spec/lift.js';
@@ -47,10 +48,10 @@ Usage:
                                           # .flow.ts and re-emit it. Never touches the .spec.ts.
                                           # --converge n re-runs the repaired flow n more times
                                           # (default 1) and refuses to write unless every step is a
-                                          # clean tier-A replay with no drift; each of those runs is
-                                          # a REAL run against the app, so a flow that creates
-                                          # records needs the app reset between them (or
-                                          # --converge 0 and your own gate).
+                                          # clean tier-A replay with no drift. Each of those runs is
+                                          # a REAL run against the app: give a record-creating flow
+                                          # a per-run name with {n} (--var runid=fix-{n} becomes
+                                          # fix-0, fix-1, ...) or reset the app between runs.
   sitelooper var <name>=<value>          # EXPERIMENTAL: declare a run variable (becomes {{name}} in a flow)
   sitelooper flow list | show <name>     # EXPERIMENTAL: saved flows (recorded sessions you can replay with run)
   sitelooper run <flow> [--var k=v ...]  # EXPERIMENTAL: replay a saved flow, repairing drifted steps
@@ -1252,7 +1253,7 @@ async function repairFlowCommand(
   };
   say(`repairing ${file} (${before.steps.length} step(s)) in ${dir}`);
 
-  const run = await runStagedFlow(staged, vars, `repair-${stamp}-0`, { headed: flags.has('headed'), onProgress });
+  const run = await runStagedFlow(staged, mintVars(vars, 0), `repair-${stamp}-0`, { headed: flags.has('headed'), onProgress });
   const tickets = run.driftTickets ?? [];
   say(`run 1: ${run.passed}/${run.total} step(s) ${run.status}, ${tickets.length} drift ticket(s)`);
   for (const st of run.steps) {
@@ -1306,7 +1307,7 @@ async function repairFlowCommand(
   }
 
   for (let i = 1; i <= converge; i++) {
-    const check = await runStagedFlow(staged, vars, `repair-${stamp}-${i}`, { headed: flags.has('headed'), onProgress });
+    const check = await runStagedFlow(staged, mintVars(vars, i), `repair-${stamp}-${i}`, { headed: flags.has('headed'), onProgress });
     const bad = notConverged(check);
     say(`converge ${i}/${converge}: ${check.passed}/${check.total} step(s) ${check.status}, ${(check.driftTickets ?? []).length} drift ticket(s)`);
     if (bad.length) {

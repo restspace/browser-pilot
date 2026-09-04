@@ -283,3 +283,11 @@ describe('cli: repair command wiring', () => {
     expect(body).toMatch(/fs\.writeFileSync\(outFile, emitted\.source\)/);
   });
 });
+
+describe('mintVars', () => {
+  it('replaces every {n} in a var value with the run number and leaves other values alone', async () => {
+    const { mintVars } = await import('../src/spec/repair.js');
+    expect(mintVars({ runid: 'fix-{n}', other: 'x' }, 0)).toEqual({ runid: 'fix-0', other: 'x' });
+    expect(mintVars({ runid: '{n}-{n}' }, 3)).toEqual({ runid: '3-3' });
+  });
+});
