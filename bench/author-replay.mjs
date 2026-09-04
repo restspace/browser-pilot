@@ -10,7 +10,7 @@
  * static replay (literal recording-as-code, no judgement). This arm is the
  * strongest static incumbent we can construct — full agency, memory of the
  * run, freedom to parameterise, wait, and assert. What it still cannot have
- * is what the sleep-walker recorder gets by interrogating the live page at
+ * is what the sitelooper recorder gets by interrogating the live page at
  * touch time (verified locator ladders, value provenance, observed effect
  * diffs) and what the replay loop adds after (drift tickets, repair,
  * convergence). That gap is the thing being measured.

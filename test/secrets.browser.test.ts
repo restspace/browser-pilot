@@ -30,7 +30,7 @@ d('secret markers (fixture page)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-secrets-'));
-    process.env.SLEEP_WALKER_HOME = home;
+    process.env.SITELOOPER_HOME = home;
     process.env.BP_E2E_SECRET = SECRET;
     clearSecretLedger();
     session = new BrowserSession({ session: 'secrets', persist: false, learn: true });
@@ -41,7 +41,7 @@ d('secret markers (fixture page)', () => {
   afterAll(async () => {
     await session?.close();
     delete process.env.BP_E2E_SECRET;
-    delete process.env.SLEEP_WALKER_HOME;
+    delete process.env.SITELOOPER_HOME;
     clearSecretLedger();
     fs.rmSync(home, { recursive: true, force: true });
   });

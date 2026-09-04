@@ -52,9 +52,24 @@ const store = exists(skillsDir)
  * instructions mention. It can only under-report, never invent — a value it
  * misses is a leak this check cannot see, not a false alarm.
  */
+/**
+ * The CLI's home dir, honouring the pre-rename env var and directory so an
+ * older install still verifies.
+ */
+function sitelooperHome() {
+  const env = process.env.SITELOOPER_HOME || process.env.SLEEP_WALKER_HOME || process.env.BROWSER_PILOT_HOME;
+  if (env) return env;
+  const base = process.env.USERPROFILE || process.env.HOME || '';
+  for (const name of ['.sitelooper', '.sleep-walker', '.browser-pilot']) {
+    const dir = path.join(base, name);
+    if (exists(dir)) return dir;
+  }
+  return path.join(base, '.sitelooper');
+}
+
 /** Report entries from the recording session, for when no flow was exported. */
 function sessionReports() {
-  const home = process.env.SLEEP_WALKER_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.sleep-walker');
+  const home = sitelooperHome();
   const file = path.join(home, 'sessions', `${tag}-n1`, 'script.jsonl');
   if (!exists(file)) return [];
   const out = [];
@@ -72,7 +87,7 @@ function sessionReports() {
 
 /** Post-navigation urls the recording run actually landed on, in order. */
 function sessionUrls() {
-  const home = process.env.SLEEP_WALKER_HOME || path.join(process.env.USERPROFILE || process.env.HOME || '', '.sleep-walker');
+  const home = sitelooperHome();
   const candidates = [
     path.join(dir, `${tag}-n1-script.jsonl`), // published alongside the results
     path.join(home, 'sessions', `${tag}-n1`, 'script.jsonl'),

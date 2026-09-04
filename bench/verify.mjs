@@ -73,9 +73,12 @@ const expectedPrice = (cost, marginPct) =>
 
 /** Pull the run's own claimed prices out of its final report, for the 2-5 check. */
 function claimedPrices(runid) {
-  const f = path.join(OUT, `${runid}-sleep-walker-result.json`)
-  const g = path.join(OUT, `${runid}-agent-browser-result.json`)
-  const p = fs.existsSync(f) ? f : fs.existsSync(g) ? g : null
+  // "sleep-walker" is the pre-rename arm id; runs published under it keep
+  // verifying unchanged.
+  const candidates = ['sitelooper', 'sleep-walker', 'agent-browser'].map((arm) =>
+    path.join(OUT, `${runid}-${arm}-result.json`),
+  )
+  const p = candidates.find((c) => fs.existsSync(c)) || null
   if (!p) return null
   const result = JSON.parse(fs.readFileSync(p, 'utf8'))
   const text = result.finalText || ''
@@ -120,7 +123,7 @@ function claimedPrices(runid) {
  * least show whether the item names were ever sent to the tool.
  */
 function attemptedItems(runid) {
-  for (const arm of ['sleep-walker', 'agent-browser']) {
+  for (const arm of ['sitelooper', 'sleep-walker', 'agent-browser']) {
     const p = path.join(OUT, `${runid}-${arm}-transcript.jsonl`)
     if (!fs.existsSync(p)) continue
     const text = fs.readFileSync(p, 'utf8')

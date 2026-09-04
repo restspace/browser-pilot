@@ -4,7 +4,7 @@
  * reported under another.
  *
  * Orchestrator and inner tokens are priced apart: they bill at different
- * rates, and with escalation a single sleep-walker session can bill against
+ * rates, and with escalation a single sitelooper session can bill against
  * two tiers an order of magnitude apart. Inner cost is therefore computed from
  * the per-model split whenever the daemon reported one; a single-rate estimate
  * is used only as a fallback and is labelled as such.
@@ -36,7 +36,7 @@ export function cost(rate, { input = 0, cacheWrite = 0, cacheRead = 0, output = 
  * Price a run, finished or in progress.
  *
  * `orchestrator` is the harness's own {input, cacheWrite, cacheRead, output};
- * `inner` is the sleep-walker daemon's {promptTokens, cachedTokens,
+ * `inner` is the sitelooper daemon's {promptTokens, cachedTokens,
  * completionTokens, model, byModel?}. An arm with no inner model (or a run
  * that has not yet made an inner call) prices inner at 0 with basis 'none'.
  *
@@ -49,7 +49,7 @@ export function priceRun(rates, { provider, model, orchestrator, inner }) {
   let innerUsd = 0;
   let innerBasis = 'none';
   const u = inner ?? {};
-  // The inner model has its own provider (sleep-walker's SLEEP_WALKER_PROVIDER,
+  // The inner model has its own provider (sitelooper's SITELOOPER_PROVIDER,
   // reported by `config` and recorded as inner.provider), which is NOT the
   // orchestrator's. They coincided while both ran on novita; once the
   // orchestrator moved to OpenRouter, pricing inner under the orchestrator's

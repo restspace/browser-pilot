@@ -1,7 +1,7 @@
 {
-  "name": "sleep-walker",
+  "name": "sitelooper",
   "version": "0.3.0",
-  "description": "Sleep-walker: an agent-in-the-loop Playwright CLI that learns a flow once, then replays it with the model asleep \u2014 zero-LLM, deterministic, verified.",
+  "description": "Sitelooper: an agent-in-the-loop Playwright CLI that learns a flow once, then replays it with no model in the loop \u2014 zero-LLM, deterministic, verified.",
   "keywords": [
     "playwright",
     "browser-automation",
@@ -11,16 +11,17 @@
     "deterministic-replay",
     "cli"
   ],
-  "homepage": "https://sleep-walker.io",
+  "homepage": "https://sitelooper.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/restspace/sleep-walker.git"
+    "url": "git+https://github.com/restspace/sitelooper.git"
   },
   "license": "MIT",
   "type": "module",
   "bin": {
-    "sleep-walker": "bin/sleep-walker.js",
-    "browser-pilot": "bin/sleep-walker.js"
+    "sitelooper": "bin/sitelooper.js",
+    "sleep-walker": "bin/sitelooper.js",
+    "browser-pilot": "bin/sitelooper.js"
   },
   "files": [
     "bin",

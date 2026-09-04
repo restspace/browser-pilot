@@ -22,7 +22,7 @@ export function generateScript(entries: RecordedEntry[], opts: CodegenOptions): 
   const out: string[] = [
     "import { expect, test } from '@playwright/test';",
     '',
-    `// Recorded by sleep-walker from session "${opts.session}".`,
+    `// Recorded by sitelooper from session "${opts.session}".`,
     `// ${steps.length} action(s) across ${entries.filter((e) => e.k === 'instruction').length} instruction(s).`,
     '// Locators were resolved from the live page at record time and replayed to confirm',
     '// they matched the element that was acted on. Review before committing:',

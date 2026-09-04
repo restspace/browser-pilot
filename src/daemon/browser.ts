@@ -52,21 +52,21 @@ export class BrowserSession {
   readonly learn: SkillStore | null;
 
   constructor(private opts: BrowserOptions) {
-    const learning = Boolean(opts.learn) || process.env.SLEEP_WALKER_SKILLS === '1';
+    const learning = Boolean(opts.learn) || process.env.SITELOOPER_SKILLS === '1';
     this.learn = learning ? new SkillStore() : null;
     this.script =
-      learning || opts.script || process.env.SLEEP_WALKER_SCRIPT === '1' ? new ScriptRecorder(opts.session) : null;
+      learning || opts.script || process.env.SITELOOPER_SCRIPT === '1' ? new ScriptRecorder(opts.session) : null;
   }
 
   private async launch(): Promise<BrowserContext> {
-    const headless = !(this.opts.headed || process.env.SLEEP_WALKER_HEADED === '1');
-    const executablePath = this.opts.executablePath || process.env.SLEEP_WALKER_EXECUTABLE || undefined;
+    const headless = !(this.opts.headed || process.env.SITELOOPER_HEADED === '1');
+    const executablePath = this.opts.executablePath || process.env.SITELOOPER_EXECUTABLE || undefined;
     const recordVideo = this.recording
       ? { dir: path.join(ensureSessionDir(this.opts.session), 'video'), size: VIEWPORT }
       : undefined;
     const channels = executablePath
       ? [undefined]
-      : [this.opts.channel || process.env.SLEEP_WALKER_CHANNEL || 'chrome', 'msedge', 'chromium'];
+      : [this.opts.channel || process.env.SITELOOPER_CHANNEL || 'chrome', 'msedge', 'chromium'];
 
     let lastErr: unknown;
     for (const channel of channels) {
@@ -89,7 +89,7 @@ export class BrowserSession {
     }
     throw new Error(
       `could not launch a browser (tried channels: chrome, msedge, chromium). ` +
-        `Install Chrome/Edge or set SLEEP_WALKER_EXECUTABLE. Last error: ${(lastErr as Error)?.message}`,
+        `Install Chrome/Edge or set SITELOOPER_EXECUTABLE. Last error: ${(lastErr as Error)?.message}`,
     );
   }
 
@@ -174,7 +174,7 @@ export class BrowserSession {
 
   /** Whether this session records video (flag or env; fixed at construction). */
   get recording(): boolean {
-    return Boolean(this.opts.record || process.env.SLEEP_WALKER_RECORD === '1');
+    return Boolean(this.opts.record || process.env.SITELOOPER_RECORD === '1');
   }
 
   /** Current page, creating one if none is open. */

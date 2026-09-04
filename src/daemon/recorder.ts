@@ -105,7 +105,7 @@ export function makeLocator(page: Page, c: LocatorCandidate): Locator {
 }
 
 /** The attribute markPoint leaves on the element it found, so a sync Locator can name it. */
-export const POINT_MARK = 'data-sleep-walker-point';
+export const POINT_MARK = 'data-sitelooper-point';
 export function pointToken(c: { x: number; y: number }): string {
   return `${c.x},${c.y}`;
 }

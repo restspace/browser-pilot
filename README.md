@@ -1,22 +1,23 @@
-# sleep-walker
+# sitelooper
 
-**Drive a web app from natural language once; replay it afterwards with the model asleep.**
+**Drive a web app from natural language once; replay it afterwards with no model in the loop.**
 
-sleep-walker is a Playwright CLI with an LLM agent inside it. You give it one instruction at a
+sitelooper is a Playwright CLI with an LLM agent inside it. You give it one instruction at a
 time - "sign in as ops@example.com, create a ticket titled 'k7 Bench' and report its id" - and it
 works the live browser for you, then hands back one structured, verified result. Nothing about
 selectors, waits, dialogs or quoting reaches you or the outer agent that is calling it.
 
 Then, every instruction that succeeds is compiled into a **stored procedure**, and a whole session can be exported as a **flow**. The next time the same job runs,
-sleep-walker replays the procedure deterministically — no model call, no tokens — and wakes the
+sitelooper replays the procedure deterministically — no model call, no tokens — and calls the
 model only for a step the app has changed underneath. On the benchmark below, a converged flow
 replays a seven-step ticket workflow in 17 seconds for $0.00, verified against what the app's own
 database says happened.
 
-> Package and command are both `sleep-walker`. State lives under `~/.sleep-walker/`, env vars are
-> `SLEEP_WALKER_*`. The old `browser-pilot` names still work as aliases.
+> Package and command are both `sitelooper`. State lives under `~/.sitelooper/`, env vars are
+> `SITELOOPER_*`. The project was previously called `sleep-walker`, and `browser-pilot` before
+> that; both old command names, env-var prefixes and home directories still work as aliases.
 
-## Why agent-driven browser automation does not rerun, and what sleep-walker does about it
+## Why agent-driven browser automation does not rerun, and what sitelooper does about it
 
 Ask any browser agent to do a job and it will, mostly. Ask it to do the same job tomorrow and you'll
 be paying the price again: the model re-reads every page, re-decides every click, and costs
@@ -37,7 +38,7 @@ doesn't work. The reasons are structural, and can't be fixed with a better promp
   in this benchmark the strongest static script verified 14 of 48 objectives and confirmed an
   empty sales order.
 
-sleep-walker's answer is to treat the recording as evidence to compile, not text to replay:
+sitelooper's answer is to treat the recording as evidence to compile, not text to replay:
 
 - **Durable locators with fallbacks.** Each action stores a chain of candidates — role and name,
   label, test id, a structural path last — and records which ones actually resolved on each replay,
@@ -69,27 +70,27 @@ sleep-walker's answer is to treat the recording as evidence to compile, not text
 - **Honest reports.** A replayed step reports only values it read back live or that came from your
   parameters. A value the recording captured as a literal is struck, never echoed from memory.
 - **Nothing app-specific in the tool.** No selectors, gestures or workflow assumptions for any app
-  live in sleep-walker. App knowledge goes in a per-session briefing you supply; every mechanism
+  live in sitelooper. App knowledge goes in a per-session briefing you supply; every mechanism
   above is described in terms any web app satisfies. This is the design boundary that keeps a fix
   for one app from being a hack for it.
 
 ## Getting started
 
-Requires Node 20+, an installed Chrome or Edge (or `SLEEP_WALKER_EXECUTABLE`), and an API key for
+Requires Node 20+, an installed Chrome or Edge (or `SITELOOPER_EXECUTABLE`), and an API key for
 one OpenAI-compatible provider.
 
 ```sh
-npm install -g sleep-walker            # or, from a checkout: npm install && npm link
+npm install -g sitelooper            # or, from a checkout: npm install && npm link
 export NOVITA_API_KEY=...              # any preset: zhipu, novita, openrouter, openai (see Providers)
-sleep-walker config set provider novita
-sleep-walker doctor                    # node, browser, provider, key — no daemon needed
+sitelooper config set provider novita
+sitelooper doctor                    # node, browser, provider, key — no daemon needed
 ```
 
 Drive a page:
 
 ```sh
-sleep-walker open https://demo.playwright.dev/todomvc
-sleep-walker do "Add two todos: 'write the report' and 'send it'. Tick the first one off, then report how many items the footer counter shows as left."
+sitelooper open https://demo.playwright.dev/todomvc
+sitelooper do "Add two todos: 'write the report' and 'send it'. Tick the first one off, then report how many items the footer counter shows as left."
 ```
 
 `do` returns `{status, summary, evidence}`; the counter it reports was read back from the page.
@@ -99,21 +100,21 @@ Record a flow and replay it:
 
 ```sh
 # 1. record: one --learn session, the caller deciding each step as it goes
-sleep-walker --session run1 --learn open http://app.local/
-sleep-walker --session run1 var runid=k7          # what will differ next time → {{runid}}
-sleep-walker --session run1 do "sign in as ops@example.com / {{env:APP_PASSWORD}} and create a ticket titled 'k7 Bench'; report its id"
-sleep-walker --session run1 do "on that ticket add a part 'k7 Part A' cost 100 markup 25; report the price"
-sleep-walker --session run1 stop --save-flow ticket-flow
+sitelooper --session run1 --learn open http://app.local/
+sitelooper --session run1 var runid=k7          # what will differ next time → {{runid}}
+sitelooper --session run1 do "sign in as ops@example.com / {{env:APP_PASSWORD}} and create a ticket titled 'k7 Bench'; report its id"
+sitelooper --session run1 do "on that ticket add a part 'k7 Part A' cost 100 markup 25; report the price"
+sitelooper --session run1 stop --save-flow ticket-flow
 
 # 2. replay: no caller, new value, fresh app
-sleep-walker run ticket-flow --var runid=m3 --progress
+sitelooper run ticket-flow --var runid=m3 --progress
 #   [OK] 01-signin  (replay)   ← pinned procedure, zero model calls
 #   [OK] 02-add     (replay)
 #   ticket-flow: 2/2 steps, 8s — success
 ```
 
-`sleep-walker flow list | show <name>` and `sleep-walker skills list | show <id>` show what was
-kept; flows are plain JSON under `~/.sleep-walker/flows/`. A `run` prints per-step tier (A = zero
+`sitelooper flow list | show <name>` and `sitelooper skills list | show <id>` show what was
+kept; flows are plain JSON under `~/.sitelooper/flows/`. A `run` prints per-step tier (A = zero
 model), turns spent and drift tickets, and `--json` returns all of it.
 
 **Sizing an instruction.** One `do` is one logical, verifiable step: a goal plus the check that it
@@ -128,15 +129,15 @@ persists"), credentials as `{{env:NAME}}` markers, what not to touch.
 ### The full command set
 
 ```sh
-sleep-walker open <url> | brief <file.md> | note "<text>" | peek [--selector css] | screenshot [path]
-sleep-walker do "<instruction>" [--json] [--progress] [--max-turns N] [--timeout S] [--no-escalate]
-sleep-walker var <name>=<value>                    # declare a run variable (learning session)
-sleep-walker skills list | show <id> | rm <id> | repair --drift <run-drift.json>
-sleep-walker flow list | show <name>
-sleep-walker run <flow> [--var k=v ...] [--json] [--progress]
-sleep-walker script [out.spec.ts]                  # emit a plain Playwright spec from the recorded actions
-sleep-walker session list | stop [--all] [--save-flow <name>]
-sleep-walker doctor | config | config set <key> <value>
+sitelooper open <url> | brief <file.md> | note "<text>" | peek [--selector css] | screenshot [path]
+sitelooper do "<instruction>" [--json] [--progress] [--max-turns N] [--timeout S] [--no-escalate]
+sitelooper var <name>=<value>                    # declare a run variable (learning session)
+sitelooper skills list | show <id> | rm <id> | repair --drift <run-drift.json>
+sitelooper flow list | show <name>
+sitelooper run <flow> [--var k=v ...] [--json] [--progress]
+sitelooper script [out.spec.ts]                  # emit a plain Playwright spec from the recorded actions
+sitelooper session list | stop [--all] [--save-flow <name>]
+sitelooper doctor | config | config set <key> <value>
 ```
 
 Global flags: `--session <name>` (one daemon and browser per session), `--learn`, `--headed`,
@@ -146,17 +147,17 @@ succeeded, `1` failed or blocked, `2` infrastructure (no key, no browser, LLM un
 ## Current matrix
 
 Two questions decide whether the tool earns its place. **First contact**: given a goal it has
-never seen, how does sleep-walker compare with the incumbents? **Every run after that**: once the
+never seen, how does sitelooper compare with the incumbents? **Every run after that**: once the
 flow is known, what does repeating it cost, and does it stay correct? Success is always the
 app-side verifier's count (mutation log, JSON-RPC or HTTP API state), never an arm's self-report.
 All cells are cloud runs on identical hardware, one box per target; full detail in
 [bench/MATRIX-SUMMARY.md](bench/MATRIX-SUMMARY.md).
 
-**Matrix 1 — first contact.** sleep-walker: set 26 (2026-09-03, build e048128; glm-5.3
+**Matrix 1 — first contact.** sitelooper: set 26 (2026-09-03, build e048128; glm-5.3
 orchestrator, deepseek-v4-flash inner with glm-5.3 escalation). agent-browser: set 17, same era,
 glm-5.3.
 
-| target | sleep-walker | agent-browser |
+| target | sitelooper | agent-browser |
 |---|---|---|
 | repairdesk (in-repo SPA) | 7/7 · $0.07 · 1212s (set 28; set 26: 7/7 · $0.09 · 819s) | 6/6 · $0.19 · 67s |
 | kanboard (PHP, drag-and-drop) | 6/6 · $0.21 · 1078s (set 28; set 26: 6/6 · $0.04 · 385s) | **2/6 (turn-cap)** · $0.77 · 118s |
@@ -164,17 +165,17 @@ glm-5.3.
 | odoo (dense CRUD) | 6/6 · $0.38 · 1451s (set 28d; set 26: 6/6 · $0.59 · 1651s) | 6/6 · $1.51 · 302s |
 | atelyr (private React app, local) | 2/2 checkable · $0.76 · 2557s (set 28e; set 28: 6 reported, 2/2 checkable · $1.43 · 3043s) | — |
 
-On first contact sleep-walker is the slowest arm on every target, by design: it drives a cheap
+On first contact sitelooper is the slowest arm on every target, by design: it drives a cheap
 inner model and spends the extra time recording verified locators, value provenance and effect
 expectations. What that buys is the lowest cost on every target (2–19× cheaper), a 25/25 objective
 record including the board that turn-capped agent-browser at 2/6, and the recording that makes
 Matrix 2 exist.
 
-**Matrix 2 — every run after the first.** The same four flows repeated: sleep-walker replays (set
+**Matrix 2 — every run after the first.** The same four flows repeated: sitelooper replays (set
 24, two replays each) against re-running the agent, against a Playwright script the agent authored
 from its own run, and against literal codegen from the recording.
 
-| target | sleep-walker replay (r1, r2) | agent re-run | authored script | codegen |
+| target | sitelooper replay (r1, r2) | agent re-run | authored script | codegen |
 |---|---|---|---|---|
 | repairdesk | **7/7, 7/7** · $0.00, $0.00 · 24s, 23s (set 28) | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
 | kanboard | **4/4 checkable, same** · $0.00, $0.00 · 23s, 23s (set 28; two objectives are report-based and a zero-model replay writes no report) | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
@@ -213,7 +214,7 @@ taken. Full detail, including the
 runs that did not work, is in [bench/MATRIX-SUMMARY.md](bench/MATRIX-SUMMARY.md).
 
 Reading it: static scripts are free and mostly wrong; re-running the agent is reliable and costs
-the full price forever; sleep-walker's repeat cost trends to zero without the correctness trending
+the full price forever; sitelooper's repeat cost trends to zero without the correctness trending
 anywhere, and where it does not, the cause has so far always been a specific engine rule rather
 than the app.
 
@@ -232,11 +233,11 @@ The LLM layer is a generic OpenAI-compatible adapter with presets; any endpoint 
 | `openai` | `https://api.openai.com/v1` | `gpt-5-mini` | — | `OPENAI_API_KEY` |
 
 Every field resolves **flag > env > config file > preset**: `--provider`, `--model`,
-`--base-url`, `--fallback-model`; `SLEEP_WALKER_PROVIDER`, `SLEEP_WALKER_MODEL`,
-`SLEEP_WALKER_FALLBACK_MODEL`, `SLEEP_WALKER_BASE_URL`, `SLEEP_WALKER_API_KEY`;
-`sleep-walker config set <provider|model|fallbackModel|baseUrl|apiKey> <value>` →
-`~/.sleep-walker/config.json`. Prefer env for the key. The benchmark stack is
-`SLEEP_WALKER_PROVIDER=openrouter`, model `deepseek/deepseek-v4-flash`, fallback `z-ai/glm-5.3`.
+`--base-url`, `--fallback-model`; `SITELOOPER_PROVIDER`, `SITELOOPER_MODEL`,
+`SITELOOPER_FALLBACK_MODEL`, `SITELOOPER_BASE_URL`, `SITELOOPER_API_KEY`;
+`sitelooper config set <provider|model|fallbackModel|baseUrl|apiKey> <value>` →
+`~/.sitelooper/config.json`. Prefer env for the key. The benchmark stack is
+`SITELOOPER_PROVIDER=openrouter`, model `deepseek/deepseek-v4-flash`, fallback `z-ai/glm-5.3`.
 
 **Escalation on blocked.** An instruction the routine model reports as `blocked` is retried once
 on the escalation model, on the same browser and history, told it is resuming so it re-checks
@@ -249,14 +250,14 @@ is an operator stop. Both attempts are billed into the returned `turns` and `usa
 
 | Env / flag | Default | |
 |---|---|---|
-| `SLEEP_WALKER_CHANNEL` | `chrome` → `msedge` → bundled | browser channel |
-| `SLEEP_WALKER_EXECUTABLE` | — | explicit browser binary |
-| `SLEEP_WALKER_HEADED=1`, `--headed` | headless | visible window (first call of a session) |
-| `SLEEP_WALKER_HOME` | `~/.sleep-walker` | sessions, skills, flows, config |
-| `SLEEP_WALKER_SKILLS=1`, `--learn` | off | learning mode; `SLEEP_WALKER_SKILLS_DIR` relocates the store |
-| `SLEEP_WALKER_FLOWS_DIR` | `~/.sleep-walker/flows` | flow files |
-| `SLEEP_WALKER_RECORD=1`, `--record` | off | webm per tab; paths printed by `stop` |
-| `SLEEP_WALKER_SCRIPT=1`, `--script` | off | record every action as a replayable Playwright step |
+| `SITELOOPER_CHANNEL` | `chrome` → `msedge` → bundled | browser channel |
+| `SITELOOPER_EXECUTABLE` | — | explicit browser binary |
+| `SITELOOPER_HEADED=1`, `--headed` | headless | visible window (first call of a session) |
+| `SITELOOPER_HOME` | `~/.sitelooper` | sessions, skills, flows, config |
+| `SITELOOPER_SKILLS=1`, `--learn` | off | learning mode; `SITELOOPER_SKILLS_DIR` relocates the store |
+| `SITELOOPER_FLOWS_DIR` | `~/.sitelooper/flows` | flow files |
+| `SITELOOPER_RECORD=1`, `--record` | off | webm per tab; paths printed by `stop` |
+| `SITELOOPER_SCRIPT=1`, `--script` | off | record every action as a replayable Playwright step |
 | `--max-turns` | 30 | agent turn cap per instruction |
 | `--timeout` | 300 | wall-clock seconds per instruction |
 | `--turn-timeout` | 90 | seconds for one LLM call before it is aborted and nudged |
@@ -273,7 +274,7 @@ agent's snapshots, retries and tool chatter stay inside the daemon.
 
 - **Canvas-rendered content** (charts, drawn grids, images) has no DOM to read or verify; the
   agent reports blocked and says so.
-- **Anti-bot evasion, CAPTCHA solving, crawling** are out of scope. sleep-walker is for testing
+- **Anti-bot evasion, CAPTCHA solving, crawling** are out of scope. sitelooper is for testing
   and driving apps you operate or are authorised to test.
 - **Vision**: the agent is text-only; it reads the accessibility tree and DOM. Screenshots are
   for you.
@@ -282,11 +283,11 @@ agent's snapshots, retries and tool chatter stay inside the daemon.
 
 ### Claude Code skill
 
-`skills/sleep-walker/SKILL.md` is the canonical copy of the bundled skill:
+`skills/sitelooper/SKILL.md` is the canonical copy of the bundled skill:
 
 ```sh
-mkdir -p ~/.claude/skills/sleep-walker
-cp skills/sleep-walker/SKILL.md ~/.claude/skills/sleep-walker/SKILL.md
+mkdir -p ~/.claude/skills/sitelooper
+cp skills/sitelooper/SKILL.md ~/.claude/skills/sitelooper/SKILL.md
 ```
 
 ### Development

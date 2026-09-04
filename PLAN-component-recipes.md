@@ -22,7 +22,7 @@ defeat the naive fill/click/read primitives.
   admin panel that embeds it; the same is true of CodeMirror, ProseMirror/
   contenteditable editors, combobox-style dropdowns, date pickers. The
   app-agnostic rule (app knowledge lives in the session briefing, never in
-  sleep-walker) is therefore not in tension: **component knowledge is
+  sitelooper) is therefore not in tension: **component knowledge is
   cross-app by construction**, and the store that holds it is keyed by
   component identity, not by origin.
 
@@ -95,8 +95,8 @@ Recipes obey the skills lifecycle, with the store scoped globally:
   demoted after two consecutive verification failures. A use on a DIFFERENT
   origin counts double toward validation: cross-origin success is what
   proves the knowledge is component-level, not app-level in disguise.
-- **Store.** One JSON file, `~/.sleep-walker/components.json` (override:
-  `SLEEP_WALKER_COMPONENTS_FILE`), families keyed by id with their marker
+- **Store.** One JSON file, `~/.sitelooper/components.json` (override:
+  `SITELOOPER_COMPONENTS_FILE`), families keyed by id with their marker
   predicates and per-intent recipe variants; same stats block as skills
   (uses, successes, per-origin tallies, lastUsed).
 

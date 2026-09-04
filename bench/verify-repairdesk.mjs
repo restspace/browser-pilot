@@ -106,9 +106,13 @@ async function getJson(pathname) {
   return res.json()
 }
 
-/** The result file may sit under either arm; find whichever this runid produced. */
+/**
+ * The result file may sit under either arm; find whichever this runid produced.
+ * "sleep-walker" is the pre-rename arm id, kept so already-published runs still
+ * verify.
+ */
 function resultFile(runid) {
-  for (const arm of ['sleep-walker', 'agent-browser', 'playwright-mcp', 'browser-use', 'authored']) {
+  for (const arm of ['sitelooper', 'sleep-walker', 'agent-browser', 'playwright-mcp', 'browser-use', 'authored']) {
     const p = path.join(OUT, `${runid}-${arm}-result.json`)
     if (fs.existsSync(p)) return p
   }

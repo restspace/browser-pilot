@@ -1,11 +1,11 @@
 ---
-name: sleep-walker
-description: Delegate a whole natural-language browser step — one with judgment or multiple assertions baked in — to an internal LLM agent loop that drives Playwright itself, instead of you clicking/filling/asserting element-by-element. Best for executing E2E test plans, multi-step flows, and app-specific verification against a written app briefing. Uses the `sleep-walker` CLI. For low-level, deterministic single-action DOM poking (one click, one fill, one read), prefer the `browser-testing` skill / `agent-browser` CLI instead — cheaper and no LLM tokens spent per action.
+name: sitelooper
+description: Delegate a whole natural-language browser step — one with judgment or multiple assertions baked in — to an internal LLM agent loop that drives Playwright itself, instead of you clicking/filling/asserting element-by-element. Best for executing E2E test plans, multi-step flows, and app-specific verification against a written app briefing. Uses the `sitelooper` CLI. For low-level, deterministic single-action DOM poking (one click, one fill, one read), prefer the `browser-testing` skill / `agent-browser` CLI instead — cheaper and no LLM tokens spent per action.
 ---
 
-# sleep-walker: agent-in-the-loop browser automation
+# sitelooper: agent-in-the-loop browser automation
 
-`sleep-walker` takes one natural-language instruction and returns one concise
+`sitelooper` takes one natural-language instruction and returns one concise
 structured result — `{status, summary, details?, evidence?}` — instead of you
 issuing 4-6 selector-aware, wait-aware calls per logical step. An internal LLM
 agent (GLM 5.2 via novita by default — already configured, `NOVITA_API_KEY` is
@@ -13,27 +13,27 @@ set) translates the instruction into Playwright tool calls against a
 persistent browser, verifies the result, and reports back. You never touch
 selectors, waits, dialogs, or quoting for the delegated step.
 
-Check availability: `sleep-walker --help`. Already installed/linked on this
+Check availability: `sitelooper --help`. Already installed/linked on this
 machine.
 
 ## Core loop
 
 ```sh
 # deterministic verbs — no agent tokens spent
-sleep-walker open http://localhost:5173
-sleep-walker brief docs/AUTOMATION_GUIDE.md   # load app-specific conventions/selectors into the session
-sleep-walker note "runid is k7x2"             # record run state the agent must know
-sleep-walker peek [--selector css] [--interactive]
-sleep-walker screenshot [path]
+sitelooper open http://localhost:5173
+sitelooper brief docs/AUTOMATION_GUIDE.md   # load app-specific conventions/selectors into the session
+sitelooper note "runid is k7x2"             # record run state the agent must know
+sitelooper peek [--selector css] [--interactive]
+sitelooper screenshot [path]
 
 # the core verb — anything requiring judgment or multi-part assertions
-sleep-walker do "log in as admin@example.com / pw123"
-sleep-walker do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' and confirm it appears in the Organisations list with the count incremented" --json
+sitelooper do "log in as admin@example.com / pw123"
+sitelooper do "create a supplier organisation named 'k7x2 MTP Supplies Ltd' and confirm it appears in the Organisations list with the count incremented" --json
 
 # housekeeping — answered immediately, even while a `do` is running
-sleep-walker session list
-sleep-walker stop [--all]                     # prints video paths if the session was recorded
-sleep-walker config
+sitelooper session list
+sitelooper stop [--all]                     # prints video paths if the session was recorded
+sitelooper config
 ```
 
 - Exit codes: `0` succeeded · `1` failed/blocked · `2` infra error (no key, no browser, LLM unreachable).
@@ -53,9 +53,9 @@ sleep-walker config
 If the point of the run is to end up with a committed test, start the session with `--script`:
 
 ```sh
-sleep-walker --session flow --script open http://localhost:5173
-sleep-walker --session flow do "log in as admin@example.com / pw123"
-sleep-walker --session flow script tests/login.spec.ts   # standalone @playwright/test spec
+sitelooper --session flow --script open http://localhost:5173
+sitelooper --session flow do "log in as admin@example.com / pw123"
+sitelooper --session flow script tests/login.spec.ts   # standalone @playwright/test spec
 ```
 
 Every successful action is captured with a durable locator resolved from the live DOM (testid →
@@ -75,16 +75,16 @@ work. A run that took 14 internal turns the first time typically takes 2–3 the
 report shape and every value still read back from the live page.
 
 ```sh
-sleep-walker --session t1 --learn open http://localhost:5173
-sleep-walker --session t1 do "sign in as admin@example.com / pw123 and create a project named 'k7 Demo'"
-sleep-walker skills list                    # what has been learned for each site
-sleep-walker skills show <id>               # the steps, their fallbacks, what is a parameter
+sitelooper --session t1 --learn open http://localhost:5173
+sitelooper --session t1 do "sign in as admin@example.com / pw123 and create a project named 'k7 Demo'"
+sitelooper skills list                    # what has been learned for each site
+sitelooper skills show <id>               # the steps, their fallbacks, what is a parameter
 ```
 
 Two habits make it work well: keep the *values* in the instruction text (a name, a cost, a url) — that
 is how they become parameters rather than hard-coded literals — and keep instruction boundaries stable
 across runs (one `do` = one whole outcome, as above), so the procedure learned last time matches the
-outcome asked for this time. The store lives per site under `~/.sleep-walker/skills/`; `skills rm`
+outcome asked for this time. The store lives per site under `~/.sitelooper/skills/`; `skills rm`
 removes anything you do not want replayed.
 
 ## When a `do` misbehaves
@@ -93,9 +93,9 @@ Control commands do **not** queue behind the running instruction, so you can alw
 intervene:
 
 ```sh
-sleep-walker session list             # is the daemon alive? answers in ms, mid-instruction
-sleep-walker screenshot               # what is the browser actually looking at right now
-sleep-walker stop --session <name>    # aborts the in-flight instruction, then exits
+sitelooper session list             # is the daemon alive? answers in ms, mid-instruction
+sitelooper screenshot               # what is the browser actually looking at right now
+sitelooper stop --session <name>    # aborts the in-flight instruction, then exits
 ```
 
 `stop` preempts rather than waits. The `do` you interrupted returns a `blocked` report with its
@@ -128,24 +128,24 @@ unattributed claim in a summary as an inference rather than an observation.
 ## Sessions
 
 `--session <name>` (default `default`) owns a detached daemon with a persistent Chrome profile
-under `~/.sleep-walker/sessions/<name>/` — logins and conversation history survive daemon
+under `~/.sitelooper/sessions/<name>/` — logins and conversation history survive daemon
 restarts. `brief` and `note` content survives history trimming. `stop` kills the daemon; the
 profile stays.
 
 ## Recording a session
 
 `--record` on the first call of a session (the one that launches the browser) records the whole
-session to webm, one file per tab, under `~/.sleep-walker/sessions/<name>/video/`:
+session to webm, one file per tab, under `~/.sitelooper/sessions/<name>/video/`:
 
 ```sh
-sleep-walker open http://localhost:5173 --session run1 --record
-sleep-walker do "..." --session run1
-sleep-walker stop --session run1              # prints:  video: .../video/page@<hash>.webm
+sitelooper open http://localhost:5173 --session run1 --record
+sitelooper do "..." --session run1
+sitelooper stop --session run1              # prints:  video: .../video/page@<hash>.webm
 ```
 
 Playwright only writes the video out when the browser context closes, so: it cannot be started or
 stopped mid-session, nothing is readable until `stop`, and killing the daemon any other way loses
-the recording entirely. `sleep-walker config` reports `recording` so you can check which mode a
+the recording entirely. `sitelooper config` reports `recording` so you can check which mode a
 running session is actually in — passing `--record` to an already-running session does nothing.
 
 Use it when you need to show a human what happened, or to debug a flow that fails intermittently.
@@ -153,8 +153,8 @@ For a single moment, `screenshot` is cheaper and readable immediately.
 
 ## Design boundary — this tool is app-agnostic
 
-`sleep-walker` itself has no knowledge of any specific app under test. All app-specific knowledge
+`sitelooper` itself has no knowledge of any specific app under test. All app-specific knowledge
 (selectors, class names, gestures, URLs, workflow assumptions) belongs in the `brief` you load or
 the instruction text you write — never assume the tool "knows" an app's UI. See the project README
-(`C:\dev\sleep-walker\README.md`) for the full design rationale and the complete tool/provider
+(`C:\dev\sitelooper\README.md`) for the full design rationale and the complete tool/provider
 reference if you need more than this skill covers.

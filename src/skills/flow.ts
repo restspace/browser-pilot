@@ -110,7 +110,7 @@ export function noteOutputEvidence(step: FlowStep, reported: Record<string, stri
 }
 
 export function flowsDir(): string {
-  return process.env.SLEEP_WALKER_FLOWS_DIR || path.join(rootDir(), 'flows');
+  return process.env.SITELOOPER_FLOWS_DIR || path.join(rootDir(), 'flows');
 }
 
 function flowFile(name: string): string {

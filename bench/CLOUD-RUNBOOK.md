@@ -85,16 +85,16 @@ stagger the launches by ~20 minutes rather than falling back to one box.
 
 ## 2. Run
 
-Substitute `<ARM>` (`sleep-walker`, `agent-browser`, `playwright-mcp` or
+Substitute `<ARM>` (`sitelooper`, `agent-browser`, `playwright-mcp` or
 `browser-use`) and `<RUNID>`, and `--target` (`repairdesk`, `odoo`, `grafana`):
 
-> Env vars were renamed `BROWSER_PILOT_* → SLEEP_WALKER_*`. The legacy names
+> Env vars were renamed `BROWSER_PILOT_* → SITELOOPER_*`. The legacy names
 > still work (aliased at startup, see src/shared/paths.ts), so run-prompts and
 > routines written before the rename keep running unchanged; prefer the
-> `SLEEP_WALKER_*` names in anything new.
+> `SITELOOPER_*` names in anything new.
 
 ```sh
-export SLEEP_WALKER_PROVIDER=novita
+export SITELOOPER_PROVIDER=novita
 node bench/harness.mjs \
   --arm <ARM> --target repairdesk \
   --task bench/tasks/repairdesk-ticket-flow.md \
@@ -102,17 +102,17 @@ node bench/harness.mjs \
   --runid <RUNID> --out bench/results --reset
 ```
 
-- The `export` is **not optional** for the sleep-walker arm (harmless for the
-  other). `--provider` configures the harness's orchestrator only; sleep-walker's
-  inner agent resolves its own provider from `SLEEP_WALKER_PROVIDER` and
+- The `export` is **not optional** for the sitelooper arm (harmless for the
+  other). `--provider` configures the harness's orchestrator only; sitelooper's
+  inner agent resolves its own provider from `SITELOOPER_PROVIDER` and
   defaults to `zhipu`, which has no key on the box. Without it every
-  `sleep-walker do` fails instantly with "no API key" and the run turn-caps at
+  `sitelooper do` fails instantly with "no API key" and the run turn-caps at
   0/6 — that was c0822bp attempt 1, the first cloud run. `cloud-setup.sh` now
   checks for this and warns.
 - **Orchestrator provider.** `--provider novita` is the baseline, but novita's
   response cache intermittently drops the orchestrator's history on this arm and
   turn-caps the run at 0/6 (see HANDOFF, "novita drops the orchestrator's
-  history"). To run the orchestrator elsewhere, keep `SLEEP_WALKER_PROVIDER=novita`
+  history"). To run the orchestrator elsewhere, keep `SITELOOPER_PROVIDER=novita`
   (that is the *inner* model, which is unaffected) and change only `--provider`:
   `--provider openrouter --model z-ai/glm-5.3` (needs `OPENROUTER_API_KEY`; routes
   to Z.ai, logs the served backend and real USD cost in the result). The harness

@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Renamed to sitelooper
+- The project, package, CLI and skill are now `sitelooper` (previously
+  `sleep-walker`, and `browser-pilot` before that).
+- Env vars are `SITELOOPER_*`; state lives under `~/.sitelooper/`.
+- Nothing breaks: `sleep-walker` and `browser-pilot` remain bin aliases, both
+  legacy env prefixes are still honoured (most recent wins), and an existing
+  `~/.sleep-walker` or `~/.browser-pilot` home keeps being used until a
+  `~/.sitelooper` exists.
+- The bench arm id is now `sitelooper`; the verifiers still read results
+  published under the old `sleep-walker` arm id, and published run artefacts
+  keep the names they were recorded under.
+
 ## 0.2.0 — 2026-08-26 (beta)
 
 The first beta cut. Everything below is measured, not claimed: the v0.2

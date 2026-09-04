@@ -148,7 +148,7 @@ for (const c of cmds) {
   segsTotal += segments.length
   if (segments.length > 1) split++
   for (const s of segments) {
-    const bin = s.startsWith('sleep-walker') ? 'sleep-walker' : 'agent-browser'
+    const bin = s.startsWith('sitelooper') ? 'sitelooper' : 'agent-browser'
     if (hasTopLevelShellEscape(s) || !(s === bin || s.startsWith(bin + ' '))) rejected.push(s)
   }
 }

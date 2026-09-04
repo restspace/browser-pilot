@@ -3,7 +3,7 @@
  * Price the runs in a results directory and print a comparison table.
  *
  * Costing is deliberately split. The orchestrator and the inner model bill at
- * different rates, and with escalation a single sleep-walker session can bill
+ * different rates, and with escalation a single sitelooper session can bill
  * against two tiers that differ by an order of magnitude — so inner cost is
  * computed from the per-model breakdown when one is present, and only falls
  * back to a single-rate estimate (clearly flagged) when it is not.

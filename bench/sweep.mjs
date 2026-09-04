@@ -7,7 +7,7 @@
  * verified correctness.
  *
  *   node bench/sweep.mjs --k 5 --base lrn --learn bench/results/lrn-skills \
- *     --arm sleep-walker --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md \
+ *     --arm sitelooper --target repairdesk --task bench/tasks/repairdesk-ticket-flow.md \
  *     --provider openrouter --model z-ai/glm-5.3 --coarse --out bench/results
  *
  * Everything after the sweep's own flags (--k, --base, --learn, --verify) is
@@ -60,7 +60,7 @@ if (learnDir) fs.mkdirSync(learnDir, { recursive: true });
 const rates = loadRates();
 const rows = [];
 const flowsDir = own.flow ? path.resolve(learnDir ? path.join(learnDir, '..', 'flows') : outDir) : null;
-const armBin = process.platform === 'win32' ? 'sleep-walker.cmd' : 'sleep-walker';
+const armBin = process.platform === 'win32' ? 'sitelooper.cmd' : 'sitelooper';
 
 // --from <tag>: reuse an earlier sweep's recording instead of making a new one.
 //
@@ -94,7 +94,7 @@ if (own.from) {
 for (let n = own.from ? 2 : 1; n <= own.k; n++) {
   const runid = `${own.base}-n${n}`;
   // Flow mode: run 1 records the flow with the orchestrator; runs 2..K replay
-  // it with NO orchestrator (`sleep-walker run`) — the whole point: the caller
+  // it with NO orchestrator (`sitelooper run`) — the whole point: the caller
   // pays once, later executions are near-script.
   const replayOnly = Boolean(own.flow) && n > 1;
   console.error(`\n[sweep] run ${n}/${own.k}: ${runid}${replayOnly ? ` (replay flow ${own.flow}, no orchestrator)` : learnDir ? ` (store: ${learnDir})` : ' (no store)'}`);
@@ -136,9 +136,9 @@ for (let n = own.from ? 2 : 1; n <= own.k; n++) {
     const env = {
       ...appDefaults,
       ...process.env,
-      SLEEP_WALKER_SKILLS: '1',
-      ...(learnDir ? { SLEEP_WALKER_SKILLS_DIR: learnDir } : {}),
-      ...(flowsDir ? { SLEEP_WALKER_FLOWS_DIR: flowsDir } : {}),
+      SITELOOPER_SKILLS: '1',
+      ...(learnDir ? { SITELOOPER_SKILLS_DIR: learnDir } : {}),
+      ...(flowsDir ? { SITELOOPER_FLOWS_DIR: flowsDir } : {}),
     };
     const fr = spawnSync(armBin, ['--session', runid, 'run', own.flow, '--var', `runid=${runid}`, '--json'], { stdio: ['inherit', 'pipe', 'inherit'], env, shell: process.platform === 'win32' });
     if (fr.stdout && fr.stdout.length) fs.writeFileSync(path.join(outDir, `${runid}-flowrun.json`), fr.stdout);
@@ -169,7 +169,7 @@ for (let n = own.from ? 2 : 1; n <= own.k; n++) {
     if (r.status !== 0) console.error(`[sweep] harness exited ${r.status} for ${runid} — scoring whatever it wrote`);
   }
 
-  const arm = pass[pass.indexOf('--arm') + 1] ?? 'sleep-walker';
+  const arm = pass[pass.indexOf('--arm') + 1] ?? 'sitelooper';
   const file = path.join(outDir, `${runid}-${arm}-result.json`);
   let verified = '';
   if (own.verifyCmd) {
@@ -240,9 +240,9 @@ for (let n = own.from ? 2 : 1; n <= own.k; n++) {
 console.log(`\nLearning sweep ${own.base} (K=${own.k}${learnDir ? '' : ', control: no store'})`);
 console.table(rows);
 if (learnDir) {
-  const skills = spawnSync(process.execPath, [path.join(here, '..', 'bin', 'sleep-walker.js'), 'skills', 'list'], {
+  const skills = spawnSync(process.execPath, [path.join(here, '..', 'bin', 'sitelooper.js'), 'skills', 'list'], {
     encoding: 'utf8',
-    env: { ...process.env, SLEEP_WALKER_SKILLS_DIR: learnDir },
+    env: { ...process.env, SITELOOPER_SKILLS_DIR: learnDir },
   });
   console.log(skills.stdout);
 }

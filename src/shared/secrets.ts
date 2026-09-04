@@ -46,7 +46,7 @@ export function resolveSecrets(text: string): string {
     if (value === undefined || value === '') {
       throw new Error(
         `secret {{env:${name}}} cannot be resolved — the environment variable ${name} is not set where the daemon runs. ` +
-          `Set it and restart the session (sleep-walker stop, then re-run with ${name} exported).`,
+          `Set it and restart the session (sitelooper stop, then re-run with ${name} exported).`,
       );
     }
     ledger.set(name, value);

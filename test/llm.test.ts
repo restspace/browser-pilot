@@ -11,13 +11,13 @@ import {
 } from '../src/agent/llm.js';
 
 const ENV_VARS = [
-  'SLEEP_WALKER_HOME',
-  'SLEEP_WALKER_PROVIDER',
-  'SLEEP_WALKER_MODEL',
-  'SLEEP_WALKER_BASE_URL',
-  'SLEEP_WALKER_EXTRA_BODY',
-  'SLEEP_WALKER_FALLBACK_EXTRA_BODY',
-  'SLEEP_WALKER_API_KEY',
+  'SITELOOPER_HOME',
+  'SITELOOPER_PROVIDER',
+  'SITELOOPER_MODEL',
+  'SITELOOPER_BASE_URL',
+  'SITELOOPER_EXTRA_BODY',
+  'SITELOOPER_FALLBACK_EXTRA_BODY',
+  'SITELOOPER_API_KEY',
   'GLM_API_KEY',
   'ZHIPU_API_KEY',
   'NOVITA_API_KEY',
@@ -32,7 +32,7 @@ beforeEach(() => {
   saved = Object.fromEntries(ENV_VARS.map((v) => [v, process.env[v]]));
   for (const v of ENV_VARS) delete process.env[v];
   tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-llm-'));
-  process.env.SLEEP_WALKER_HOME = tmpHome;
+  process.env.SITELOOPER_HOME = tmpHome;
 });
 
 afterEach(() => {
@@ -76,26 +76,26 @@ describe('provider resolution', () => {
     // the glm-5.3 escalation tier inherited it, a 3.9s relabel call became
     // 25.5s and blew the 75s timebox on 3 of 4 live runs. So the two tiers
     // read separate env vars and neither inherits the other's.
-    process.env.SLEEP_WALKER_EXTRA_BODY = '{"provider":{"order":["Baidu"]}}';
+    process.env.SITELOOPER_EXTRA_BODY = '{"provider":{"order":["Baidu"]}}';
     const cfg = resolveProviderConfig();
     expect(cfg.extraBody).toEqual({ provider: { order: ['Baidu'] } });
     expect(cfg.fallbackExtraBody).toBeUndefined();
-    process.env.SLEEP_WALKER_FALLBACK_EXTRA_BODY = '{"provider":{"order":["Novita"]}}';
+    process.env.SITELOOPER_FALLBACK_EXTRA_BODY = '{"provider":{"order":["Novita"]}}';
     expect(resolveProviderConfig().fallbackExtraBody).toEqual({ provider: { order: ['Novita'] } });
   });
 
   it('a malformed fallback extra body fails loudly, naming its own env var', () => {
-    process.env.SLEEP_WALKER_FALLBACK_EXTRA_BODY = 'not json';
-    expect(() => resolveProviderConfig()).toThrow('SLEEP_WALKER_FALLBACK_EXTRA_BODY');
+    process.env.SITELOOPER_FALLBACK_EXTRA_BODY = 'not json';
+    expect(() => resolveProviderConfig()).toThrow('SITELOOPER_FALLBACK_EXTRA_BODY');
   });
 
   it('fallback model follows the same flag > env > file > preset precedence', () => {
     writeGlobalConfig({ provider: 'novita', fallbackModel: 'file-fallback' });
     expect(resolveProviderConfig().fallbackModel).toBe('file-fallback');
-    process.env.SLEEP_WALKER_FALLBACK_MODEL = 'env-fallback';
+    process.env.SITELOOPER_FALLBACK_MODEL = 'env-fallback';
     expect(resolveProviderConfig().fallbackModel).toBe('env-fallback');
     expect(resolveProviderConfig({ fallbackModel: 'flag-fallback' }).fallbackModel).toBe('flag-fallback');
-    delete process.env.SLEEP_WALKER_FALLBACK_MODEL;
+    delete process.env.SITELOOPER_FALLBACK_MODEL;
   });
 
   it('"none" disables escalation without needing to clear a config key', () => {
@@ -114,7 +114,7 @@ describe('provider resolution', () => {
     expect(resolveProviderConfig().provider).toBe('novita');
     expect(resolveProviderConfig().model).toBe('file-model');
     // env beats file
-    process.env.SLEEP_WALKER_MODEL = 'env-model';
+    process.env.SITELOOPER_MODEL = 'env-model';
     expect(resolveProviderConfig().model).toBe('env-model');
     // flag beats env; provider switch keeps the field overrides that were set
     const cfg = resolveProviderConfig({ provider: 'zhipu', model: 'flag-model' });
@@ -123,8 +123,8 @@ describe('provider resolution', () => {
     expect(cfg.baseUrl).toBe(PROVIDER_PRESETS.zhipu.baseUrl);
   });
 
-  it('generic SLEEP_WALKER_API_KEY works for any provider; preset var wins', () => {
-    process.env.SLEEP_WALKER_API_KEY = 'generic';
+  it('generic SITELOOPER_API_KEY works for any provider; preset var wins', () => {
+    process.env.SITELOOPER_API_KEY = 'generic';
     expect(resolveProviderConfig({ provider: 'novita' }).apiKey).toBe('generic');
     process.env.NOVITA_API_KEY = 'specific';
     expect(resolveProviderConfig({ provider: 'novita' }).apiKey).toBe('specific');

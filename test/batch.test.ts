@@ -92,7 +92,7 @@ d('batch execution (real page)', () => {
   const reset = async () => (await session.getPage()).goto(pageUrl);
 
   beforeAll(async () => {
-    process.env.SLEEP_WALKER_HOME = path.join(os.tmpdir(), `bp-batch-test-${Date.now()}`);
+    process.env.SITELOOPER_HOME = path.join(os.tmpdir(), `bp-batch-test-${Date.now()}`);
     session = new BrowserSession({ session: 'batch', persist: false });
     await reset();
   }, 60_000);

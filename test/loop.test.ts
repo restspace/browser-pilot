@@ -10,10 +10,10 @@ import { SessionState } from '../src/daemon/state.js';
 let tmpHome: string;
 beforeAll(() => {
   tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-test-'));
-  process.env.SLEEP_WALKER_HOME = tmpHome;
+  process.env.SITELOOPER_HOME = tmpHome;
 });
 afterAll(() => {
-  delete process.env.SLEEP_WALKER_HOME;
+  delete process.env.SITELOOPER_HOME;
   fs.rmSync(tmpHome, { recursive: true, force: true });
 });
 

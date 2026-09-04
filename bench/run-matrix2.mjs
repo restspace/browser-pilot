@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Matrix v0.2 bp column: rerun the sleep-walker arm across all four targets
+// Matrix v0.2 bp column: rerun the sitelooper arm across all four targets
 // (K=3 each) on the latest build — replay v2, navigation fallback, component
 // recipes, designed inner model (deepseek-v4-flash via OpenRouter/Baidu,
 // glm-5.3 escalation). Matrix conditions otherwise unchanged: glm-5.3
@@ -30,19 +30,19 @@ const CELLS = [
 
 const base = {
   ...process.env,
-  SLEEP_WALKER_PROVIDER: 'openrouter',
-  SLEEP_WALKER_MODEL: 'deepseek/deepseek-v4-flash',
-  SLEEP_WALKER_FALLBACK_MODEL: 'z-ai/glm-5.3',
-  SLEEP_WALKER_EXTRA_BODY: '{"provider":{"order":["baidu"]}}',
+  SITELOOPER_PROVIDER: 'openrouter',
+  SITELOOPER_MODEL: 'deepseek/deepseek-v4-flash',
+  SITELOOPER_FALLBACK_MODEL: 'z-ai/glm-5.3',
+  SITELOOPER_EXTRA_BODY: '{"provider":{"order":["baidu"]}}',
 };
 
 for (const cell of CELLS) {
   for (const runid of cell.ids) {
     console.log(`\n===== ${runid} (${cell.target}) =====`);
-    const env = { ...base, ...cell.env, SLEEP_WALKER_COMPONENTS_FILE: path.join(out, `${runid}-components.json`) };
+    const env = { ...base, ...cell.env, SITELOOPER_COMPONENTS_FILE: path.join(out, `${runid}-components.json`) };
     const r = spawnSync(process.execPath, [
       path.join(bench, 'harness.mjs'),
-      '--arm', 'sleep-walker',
+      '--arm', 'sitelooper',
       '--target', cell.target,
       '--task', path.join('bench', cell.task),
       '--provider', 'openrouter', '--model', 'z-ai/glm-5.3',

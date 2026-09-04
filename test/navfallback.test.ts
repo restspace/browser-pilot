@@ -11,7 +11,7 @@ import type { Skill } from '../src/skills/store.js';
 
 // These exercise what happens AFTER the locator chain misses; the resolver's
 // wait-for-the-element window would otherwise be paid on every case.
-process.env.SLEEP_WALKER_RESOLVE_WAIT_MS = '0';
+process.env.SITELOOPER_RESOLVE_WAIT_MS = '0';
 
 /** The minimal Page surface replaySkill touches on this path. settleDom's
  * evaluate passes a second argument; linkToDestination's does not — that is

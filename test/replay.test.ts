@@ -68,8 +68,8 @@ d('skill replay (fixture page)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-replay-'));
-    process.env.SLEEP_WALKER_HOME = home;
-    process.env.SLEEP_WALKER_SKILLS_DIR = path.join(home, 'skills');
+    process.env.SITELOOPER_HOME = home;
+    process.env.SITELOOPER_SKILLS_DIR = path.join(home, 'skills');
     session = new BrowserSession({ session: 'replay', persist: false, learn: true });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
@@ -95,8 +95,8 @@ d('skill replay (fixture page)', () => {
 
   afterAll(async () => {
     await session?.close();
-    delete process.env.SLEEP_WALKER_SKILLS_DIR;
-    delete process.env.SLEEP_WALKER_HOME;
+    delete process.env.SITELOOPER_SKILLS_DIR;
+    delete process.env.SITELOOPER_HOME;
     fs.rmSync(home, { recursive: true, force: true });
   });
 
@@ -516,16 +516,16 @@ d('flow record and run (fixture page)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-flowtest-'));
-    process.env.SLEEP_WALKER_HOME = home;
-    process.env.SLEEP_WALKER_SKILLS_DIR = path.join(home, 'skills');
-    process.env.SLEEP_WALKER_FLOWS_DIR = path.join(home, 'flows');
+    process.env.SITELOOPER_HOME = home;
+    process.env.SITELOOPER_SKILLS_DIR = path.join(home, 'skills');
+    process.env.SITELOOPER_FLOWS_DIR = path.join(home, 'flows');
     session = new BrowserSession({ session: 'flowt', persist: false, learn: true });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
   }, 60_000);
   afterAll(async () => {
     await session?.close();
-    for (const k of ['SLEEP_WALKER_FLOWS_DIR', 'SLEEP_WALKER_SKILLS_DIR', 'SLEEP_WALKER_HOME']) delete process.env[k];
+    for (const k of ['SITELOOPER_FLOWS_DIR', 'SITELOOPER_SKILLS_DIR', 'SITELOOPER_HOME']) delete process.env[k];
     fs.rmSync(home, { recursive: true, force: true });
   });
 
@@ -730,8 +730,8 @@ d('delete-loop replay (fixture page)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-loop-'));
-    process.env.SLEEP_WALKER_HOME = home;
-    process.env.SLEEP_WALKER_SKILLS_DIR = path.join(home, 'skills');
+    process.env.SITELOOPER_HOME = home;
+    process.env.SITELOOPER_SKILLS_DIR = path.join(home, 'skills');
     session = new BrowserSession({ session: 'loop', persist: false, learn: true });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
@@ -749,8 +749,8 @@ d('delete-loop replay (fixture page)', () => {
 
   afterAll(async () => {
     await session?.close();
-    delete process.env.SLEEP_WALKER_SKILLS_DIR;
-    delete process.env.SLEEP_WALKER_HOME;
+    delete process.env.SITELOOPER_SKILLS_DIR;
+    delete process.env.SITELOOPER_HOME;
     fs.rmSync(home, { recursive: true, force: true });
   });
 
@@ -788,8 +788,8 @@ d('segment chains (two fixture pages)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-seg-'));
-    process.env.SLEEP_WALKER_HOME = home;
-    process.env.SLEEP_WALKER_SKILLS_DIR = path.join(home, 'skills');
+    process.env.SITELOOPER_HOME = home;
+    process.env.SITELOOPER_SKILLS_DIR = path.join(home, 'skills');
     session = new BrowserSession({ session: 'segchain', persist: false, learn: true });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
@@ -813,8 +813,8 @@ d('segment chains (two fixture pages)', () => {
 
   afterAll(async () => {
     await session?.close();
-    delete process.env.SLEEP_WALKER_SKILLS_DIR;
-    delete process.env.SLEEP_WALKER_HOME;
+    delete process.env.SITELOOPER_SKILLS_DIR;
+    delete process.env.SITELOOPER_HOME;
     fs.rmSync(home, { recursive: true, force: true });
   });
 
@@ -864,14 +864,14 @@ d('identity-scoped locators (fixture page)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-ident-'));
-    process.env.SLEEP_WALKER_HOME = home;
-    process.env.SLEEP_WALKER_SKILLS_DIR = path.join(home, 'skills');
+    process.env.SITELOOPER_HOME = home;
+    process.env.SITELOOPER_SKILLS_DIR = path.join(home, 'skills');
     session = new BrowserSession({ session: 'ident', persist: false, learn: true });
     await (await session.getPage()).goto(fixtureUrl);
   }, 60_000);
   afterAll(async () => {
     await session?.close();
-    for (const k of ['SLEEP_WALKER_SKILLS_DIR', 'SLEEP_WALKER_HOME'] as const) delete process.env[k];
+    for (const k of ['SITELOOPER_SKILLS_DIR', 'SITELOOPER_HOME'] as const) delete process.env[k];
     fs.rmSync(home, { recursive: true, force: true });
   });
 

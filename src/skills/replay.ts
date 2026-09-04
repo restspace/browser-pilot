@@ -1242,7 +1242,7 @@ const LOOP_SHRINK_POLL_MS = 100;
  * through the wait that precedes it.
  */
 function resolveWaitMs(): number {
-  const raw = Number(process.env.SLEEP_WALKER_RESOLVE_WAIT_MS);
+  const raw = Number(process.env.SITELOOPER_RESOLVE_WAIT_MS);
   return Number.isFinite(raw) && raw >= 0 ? raw : 3_000;
 }
 const RESOLVE_POLL_MS = 100;

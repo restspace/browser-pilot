@@ -17,7 +17,7 @@ Fairness notes, disclosed in bench/README.md:
   text-only. This disables a browser-use feature its authors recommend; the
   comparison is "browser-use on the benchmark's model", not peak browser-use.
 - Token usage comes from browser-use's own TokenCost service, the same way
-  sleep-walker's inner usage comes from its own daemon: each tool self-reports
+  sitelooper's inner usage comes from its own daemon: each tool self-reports
   and the harness prices the report.
 """
 

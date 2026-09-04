@@ -28,8 +28,8 @@ d('component recipes (fixture widgets)', () => {
 
   beforeAll(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bp-comp-br-'));
-    process.env.SLEEP_WALKER_HOME = home;
-    process.env.SLEEP_WALKER_COMPONENTS_FILE = path.join(home, 'components.json');
+    process.env.SITELOOPER_HOME = home;
+    process.env.SITELOOPER_COMPONENTS_FILE = path.join(home, 'components.json');
     session = new BrowserSession({ session: 'comp', persist: false, learn: true });
     const page = await session.getPage();
     await page.goto(fixtureUrl);
@@ -37,8 +37,8 @@ d('component recipes (fixture widgets)', () => {
 
   afterAll(async () => {
     await session?.close();
-    delete process.env.SLEEP_WALKER_COMPONENTS_FILE;
-    delete process.env.SLEEP_WALKER_HOME;
+    delete process.env.SITELOOPER_COMPONENTS_FILE;
+    delete process.env.SITELOOPER_HOME;
     fs.rmSync(home, { recursive: true, force: true });
   });
 
