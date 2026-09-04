@@ -138,6 +138,52 @@ giving up the LLM safety net.
 kept; flows are plain JSON under `~/.sitelooper/flows/`. A `run` prints per-step tier (A = zero
 model), turns spent and drift tickets, and `--json` returns all of it.
 
+**The loop.** Once compiled, the `.spec.ts` runs under plain `@playwright/test` — no sitelooper
+process, no model, nothing but the two generated files and Playwright itself. Each locator call is
+a `pick()` fallthrough over the candidates recorded at compile time, tried in recorded order; if
+the primary misses and a later candidate resolves, that's drift, not failure — the test still
+passes, but `pick()` prints a `[sitelooper drift] ...` line and appends it to the `.flow.ts`'s
+exported `DRIFT` array, so a CI report or your own `.spec.ts` assertion can surface it without
+grepping stderr.
+
+When drift shows up (or the spec goes red outright), `sitelooper repair <name.flow.ts> --var k=v
+[--converge n]` closes the loop: it lifts the owned file back to its IR, replays it against the
+*live* app in an isolated temp store (never touching `~/.sitelooper`), and lets the recovery
+ladder adapt it — a resolved fallback is promoted with a pure codemod, no model; a chain that's
+gone dead gets one new locator proposed and verified by the model on the live page; a segment that
+needs re-recording is reported, never attempted. It then prints a reviewer-readable change list
+("candidate promoted", "new locator", "chain reordered"), and only if `--converge n` further real
+runs come back as clean tier-A replays with no drift does it rewrite the `.flow.ts` — the
+`.spec.ts` is never touched. A record-creating flow needs a fresh identity each of those runs;
+`{n}` in a `--var` value is replaced by the run number (`--var runid=fix-{n}` becomes `fix-0`,
+`fix-1`, ...).
+
+Exit codes matter here: `2` means the file was hand-edited or otherwise refused outright (not a
+sitelooper flow file, or a missing `--var`); `3` means the repair itself worked but the convergence
+gate didn't hold; `1` covers both "the repair would have dropped an expectation" (refused — an
+assertion that no longer holds is a test failure for a human, not drift) and "nothing could be
+repaired without re-recording". The intended workflow is a pull request, not a background daemon:
+CI runs the spec and fails loud on drift; a developer, or a scheduled agent picking up the failure,
+runs `repair` and opens the diff for review.
+
+```
+$ npx playwright test fwrd42.spec.ts
+  ✓ fwrd42 (6.0s)
+$ npx playwright test fwrd42.spec.ts        # after the app renamed a button
+  ✓ fwrd42 (6.1s)
+    [sitelooper drift] 02-add s_05e528/1 target: primary getByTestId('add-part') missed; used #2 getByRole('button', { name: 'Add part', exact: true })
+$ sitelooper repair fwrd42.flow.ts --var runid=fix-{n} --converge 1
+  02-add: candidate promoted: page.getByRole('button', { name: 'Add part', exact: true }) now primary (was #1)
+  wrote fwrd42.flow.ts (13 change(s); the .spec.ts was not touched)
+```
+
+Be honest about what the loop still doesn't give back, even after `repair`: this stays Tier 2 —
+point candidates (a last-resort click by screen position) are still unexpressible and dropped at
+compile time; there's no live chain measurement, so the spec learns from a run only when `repair`
+is invoked, never continuously; there's no loop cursor across records; and a moved control still
+fails the *run that discovered it* before repair can act — recovery in a compiled spec is a
+follow-up PR, never a live save.
+
 **Sizing an instruction.** One `do` is one logical, verifiable step: a goal plus the check that it
 worked. Several UI actions inside one instruction is normal — that is the point. Too big (several
 unrelated goals) stalls on planning; too small (one click) pays an agent loop for what `peek` gives

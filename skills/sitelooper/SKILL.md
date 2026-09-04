@@ -72,7 +72,47 @@ step function per `FlowStep`, compiled straight from the stored locator chains) 
 scaffold written once and never overwritten. It is compile-time only: no live-page measurement, no
 point-candidate clicks, and no runtime recovery if a locator has since drifted — a drifted step fails
 the spec outright rather than reasoning its way to the moved control. `compile` exits 2 when a step
-never converged to a stored procedure.
+never converged to a stored procedure. When a compiled spec later goes red or logs drift in CI,
+see "Repairing a compiled spec after a red CI run" below — that's a `repair` job, not a `do`.
+
+## Repairing a compiled spec after a red CI run
+
+A compiled spec (`<name>.flow.ts` + `<name>.spec.ts`, from `compile` above) runs under plain
+`@playwright/test` with no model in the loop — so when you land on a red run of one, don't reach
+for `do`. Work the failure like this:
+
+1. Read the Playwright report. Look for `[sitelooper drift] ...` lines (a locator's primary
+   candidate missed but a recorded fallback covered — the test may still be green) and, on an
+   actual failure, the `// @step <id> <segment>/<index>` anchor comment in the `.flow.ts` nearest
+   the failing line — that's the step and candidate to focus on, not the whole flow.
+2. Dry-run the repair first: `sitelooper repair <name.flow.ts> --var k=v ... --dry-run`. This
+   performs the real triage and prints the change list without writing anything, so you can see
+   what it *would* do before it touches the file.
+3. If the change list looks right, run it for real with a convergence check and a fresh identity
+   per run: `sitelooper repair <name.flow.ts> --var k=v --var runid=fix-{n} --converge 1`. `{n}`
+   in a `--var` value becomes the run number, so a record-creating flow doesn't collide with
+   itself across the repair run and the converge run(s).
+4. Review the printed change list line by line ("candidate promoted", "new locator", "chain
+   reordered", "step re-pinned to variant ..."). This is the diff a human would otherwise have to
+   reconstruct from the `.flow.ts` diff by hand.
+5. Refuse anything that weakens an expectation. `repair` already refuses this on its own — a
+   dropped assertion exits 1 rather than writing — but treat that refusal as final, not something
+   to work around by editing the flow yourself; an assertion that stopped holding is a real test
+   failure for a human to look at, not drift.
+6. If `repair` reports a step **needs re-record** rather than proposing a fix, don't try to hand-
+   patch the `.flow.ts` — it's regenerated in full on every `compile`/`repair` and hand edits are
+   detected and refused on the next repair anyway. Instead, `--learn` a fresh session for that
+   segment, converge it, and `compile` again.
+7. Once `repair` has written the file (`converged: true` / "wrote ... (N change(s); the .spec.ts
+   was not touched)"), commit only the `.flow.ts` diff and open it as a PR, with the printed
+   change list as the PR description — that list is already the reviewer-facing summary of what
+   changed and why.
+
+Never touch the `.spec.ts` for this: it's the user's file and `repair` never rewrites it.
+`repair` itself never touches anything outside a throwaway temp store until the very last
+step (the file write) — the runs it performs against the live app to triage and converge are
+real runs, so treat `--converge n` as `n` additional real executions against the app, same as
+any other run.
 
 ## Learning mode — repeated work gets cheaper
 
