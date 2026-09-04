@@ -1,0 +1,144 @@
+{
+  "flow": "fwgr27",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Logged into Grafana with admin/admin, skipped the change-password prompt, searched for and opened the 'Service health' dashboard. The dashboard displays exactly 3 panels: \"Request rate\", \"Error count\", and \"Latency by endpoint\".",
+      "values": {
+        "panels": "Request rate | Error count | Latency by endpoint",
+        "panel_title_1": "Request rate",
+        "panel_title_2": "Error count",
+        "panel_title_3": "Latency by endpoint"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_939c34; observed dashboard_title=fwgr27-n2 Bench Dashboard, panel_title=fwgr27-n2 Availability.",
+      "values": {
+        "dashboard_title": "fwgr27-n2 Bench Dashboard",
+        "panel_title": "fwgr27-n2 Availability"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added a new Text panel titled 'fwgr27-n2 Notes' with content 'Notes for run fwgr27-n2' to the dashboard, then saved the dashboard (confirmed \"Dashboard saved\" alert). The dashboard URL is http://127.0.0.1:3000/d/ffx7wwpdoolq8c/fwgr27-n2-bench-dashboard. Both panels are visible: 'fwgr27-n2 Availability' (Stat) and 'fwgr27-n2 Notes' (Text showing \"Notes for run fwgr27-n2\").",
+      "values": {
+        "panel_title": "fwgr27-n2 Notes",
+        "panel_content": "Notes for run fwgr27-n2",
+        "dashboard_url": "http://127.0.0.1:3000/d/ffx7wwpdoolq8c/fwgr27-n2-bench-dashboard?from=now-6h&to=now&timezone=browser"
+      },
+      "tier": "A",
+      "replayed": "16/16",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_0c4807; observed time_range=Last 6 hours, refresh_interval=1m.",
+      "values": {
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m"
+      },
+      "tier": "A",
+      "replayed": "14/14",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-report",
+      "status": "success",
+      "summary": "Fresh navigation to http://127.0.0.1:3000/d/ffx7wwpdoolq8c/fwgr27-n2-bench-dashboard confirmed the persisted settings: URL includes from=now-6h&refresh=1m parameters; top bar shows 'Last 6 hours' and '1m' auto-refresh; two panels visible: '{{v2}} Availability' and 'fwgr27-n2 Notes' (content: \"Notes for run fwgr27-n2\"); dashboard settings in edit view show tag '{{v5}}'; default time range/refresh persisted as 'Last 6 hours' and '1m'.",
+      "values": {
+        "current_url": "http://127.0.0.1:3000/d/ffx7wwpdoolq8c/fwgr27-n2-bench-dashboard?from=now-6h&to=now&timezone=browser&refresh=1m",
+        "time_range": "Last 6 hours",
+        "refresh_interval": "1m",
+        "notes_panel_content": "Notes for run fwgr27-n2"
+      },
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwgr27",
+      "step": "01-open",
+      "skill": "s_b80251",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.716,
+      "missedLocator": "elementAt(68, 165) /* heading */",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2').nth(0)",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+    },
+    {
+      "flow": "fwgr27",
+      "step": "01-open",
+      "skill": "s_b80251",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.716,
+      "missedLocator": "elementAt(691, 165) /* heading */",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2').nth(1)",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+    },
+    {
+      "flow": "fwgr27",
+      "step": "01-open",
+      "skill": "s_b80251",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 0.716,
+      "missedLocator": "elementAt(1036, 165) /* heading */",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2').nth(2)",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/bench-service-health/service-health"
+    },
+    {
+      "flow": "fwgr27",
+      "step": "02-create",
+      "skill": "s_939c34",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.986,
+      "missedLocator": "elementAt(99, 165) /* heading */",
+      "fallbackUsed": "page.locator('[data-testid=\"header-container\"] h2')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://127.0.0.1:3000/d/ffx7wwpdoolq8c/:id"
+    }
+  ],
+  "wallMs": 46716,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "cachedTokens": 0
+  },
+  "usageByModel": {},
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
