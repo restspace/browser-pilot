@@ -1,0 +1,105 @@
+{
+  "arm": "sleep-walker",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "81d2ea2"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwat2-n1",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 9,
+  "wallMs": 3043431,
+  "orchestrator": {
+    "input": 34726,
+    "cacheWrite": 0,
+    "cacheRead": 0,
+    "output": 2114
+  },
+  "inner": {
+    "promptTokens": 4953954,
+    "cachedTokens": 2631168,
+    "completionTokens": 38237,
+    "instructions": 12,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3299061,
+        "completionTokens": 18918,
+        "cachedTokens": 1632512,
+        "instructions": 8
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1654893,
+        "completionTokens": 19319,
+        "cachedTokens": 998656,
+        "instructions": 4
+      }
+    },
+    "skills": {
+      "instructions": 8,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 89,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 8,
+  "subcommands": {
+    "do": 8
+  },
+  "invocationCount": 8,
+  "commandMs": 2855142,
+  "commandBytes": 7805,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "C:\\dev\\sleep-walker\\bench\\results\\fwat2-skills",
+    "instructions": 8,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 89,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Io Net",
+    "DeepInfra",
+    "Decart",
+    "Reka"
+  ],
+  "orReportedCostUsd": 0.0496,
+  "maxUsd": 2,
+  "spendUsd": 1.4322,
+  "finalText": "All objectives completed. Final report:\n\n1. **DONE** — Project `fwat2-n1 MTP Bench Project` created (client: \"q7k MTP Client (Jane Doe)\", status Open, internal code 7dodspvibh). It appeared in the project list as \"fwat2-n1 MTP Bench Project - q7k MTP Client (Jane Doe)\".\n\n2. **DONE** — Line item `fwat2-n1 MTP Item A` created with cost 100, markup 25. Computed price: **133.33** (full precision 133.3333333333, i.e. cost / (1 − 0.25)). Initial status: Placeholder.\n\n3. **DONE** — Line item `fwat2-n1 MTP Item B` created with cost 200, markup 25. Computed price: **266.67** (full precision 266.6666666666).\n\n4. **DONE** — Item A's cost changed from 100 to 150 (markup kept at 25). Computed price afterwards: **200.00** (full precision 199.999999999875). Row confirmed as \"fwat2-n1 MTP Item A - 1 - 150\".\n\n5. **DONE** — Item A's status ended as **Specified**. The app initially refused with: \"Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit\". What was required to satisfy the preconditions: (a) select an actual Supplier from the autocomplete dropdown — \"q7k MTP Supplies Ltd\" (typed text alone was not accepted; the selection auto-filled Supplier Code to \"Q7KD\"), (b) Item Cost = 150, (c) Item Units = 1, (d) Unit = \"m2\". After filling these, the save succeeded and the row showed \"Status: Specified\" with price 200.00.\n\n6. **DONE** — Both line items removed via right-click context menu → \"Remove Project Item\" (native confirm dialogs accepted); the Project Items list dropped from 9 to 7 rows with 0 remaining matches for \"fwat2-n1 MTP Item\". The project's status was then changed from Open to **Closed**; verified it no longer appears in the default active project list and only shows when \"Include Closed\" is checked, with the edit form showing Status = Closed. Nothing created by this run remains active.",
+  "transcriptPath": "C:\\dev\\sleep-walker\\bench\\results\\fwat2-n1-sleep-walker-transcript.jsonl"
+}

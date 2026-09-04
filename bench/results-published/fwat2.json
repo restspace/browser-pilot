@@ -1,0 +1,325 @@
+{
+  "name": "fwat2",
+  "origin": "http://localhost:5173",
+  "startUrl": "http://localhost:5173/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://localhost:5173/ in the browser, sign in with email james@atelyr.com and password nSMEsmY0wLOsOsZOMruOEOFh, and report what page/screen you land on after login (do not wait for network idle; the dev server's websocket never goes idle — wait for concrete page state instead).",
+      "skill": "s_056513",
+      "params": {
+        "v1": "http://localhost:5173/",
+        "v2": "james@atelyr.com",
+        "v3": "nSMEsmY0wLOsOsZOMruOEOFh"
+      },
+      "outputs": [
+        "landed_page"
+      ],
+      "recorded": {
+        "landed_page": "Project Manager"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "On the {{01-open.landed_page}} page, create a new project named exactly '{{runid}} MTP Bench Project'. Fill in any required fields the form enforces (discover them; use sensible values, e.g. a client/customer if required). Submit and verify the project appears in the project list (list views refresh asynchronously after a create, so wait for the row to appear). Report the project name as shown in the list and any other fields you had to fill in.",
+      "skill": "s_ea3400",
+      "params": {
+        "v1": "{{01-open.landed_page}}",
+        "v3": "{{runid}} MTP Bench Project"
+      },
+      "outputs": [
+        "project_name",
+        "client",
+        "status",
+        "project_internal_id",
+        "project_list_count_after_create"
+      ],
+      "recorded": {
+        "project_name": "fwat2-n1 MTP Bench Project",
+        "client": "q7k MTP Client (Jane Doe)",
+        "status": "Open",
+        "project_internal_id": "7dodspvibh",
+        "project_list_count_after_create": "3"
+      },
+      "outputEvidence": {
+        "project_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "project_internal_id": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "{{02-create.status}} the project '{{runid}} MTP Bench Project' (from the {{01-open.landed_page}} list) and add a line item to it named exactly '{{runid}} MTP Item A' with cost 100 and markup 25. Fill any other required fields the form enforces. Save, then report the price the app computes for that line item (the price shown on the page for '{{runid}} MTP Item A'), plus its initial status and any other fields you had to fill in.",
+      "skill": "s_93e349",
+      "params": {
+        "v1": "{{02-create.status}}",
+        "v2": "{{runid}} MTP Bench Project",
+        "v4": "{{01-open.landed_page}}",
+        "v3": "{{runid}}",
+        "v5": "100",
+        "v6": "25"
+      },
+      "outputs": [
+        "item_name",
+        "computed_price",
+        "price_full_precision",
+        "cost",
+        "markup",
+        "initial_status",
+        "required_field_filled",
+        "project_items_count_after_create"
+      ],
+      "recorded": {
+        "item_name": "fwat2-n1 MTP Item A",
+        "computed_price": "133.33",
+        "price_full_precision": "133.3333333333",
+        "cost": "100",
+        "markup": "25",
+        "initial_status": "Placeholder",
+        "required_field_filled": "Project = fwat2-n1 MTP Bench Project",
+        "project_items_count_after_create": "8"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "computed_price": {
+          "same": 1,
+          "differed": 0
+        },
+        "cost": {
+          "same": 0,
+          "differed": 1
+        },
+        "markup": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-add",
+      "instruction": "In the project '{{runid}} MTP Bench Project', add a second line item named exactly '{{runid}} MTP Item B' with cost 200 and markup 25 (same project, status can stay at its default). Save and verify it appears in the Project Items list (the list refreshes asynchronously, so wait for the row). Report the price the app computes for '{{runid}} MTP Item B' as shown on the page.",
+      "skill": "s_da6e0c",
+      "params": {
+        "v1": "{{runid}} MTP Bench Project",
+        "v2": "{{runid}}",
+        "v3": "200",
+        "v4": "25"
+      },
+      "outputs": [
+        "item_name",
+        "computed_price",
+        "price_full_precision",
+        "cost",
+        "markup",
+        "initial_status",
+        "project_items_count_after_create"
+      ],
+      "recorded": {
+        "item_name": "fwat2-n1 MTP Item B",
+        "computed_price": "266.67",
+        "price_full_precision": "266.6666666666",
+        "cost": "200",
+        "markup": "25",
+        "initial_status": "Placeholder",
+        "project_items_count_after_create": "9"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "cost": {
+          "same": 1,
+          "differed": 1
+        },
+        "markup": {
+          "same": 1,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "05-edit",
+      "instruction": "In the project '{{runid}} MTP Bench Project', edit the line item '{{runid}} MTP Item A' to change its cost from 100 to 150 (keep markup 25). Save the change and report the new price the app computes for '{{runid}} MTP Item A' as shown on the page, and confirm the cost now reads 150.",
+      "skill": "s_a57a4d",
+      "params": {
+        "v1": "{{runid}} MTP Bench Project",
+        "v3": "{{runid}} MTP Item A",
+        "v4": "100"
+      },
+      "outputs": [
+        "item_name",
+        "new_cost",
+        "markup",
+        "new_computed_price",
+        "price_full_precision"
+      ],
+      "recorded": {
+        "item_name": "fwat2-n1 MTP Item A",
+        "new_cost": "150",
+        "markup": "25",
+        "new_computed_price": "200.00",
+        "price_full_precision": "199.999999999875"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "new_computed_price": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-change",
+      "instruction": "In the project '{{runid}} MTP Bench Project', change the line item '{{runid}} MTP Item A' status from '{{03-open.initial_status}}' to 'Specified'. The app enforces preconditions before it will accept that status — if it refuses, read the error/validation message, discover exactly what is required, satisfy those requirements (e.g. filling missing fields on the item or related records), and retry until the status is saved as 'Specified'. Report the final status shown for '{{runid}} MTP Item A' and exactly what was required to satisfy the preconditions (quote the error text and what you did about it).",
+      "skill": "s_ccc0a5",
+      "params": {
+        "v1": "{{runid}} MTP Bench Project",
+        "v3": "{{runid}} MTP Item A",
+        "v4": "{{03-open.initial_status}}"
+      },
+      "outputs": [
+        "item_name",
+        "final_status",
+        "supplier",
+        "supplier_code",
+        "item_cost",
+        "item_units",
+        "unit",
+        "cost",
+        "margin",
+        "price"
+      ],
+      "recorded": {
+        "item_name": "fwat2-n1 MTP Item A",
+        "final_status": "Specified",
+        "supplier": "q7k MTP Supplies Ltd",
+        "supplier_code": "Q7KD",
+        "item_cost": "150",
+        "item_units": "1",
+        "unit": "m2",
+        "cost": "150",
+        "margin": "25",
+        "price": "200.00"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "final_status": {
+          "same": 1,
+          "differed": 0
+        },
+        "unit": {
+          "same": 2,
+          "differed": 0
+        },
+        "price": {
+          "same": 2,
+          "differed": 0
+        },
+        "supplier": {
+          "same": 1,
+          "differed": 0
+        },
+        "cost": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "07-delete",
+      "instruction": "In the project '{{runid}} MTP Bench Project', delete both line items '{{runid}} MTP Item A' and '{{runid}} MTP Item B' (confirm any deletion dialogs). Then close/archive the project '{{runid}} MTP Bench Project' so nothing from this run is left active — use whatever close/archive action the app provides (e.g. a status change to Closed/Archived on the project). Verify both items are gone from the Project Items list (lists refresh asynchronously, so wait for the rows to disappear) and report the project's final status and any confirmation text shown.",
+      "skill": "s_f2ee63",
+      "params": {
+        "v1": "{{runid}} MTP Bench Project",
+        "v3": "{{runid}} MTP Item A",
+        "v4": "{{runid}} MTP Item B",
+        "v5": "Closed"
+      },
+      "outputs": [
+        "project_name",
+        "project_final_status",
+        "items_deleted",
+        "remaining_items_matching_fwat2",
+        "project_items_count_after_deletion",
+        "projects_count_with_include_closed"
+      ],
+      "recorded": {
+        "project_name": "fwat2-n1 MTP Bench Project",
+        "project_final_status": "Closed",
+        "items_deleted": "fwat2-n1 MTP Item A, fwat2-n1 MTP Item B",
+        "remaining_items_matching_fwat2": "0",
+        "project_items_count_after_deletion": "7",
+        "projects_count_with_include_closed": "9"
+      },
+      "outputEvidence": {
+        "project_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "project_final_status": {
+          "same": 2,
+          "differed": 0
+        },
+        "items_deleted": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "08-report",
+      "instruction": "Final verification only, no changes: on the {{01-open.landed_page}} page, check whether the project '{{runid}} MTP Bench Project' appears in the default (active) project list, and if not, tick 'Include Closed' (or equivalent) and confirm its status shows Closed. Also confirm no line items named '{{runid}} MTP Item A' or '{{runid}} MTP Item B' exist anywhere. Report exactly what you observed.",
+      "skill": "s_9049c3",
+      "params": {
+        "v1": "{{01-open.landed_page}}",
+        "v2": "{{runid}} MTP Bench Project",
+        "v4": "Closed",
+        "v5": "{{runid}} MTP Item A",
+        "v6": "{{runid}} MTP Item B"
+      },
+      "outputs": [
+        "project_in_default_active_list",
+        "project_appears_with_include_closed",
+        "project_status",
+        "fwat2_item_count_in_items_list",
+        "total_items_in_project"
+      ],
+      "recorded": {
+        "project_in_default_active_list": "false",
+        "project_appears_with_include_closed": "true",
+        "project_status": "Closed",
+        "fwat2_item_count_in_items_list": "0",
+        "total_items_in_project": "7"
+      },
+      "outputEvidence": {
+        "project_status": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwat2-n1",
+    "created": "2026-09-04T09:38:58.799Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}

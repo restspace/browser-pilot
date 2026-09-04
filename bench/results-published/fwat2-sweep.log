@@ -1,0 +1,150 @@
+[launcher] 2026-09-04T08:47:59.730Z node bench/sweep.mjs --k 3 --base fwat2 --learn bench/results/fwat2-skills --flow fwat2 --arm sleep-walker --target atelyr --task bench/tasks/atelyr-project-flow.md --provider openrouter --model z-ai/glm-5.3 --coarse --verify-cmd node bench/verify.mjs {runid} --out bench/results
+
+[sweep] run 1/3: fwat2-n1 (store: C:\dev\sleep-walker\bench\results\fwat2-skills)
+[reset] atelyr: restoring datastore baseline
+[reset] stopped mongod.exe:23024 rs2-server.exe:24620
+[reset] backend down
+[reset] restoring mongo-data
+[reset] restoring data-store
+[reset] starting backend
+mongod starting...
+rs2-server starting...
+backend OK (200) on http://127.0.0.1:3100
+[reset] backend up on 127.0.0.1:3100
+[reset] datastore restored to baseline
+[harness] atelyr responded 200 at http://localhost:5173/
+stopped: fwat2-n1
+  flow "fwat2" saved: 8 step(s), vars runid → C:\dev\sleep-walker\bench\results\flows\fwat2.json
+  warning: note: dropped 1 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: 99 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "Open" (output) in "Open http://localhost:5173/ in the browser, sign in with email james@atelyr.com and password nSMEsmY0wLOsOsZOMruOEOFh, and report what page/screen you land on a"
+  flow.steps[2].instruction: "100" (output) in "{{02-create.status}} the project '{{runid}} MTP Bench Project' (from the {{01-open.landed_page}} list) and add a line item to it named exactly '{{runid}} MTP It"
+  flow.steps[2].params.v5: "100" (output) in "100"
+  flow.steps[3].instruction: "200" (output) in "In the project '{{runid}} MTP Bench Project', add a second line item named exactly '{{runid}} MTP Item B' with cost 200 and markup 25 (same project, status can "
+  flow.steps[3].params.v3: "200" (output) in "200"
+  flow.steps[4].instruction: "100" (output) in "In the project '{{runid}} MTP Bench Project', edit the line item '{{runid}} MTP Item A' to change its cost from 100 to 150 (keep markup 25). Save the change and"
+  flow.steps[4].instruction: "150" (output) in "In the project '{{runid}} MTP Bench Project', edit the line item '{{runid}} MTP Item A' to change its cost from 100 to 150 (keep markup 25). Save the change and"
+  flow.steps[4].params.v4: "100" (output) in "100"
+  flow.steps[5].instruction: "Specified" (output) in "In the project '{{runid}} MTP Bench Project', change the line item '{{runid}} MTP Item A' status from '{{03-open.initial_status}}' to 'Specified'. The app enfor"
+  flow.steps[6].instruction: "Closed" (output) in "In the project '{{runid}} MTP Bench Project', delete both line items '{{runid}} MTP Item A' and '{{runid}} MTP Item B' (confirm any deletion dialogs). Then clos"
+  warning: {{02-create.status}} (used by 03-open) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+  warning: {{03-open.initial_status}} (used by 06-change) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwat2-n1 stop=completed
+turns=9 wall=3043.4s
+commands=8 cmdTime=2855.1s cmdBytes=7805 timeouts=0
+orchestrator in=34726 cw=0 cr=0 out=2114
+inner prompt=4953954 cached=2631168 completion=38237
+spend=$1.4322 maxUsd=2
+learn: A_n=0 replayed=0/8 full=0 repaired=0 compiled=8 variants=0
+-> C:\dev\sleep-walker\bench\results\fwat2-n1-sleep-walker-result.json
+(node:22776) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+=== fwat2-n1 === (run self-reported: completed)
+  obj 1  PASS  project 7dodspvibh exists
+  obj 2  UNVERIFIABLE  claim consistent (claimed 133.33, rule gives 133.33)
+  obj 3  UNVERIFIABLE  claim consistent (claimed 266.67, rule gives 266.67)
+  obj 4  UNVERIFIABLE  claim consistent (claimed 200, rule gives 200)
+  obj 5  UNVERIFIABLE  status destroyed by objective 6 cleanup
+  obj 6  PASS  0 item(s) left, project status=Closed
+
+App state: 9 projects total, 1 left by benchmark runs, 7 projectItems total.
+
+[sweep] run 2/3: fwat2-n2 (replay flow fwat2, no orchestrator)
+[reset] atelyr: restoring datastore baseline
+[reset] stopped mongod.exe:10452 rs2-server.exe:26448
+[reset] backend down
+[reset] restoring mongo-data
+[reset] restoring data-store
+[reset] starting backend
+mongod starting...
+rs2-server starting...
+backend OK (200) on http://127.0.0.1:3100
+[reset] backend up on 127.0.0.1:3100
+[reset] datastore restored to baseline
+[sweep] fwat2-n2: 15 drift ticket(s) → fwat2-n2-drift.json
+(node:11500) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+=== fwat2-n2 === (run self-reported: no result file)
+  obj 1  PASS  project 13f9pv52yozr exists
+  obj 2  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 133.33)
+  obj 3  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 266.67)
+  obj 4  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 200)
+  obj 5  UNVERIFIABLE  status destroyed by objective 6 cleanup
+  obj 6  FAIL  0 item(s) left, project status=Closed — no transcript, cannot tell removal from never-created
+
+App state: 9 projects total, 1 left by benchmark runs, 7 projectItems total.
+
+[sweep] run 3/3: fwat2-n3 (replay flow fwat2, no orchestrator)
+[reset] atelyr: restoring datastore baseline
+[reset] stopped mongod.exe:8364 rs2-server.exe:12584
+[reset] backend down
+[reset] restoring mongo-data
+[reset] restoring data-store
+[reset] starting backend
+mongod starting...
+rs2-server starting...
+backend OK (200) on http://127.0.0.1:3100
+[reset] backend up on 127.0.0.1:3100
+[reset] datastore restored to baseline
+[sweep] fwat2-n3: 15 drift ticket(s) → fwat2-n3-drift.json
+
+=== fwat2-n3 === (run self-reported: no result file)
+  obj 1  PASS  project xjha0zzmnvn exists
+  obj 2  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 133.33)
+  obj 3  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 266.67)
+  obj 4  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 200)
+  obj 5  UNVERIFIABLE  status destroyed by objective 6 cleanup
+  obj 6  FAIL  0 item(s) left, project status=Closed — no transcript, cannot tell removal from never-created
+
+App state: 9 projects total, 1 left by benchmark runs, 7 projectItems total.
+
+Learning sweep fwat2 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwat2-n1' │ '2/2'    │ 'completed' │ 9     │ 8    │ 1.4322    │ 0   │ '0/8'        │ 3043   │
+│ 1       │ 2 │ 'fwat2-n2' │ '1/2'    │ 'success'   │ 164   │ 8    │ 0.5288    │ 1   │ '8/8 (flow)' │ 2684   │
+│ 2       │ 3 │ 'fwat2-n3' │ '1/2'    │ 'success'   │ 93    │ 8    │ 0.0623    │ 1   │ '8/8 (flow)' │ 1548   │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://localhost:5173
+  s_a57a4d  validated   11 steps  3/3 (100%)
+           In the project '{{v1}}', edit the line item '{{v3}}' to change its cost from {{v4}} to 150 (keep markup 25). S…
+  s_ccc0a5  validated   22 steps  3/3 (100%)
+           In the project '{{v1}}', change the line item '{{v3}}' status from '{{v4}}' to 'Specified'. The app enforces p…
+  s_9049c3  validated    6 steps  3/3 (100%)
+           Final verification only, no changes: on the {{v1}} page, check whether the project '{{v2}}' appears in the def…
+  s_056513  provisional  5 steps  1/2 (50%)
+           Open {{v1}} in the browser, sign in with email {{v2}} and password {{v3}}, and report what page/screen you lan…
+  s_93e349  provisional 16 steps  1/2 (50%)
+           {{v1}} the project '{{v2}}' (from the {{v4}} list) and add a line item to it named exactly '{{v3}} MTP Item A'…
+  s_da6e0c  provisional  9 steps  1/2 (50%)
+           In the project '{{v1}}', add a second line item named exactly '{{v2}} MTP Item B' with cost {{v3}} and markup …
+  s_534d16  provisional  4 steps  1/2 (50%)  variant of s_056513
+           Open {{v1}} in the browser, sign in with email {{v2}} and password {{v3}}, and report what page/screen you lan…
+  s_3cba3a  provisional 11 steps  1/2 (50%)
+           On the page, create a new project named exactly '{{v2}}'. Fill in any required fields the form enforces (disco…
+  s_8c1251  provisional 17 steps  1/2 (50%)  variant of s_93e349
+           {{02-create.status}} the project '{{v2}}' (from the {{01-open.landed_page}} list) and add a line item to it na…
+  s_41bf51  provisional 10 steps  1/2 (50%)  variant of s_da6e0c
+           In the project '{{v2}}', add a second line item named exactly '{{v1}} MTP Item B' with cost {{v3}} and markup …
+  s_f2ee63  validated   15 steps  2/2 (100%)  variant of s_c34d26
+           In the project '{{v1}} MTP Bench Project', delete both line items '{{v2}}' and '{{v1}} MTP Item B' (confirm an…
+  s_c34d26  demoted     10 steps  1/2 (50%)
+           In the project '{{v1}}', delete both line items '{{v3}}' and '{{v4}}' (confirm any deletion dialogs). Then clo…
+  s_ea3400  provisional  9 steps  1/1 (100%)
+           On the {{v1}} page, create a new project named exactly '{{v3}}'. Fill in any required fields the form enforces…
+  s_1a1ed6  provisional  2 steps  1/1 (100%)  variant of s_056513
+           Open {{v1}} in the browser, sign in with email {{v2}} and password {{v3}}, and report what page/screen you lan…
+  s_842500  provisional  6 steps  1/1 (100%)  variant of s_534d16
+           Open {{v1}} in the browser, sign in with email {{v2}} and password {{v3}}, and report what page/screen you lan…
+  s_6f051b  provisional 10 steps  1/1 (100%)  variant of s_3cba3a
+           On the page, create a new project named exactly '{{v2}}'. Fill in any required fields the form enforces (disco…
+  s_81fb95  provisional 19 steps  1/1 (100%)  variant of s_8c1251
+           {{02-create.status}} the project '{{v2}}' (from the {{01-open.landed_page}} list) and add a line item to it na…
+  s_328727  provisional 12 steps  1/1 (100%)  variant of s_41bf51
+           In the project '{{v2}}', add a second line item named exactly '{{v1}} MTP Item B' with cost {{v3}} and markup …
+store: C:\dev\sleep-walker\bench\results\fwat2-skills
+
+summary: C:\dev\sleep-walker\bench\results\fwat2-sweep.json

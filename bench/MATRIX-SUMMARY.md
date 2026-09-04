@@ -25,6 +25,7 @@ MATRIX-v0.1.md unchanged.
 | arm | verified | cost | wall |
 |---|---|---|---|
 | sleep-walker | 7/7 (7/7) | $0.09 ($0.14) | 819s (1120s) |
+| sleep-walker, set 28 (fwrd42 on 81d2ea2) | 7/7 | $0.07 | 1212s |
 | agent-browser | 6/6 | $0.19 | 67s |
 | playwright-mcp (v0.1, ×3) | 6/6, 6/6, 6/6 | $0.42–0.50 | ~275s median |
 | browser-use (v0.1, ×3) | 0/6, 0/6, 0/6 | $0.01–0.04 | ~154s median |
@@ -34,6 +35,7 @@ MATRIX-v0.1.md unchanged.
 | arm | verified | cost | wall |
 |---|---|---|---|
 | sleep-walker | 6/6 (6/6) | $0.04 ($0.07) | 385s (1074s) |
+| sleep-walker, set 28 (fwkb5 on 81d2ea2) | 6/6 | $0.21 | 1078s |
 | agent-browser | **2/6 (turn-cap)** | $0.77 | 118s |
 
 ### grafana (React SPA)
@@ -49,7 +51,19 @@ MATRIX-v0.1.md unchanged.
 | arm | verified | cost | wall |
 |---|---|---|---|
 | sleep-walker | 6/6 (6/6) | $0.59 ($0.05) | 1651s (1094s) |
+| sleep-walker, set 28 (fwod33 on 81d2ea2) | 6/6 | $0.15 | 1335s |
 | agent-browser | 6/6 | $1.51 | 302s |
+
+### atelyr (private React app; runs locally, the one exception to cloud-only)
+
+The verifier can confirm only objectives 1 and 6 from the database, because the flow
+deletes its own evidence; 2–5 are checked for arithmetic consistency of the run's claim,
+which a zero-model replay does not make. "2/2" below means both checkable objectives held.
+
+| arm | verified | cost | wall |
+|---|---|---|---|
+| sleep-walker, set 28 (fwat2 on 81d2ea2) | 6 reported, 2/2 checkable | $1.43 | 3043s |
+| sleep-walker (v0.1 cells, for scale) | max‡, max‡, incomplete | $0.89, $0.85, $2.19 | 2042s, 1842s, 4550s |
 
 (Set 26 recordings against set 24: the two light apps got cheaper and
 faster, the two heavy apps dearer and slower — a first-contact recording is
@@ -89,10 +103,11 @@ bench, plus the null option of just running the agent again:
 
 | target | sleep-walker (r1, r2) | agent-browser re-run | authored script (r1, r2) | codegen (r1, r2) |
 |---|---|---|---|---|
-| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 18s, 18s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
-| kanboard | **6/6, 6/6** · $0.00, $0.00 · 21s, 21s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
+| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 24s, 23s (set 28); set 26: 7/7, 7/7 · 18s, 18s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 · 31s | 6/6, 6/6 · $0 · 36s |
+| kanboard | **4/4 (+2 n/a), same** · $0.00, $0.00 · 23s, 23s (set 28; the two report-based objectives cannot be scored on a zero-model replay); set 26: 21s, 21s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 · 32s | 4/4 (+2 n/a), same · $0 · 62s |
 | grafana | **6/6, 6/6** · $0.00, $0.00 · 47s, 47s (set 28, fwgr27: every step at tier A, zero model turns); set 26 as recorded: 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 · 17s | 0/6, 0/6 · $0 · 35s |
-| odoo | **6/6, 6/6** · $0.16, $0.01 · 661s, 189s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
+| odoo | **6/6, 6/6** · $0.16, $0.01 · 661s, 189s (set 26); **set 28 regressed: 1/6, 1/6** · $0.10, $0.03 · 1153s, 980s, flow reports success but the verifier finds two orders, see the set-28 row below | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 · 77s | 0/6, 0/6 · $0 · 8s |
+| atelyr (local) | 8/8 flow steps, 2/2 checkable · $0.53, $0.06 · 2684s, 1548s (set 28; 164 then 93 model turns, converging: the delete step re-pinned onto its recovery and replayed 15/15 at zero turns on r2) | — | — | — |
 
 (sleep-walker cells are set 26 — fwrd41, fwkb4, fwgr25, fwod32 on build
 e048128, 2026-09-03 — replacing set 24. Set 26 in one line: repairdesk and
@@ -164,6 +179,10 @@ rpgr[2-6]-*.)
 | grafana (fwgr26 recording re-exported on 28144ca, set 27d, rpgr14) | r1 **6/6** · 147 turns · 1678s (verifier 5/6, one title dropped from the final report); r2 **halted 1/6** · 75 turns · 401s | The head segment ran clean in both replays and ended on `/dashboard/new`, and the NEXT skill still refused because "the browser is at chrome-error://chromewebdata/". That finally located the error page: it is not a wrong click in the create segment at all. The sign-in skill carries a recorded stray click on the login page's "Support" link, a `target=_blank` link to grafana.com. On the offline box that tab lands on the browser error page, and the daemon adopts every new tab as the active page, so from that moment every skill was asked of the error page while the app sat in the first tab. diaggr1's protocol log shows the grafana.com request at the sign-in stage, seventeen seconds before the create segment. The rpgr12 guard "fixed" it by refusing that stray click; the fallback-only guard let it through again. Fixed at the daemon: a replay keeps its page whatever tabs open, and a new tab that lands on a browser error page is closed and the opener restored. The held-guess and geometry rules stand on their own evidence but were not the cause here |
 | grafana (fwgr26 recording re-exported on a3d0430, set 27e, rpgr15) | r1 **6/6** · 71 turns · 463s (verifier 5/6: the final report named the dashboard but not its uid); r2 **6/6** · 45 turns · 261s | No error page anywhere in either run. Sign-in and create replayed at tier A with zero turns in both, the create step all 21 steps. r2 is the cheapest Grafana replay to date and re-pinned two steps onto their recoveries. What remains is ordinary drift, not a mechanism: the refresh picker's inner locator misses in both runs and the model recovers it, and the "Edit" button in step 04 changed name |
 | grafana (fresh recording fwgr27 on 9dcc731, set 28) | n1 **6/6** · $0.14 · 1381s | n2 **6/6** · 0 turns · 47s; n3 **6/6** · 0 turns · 47s — the first Grafana recording whose replays never called the model. Five steps, every one at tier A on both replays, no error page, no fallback line. This is also the first store carrying geometry: 56 of 57 chains hold a point candidate. It did not help yet: the four drift tickets (panel-title headings whose names are per-run values) show the point tried and missed, because the element under the point was the title's inner span and the point sat second in the chain ahead of the anchored path. Both fixed after the run: the point walks up to the recorded kind, and orders last at compile and replay. The steps still resolved, by the anchored `[data-testid="header-container"] h2` path |
+| repairdesk (fresh recording fwrd42 on 81d2ea2, set 28) | n1 **7/7** · $0.07 · 1212s | n2 **7/7** · 0 turns · 24s; n3 **7/7** · 0 turns · 23s — every drift ticket is a per-run ticket or part name re-bound by its identity-scoped locator |
+| kanboard (fresh recording fwkb5 on 81d2ea2, set 28) | n1 **6/6** · $0.21 · 1078s | n2 and n3 **4/4 checkable** · 0 turns · 23s each, all five steps at tier A, no drift tickets |
+| odoo (fresh recording fwod33 on 81d2ea2, set 28) | n1 **6/6** · $0.15 · 1335s | n2 **1/6** · 72 turns · 1153s; n3 **1/6** · 48 turns · 980s — both replays report flow success and the verifier disagrees: the create step's head segment ran, the next segment refused ("not on the page this procedure starts from", the browser was on a product list rather than the new quotation form), recovery then created a second quotation, so the customer holds two orders and every downstream check fails. Recovery also named its output `quotation_reference` where the flow expects `order_reference`, so steps 04–06 lost their reference and ran at tier B. Set 26's replays of this target were 6/6 verified. Open: where the head segment diverged, and the partial-replay draft it left behind |
+| atelyr (fresh recording fwat2 on 81d2ea2, local, set 28) | n1 6 reported, **2/2 checkable** · $1.43 · 3043s | n2 8/8 flow · 164 turns · $0.53 · 2684s; n3 8/8 flow · 93 turns · $0.06 · 1548s — converging: three steps at tier A on both, the delete step re-pinned onto its recovery and replayed 15/15 at zero turns on n3, the edit step 11/11 at zero turns on both. First real use of a point candidate: the status combobox resolved by `elementAt(731, 251)` on both replays. Still model-recovered: the two add-item steps (their identity locators name the item, which is a per-run value the recording typed) and the status change |
 | grafana (fwgr25 recording recompiled on 5a84407, set 26c, rpgr11) | 5/6, 5/6 · 96 and 184 turns | **halted 1/8 twice** — the sign-in stopped on a recorded `alert "Error loading RSS feed"` toast (alert lines are transient since d32f9dd) and the rebuild had compiled the resumed create attempt alone, so its segment expected the retry's page (fixed 075b251); the dismissed-dialog pass itself did what it should — the recompiled store carries no Cancel click and no Discard-dialog expectation |
 
 (The set-25 rows measure one thing: the flow-export rule "an echoed input is

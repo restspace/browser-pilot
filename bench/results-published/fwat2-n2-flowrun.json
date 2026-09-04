@@ -1,0 +1,346 @@
+{
+  "flow": "fwat2",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed in successfully with james@atelyr.com. Landed on the **Project Manager** page at http://localhost:5173/project-manager, which shows the \"Projects\" tab (selected) listing 2 projects (\"Fixture Project One\" and \"Fixture Project Two\"), with tabs for Project Items, Rooms, Organisations, Locations, Documents, Files, Users, and Transactions. The header displays \"Atelyr\" branding and an Account button.",
+      "values": {
+        "current_url": "http://localhost:5173/project-manager",
+        "page_name": "Project Manager",
+        "project_count": "2"
+      },
+      "tier": "A",
+      "replayed": "3/5",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created project \"fwat2-n2 MTP Bench Project\" successfully. The form required: **Project Name** (filled \"fwat2-n2 MTP Bench Project\"), **Status** (selected \"Open\"), **Client** (tried \"Client One\" but it failed schema validation — the enum rejected it, so left as \"(None)\"), and **Currency** (selected \"GBP\"). After submitting, the project appears in the Projects list with id \"13f9pv52yozr\" and the project count increased from 2 to 3.",
+      "values": {
+        "project_name": "fwat2-n2 MTP Bench Project",
+        "project_id": "13f9pv52yozr",
+        "fields_filled": "Project Name, Status (Open), Client ((None) — 'Client One' rejected by schema), Currency (GBP)"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 10
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened project \"fwat2-n2 MTP Bench Project\" (from the Project Manager list) and added a line item \"fwat2-n2 MTP Item A\" with cost 100 and markup 25. The form required: **Name** (filled \"fwat2-n2 MTP Item A\"), **Budget Cost** (100), **Margin %** (25). Status defaulted to \"Placeholder\". The project was already pre-selected. After saving, the item appears in the Project Items list with computed price **133.33** (derived from cost 100 ÷ (1 - 0.25) = 133.33) and initial status **Placeholder**.",
+      "values": {
+        "item_name": "fwat2-n2 MTP Item A",
+        "computed_price": "133.33",
+        "item_status": "Placeholder",
+        "fields_filled": "Name, Budget Cost (100), Margin % (25)",
+        "project": "fwat2-n2 MTP Bench Project"
+      },
+      "tier": "A",
+      "replayed": "9/16",
+      "repaired": false,
+      "turns": 29
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Added second line item \"fwat2-n2 MTP Item B\" to project \"fwat2-n2 MTP Bench Project\" with cost 200 and markup 25. Saved and verified it appears in the Project Items list. The app computes the price as **266.67** (cost 200 ÷ (1 - 0.25) = 266.67). Initial status is **Placeholder**.",
+      "values": {
+        "item_name": "fwat2-n2 MTP Item B",
+        "computed_price_item_b": "266.67",
+        "status_item_b": "Placeholder",
+        "cost": "200",
+        "markup": "25",
+        "project": "fwat2-n2 MTP Bench Project"
+      },
+      "tier": "A",
+      "replayed": "1/9",
+      "repaired": false,
+      "turns": 24
+    },
+    {
+      "id": "05-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a57a4d; observed item_name=fwat2-n2 MTP Item A, new_computed_price=200.00.",
+      "values": {
+        "item_name": "fwat2-n2 MTP Item A",
+        "new_computed_price": "200.00"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Changed 'fwat2-n2 MTP Item A' status from 'Placeholder' to 'Specified' in project 'fwat2-n2 MTP Bench Project'. The app initially refused with the error: \"Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit\" (verified verbatim by reproducing the refusal on Item B, which was then reverted to Placeholder). To satisfy the preconditions I filled: Supplier = \"Test Supplier\" (resolved to \"q7k MTP Supplies Ltd\"), Supplier Code = \"SUP-001\", Item Cost = 150, Item Units = 1, Unit = \"m2\", then submitted. Final status confirmed on the live page: the row's status marker reads data-status=\"Specified\" (aria-label \"Status: Specified\"), and the edit form's Status combobox shows \"Specified\" selected. Item A now shows supplier \"q7k MTP Supplies Ltd\", unit \"m2\", cost 150.00, price 200.00.",
+      "values": {
+        "item_name": "fwat2-n2 MTP Item A",
+        "final_status": "Specified",
+        "error_text": "Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit",
+        "fields_filled_to_satisfy_preconditions": "Supplier (Test Supplier → q7k MTP Supplies Ltd), Supplier Code (SUP-001), Item Cost (150), Item Units (1), Unit (m2)",
+        "price": "200.00",
+        "unit": "m2"
+      },
+      "tier": "B",
+      "replayed": "22/22",
+      "repaired": false,
+      "turns": 55
+    },
+    {
+      "id": "07-delete",
+      "status": "success",
+      "summary": "Deleted both line items 'fwat2-n2 MTP Item A' and 'fwat2-n2 MTP Item B' from project 'fwat2-n2 MTP Bench Project'. Item A was already removed by the earlier replay (right-click → Remove → confirmed \"Loading…\" alert). Item B was removed via right-click → \"Remove Project Item\" → confirmed dialog \"Remove this project item?\". Both items confirmed gone from the Project Items list (no rows containing \"fwat2-n2 MTP\" found). Then closed/archived the project by opening its edit form and changing Status from \"Open\" to \"Closed\" and saving. The project now only appears when \"Include Closed\" is checked, and its edit form confirms Status select value=\"Closed\". No confirmation text was shown on save — the form simply closed.",
+      "values": {
+        "project_name": "fwat2-n2 MTP Bench Project",
+        "project_final_status": "Closed",
+        "items_deleted": "fwat2-n2 MTP Item A, fwat2-n2 MTP Item B",
+        "items_verified_gone": "true",
+        "project_visible_only_with_include_closed": "true"
+      },
+      "tier": "A",
+      "replayed": "0/10",
+      "repaired": false,
+      "turns": 26
+    },
+    {
+      "id": "08-report",
+      "status": "success",
+      "summary": "Final verification complete: On the Project Manager page, the project 'fwat2-n2 MTP Bench Project' does NOT appear in the default active project list — it only appears when 'Include Closed' is checked. Its status is **Closed** (confirmed via the edit form's Status select value=\"Closed\"). No line items named 'fwat2-n2 MTP Item A' or 'fwat2-n2 MTP Item B' exist anywhere in the Project Items list (search returned 0 matches). The Project Items tab shows 7 items, none of which are from our test project. Everything from this run has been cleaned up.",
+      "values": {
+        "project_name": "fwat2-n2 MTP Bench Project",
+        "project_status": "Closed",
+        "project_in_active_list_without_include_closed": "false",
+        "project_visible_with_include_closed": "true",
+        "item_a_fwat2-n2 MTP Item A_present": "false",
+        "item_b_fwat2-n2 MTP Item B_present": "false"
+      },
+      "tier": "B",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 16
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "repinned": 0,
+  "drift": 15,
+  "driftTickets": [
+    {
+      "flow": "fwat2",
+      "step": "01-open",
+      "skill": "s_056513",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_056513 stopped at step 4 — after step 4 expected url http://localhost:5173/ but browser is at http://localhost:5173/project-manager",
+      "reason": "after step 4 expected url http://localhost:5173/ but browser is at http://localhost:5173/project-manager",
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "03-open",
+      "skill": "s_93e349",
+      "similarity": 1,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_93e349 stopped at step 10 — after step 10 the page did not show \"- combobox \\\"Fixture Project One Fixture Project Two fwat2-n2 MTP Bench Project\\\": 7dodspvibh\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 10 the page did not show \"- combobox \\\"Fixture Project One Fixture Project Two fwat2-n2 MTP Bench Project\\\": 7dodspvibh\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "04-add",
+      "skill": "s_da6e0c",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_da6e0c stopped at step 2 — after step 2 the page did not show \"- combobox \\\"Fixture Project One Fixture Project Two fwat2-n2 MTP Bench Project\\\": 7dodspvibh\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "reason": "after step 2 the page did not show \"- combobox \\\"Fixture Project One Fixture Project Two fwat2-n2 MTP Bench Project\\\": 7dodspvibh\" as it did when recorded — the step ran but probably acted on the wrong element",
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "05-edit",
+      "skill": "s_a57a4d",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.locator('text= fwat2-n2 MTP Item A')",
+      "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat2-n2 MTP Item A' }).locator('div:nth-of-type(4)')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "05-edit",
+      "skill": "s_a57a4d",
+      "atStep": "6",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.getByTestId('form-submit')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Submit', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "05-edit",
+      "skill": "s_a57a4d",
+      "atStep": "7",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.locator('[role=\"option\"]:has-text(\"fwat2-n2 MTP Item A\")')",
+      "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat2-n2 MTP Item A' })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "05-edit",
+      "skill": "s_a57a4d",
+      "atStep": "9",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.getByTestId('form-submit')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Submit', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "06-change",
+      "skill": "s_ccc0a5",
+      "atStep": "1",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.locator('[role=\"option\"]:has-text(\"fwat2-n2 MTP Item A\")')",
+      "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat2-n2 MTP Item A' })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "06-change",
+      "skill": "s_ccc0a5",
+      "atStep": "2",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.locator('#status')",
+      "fallbackUsed": "elementAt(731, 251) /* combobox */",
+      "fallbackIndex": 2,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "06-change",
+      "skill": "s_ccc0a5",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.getByTestId('form-submit')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Submit', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "06-change",
+      "skill": "s_ccc0a5",
+      "atStep": "10",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.getByTestId('form-submit')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Submit', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "06-change",
+      "skill": "s_ccc0a5",
+      "atStep": "19",
+      "key": "target",
+      "similarity": 0.973,
+      "missedLocator": "page.getByTestId('form-submit')",
+      "fallbackUsed": "page.getByRole('button', { name: 'Submit', exact: true })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "07-delete",
+      "skill": "s_c34d26",
+      "atStep": "1.1.1",
+      "key": "target",
+      "similarity": 0.962,
+      "missedLocator": "page.locator('[role=\"option\"]:has-text(\"fwat2-n2 MTP Item A\")')",
+      "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat2-n2 MTP Item A' })",
+      "fallbackIndex": 1,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "07-delete",
+      "skill": "s_c34d26",
+      "atStep": "1.2.1",
+      "key": "target",
+      "similarity": 0.962,
+      "missedLocator": "page.locator('[role=\"option\"]:has-text(\"fwat2-n2 MTP Item A\")')",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat2",
+      "step": "08-report",
+      "skill": "s_9049c3",
+      "similarity": 0.458,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 01-open.landed_page, 01-open.landed_page",
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    }
+  ],
+  "wallMs": 2684397,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 4819200,
+    "completionTokens": 39507,
+    "cachedTokens": 3135072
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 4024235,
+      "completionTokens": 27881,
+      "cachedTokens": 2477312
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 794965,
+      "completionTokens": 11626,
+      "cachedTokens": 657760
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
