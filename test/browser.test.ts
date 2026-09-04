@@ -336,6 +336,24 @@ d('script recording (fixture page)', () => {
     expect(await page.getByRole('textbox', { name: 'Name' }).inputValue()).toBe('Ada');
   }, 60_000);
 
+  it('records a select by its visible label, keeping the value only as the fallback', async () => {
+    const recorder = session.script!;
+    recorder.beginInstruction('pick the green colour');
+    // The model selected by VALUE (the app's key for the option). The step is
+    // recorded by the label — the term the procedure has provenance for.
+    const out = await run('select', { target: '#colour', option: 'g' });
+    expect(out.result).toContain('label="Green"');
+    const step = recorder.entries.filter((e) => e.k === 'step' && e.tool === 'select').at(-1)!;
+    expect(step.args.option).toBe('Green');
+    expect(step.args.optionValue).toBe('g');
+    // A label form that no longer matches falls back to the recorded value.
+    const back = await run('select', { target: '#colour', option: 'Rouge', optionValue: 'r' });
+    expect(back.result).toContain('label="Red"');
+    expect(await (await session.getPage()).inputValue('#colour')).toBe('r');
+    const again = recorder.entries.filter((e) => e.k === 'step' && e.tool === 'select').at(-1)!;
+    expect(again.args.option).toBe('Red');
+  }, 60_000);
+
   it('disambiguates same-named elements with nth() instead of a wrong match', async () => {
     const recorder = session.script!;
     const snap = await run('snapshot', {});

@@ -4,7 +4,7 @@ import type { Locator, Page } from 'playwright-core';
 import type { BrowserSession } from '../daemon/browser.js';
 import { clip } from '../shared/text.js';
 import { captureSignature, diffSignatures, type PageSignature } from '../daemon/diff.js';
-import { html5DragDrop, reactSafeFill, reactSafeSelect, syntheticHover } from '../daemon/inputs.js';
+import { html5DragDrop, reactSafeFill, reactSafeSelect, selectedOption, syntheticHover } from '../daemon/inputs.js';
 import { tryRecipe } from '../skills/components.js';
 import { resolveSecretsDeep, scrubSecrets, scrubSecretsDeep } from '../shared/secrets.js';
 import { resolveTarget, snapshot, truncate } from '../daemon/refs.js';
@@ -811,8 +811,16 @@ async function dispatch(
     case 'select': {
       const viaRecipe = await tryRecipe(page, t(), 'select-option', String(args.option ?? ''));
       if (viaRecipe) return viaRecipe;
-      const selected = await reactSafeSelect(t(), String(args.option));
-      return `selected ${JSON.stringify(selected)}`;
+      // The label is what the procedure MEANS ("the project I just created");
+      // the value is whatever the app keys that option by, minted per record
+      // as often as not (fwat3 03-add selected the project by its id and both
+      // replays timed out looking for it). A compiled step carries the label
+      // as `option` and the recorded value only as `optionValue`, the last
+      // resort when the label form finds nothing.
+      const fallbackValue = typeof args.optionValue === 'string' && args.optionValue ? args.optionValue : undefined;
+      const selected = await reactSafeSelect(t(), String(args.option), fallbackValue);
+      const chosen = await selectedOption(t());
+      return `selected ${JSON.stringify(selected)}${chosen ? ` label=${JSON.stringify(chosen.label)}` : ''}`;
     }
     case 'check':
       if (args.checked === false) await t().uncheck({ timeout });

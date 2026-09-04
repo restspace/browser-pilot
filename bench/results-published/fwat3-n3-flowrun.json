@@ -1,0 +1,284 @@
+{
+  "flow": "fwat3",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_a31ea1; observed page_url=http://localhost:5173/project-manager, main_heading=Project Manager.",
+      "values": {
+        "page_url": "http://localhost:5173/project-manager",
+        "main_heading": "Project Manager"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created project \"fwat3-n3 MTP Bench Project\" successfully. It appears as the third row in the Projects list (the tab count incremented from 2 to 3). The row shows: **Name**: \"fwat3-n3 MTP Bench Project\" (with internal reference \"8t3osuqqbkb\"), **Margin %**: \"--\", **Client**: \"--\", **End Date**: \"--\". No confirmation toast/message was shown on screen, but the list update confirms creation.",
+      "values": {
+        "project_name": "fwat3-n3 MTP Bench Project",
+        "project_reference": "8t3osuqqbkb",
+        "margin_percent": "--",
+        "current_url": "http://localhost:5173/project-manager"
+      },
+      "tier": "A",
+      "replayed": "10/10",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-add",
+      "status": "success",
+      "summary": "Added line item \"fwat3-n3 MTP Item A\" to project \"fwat3-n3 MTP Bench Project\" via the New Project Item form. Filled Project (fwat3-n3 MTP Bench Project), Name, Budget Cost=100, Margin %=25. The app computed Budget Price=133.33 (133.3333333333). Submitted successfully — the Project Items tab count went from 7 to 8 and the new row appears with Status: Placeholder. No confirmation toast was shown, but the list update confirms creation.",
+      "values": {
+        "item_name": "fwat3-n3 MTP Item A",
+        "budget_cost": "100.00",
+        "margin_percent": "25.00",
+        "computed_budget_price": "133.33",
+        "item_status": "Placeholder",
+        "project": "fwat3-n3 MTP Bench Project"
+      },
+      "tier": "A",
+      "replayed": "7/19",
+      "repaired": false,
+      "turns": 59
+    },
+    {
+      "id": "04-add",
+      "status": "success",
+      "summary": "Replayed stored procedure s_3bb51b; observed item_name=fwat3-n3 MTP Item B, project=fwat3-n3 MTP Bench Project, budget_cost=200.00, margin_pct=25.00, quantity=1.00, computed_budget_price=266.67.",
+      "values": {
+        "item_name": "fwat3-n3 MTP Item B",
+        "project": "fwat3-n3 MTP Bench Project",
+        "budget_cost": "200.00",
+        "margin_pct": "25.00",
+        "quantity": "1.00",
+        "computed_budget_price": "266.67"
+      },
+      "tier": "A",
+      "replayed": "12/12",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-edit",
+      "status": "success",
+      "summary": "Replayed stored procedure s_d8f38f; observed budget_cost_updated_confirmed=150, margin_pct=25.00, item_name=fwat3-n3 MTP Item A, budget_price_recomputed=200.00.",
+      "values": {
+        "budget_cost_updated_confirmed": "150",
+        "margin_pct": "25.00",
+        "item_name": "fwat3-n3 MTP Item A",
+        "budget_price_recomputed": "200.00"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-change",
+      "status": "success",
+      "summary": "Attempted to change the status of line item 'fwat3-n3 MTP Item A' (project 'fwat3-n3 MTP Bench Project') from Placeholder to Specified. Opened the item's edit form (Edit tab), selected \"Specified\" in the Status combobox, and clicked Submit. The app REFUSED the save with the alert: \"Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit\". Inline field errors also read \"Please enter a value for this item\" under the Supplier and Supplier Code fields. Per the instruction I did not work around these preconditions. Verified in the Project Items list that the item's status is still \"Placeholder\" — the change was not persisted.",
+      "values": {
+        "item_name": "fwat3-n3 MTP Item A",
+        "attempted_status": "Specified",
+        "error_text": "Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit",
+        "inline_field_error": "Please enter a value for this item",
+        "status_after_attempt": "Placeholder"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 32
+    },
+    {
+      "id": "07-find",
+      "status": "success",
+      "summary": "Replayed stored procedure s_d907f6; observed item_name=fwat3-n3 MTP Item A, budget_cost_list_2=↻, budget_price=200.00.",
+      "values": {
+        "item_name": "fwat3-n3 MTP Item A",
+        "budget_cost_list_2": "↻",
+        "budget_price": "200.00"
+      },
+      "tier": "A",
+      "replayed": "7/7",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_d907f6",
+      "repinParams": {
+        "v1": "{{runid}}"
+      }
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Opened the edit form for 'fwat3-n3 MTP Item A' (Project Items tab, project 'fwat3-n3 MTP Bench Project'). Status was already set to 'Specified' (from the earlier replayed steps), but the app refused to save with alert \"Cannot save — please complete or correct: Item Cost\" — the Item Cost field was empty. I filled Item Cost = 150 and clicked Submit. A native confirm dialog appeared: \"Your catalogue already has a similar item: \\\"ab13 MTP Item A\\\".\\n\\nOK = use that existing entry (don't add a duplicate)\\nCancel = add this as a new catalogue item\" — I accepted (use existing entry). The save then succeeded: the form closed and the Project Items list now shows the row for 'fwat3-n3 MTP Item A' with Status: Specified, Budget Cost 150.00, Budget Price 200.00, Margin 25.00. Verified in the live list view.",
+      "values": {
+        "item_name": "fwat3-n3 MTP Item A",
+        "status_now": "Specified",
+        "budget_cost": "150.00",
+        "budget_price": "200.00",
+        "margin_pct": "25.00",
+        "validation_error_before_fix": "Cannot save — please complete or correct: Item Cost",
+        "confirm_dialog_text": "Your catalogue already has a similar item: \"ab13 MTP Item A\".\n\nOK = use that existing entry (don't add a duplicate)\nCancel = add this as a new catalogue item"
+      },
+      "tier": "A",
+      "replayed": "23/28",
+      "repaired": false,
+      "turns": 43
+    },
+    {
+      "id": "09-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_47a184; observed status_aria_label=Status: Specified, budget_cost=150.00, budget_price=200.00, budget_margin_pct=25.00.",
+      "values": {
+        "status_aria_label": "Status: Specified",
+        "budget_cost": "150.00",
+        "budget_price": "200.00",
+        "budget_margin_pct": "25.00"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_47a184",
+      "repinParams": {
+        "v1": "{{runid}}"
+      }
+    },
+    {
+      "id": "10-delete",
+      "status": "success",
+      "summary": "Replayed stored procedure s_836881; observed deleted_items=fwat3-n3 MTP Item A, fwat3-n3 MTP Item B, project_items_count_after=7.",
+      "values": {
+        "deleted_items": "fwat3-n3 MTP Item A, fwat3-n3 MTP Item B",
+        "project_items_count_after": "7"
+      },
+      "tier": "A",
+      "replayed": "11/11",
+      "repaired": false,
+      "turns": 0,
+      "repinned": "s_836881",
+      "repinParams": {
+        "v1": "{{runid}}"
+      }
+    },
+    {
+      "id": "11-archive",
+      "status": "success",
+      "summary": "Replayed stored procedure s_fb283d.",
+      "values": {},
+      "tier": "A",
+      "replayed": "8/8",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "12-change",
+      "status": "success",
+      "summary": "Read-only verification complete. (1) Active Projects tab (Include Closed UNCHECKED): count = 2, listing only \"Fixture Project One\" and \"Fixture Project Two\" — no project containing \"fwat3-n3\" appears. (2) Project Items tab: count = 7, no items containing \"fwat3-n3\" appear (both \"fwat3-n3 MTP Item A\" and \"fwat3-n3 MTP Item B\" were deleted earlier). (3) With Include Closed CHECKED: project \"fwat3-n3 MTP Bench Project\" is listed (reference 8t3osuqqbkb, total 9 rows), with Margin %, Client, End Date all showing \"--\". Its status is \"Closed\" (set in the previous step — the list does not display a visible status marker for projects, only a project reference row).",
+      "values": {
+        "fwat3-n1_project_status": "Closed",
+        "fwat3-n1_project_reference": "8t3osuqqbkb"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 12,
+  "total": 12,
+  "repinned": 3,
+  "drift": 5,
+  "driftTickets": [
+    {
+      "flow": "fwat3",
+      "step": "03-add",
+      "skill": "s_c6c5aa",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_c6c5aa stopped at step 8 — select failed: locator.selectOption: Timeout 30000ms exceeded.",
+      "reason": "select failed: locator.selectOption: Timeout 30000ms exceeded.",
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat3",
+      "step": "05-edit",
+      "skill": "s_d8f38f",
+      "atStep": "3",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[aria-label=\"fwat3-n3 MTP Item A - 1 - 150\"] >> [data-column=\"budgetCost\"] input')",
+      "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat3-n3 MTP Item A' }).locator('div:nth-of-type(7) > div > input')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat3",
+      "step": "05-edit",
+      "skill": "s_d8f38f",
+      "atStep": "4",
+      "key": "target",
+      "similarity": 1.001,
+      "missedLocator": "page.locator('[aria-label=\"fwat3-n3 MTP Item A - 1 - 150\"] >> [data-column=\"markup\"] input')",
+      "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat3-n3 MTP Item A' }).locator('div:nth-of-type(11) > input')",
+      "fallbackIndex": 1,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat3",
+      "step": "08-open",
+      "skill": "s_8fe908",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_8fe908 stopped at step 24 — after step 24 none of the 5 recorded page change(s) appeared (e.g. \"- textbox \\\"Search name, supplier, room, tags...\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 24 none of the 5 recorded page change(s) appeared (e.g. \"- textbox \\\"Search name, supplier, room, tags...\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    },
+    {
+      "flow": "fwat3",
+      "step": "10-delete",
+      "skill": "s_836881",
+      "atStep": "11",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByTestId('data-tab-label-count').nth(1)",
+      "fallbackUsed": "page.getByText('7', { exact: true })",
+      "fallbackIndex": 3,
+      "recovered": false,
+      "pageUrlPattern": "http://localhost:5173/project-manager"
+    }
+  ],
+  "wallMs": 1001998,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 3131896,
+    "completionTokens": 21821,
+    "cachedTokens": 2807264
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 2102169,
+      "completionTokens": 16261,
+      "cachedTokens": 1870080
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 1029727,
+      "completionTokens": 5560,
+      "cachedTokens": 937184
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

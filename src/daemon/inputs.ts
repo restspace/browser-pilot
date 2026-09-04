@@ -40,10 +40,43 @@ export async function reactSafeFill(locator: Locator, value: string): Promise<vo
  * Select an option and fire change through the native setter, for React
  * controlled <select> elements.
  */
-export async function reactSafeSelect(locator: Locator, value: string): Promise<string[]> {
+export async function reactSafeSelect(locator: Locator, value: string, fallbackValue?: string): Promise<string[]> {
+  // Look before waiting: an option present NOW is chosen at once, and the
+  // recorded fallback value is tried without first sitting out the label's
+  // full timeout. Only when nothing matches yet does the label wait for
+  // options that may still be loading.
+  const present = await locator
+    .evaluate(
+      (el, [v, f]) => {
+        if (!(el instanceof HTMLSelectElement)) return null;
+        const opts = Array.from(el.options);
+        if (opts.some((o) => o.label.trim() === v)) return 'label';
+        if (opts.some((o) => o.value === v)) return 'value';
+        if (f && opts.some((o) => o.value === f)) return 'fallback';
+        return null;
+      },
+      [value, fallbackValue ?? ''] as [string, string],
+    )
+    .catch(() => null);
+  if (present === 'fallback') return locator.selectOption(fallbackValue!);
+  if (present === 'value') return locator.selectOption(value);
   const result = await locator.selectOption({ label: value }).catch(() => null);
   if (result) return result;
   return locator.selectOption(value); // fall back to value/index matching
+}
+
+/**
+ * The option a <select> currently shows: its visible label and its value.
+ * Null for anything that is not a single-choice select with a selection.
+ */
+export async function selectedOption(locator: Locator): Promise<{ label: string; value: string } | null> {
+  return locator
+    .evaluate((el) => {
+      if (!(el instanceof HTMLSelectElement) || el.multiple) return null;
+      const opt = el.selectedOptions[0];
+      return opt ? { label: opt.label.trim(), value: opt.value } : null;
+    })
+    .catch(() => null);
 }
 
 /**

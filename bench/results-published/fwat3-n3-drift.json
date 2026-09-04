@@ -1,0 +1,65 @@
+[
+  {
+    "flow": "fwat3",
+    "step": "03-add",
+    "skill": "s_c6c5aa",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_c6c5aa stopped at step 8 — select failed: locator.selectOption: Timeout 30000ms exceeded.",
+    "reason": "select failed: locator.selectOption: Timeout 30000ms exceeded.",
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "05-edit",
+    "skill": "s_d8f38f",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('[aria-label=\"fwat3-n3 MTP Item A - 1 - 150\"] >> [data-column=\"budgetCost\"] input')",
+    "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat3-n3 MTP Item A' }).locator('div:nth-of-type(7) > div > input')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "05-edit",
+    "skill": "s_d8f38f",
+    "atStep": "4",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('[aria-label=\"fwat3-n3 MTP Item A - 1 - 150\"] >> [data-column=\"markup\"] input')",
+    "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat3-n3 MTP Item A' }).locator('div:nth-of-type(11) > input')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "08-open",
+    "skill": "s_8fe908",
+    "similarity": null,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_8fe908 stopped at step 24 — after step 24 none of the 5 recorded page change(s) appeared (e.g. \"- textbox \\\"Search name, supplier, room, tags...\\\"\") — the step ran but did not have its recorded effect",
+    "reason": "after step 24 none of the 5 recorded page change(s) appeared (e.g. \"- textbox \\\"Search name, supplier, room, tags...\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "10-delete",
+    "skill": "s_836881",
+    "atStep": "11",
+    "key": "target",
+    "similarity": null,
+    "missedLocator": "page.getByTestId('data-tab-label-count').nth(1)",
+    "fallbackUsed": "page.getByText('7', { exact: true })",
+    "fallbackIndex": 3,
+    "recovered": false,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  }
+]

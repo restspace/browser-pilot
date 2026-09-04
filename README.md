@@ -162,7 +162,7 @@ glm-5.3.
 | kanboard (PHP, drag-and-drop) | 6/6 · $0.21 · 1078s (set 28; set 26: 6/6 · $0.04 · 385s) | **2/6 (turn-cap)** · $0.77 · 118s |
 | grafana (React SPA) | 6/6 · $0.14 · 1381s (set 28; set 26: 6/6 · $0.48 · 2037s) | 6/6 · $1.05 · 448s |
 | odoo (dense CRUD) | 6/6 · $0.38 · 1451s (set 28d; set 26: 6/6 · $0.59 · 1651s) | 6/6 · $1.51 · 302s |
-| atelyr (private React app, local) | 6 reported, 2/2 checkable · $1.43 · 3043s (set 28) | — |
+| atelyr (private React app, local) | 2/2 checkable · $0.76 · 2557s (set 28e; set 28: 6 reported, 2/2 checkable · $1.43 · 3043s) | — |
 
 On first contact sleep-walker is the slowest arm on every target, by design: it drives a cheap
 inner model and spends the extra time recording verified locators, value provenance and effect
@@ -180,7 +180,7 @@ from its own run, and against literal codegen from the recording.
 | kanboard | **4/4 checkable, same** · $0.00, $0.00 · 23s, 23s (set 28; two objectives are report-based and a zero-model replay writes no report) | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
 | grafana | **6/6, 6/6** · $0.00, $0.00 · 47s, 47s (set 28, zero model turns); set 26 as recorded: 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
 | odoo | **6/6, 6/6** · $0.03, $0.00 · 664s, 243s (set 28d; the create step at tier A on both replays) | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
-| atelyr | 8/8 flow steps, 2/2 checkable · $0.53, $0.06 · 2684s, 1548s (set 28; 164 then 93 model turns, converging) | — | — | — |
+| atelyr | 12/12 flow steps · $0.13, $0.43 · 710s, 1002s (set 28e; 114 then 134 model turns; nine of twelve steps at zero turns on the second replay, the three re-pinned steps among them) | — | — | — |
 
 Set 24 also caught two engine regressions of its own (kanboard's replays at 22 and 37 turns
 where set 15 needed none; grafana's replays losing objective 1 and recovering one step at 19 and

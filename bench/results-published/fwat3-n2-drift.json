@@ -1,0 +1,99 @@
+[
+  {
+    "flow": "fwat3",
+    "step": "03-add",
+    "skill": "s_587a37",
+    "similarity": 1,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_587a37 stopped at step 4 — select failed: locator.selectOption: Timeout 30000ms exceeded.",
+    "reason": "select failed: locator.selectOption: Timeout 30000ms exceeded.",
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "05-edit",
+    "skill": "s_d8f38f",
+    "atStep": "3",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('[aria-label=\"fwat3-n2 MTP Item A - 1 - 150\"] >> [data-column=\"budgetCost\"] input')",
+    "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat3-n2 MTP Item A' }).locator('div:nth-of-type(7) > div > input')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "05-edit",
+    "skill": "s_d8f38f",
+    "atStep": "4",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.locator('[aria-label=\"fwat3-n2 MTP Item A - 1 - 150\"] >> [data-column=\"markup\"] input')",
+    "fallbackUsed": "page.locator('div.data-list-row', { hasText: 'fwat3-n2 MTP Item A' }).locator('div:nth-of-type(11) > input')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "06-change",
+    "skill": "s_4da5ac",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "unresolved reference(s): 03-add.initial_status, 03-add.initial_status",
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "07-find",
+    "skill": "s_504832",
+    "similarity": 0.171,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "every candidate refused — s_504832: the page at http://localhost:5173/project-manager does not show \"fwat3-n2 MTP Bench Project\" — it matches this procedure's page template but is a different record — nothing was run",
+    "reason": "the page at http://localhost:5173/project-manager does not show \"fwat3-n2 MTP Item A\" — it matches this procedure's page template but is a different record — nothing was run",
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "08-open",
+    "skill": "s_153e5f",
+    "atStep": "5",
+    "key": "target",
+    "similarity": 0.686,
+    "missedLocator": "page.getByRole('button', { name: 'Discard Changes', exact: true })",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "09-open",
+    "skill": "s_11f755",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 0.694,
+    "missedLocator": "page.getByTestId('data-tab-edit-projectitems')",
+    "fallbackUsed": null,
+    "recovered": true,
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  },
+  {
+    "flow": "fwat3",
+    "step": "10-delete",
+    "skill": "s_31a65a",
+    "similarity": 1.001,
+    "missedLocator": null,
+    "fallbackUsed": null,
+    "recovered": true,
+    "fellBack": "s_31a65a stopped at step 3 — after step 3 none of the 2 recorded page change(s) appeared (e.g. \"- button \\\"Create Group\\\"\") — the step ran but did not have its recorded effect",
+    "reason": "after step 3 none of the 2 recorded page change(s) appeared (e.g. \"- button \\\"Create Group\\\"\") — the step ran but did not have its recorded effect",
+    "pageUrlPattern": "http://localhost:5173/project-manager"
+  }
+]

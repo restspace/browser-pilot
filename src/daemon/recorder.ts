@@ -625,8 +625,20 @@ export class ScriptRecorder {
   /** Commit a prepared step once the action succeeded. Failed actions are dropped. */
   commit(step: RecordedStep | null, result: string, extra: { diff?: StepDiff; via?: RecordedStep['via']; fingerprintAfter?: number[] } = {}): void {
     if (!step) return;
+    // A select is recorded by the option's visible LABEL whatever the caller
+    // passed: the label is the term the procedure has provenance for (it is
+    // what the instruction names, what an earlier step minted), while the
+    // value is the app's key for that option and carries none. The value the
+    // step actually selected is kept as the fallback `optionValue`.
+    let args = step.args;
+    const label = step.tool === 'select' ? /\blabel=("(?:[^"\\]|\\.)*")$/.exec(result)?.[1] : undefined;
+    if (label) {
+      const shown = JSON.parse(label) as string;
+      if (shown && shown !== args.option) args = { ...args, option: shown, optionValue: String(args.option ?? '') };
+    }
     const entry: RecordedStep = {
       ...step,
+      args,
       ...(extra.diff ? { diff: extra.diff } : {}),
       ...(extra.via ? { via: extra.via } : {}),
       ...(extra.fingerprintAfter ? { fingerprintAfter: extra.fingerprintAfter } : {}),

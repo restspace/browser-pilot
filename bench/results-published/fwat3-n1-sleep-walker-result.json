@@ -1,0 +1,106 @@
+{
+  "arm": "sleep-walker",
+  "target": "atelyr",
+  "machine": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.11.1",
+    "cpus": 12,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "67d6166"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwat3-n1",
+  "task": "bench/tasks/atelyr-project-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 13,
+  "wallMs": 2556970,
+  "orchestrator": {
+    "input": 74821,
+    "cacheWrite": 0,
+    "cacheRead": 12160,
+    "output": 3910
+  },
+  "inner": {
+    "promptTokens": 9329326,
+    "cachedTokens": 7901139,
+    "completionTokens": 58971,
+    "instructions": 15,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 8250829,
+        "completionTokens": 53611,
+        "cachedTokens": 6977024,
+        "instructions": 12
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 1078497,
+        "completionTokens": 5360,
+        "cachedTokens": 924115,
+        "instructions": 3
+      }
+    },
+    "skills": {
+      "instructions": 12,
+      "offered": 10,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 1,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 152,
+      "compiled": 12,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 12,
+  "subcommands": {
+    "do": 12
+  },
+  "invocationCount": 12,
+  "commandMs": 2385161,
+  "commandBytes": 22267,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "C:\\dev\\sleep-walker\\bench\\results\\fwat3-skills",
+    "instructions": 12,
+    "offered": 10,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 1,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 152,
+    "compiled": 12,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "AkashML",
+    "Decart",
+    "Inceptron",
+    "DeepInfra",
+    "Io Net"
+  ],
+  "orReportedCostUsd": 0.1095,
+  "maxUsd": 2,
+  "spendUsd": 0.7567,
+  "finalText": "All objectives complete. Final report:\n\n**1. DONE** — Project `fwat3-n1 MTP Bench Project` created (internal reference `c6cgr13p134`). It appeared as a new row in the Projects list (tab count 2 → 3), with Margin %, Client and End Date showing `--`.\n\n**2. DONE** — Line item `fwat3-n1 MTP Item A` created with Budget Cost 100 and Budget Margin % 25. The app computed **Budget Price = 133.33** (formula: cost / (1 − margin/100) = 100 / 0.75). Initial status: **Placeholder** (marker \"P\").\n\n**3. DONE** — Line item `fwat3-n1 MTP Item B` created with Budget Cost 200 and Budget Margin % 25. The app computed **Budget Price = 266.67** (200 / 0.75). Status: Placeholder.\n\n**4. DONE** — Item A's Budget Cost changed from 100 to 150 (margin kept at 25). The app recomputed **Budget Price = 200.00** (150 / 0.75).\n\n**5. DONE** — Item A's status ended as **Specified** (verified in the list view: marker with `data-status=\"Specified\"`, aria-label \"Status: Specified\"). The preconditions the app enforced, discovered by attempting the save: it rejected the change with the exact alert text **\"Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit\"**. What was required to satisfy them: fill in **Supplier = \"Supplier One\"** (chosen from the existing organisations), **Supplier Code = \"MTP-A\"**, **Item Cost = 150**, **Item Units = 1**, **Unit = \"item\"**. After filling those five fields the save was accepted. (Note: the first attempt changed the status combobox but was never submitted, so the list still showed Placeholder until a proper Submit was made.)\n\n**6. DONE** — Both line items removed: each was deleted via its edit form's Delete button, with a confirm dialog **\"Remove this project item?\"** accepted each time. Project Items tab count went 9 → 7 and a re-check confirmed neither `fwat3-n1` item remains. The project was then closed by setting its Status from **Open → Closed** in its edit form and submitting (no preconditions, no error). Active Projects count went 3 → 2; with \"Include Closed\" checked the project `fwat3-n1 MTP Bench Project` is still listed with status **Closed**. Nothing created by this run remains active.",
+  "transcriptPath": "C:\\dev\\sleep-walker\\bench\\results\\fwat3-n1-sleep-walker-transcript.jsonl"
+}

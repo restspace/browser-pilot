@@ -1,0 +1,155 @@
+[launcher] 2026-09-04T14:40:36.733Z node bench/sweep.mjs --k 3 --base fwat3 --learn bench/results/fwat3-skills --flow fwat3 --arm sleep-walker --target atelyr --task bench/tasks/atelyr-project-flow.md --provider openrouter --model z-ai/glm-5.3 --coarse --verify-cmd node bench/verify.mjs {runid} --out bench/results
+
+[sweep] run 1/3: fwat3-n1 (store: C:\dev\sleep-walker\bench\results\fwat3-skills)
+[reset] atelyr: restoring datastore baseline
+[reset] stopped mongod.exe:25688 rs2-server.exe:25288
+[reset] backend down
+[reset] restoring mongo-data
+[reset] restoring data-store
+[reset] starting backend
+mongod starting...
+rs2-server starting...
+backend OK (200) on http://127.0.0.1:3100
+[reset] backend up on 127.0.0.1:3100
+[reset] datastore restored to baseline
+[harness] atelyr responded 200 at http://localhost:5173/
+stopped: fwat3-n1
+  warning: note: dropped 1 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: 234 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[4].instruction: "150" (output) in "In this project-management app, edit the line item named '{{runid}} MTP Item A' (in the Project Items tab, project '{{runid}} MTP Bench Project') and change its"
+  flow.steps[4].params.v4: "150" (output) in "150"
+  flow.steps[5].instruction: "Specified" (output) in "In this project-management app, the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project') currently has status '{{03-add.i"
+  flow.steps[5].params.v5: "Specified" (output) in "Specified"
+  flow.steps[6].instruction: "Specified" (output) in "In this project-management app, go to the Project Items tab and find the row for '{{runid}} MTP Item A' (project '{{runid}} MTP Bench Project'). Report its curr"
+  flow.steps[6].params.v4: "Specified" (output) in "Specified"
+  flow.steps[7].instruction: "Specified" (output) in "In this project-management app, open the edit form for the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project'), set its "
+  flow.steps[7].params.v4: "Specified" (output) in "Specified"
+  flow.steps[8].instruction: "Specified" (output) in "In this project-management app, open the edit form for the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project'). The app "
+  flow.steps[8].instruction: "150" (output) in "In this project-management app, open the edit form for the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project'). The app "
+  warning: {{03-add.initial_status}} (used by 06-change) can only be re-observed by model recovery — consider re-recording so the value is read from the page.
+  flow "fwat3" saved: 12 step(s), vars runid → C:\dev\sleep-walker\bench\results\flows\fwat3.json
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwat3-n1 stop=completed
+turns=13 wall=2557.0s
+commands=12 cmdTime=2385.2s cmdBytes=22267 timeouts=0
+orchestrator in=74821 cw=0 cr=12160 out=3910
+inner prompt=9329326 cached=7901139 completion=58971
+spend=$0.7567 maxUsd=2
+learn: A_n=0 replayed=0/12 full=0 repaired=0 compiled=12 variants=0
+-> C:\dev\sleep-walker\bench\results\fwat3-n1-sleep-walker-result.json
+(node:27948) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+=== fwat3-n1 === (run self-reported: completed)
+  obj 1  PASS  project c6cgr13p134 exists
+  obj 2  UNVERIFIABLE  claim consistent (claimed 133.33, rule gives 133.33)
+  obj 3  UNVERIFIABLE  claim consistent (claimed 266.67, rule gives 266.67)
+  obj 4  UNVERIFIABLE  claim consistent (claimed 200, rule gives 200)
+  obj 5  UNVERIFIABLE  status destroyed by objective 6 cleanup
+  obj 6  PASS  0 item(s) left, project status=Closed
+
+App state: 9 projects total, 1 left by benchmark runs, 7 projectItems total.
+
+[sweep] run 2/3: fwat3-n2 (replay flow fwat3, no orchestrator)
+[reset] atelyr: restoring datastore baseline
+[reset] stopped mongod.exe:23832 rs2-server.exe:27144
+[reset] backend down
+[reset] restoring mongo-data
+[reset] restoring data-store
+[reset] starting backend
+mongod starting...
+rs2-server starting...
+backend OK (200) on http://127.0.0.1:3100
+[reset] backend up on 127.0.0.1:3100
+[reset] datastore restored to baseline
+[sweep] fwat3-n2: 8 drift ticket(s) → fwat3-n2-drift.json
+(node:6796) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+=== fwat3-n2 === (run self-reported: no result file)
+  obj 1  PASS  project k4payg82xy exists
+  obj 2  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 133.33)
+  obj 3  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 266.67)
+  obj 4  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 200)
+  obj 5  UNVERIFIABLE  status destroyed by objective 6 cleanup
+  obj 6  FAIL  0 item(s) left, project status=Closed — no transcript, cannot tell removal from never-created
+
+App state: 9 projects total, 1 left by benchmark runs, 7 projectItems total.
+
+[sweep] run 3/3: fwat3-n3 (replay flow fwat3, no orchestrator)
+[reset] atelyr: restoring datastore baseline
+[reset] stopped mongod.exe:19160 rs2-server.exe:30108
+[reset] backend down
+[reset] restoring mongo-data
+[reset] restoring data-store
+[reset] starting backend
+mongod starting...
+rs2-server starting...
+backend OK (200) on http://127.0.0.1:3100
+[reset] backend up on 127.0.0.1:3100
+[reset] datastore restored to baseline
+[sweep] fwat3-n3: 5 drift ticket(s) → fwat3-n3-drift.json
+
+=== fwat3-n3 === (run self-reported: no result file)
+  obj 1  PASS  project 8t3osuqqbkb exists
+  obj 2  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 133.33)
+  obj 3  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 266.67)
+  obj 4  UNVERIFIABLE  NO CLAIM PARSED (claimed undefined, rule gives 200)
+  obj 5  UNVERIFIABLE  status destroyed by objective 6 cleanup
+  obj 6  FAIL  0 item(s) left, project status=Closed — no transcript, cannot tell removal from never-created
+
+App state: 9 projects total, 1 left by benchmark runs, 7 projectItems total.
+
+Learning sweep fwat3 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬────────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed       │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼────────────────┼────────┤
+│ 0       │ 1 │ 'fwat3-n1' │ '2/2'    │ 'completed' │ 13    │ 12   │ 0.7567    │ 0   │ '0/12'         │ 2557   │
+│ 1       │ 2 │ 'fwat3-n2' │ '1/2'    │ 'success'   │ 114   │ 12   │ 0.1343    │ 1   │ '12/12 (flow)' │ 710    │
+│ 2       │ 3 │ 'fwat3-n3' │ '1/2'    │ 'success'   │ 134   │ 12   │ 0.4326    │ 1   │ '12/12 (flow)' │ 1002   │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴────────────────┴────────┘
+http://localhost:5173
+  s_a31ea1  validated    2 steps  3/3 (100%)
+           Open {{v1}} and sign in with email {{v2}} and password {{v3}}. This is a dev server whose websocket never goes…
+  s_c37608  validated    4 steps  3/3 (100%)
+           Open {{v1}} and sign in with email {{v2}} and password {{v3}}. This is a dev server whose websocket never goes…
+  s_14beb7  validated   10 steps  3/3 (100%)
+           On the {{v1}} page, create a new project named exactly '{{v3}}' using the 'Add new record' button. Fill in any…
+  s_3bb51b  validated   12 steps  3/3 (100%)
+           In this project-management app, add a second line item to the project named '{{v1}}'. The line item must be na…
+  s_d8f38f  validated    6 steps  3/3 (100%)
+           In this project-management app, edit the line item named '{{v1}}' (in the Project Items tab, project '{{v3}}')…
+  s_fb283d  validated    8 steps  3/3 (100%)
+           In this project-management app, close/archive the project named '{{v1}}' so it is no longer active. Go to the …
+  s_865115  validated    6 steps  3/3 (100%)
+           Final verification, read-only — do not change anything. In this project-management app: (1) On the Projects ta…
+  s_587a37  provisional 10 steps  1/2 (50%)
+           In this project-management app, add a line item to the project named '{{v1}}'. The line item must be named exa…
+  s_4da5ac  validated    7 steps  2/2 (100%)
+           In this project-management app, the line item '{{v1}}' (Project Items tab, project '{{v3}}') currently has sta…
+  s_153e5f  provisional 17 steps  1/2 (50%)
+           In this project-management app, open the edit form for the line item '{{v1}}' (Project Items tab, project '{{v…
+  s_c6c5aa  provisional 19 steps  1/2 (50%)  variant of s_587a37
+           In this project-management app, add a line item to the project named '{{v2}}'. The line item must be named exa…
+  s_d907f6  validated    7 steps  2/2 (100%)
+           In this project-management app, go to the Project Items tab and find the row for '{{v1}} MTP Item A' (project …
+  s_8fe908  provisional 28 steps  1/2 (50%)  variant of s_153e5f
+           In this project-management app, open the edit form for the line item '{{v1}} MTP Item A' (Project Items tab, p…
+  s_47a184  validated    6 steps  2/2 (100%)  variant of s_11f755
+           In this project-management app, open the edit form for the line item '{{v1}} MTP Item A' (Project Items tab, p…
+  s_11f755  demoted     20 steps  1/2 (50%)
+           In this project-management app, open the edit form for the line item '{{v1}}' (Project Items tab, project '{{v…
+  s_836881  validated   11 steps  2/2 (100%)  variant of s_31a65a
+           In this project-management app, delete the two line items '{{v1}} MTP Item A' and '{{v1}} MTP Item B' from the…
+  s_31a65a  demoted     10 steps  1/2 (50%)
+           In this project-management app, delete the two line items '{{v1}}' and '{{v3}}' from the Project Items tab (bo…
+  s_504832  provisional  7 steps  1/1 (100%)
+           In this project-management app, go to the Project Items tab and find the row for '{{v1}}' (project '{{v3}}'). …
+  s_104b59  provisional 23 steps  1/1 (100%)  variant of s_c6c5aa
+           In this project-management app, add a line item to the project named '{{v2}}'. The line item must be named exa…
+  s_13fce0  provisional 11 steps  1/1 (100%)
+           In this project-management app, the line item '{{v1}} MTP Item A' (Project Items tab, project '{{v1}} MTP Benc…
+  s_c417ee  provisional 33 steps  1/1 (100%)  variant of s_8fe908
+           In this project-management app, open the edit form for the line item '{{v1}} MTP Item A' (Project Items tab, p…
+store: C:\dev\sleep-walker\bench\results\fwat3-skills
+
+summary: C:\dev\sleep-walker\bench\results\fwat3-sweep.json

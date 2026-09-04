@@ -1,0 +1,507 @@
+{
+  "name": "fwat3",
+  "origin": "http://localhost:5173",
+  "startUrl": "http://localhost:5173/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://localhost:5173/ and sign in with email james@atelyr.com and password ***REDACTED***. This is a dev server whose websocket never goes idle, so do not wait for network idle — wait for concrete page state instead. Report what page/screen you land on after signing in (title, main heading, any visible navigation items).",
+      "skill": "s_c37608",
+      "params": {
+        "v1": "http://localhost:5173/",
+        "v2": "james@atelyr.com",
+        "v3": "***REDACTED***"
+      },
+      "outputs": [
+        "page_url",
+        "page_title",
+        "main_heading",
+        "nav_tabs",
+        "projects_listed"
+      ],
+      "recorded": {
+        "page_url": "http://localhost:5173/project-manager",
+        "page_title": "Atelyr",
+        "main_heading": "Project Manager",
+        "nav_tabs": "Projects (2), Project Items (7), Rooms (2), Organisations (4), Locations (3), Documents (4), Files (1), Users (3), Transactions (52)",
+        "projects_listed": "Fixture Project One, Fixture Project Two"
+      },
+      "outputEvidence": {
+        "page_url": {
+          "same": 2,
+          "differed": 0
+        },
+        "main_heading": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "On the {{01-open.main_heading}} page, create a new project named exactly '{{runid}} MTP Bench Project' using the 'Add new record' button. Fill in any required fields the form demands (discover them as you go; leave optional ones blank or with sensible defaults). Submit and confirm the project appears in the Projects list. Report the exact row values shown for the new project (name, margin %, client, end date) and any confirmation text.",
+      "skill": "s_14beb7",
+      "params": {
+        "v1": "{{01-open.main_heading}}",
+        "v3": "{{runid}} MTP Bench Project"
+      },
+      "outputs": [
+        "project_name",
+        "project_reference",
+        "margin_percent",
+        "client_name",
+        "end_date",
+        "projects_tab_count",
+        "current_url"
+      ],
+      "recorded": {
+        "project_name": "fwat3-n1 MTP Bench Project",
+        "project_reference": "c6cgr13p134",
+        "margin_percent": "--",
+        "client_name": "--",
+        "end_date": "--",
+        "projects_tab_count": "3",
+        "current_url": "http://localhost:5173/project-manager"
+      },
+      "outputEvidence": {
+        "project_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "project_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "margin_percent": {
+          "same": 2,
+          "differed": 0
+        },
+        "current_url": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "03-add",
+      "instruction": "In this project-management app, add a line item to the project named '{{runid}} MTP Bench Project'. The line item must be named exactly '{{runid}} MTP Item A' with cost 100 and markup 25. Line items are likely managed via the 'Project Items' tab or from within the project's detail view — find the right place. Fill any other required fields the form demands. Submit and confirm the item appears. Report: the item's name, cost, markup, the PRICE the app computes for it (the computed price field value), and its initial status if a status is shown.",
+      "skill": "s_587a37",
+      "params": {
+        "v1": "{{runid}} MTP Bench Project",
+        "v3": "{{runid}} MTP Item A",
+        "v4": "100",
+        "v5": "25"
+      },
+      "outputs": [
+        "item_name",
+        "cost",
+        "markup_margin_pct",
+        "computed_price",
+        "initial_status",
+        "project",
+        "project_items_tab_count",
+        "quantity",
+        "adjustment_pct"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item A",
+        "cost": "100.00",
+        "markup_margin_pct": "25.00",
+        "computed_price": "133.33",
+        "initial_status": "Placeholder",
+        "project": "fwat3-n1 MTP Bench Project",
+        "project_items_tab_count": "8",
+        "quantity": "1.00",
+        "adjustment_pct": "0.00"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "computed_price": {
+          "same": 1,
+          "differed": 0
+        },
+        "quantity": {
+          "same": 1,
+          "differed": 0
+        },
+        "project": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-add",
+      "instruction": "In this project-management app, add a second line item to the project named '{{runid}} MTP Bench Project'. The line item must be named exactly '{{runid}} MTP Item B' with cost 200 and markup 25. Use the same route as before: the 'Project Items' tab, 'Add new record' button, select Project '{{runid}} MTP Bench Project', fill Name, Budget Cost 200, Budget Margin % 25, then submit. Confirm the item appears in the Project Items list. Report: the item's name, cost, markup, the computed Budget Price the app shows for it, and its status.",
+      "skill": "s_587a37",
+      "outputs": [
+        "item_name",
+        "budget_cost",
+        "margin_pct",
+        "computed_budget_price",
+        "quantity",
+        "initial_status",
+        "project",
+        "project_items_tab_count",
+        "adjustment_pct"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item B",
+        "budget_cost": "200.00",
+        "margin_pct": "25.00",
+        "computed_budget_price": "266.67",
+        "quantity": "1.00",
+        "initial_status": "Placeholder",
+        "project": "fwat3-n1 MTP Bench Project",
+        "project_items_tab_count": "9",
+        "adjustment_pct": "0.00"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "budget_cost": {
+          "same": 2,
+          "differed": 0
+        },
+        "margin_pct": {
+          "same": 2,
+          "differed": 0
+        },
+        "computed_budget_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "quantity": {
+          "same": 2,
+          "differed": 0
+        },
+        "project": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "05-edit",
+      "instruction": "In this project-management app, edit the line item named '{{runid}} MTP Item A' (in the Project Items tab, project '{{runid}} MTP Bench Project') and change its Budget Cost from 100 to 150, keeping markup/margin at 25. Save the change. Then report the item's updated Budget Cost, Budget Margin %, and the recomputed Budget Price the app now shows for it. Also report the item's current status.",
+      "skill": "s_d8f38f",
+      "params": {
+        "v1": "{{runid}} MTP Item A",
+        "v3": "{{runid}} MTP Bench Project",
+        "v4": "150"
+      },
+      "outputs": [
+        "item_name",
+        "budget_cost_updated",
+        "margin_pct",
+        "budget_price_recomputed",
+        "status",
+        "budget_cost_updated_confirmed"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item A",
+        "budget_cost_updated": "150.00",
+        "margin_pct": "25.00",
+        "budget_price_recomputed": "200.00",
+        "status": "Placeholder",
+        "budget_cost_updated_confirmed": "150"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "margin_pct": {
+          "same": 2,
+          "differed": 0
+        },
+        "budget_price_recomputed": {
+          "same": 2,
+          "differed": 0
+        },
+        "budget_cost_updated_confirmed": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-change",
+      "instruction": "In this project-management app, the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project') currently has status '{{03-add.initial_status}}'. Try to change its status to 'Specified'. The app likely enforces preconditions before accepting that status — if it refuses or shows an error/validation message, report the EXACT text of that message verbatim (do not try to work around it yet, just attempt the change and capture the refusal). Report exactly what happened: any error text, dialog text, or validation message shown, and what the item's status is now.",
+      "skill": "s_4da5ac",
+      "params": {
+        "v1": "{{runid}} MTP Item A",
+        "v3": "{{runid}} MTP Bench Project",
+        "v4": "{{03-add.initial_status}}",
+        "v5": "Specified"
+      },
+      "outputs": [
+        "item_name",
+        "previous_status",
+        "changed_to",
+        "any_refusal_or_error"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item A",
+        "previous_status": "Placeholder",
+        "changed_to": "Specified",
+        "any_refusal_or_error": "none"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "07-find",
+      "instruction": "In this project-management app, go to the Project Items tab and find the row for '{{runid}} MTP Item A' (project '{{runid}} MTP Bench Project'). Report its current status as shown in the LIST view (the status marker letter and any status text), and its Budget Cost and Budget Price. If the status shown in the list is NOT 'Specified' (e.g. still shows '{{03-add.initial_status}}' or marker 'P'), report that clearly along with any error or message visible. Do not change anything — just read and report.",
+      "skill": "s_d907f6",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "item_name",
+        "list_status_marker_letter",
+        "list_status_text",
+        "budget_cost",
+        "budget_price",
+        "budget_margin_pct",
+        "any_error_or_refusal"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item A",
+        "list_status_marker_letter": "P",
+        "list_status_text": "Placeholder",
+        "budget_cost": "150.00",
+        "budget_price": "200.00",
+        "budget_margin_pct": "25.00",
+        "any_error_or_refusal": "none"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "budget_cost": {
+          "same": 0,
+          "differed": 1
+        },
+        "budget_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "budget_margin_pct": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "In this project-management app, open the edit form for the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project'), set its Status to 'Specified', and then SAVE/SUBMIT the form properly (there should be a save/submit/OK button — find and click it; the previous attempt changed the combobox but never saved). If the app refuses to save, or shows any validation error, warning, dialog, or toast, report its EXACT text verbatim. After saving, verify the item's status in the Project Items LIST view and report what it is now, plus any error text you saw.",
+      "skill": "s_153e5f",
+      "params": {
+        "v1": "{{runid}} MTP Item A",
+        "v3": "{{runid}} MTP Bench Project",
+        "v4": "Specified"
+      },
+      "outputs": [
+        "item_name",
+        "attempted_status",
+        "validation_error_text",
+        "list_status_marker",
+        "list_status_text",
+        "budget_cost",
+        "budget_price"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item A",
+        "attempted_status": "Specified",
+        "validation_error_text": "Cannot save — please complete or correct: Supplier, Supplier Code, Item Cost, Item Units, Unit",
+        "list_status_marker": "P",
+        "list_status_text": "Placeholder",
+        "budget_cost": "150.00",
+        "budget_price": "200.00"
+      },
+      "outputEvidence": {
+        "item_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "budget_cost": {
+          "same": 2,
+          "differed": 0
+        },
+        "budget_price": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "09-open",
+      "instruction": "In this project-management app, open the edit form for the line item '{{runid}} MTP Item A' (Project Items tab, project '{{runid}} MTP Bench Project'). The app refuses to save status 'Specified' until these fields are completed: Supplier, Supplier Code, Item Cost, Item Units, Unit. Fill them in with sensible values: pick an existing Supplier from the available options (there are Organisations in the app — choose one that is a supplier), set Supplier Code to 'MTP-A', set Item Cost to 150, set Item Units to 1, and pick a Unit (e.g. each / pcs / whatever options exist). Keep Status as 'Specified' and Budget Cost 150, Budget Margin 25. Then submit/save. If further validation errors appear, report their exact text and address them too. Once saved, verify in the Project Items LIST view that the item's status is now 'Specified' and report the status marker/text, plus exactly which fields you had to fill and with what values.",
+      "skill": "s_47a184",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "item_name",
+        "fields_filled",
+        "status_marker_data_status",
+        "status_marker_aria_label",
+        "budget_cost",
+        "budget_price",
+        "budget_margin_pct",
+        "quantity",
+        "supplier",
+        "alert_text_on_submit"
+      ],
+      "recorded": {
+        "item_name": "fwat3-n1 MTP Item A",
+        "fields_filled": "Supplier=Supplier One, Supplier Code=MTP-A, Item Cost=150, Item Units=1, Unit=item",
+        "status_marker_data_status": "Specified",
+        "status_marker_aria_label": "Status: Specified",
+        "budget_cost": "150.00",
+        "budget_price": "200.00",
+        "budget_margin_pct": "25.00",
+        "quantity": "1.00",
+        "supplier": "Supplier One",
+        "alert_text_on_submit": "1000 795.83333333315"
+      },
+      "outputEvidence": {
+        "fields_filled": {
+          "same": 0,
+          "differed": 1
+        },
+        "budget_cost": {
+          "same": 2,
+          "differed": 0
+        },
+        "budget_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "budget_margin_pct": {
+          "same": 2,
+          "differed": 0
+        },
+        "supplier": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "10-delete",
+      "instruction": "In this project-management app, delete the two line items '{{runid}} MTP Item A' and '{{runid}} MTP Item B' from the Project Items tab (both belong to project '{{runid}} MTP Bench Project'). Use whatever delete/remove control the app provides (row action, edit form delete button, etc.), confirming any confirmation dialog. List views refresh asynchronously after a delete, so wait and re-check. After both deletions, verify neither item appears in the Project Items list any more and report the Project Items tab count and confirmation text shown.",
+      "skill": "s_836881",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "deleted_items",
+        "project_items_tab_count_after",
+        "project_items_tab_count_before",
+        "remaining_fwat3_items",
+        "confirmation_dialog_text",
+        "confirmation_action",
+        "alert_text_after_delete"
+      ],
+      "recorded": {
+        "deleted_items": "fwat3-n1 MTP Item A, fwat3-n1 MTP Item B",
+        "project_items_tab_count_after": "7",
+        "project_items_tab_count_before": "9",
+        "remaining_fwat3_items": "none",
+        "confirmation_dialog_text": "Remove this project item?",
+        "confirmation_action": "accepted",
+        "alert_text_after_delete": "850 595.8333333332"
+      },
+      "outputEvidence": {
+        "deleted_items": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "11-archive",
+      "instruction": "In this project-management app, close/archive the project named '{{runid}} MTP Bench Project' so it is no longer active. Go to the Projects tab, open the project's edit form (double-click the row or use its edit control), and find a Close/Archive/Mark Closed control or a status field that can be set to closed/archived. Use it, confirming any dialog. If the app enforces preconditions for closing (e.g. error text), report the exact text and satisfy them. Afterwards verify the project no longer appears in the active Projects list (note there is an 'Include Closed' checkbox — you may use it to confirm the project is closed but still exists). Report exactly what you did, any confirmation/error text, and the Projects tab count before and after.",
+      "skill": "s_fb283d",
+      "params": {
+        "v1": "{{runid}} MTP Bench Project"
+      },
+      "outputs": [
+        "action",
+        "projects_tab_count_before",
+        "projects_tab_count_after_active_only",
+        "include_closed_shows_project",
+        "any_error_or_refusal",
+        "status_changed_to"
+      ],
+      "recorded": {
+        "action": "Changed project status from Open to Closed",
+        "projects_tab_count_before": "3",
+        "projects_tab_count_after_active_only": "2",
+        "include_closed_shows_project": "true",
+        "any_error_or_refusal": "none",
+        "status_changed_to": "Closed"
+      }
+    },
+    {
+      "id": "12-change",
+      "instruction": "Final verification, read-only — do not change anything. In this project-management app: (1) On the Projects tab with 'Include Closed' UNCHECKED, confirm whether any project whose name contains '{{runid}}' appears in the active list, and report the active project count. (2) On the Project Items tab, confirm whether any item whose name contains '{{runid}}' appears, and report the item count. (3) With 'Include Closed' CHECKED on the Projects tab, confirm the project '{{runid}} MTP Bench Project' is listed and report its status as shown. Report all three findings.",
+      "skill": "s_865115",
+      "params": {
+        "v1": "Closed",
+        "v2": "{{runid}}",
+        "v3": "{{runid}} MTP Bench Project"
+      },
+      "outputs": [
+        "active_projects_count_no_closed",
+        "active_fwat3-n1_project_found",
+        "project_items_count",
+        "fwat3-n1_items_found",
+        "with_include_closed_checked_fwat3-n1_project_found",
+        "fwat3-n1_project_reference",
+        "total_projects_with_closed",
+        "fwat3-n1_project_status"
+      ],
+      "recorded": {
+        "active_projects_count_no_closed": "2",
+        "active_fwat3-n1_project_found": "false",
+        "project_items_count": "7",
+        "fwat3-n1_items_found": "false",
+        "with_include_closed_checked_fwat3-n1_project_found": "true",
+        "fwat3-n1_project_reference": "c6cgr13p134",
+        "total_projects_with_closed": "9",
+        "fwat3-n1_project_status": "Closed"
+      },
+      "outputEvidence": {
+        "fwat3-n1_project_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "fwat3-n1_project_status": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwat3-n1",
+    "created": "2026-09-04T15:23:31.876Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
