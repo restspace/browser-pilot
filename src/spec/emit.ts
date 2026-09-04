@@ -137,14 +137,28 @@ const HELPERS: { token: string; source: string[] }[] = [
       " * an app rendering a beat late (resolveChain's waitMs). `any` is for the two",
       ' * places ambiguity is the normal shape: reading across every match, and a loop',
       ' * body whose per-record locator matches every record.',
+      ' *',
+      ' * `where` (`"<stepId> <segmentId>/<stepIndex> target|source"`, baked in at each',
+      ' * call site) is what turns a silent fallthrough into telemetry: when the',
+      ' * winning candidate is not the primary (index 0), that IS drift — the recorded',
+      ' * locator missed and a later one covered for it — so it is worth one stable,',
+      ' * grep-able line, not a passing test that quietly stopped proving what it did',
+      ' * on the day it was recorded.',
       ' */',
       `const PICK_WAIT_MS = ${PICK_WAIT_MS};`,
       `const PICK_POLL_MS = ${PICK_POLL_MS};`,
-      'async function pick(page: Page, candidates: Locator[], opts: { any?: boolean } = {}): Promise<Locator> {',
+      'async function pick(page: Page, candidates: Locator[], where: string, opts: { any?: boolean } = {}): Promise<Locator> {',
       '  const enough = (n: number) => (opts.any ? n > 0 : n === 1);',
       '  for (let waited = 0; ; waited += PICK_POLL_MS) {',
-      '    for (const candidate of candidates) {',
-      '      if (enough(await candidate.count().catch(() => 0))) return candidate;',
+      '    for (let i = 0; i < candidates.length; i++) {',
+      '      if (enough(await candidates[i].count().catch(() => 0))) {',
+      '        if (i > 0) {',
+      '          const line = `[sitelooper drift] ${where}: primary ${String(candidates[0])} missed; used #${i + 1} ${String(candidates[i])}`;',
+      '          console.warn(line);',
+      '          DRIFT.push(line);',
+      '        }',
+      '        return candidates[i];',
+      '      }',
       '    }',
       '    if (waited >= PICK_WAIT_MS) break;',
       '    await page.waitForTimeout(PICK_POLL_MS);',
@@ -177,6 +191,9 @@ interface Ctx {
   downloads: number;
   /** Resolved-target locals emitted so far, so each names its own. */
   picks: number;
+  /** The segment and within-segment step index currently emitting — for `@step` and `pick`'s `where`. */
+  segmentId: string;
+  stepIndex: number;
   /**
    * The url pattern already asserted, so an SPA whose every step records the
    * same pattern is asserted once rather than twenty times. The assertion
@@ -349,9 +366,10 @@ function actionTarget(
   // In a loop the cursor is always the first match: the record this pass acts on.
   if (sources.length === 1) return opts.first ? `(${sources[0]}).first()` : sources[0];
   const name = `el${++ctx.picks}`;
+  const where = `${ctx.stepId} ${ctx.segmentId}/${ctx.stepIndex} ${key}`;
   out.push(`const ${name} = await pick(page, [`);
   for (const source of sources) out.push(`${CONT_INDENT}${source},`);
-  out.push(`]${opts.any ? ', { any: true }' : ''});`);
+  out.push(`], ${q(where)}${opts.any ? ', { any: true }' : ''});`);
   return opts.first ? `${name}.first()` : name;
 }
 
@@ -384,6 +402,13 @@ function derivedLines(segment: SpecSegment, index: number, ctx: Ctx, out: string
  */
 function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx: Ctx, first = false): string[] {
   const out: string[] = [];
+  // A location comment ahead of everything this step emits, so a Playwright
+  // stack line (or a `[sitelooper drift]` warning, which shares this same
+  // "<stepId> <segmentId>/<stepIndex>" shape) can be mapped back to the
+  // recorded step that produced it.
+  out.push(`// @step ${ctx.stepId} ${segment.id}/${index}`);
+  ctx.segmentId = segment.id;
+  ctx.stepIndex = index;
   const args = step.args ?? {};
   noteSlots(args, ctx);
   const str = (name: string, fallback = '') => String(args[name] ?? fallback);
@@ -588,11 +613,17 @@ function emitLoop(step: SkillStep, segment: SpecSegment, index: number, ctx: Ctx
   const guard = chainSource(guardChain, { slot: slotAsParam, indent: CONT_INDENT }).source;
   if (!guard || !body.length) {
     ctx.warnings.push(`${ctx.stepId}: step ${index} is a loop with no ${guard ? 'body' : 'guard a spec can express'}`);
-    return [`// TODO: recorded loop at step ${index} has no ${guard ? 'body' : 'expressible guard'}.`];
+    return [
+      `// @step ${ctx.stepId} ${segment.id}/${index}`,
+      `// TODO: recorded loop at step ${index} has no ${guard ? 'body' : 'expressible guard'}.`,
+    ];
   }
   const max = step.max ?? DEFAULT_LOOP_MAX;
   const name = `guard${++ctx.loops}`;
+  ctx.segmentId = segment.id;
+  ctx.stepIndex = index;
   const out = [
+    `// @step ${ctx.stepId} ${segment.id}/${index}`,
     '// The recording folded a run of identical actions into a loop. Each pass acts on the',
     '// FIRST match: right for a list that shrinks, and all a spec can do — replay advances a',
     '// cursor here when the list stays the same length (see runLoop).',
@@ -711,7 +742,7 @@ export function emitFlowFile(spec: SpecFlow, o: EmitOptions): { source: string; 
 
   // Bodies first: which helpers the file needs is decided by what they use.
   const bodies = spec.steps.map((step) => {
-    const ctx: Ctx = { stepId: step.id, slots: new Set(), warnings, downloads: 0, lastUrl: null, loops: 0, picks: 0 };
+    const ctx: Ctx = { stepId: step.id, slots: new Set(), warnings, downloads: 0, lastUrl: null, loops: 0, picks: 0, segmentId: '', stepIndex: 0 };
     const lines: string[] = [];
     if (!step.segments.length) {
       lines.push(`// TODO: no converged procedure for ${JSON.stringify(commentSafe(step.instruction))}`);
@@ -743,6 +774,15 @@ export function emitFlowFile(spec: SpecFlow, o: EmitOptions): { source: string; 
     'export interface Outputs {',
     '  [key: string]: string;',
     '}',
+    '/**',
+    ' * Every `[sitelooper drift] …` line this run logged (see `pick` below):',
+    ' * a primary locator that missed and the recorded fallback that covered for',
+    ' * it. Always exported — even a flow with no multi-candidate step today may',
+    " * gain one after a repair — so a caller's assertion never has to guess",
+    ' * whether it exists. Attach it from the user spec if you want it in the',
+    " * Playwright report: `test.info().attach('sitelooper-drift', { body: DRIFT.join('\\n') })`.",
+    ' */',
+    'export const DRIFT: string[] = [];',
   ];
   for (const helper of helpers) out.push('', ...helper.source);
 
@@ -782,13 +822,16 @@ export function emitSpecFile(spec: SpecFlow): string {
   const varFields = spec.vars.map((v) => `${key(v)}: process.env.${envName(v)} ?? ''`).join(', ');
   return [
     "import { test, expect } from '@playwright/test';",
-    `import { runFlow, steps } from './${spec.name}.flow';`,
+    `import { runFlow, steps, DRIFT } from './${spec.name}.flow';`,
     '',
     `test(${q(spec.name)}, async ({ page }) => {`,
     `  const outputs = await runFlow(page, ${varFields ? `{ ${varFields} }` : '{}'});`,
     '  // Add your own assertions here; this file is yours and sitelooper never rewrites it.',
     '  // `outputs` holds every value the flow read back, keyed "<stepId>.<output>";',
-    '  // `steps` lets you run one step on its own.',
+    '  // `steps` lets you run one step on its own. `DRIFT` accumulates one line per',
+    '  // recorded locator that missed and fell through to a later candidate — attach',
+    '  // it to the report if you want it visible without reading stderr:',
+    "  //   if (DRIFT.length) await test.info().attach('sitelooper-drift', { body: DRIFT.join('\\n') });",
     '  expect(Object.keys(outputs).length >= 0).toBe(true);',
     '  void steps;',
     '});',

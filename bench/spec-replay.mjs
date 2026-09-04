@@ -259,6 +259,31 @@ try {
   /* no report — spec crashed before Playwright could write one */
 }
 
+/** One stdout/stderr chunk from the JSON reporter as text. Playwright records
+ * each console write as `{ text }` (already a string) or, for binary writes,
+ * `{ buffer }` (base64) — a compiled spec never writes binary, but decode it
+ * anyway rather than silently dropping a chunk that happens to take that shape. */
+function chunkText(c) {
+  if (typeof c === 'string') return c;
+  if (typeof c?.text === 'string') return c.text;
+  if (typeof c?.buffer === 'string') {
+    try {
+      return Buffer.from(c.buffer, 'base64').toString('utf8');
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+/** Every `[sitelooper drift] ...` line pick() (see src/spec/emit.ts) warned
+ * into stdout/stderr for one test result — console.warn lands on stderr, but
+ * this reads both so it survives a reporter that merges them. */
+function driftLines(result) {
+  const text = [...(result?.stdout ?? []), ...(result?.stderr ?? [])].map(chunkText).join('');
+  return text.split(/\r?\n/).filter((l) => l.startsWith('[sitelooper drift]'));
+}
+
 /** Walk the Playwright JSON reporter's suite tree and flatten to one row per
  * test result, the shape score.mjs/verify*.mjs need without having to know
  * Playwright's report schema themselves. */
@@ -273,12 +298,14 @@ function flattenTests(suite, acc = []) {
         ok: t.status === 'expected',
         durationMs: r?.duration ?? null,
         error: r?.error?.message ?? null,
+        drift: driftLines(r),
       });
     }
   }
   return acc;
 }
 const tests = report ? flattenTests(report) : [];
+const drift = tests.flatMap((t) => t.drift);
 const stats = report?.stats ?? {
   total: tests.length,
   expected: tests.filter((t) => t.status === 'expected').length,
@@ -308,12 +335,14 @@ const result = {
     skipped: stats.skipped ?? 0,
   },
   tests,
+  drift,
+  driftCount: drift.length,
   logTail: runOut.slice(-4000),
 };
 fs.writeFileSync(path.join(outDir, `${tag}-spec-result.json`), JSON.stringify(result, null, 2));
 console.log(
   `[spec-replay] ${tag}: ${result.stats.passed}/${result.stats.total} passed, exit=${run.status}, ${Math.round(
     (Date.now() - started) / 1000,
-  )}s — result written`,
+  )}s, ${drift.length} drift line(s) — result written`,
 );
 process.exit(run.status === 0 ? 0 : 1);

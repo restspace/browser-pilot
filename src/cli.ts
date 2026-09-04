@@ -14,6 +14,11 @@ import { SkillStore, successRate, type Skill } from './skills/store.js';
 import { listFlows, loadFlow } from './skills/flow.js';
 import { patchSegment, promoteFallback, triage, type DriftTicket, type ProposeLocator, type TriageAction } from './skills/repair.js';
 import { compileFlow } from './spec/index.js';
+import { emitFlowFile } from './spec/emit.js';
+import { flowToSpec, type SpecFlow } from './spec/ir.js';
+import { LiftError, liftFlowFile } from './spec/lift.js';
+import { diffSpecChanges, reloadStaged, stageRepair } from './spec/repair.js';
+import os from 'node:os';
 
 const USAGE = `sitelooper — agent-in-the-loop Playwright CLI
 
@@ -34,6 +39,18 @@ Usage:
   sitelooper skills rm <id>
   sitelooper skills clear --origin <origin> | --all
   sitelooper skills repair --drift <run-drift.json> [--dry-run] [--model M]   # post-session repair: drain a run's drift tickets
+  sitelooper repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>]
+                                   [--dry-run] [--model M] [--json]
+                                          # self-updating spec: replay a compiled flow file against
+                                          # the live app in an ISOLATED temp store, let the recovery
+                                          # ladder adapt it, fold the adaptation back into the owned
+                                          # .flow.ts and re-emit it. Never touches the .spec.ts.
+                                          # --converge n re-runs the repaired flow n more times
+                                          # (default 1) and refuses to write unless every step is a
+                                          # clean tier-A replay with no drift; each of those runs is
+                                          # a REAL run against the app, so a flow that creates
+                                          # records needs the app reset between them (or
+                                          # --converge 0 and your own gate).
   sitelooper var <name>=<value>          # EXPERIMENTAL: declare a run variable (becomes {{name}} in a flow)
   sitelooper flow list | show <name>     # EXPERIMENTAL: saved flows (recorded sessions you can replay with run)
   sitelooper run <flow> [--var k=v ...]  # EXPERIMENTAL: replay a saved flow, repairing drifted steps
@@ -140,6 +157,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'drift',
     'var',
     'out',
+    'converge',
   ]);
   /**
    * Every flag that takes no value. Unknown options are rejected rather than
@@ -376,6 +394,10 @@ async function main(): Promise<void> {
   }
   if (command === 'compile') {
     await compileCommand(positional, flags, json);
+    return;
+  }
+  if (command === 'repair') {
+    await repairFlowCommand(positional, flags, json, onProgress);
     return;
   }
   if (command === 'session') {
@@ -932,20 +954,51 @@ async function repairCommand(positional: string[], flags: Map<string, string | b
   }
   const dryRun = flags.has('dry-run');
   const store = new SkillStore();
+  const summary = await drainDrift(store, tickets, { dryRun, model: flags.get('model') ? String(flags.get('model')) : undefined });
+
+  if (json) {
+    console.log(JSON.stringify({ tickets: tickets.length, ...summary }, null, 2));
+    return;
+  }
+  console.log(`${tickets.length} drift ticket(s) → ${summary.promoted.length} fallback(s) promoted, ${summary.patched.length} segment(s) patched, ${summary.reRecord.length} flagged for re-record, ${summary.skipped.length} skipped`);
+  for (const p of summary.promoted) console.log(`  promoted   ${p.skill} step ${p.step}: ${p.to}${p.dryRun ? ' (dry run)' : ''}`);
+  for (const p of summary.patched) console.log(`  patched    ${p.skill} step ${p.step} → variant ${p.variant} (${p.locator})`);
+  for (const p of summary.reRecord) console.log(`  re-record  ${p.skill} (${p.flow}/${p.step}): ${p.why}`);
+  for (const p of summary.skipped) console.log(`  skipped    ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}`);
+}
+
+
+/** What one drain pass did, as rows a reporter (text or JSON) can print. */
+export interface DrainSummary {
+  promoted: Array<Record<string, unknown>>;
+  patched: Array<Record<string, unknown>>;
+  reRecord: Array<Record<string, unknown>>;
+  skipped: Array<Record<string, unknown>>;
+}
+
+/**
+ * Drain a run's drift tickets onto `store`: triage, then the cheap codemod
+ * (promote-fallback), then the model-and-live-page one (patch-segment).
+ * Re-record is REPORTED, never attempted — a broad redesign is a fresh
+ * recording, and guessing at it is how a spec quietly stops testing what it
+ * says it tests (PLAN-self-updating-spec.md, "what the agent is allowed to
+ * change").
+ *
+ * Takes the store as an argument rather than opening `~/.sitelooper` itself,
+ * because `sitelooper repair <flow.ts>` hands it a THROWAWAY store staged
+ * from the compiled spec — the whole point of the spec-first loop is that
+ * nothing outside the user's repo mutates.
+ */
+async function drainDrift(store: SkillStore, tickets: DriftTicket[], opts: { dryRun: boolean; model?: string }): Promise<DrainSummary> {
   const actions = triage(tickets);
-  const summary = {
-    promoted: [] as Array<Record<string, unknown>>,
-    patched: [] as Array<Record<string, unknown>>,
-    reRecord: [] as Array<Record<string, unknown>>,
-    skipped: [] as Array<Record<string, unknown>>,
-  };
+  const summary: DrainSummary = { promoted: [], patched: [], reRecord: [], skipped: [] };
 
   for (const a of actions) {
     if (a.kind === 'promote-fallback') {
-      const ok = dryRun ? true : promoteFallback(store, a.ticket);
+      const ok = opts.dryRun ? true : promoteFallback(store, a.ticket);
       (ok ? summary.promoted : summary.skipped).push({
         skill: a.ticket.skill, step: a.ticket.atStep, from: a.ticket.missedLocator, to: a.ticket.fallbackUsed,
-        ...(dryRun ? { dryRun: true } : {}), ...(ok ? {} : { why: 'ticket no longer maps onto the stored skill' }),
+        ...(opts.dryRun ? { dryRun: true } : {}), ...(ok ? {} : { why: 'ticket no longer maps onto the stored skill' }),
       });
     } else if (a.kind === 're-record') {
       summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: a.why });
@@ -955,9 +1008,9 @@ async function repairCommand(positional: string[], flags: Map<string, string | b
   }
 
   const patches = actions.filter((a): a is Extract<TriageAction, { kind: 'patch-segment' }> => a.kind === 'patch-segment');
-  if (patches.length && !dryRun) {
-    const config = resolveProviderConfig({ model: flags.get('model') ? String(flags.get('model')) : undefined });
-    const model = flags.get('model') ? String(flags.get('model')) : config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model;
+  if (patches.length && !opts.dryRun) {
+    const config = resolveProviderConfig({ model: opts.model });
+    const model = opts.model ?? (config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model);
     const provider: Provider = config.provider === 'anthropic' ? new AnthropicProvider({ ...config, model }) : new OpenAICompatProvider({ ...config, model });
     const { BrowserSession } = await import('./daemon/browser.js');
     const session = new BrowserSession({ session: 'repair', persist: false });
@@ -970,7 +1023,17 @@ async function repairCommand(positional: string[], flags: Map<string, string | b
         }
         const page = await session.getPage();
         await page.goto(url, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
-        const res = await patchSegment(store, a.ticket, page, llmProposer(provider));
+        // A proposer that cannot run at all (no key, no balance, a provider
+        // outage) is a REPORTABLE outcome, not a crash: the promotions this
+        // pass already made are real work, and losing them to an unhandled
+        // 403 would make the whole repair look like a tool bug.
+        let res: Awaited<ReturnType<typeof patchSegment>>;
+        try {
+          res = await patchSegment(store, a.ticket, page, llmProposer(provider));
+        } catch (err) {
+          summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `the repair model could not be reached (${(err as Error).message.slice(0, 200)})` });
+          continue;
+        }
         if (res.outcome === 'patched') summary.patched.push({ skill: a.ticket.skill, step: a.ticket.atStep, variant: res.variant, locator: res.detail, model });
         else summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `${res.outcome}${res.detail ? `: ${res.detail}` : ''}` });
       }
@@ -980,16 +1043,7 @@ async function repairCommand(positional: string[], flags: Map<string, string | b
   } else if (patches.length) {
     for (const a of patches) summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: 'patch-segment (dry run: needs the repair model + live page)' });
   }
-
-  if (json) {
-    console.log(JSON.stringify({ tickets: tickets.length, ...summary }, null, 2));
-    return;
-  }
-  console.log(`${tickets.length} drift ticket(s) → ${summary.promoted.length} fallback(s) promoted, ${summary.patched.length} segment(s) patched, ${summary.reRecord.length} flagged for re-record, ${summary.skipped.length} skipped`);
-  for (const p of summary.promoted) console.log(`  promoted   ${p.skill} step ${p.step}: ${p.to}${p.dryRun ? ' (dry run)' : ''}`);
-  for (const p of summary.patched) console.log(`  patched    ${p.skill} step ${p.step} → variant ${p.variant} (${p.locator})`);
-  for (const p of summary.reRecord) console.log(`  re-record  ${p.skill} (${p.flow}/${p.step}): ${p.why}`);
-  for (const p of summary.skipped) console.log(`  skipped    ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}`);
+  return summary;
 }
 
 /** A concrete url the drifted page can be revisited at, or null when it cannot. */
@@ -1034,4 +1088,248 @@ function llmProposer(provider: Provider): ProposeLocator {
     }
     return null;
   };
+}
+
+// --- repair on a compiled spec (PLAN-self-updating-spec.md, phase 4) ---
+
+/**
+ * `--var k=v` may repeat, and `parseArgv` keeps only the last one, so the
+ * repeats are re-scanned out of argv. Same rule `run` uses; shared so a flow
+ * replayed by `repair` binds exactly what `run` would.
+ */
+function varFlags(): Record<string, string> {
+  const vars: Record<string, string> = {};
+  for (let i = 0; i < process.argv.length - 1; i++) {
+    if (process.argv[i] === '--var') {
+      const kv = process.argv[i + 1];
+      const eq = kv.indexOf('=');
+      if (eq > 0) vars[kv.slice(0, eq)] = kv.slice(eq + 1);
+    }
+  }
+  return vars;
+}
+
+interface FlowRunResult {
+  flow: string;
+  status: string;
+  passed: number;
+  total: number;
+  steps: Array<{ id: string; status: string; summary?: string; tier?: string | null; repinned?: string }>;
+  driftTickets?: DriftTicket[];
+  wallMs: number;
+}
+
+/** Best-effort shutdown of a throwaway repair session (its browser is the only thing holding that profile open). */
+async function stopSessionQuietly(name: string): Promise<void> {
+  try {
+    const conn = await connect(socketPath(name));
+    try {
+      await request(conn, 'stop', {}, undefined, 30_000);
+    } finally {
+      conn.destroy();
+    }
+  } catch {
+    /* already gone */
+  }
+}
+
+/**
+ * Replay a staged flow through the daemon exactly as `sitelooper run` does —
+ * same spawn, same `run` command, same recovery ladder — with the skill store
+ * pointed at the staged temp dir so the run's re-pins, learned variants and
+ * candidate evidence land there and nowhere near `~/.sitelooper`.
+ *
+ * A FRESH session per run, deliberately: the flow's first step signs in, and a
+ * session still signed in from the previous run would send that step to model
+ * recovery and make the convergence gate measure the wrong thing. The session
+ * is stopped on the way out so a converge loop does not leave one browser per
+ * iteration running.
+ */
+async function runStagedFlow(
+  staged: { flowFile: string; skillsDir: string },
+  vars: Record<string, string>,
+  session: string,
+  opts: { headed: boolean; onProgress?: (m: string) => void },
+): Promise<FlowRunResult> {
+  const prev = { skills: process.env.SITELOOPER_SKILLS, dir: process.env.SITELOOPER_SKILLS_DIR };
+  process.env.SITELOOPER_SKILLS = '1';
+  process.env.SITELOOPER_SKILLS_DIR = staged.skillsDir;
+  try {
+    const conn = await connectOrSpawn(session, { headed: opts.headed, record: false, script: false, learn: true });
+    try {
+      const res = await request(conn, 'run', { name: staged.flowFile, vars }, opts.onProgress);
+      if (!res.ok) fail(res.error ?? 'the flow run failed', res.errorKind === 'infra' ? 2 : 1);
+      return res.data as FlowRunResult;
+    } finally {
+      conn.destroy();
+    }
+  } finally {
+    if (prev.skills === undefined) delete process.env.SITELOOPER_SKILLS;
+    else process.env.SITELOOPER_SKILLS = prev.skills;
+    if (prev.dir === undefined) delete process.env.SITELOOPER_SKILLS_DIR;
+    else process.env.SITELOOPER_SKILLS_DIR = prev.dir;
+    await stopSessionQuietly(session);
+    // A repair run's session is scratch: its browser profile exists for one
+    // replay and a converge loop would otherwise leave one directory per
+    // iteration behind. Best effort — a profile Chrome has not finished
+    // releasing is left for the OS to clean up rather than failing the run.
+    try {
+      fs.rmSync(path.join(sessionsDir(), session), { recursive: true, force: true });
+    } catch {
+      /* still held open — harmless */
+    }
+  }
+}
+
+/**
+ * Steps that are not "clean tier A", in the convergence gate's own vocabulary:
+ * a step that did not succeed, a step that needed the model (any tier but A),
+ * or a step that succeeded but still filed a drift ticket. A run that halted
+ * reports its unreached steps too — silence about them would read as success.
+ */
+function notConverged(run: FlowRunResult): string[] {
+  const bad = new Map<string, string>();
+  for (const st of run.steps) {
+    if (st.status !== 'success') bad.set(st.id, st.status);
+    else if (st.tier !== 'A') bad.set(st.id, `tier ${st.tier ?? 'none'}`);
+  }
+  for (const t of run.driftTickets ?? []) {
+    if (!bad.has(t.step)) bad.set(t.step, `drift (${t.missedLocator ?? t.reason ?? t.fellBack ?? 'recovered'})`);
+  }
+  if (run.steps.length < run.total) bad.set('(unreached)', `${run.total - run.steps.length} step(s) the run never got to`);
+  return [...bad].map(([id, why]) => `${id} (${why})`);
+}
+
+/**
+ * `sitelooper repair <name.flow.ts>` — the self-updating half of the compiled
+ * runner (PLAN-self-updating-spec.md, "The loop").
+ *
+ * Lift the owned file back to its IR, stage it into a THROWAWAY store and flow
+ * file, replay it against the live app through the daemon (whose recovery
+ * ladder is the agent adapting the flow — that is the point), drain the run's
+ * drift tickets onto the staged store, re-derive the IR from what the run and
+ * the drain left there, and print the difference as English a reviewer can
+ * read. Only then, and only if the convergence gate passes, is the `.flow.ts`
+ * re-emitted. The `.spec.ts` is never touched: it is the user's file.
+ */
+async function repairFlowCommand(
+  positional: string[],
+  flags: Map<string, string | boolean>,
+  json: boolean,
+  onProgress?: (m: string) => void,
+): Promise<void> {
+  const file = positional[0];
+  if (!file) fail('usage: repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>] [--dry-run] [--model M] [--json]', 2);
+  let source: string;
+  try {
+    source = fs.readFileSync(file, 'utf8');
+  } catch (err) {
+    return fail(`could not read ${file}: ${(err as Error).message}`, 2);
+  }
+  let before: SpecFlow;
+  try {
+    before = liftFlowFile(source).spec;
+  } catch (err) {
+    if (err instanceof LiftError) {
+      return fail(`this file was edited by hand or is not a sitelooper flow file; refusing to repair — ${err.message}`, 2);
+    }
+    throw err;
+  }
+
+  const vars = varFlags();
+  const missingVars = before.vars.filter((v) => !(v in vars));
+  if (missingVars.length) fail(`flow "${before.name}" needs --var for: ${missingVars.join(', ')}`, 2);
+  const converge = flags.has('converge') ? Number(flags.get('converge')) : 1;
+  if (!Number.isInteger(converge) || converge < 0) fail('--converge takes a non-negative integer', 2);
+  const dryRun = flags.has('dry-run');
+  const outFile = flags.get('out') ? String(flags.get('out')) : file;
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-repair-'));
+  const staged = stageRepair(before, dir);
+  const stamp = Date.now().toString(36);
+  const say = (m: string) => {
+    if (!json) console.log(m);
+  };
+  say(`repairing ${file} (${before.steps.length} step(s)) in ${dir}`);
+
+  const run = await runStagedFlow(staged, vars, `repair-${stamp}-0`, { headed: flags.has('headed'), onProgress });
+  const tickets = run.driftTickets ?? [];
+  say(`run 1: ${run.passed}/${run.total} step(s) ${run.status}, ${tickets.length} drift ticket(s)`);
+  for (const st of run.steps) {
+    say(`  [${st.status === 'success' ? 'OK' : st.status.toUpperCase()}] ${st.id} (tier ${st.tier ?? 'none'})${st.status === 'success' ? '' : ` — ${st.summary ?? ''}`}`);
+  }
+
+  // The drain runs even under --dry-run: the summary IS the repair, and it
+  // cannot be described without performing it. --dry-run governs the one
+  // irreversible thing — writing the user's `.flow.ts`.
+  const drained = await drainDrift(staged.store, tickets, {
+    dryRun: false,
+    model: flags.get('model') ? String(flags.get('model')) : undefined,
+  });
+
+  const after = reloadStaged(staged).spec;
+  const diff = diffSpecChanges(before, after);
+  const changed = diff.lines.filter((l) => !l.endsWith(': no change'));
+
+  const report = {
+    file,
+    flow: before.name,
+    workspace: dir,
+    run: { status: run.status, passed: run.passed, total: run.total, drift: tickets.length },
+    ...drained,
+    changes: diff.lines,
+    droppedExpectations: diff.droppedExpectations,
+  };
+
+  if (!json) {
+    console.log(
+      `${tickets.length} drift ticket(s) → ${drained.promoted.length} promoted, ${drained.patched.length} patched, ${drained.reRecord.length} need re-record, ${drained.skipped.length} skipped`,
+    );
+    for (const p of drained.reRecord) console.log(`  needs re-record  ${p.skill} (${p.flow}/${p.step}): ${p.why}`);
+    for (const p of drained.skipped) console.log(`  skipped          ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}`);
+    console.log('--- changes ---');
+    for (const line of diff.lines) console.log(`  ${line}`);
+  }
+
+  // Never weaken an expectation: an assertion that no longer holds is a test
+  // failure for a human, not drift (PLAN-self-updating-spec.md).
+  if (diff.droppedExpectations.length) {
+    if (json) console.log(JSON.stringify({ ...report, wrote: null, refused: 'expectation dropped' }, null, 2));
+    for (const d of diff.droppedExpectations) console.error(`  expectation dropped: ${d}`);
+    fail('refusing to write: the repair would drop an expectation — that is a test failure for a human, not drift', 1);
+  }
+
+  if (!changed.length && drained.reRecord.length) {
+    if (json) console.log(JSON.stringify({ ...report, wrote: null, refused: 'needs re-record' }, null, 2));
+    else console.log('nothing could be repaired without re-recording — re-record the segment(s) listed above and compile again');
+    process.exit(1);
+  }
+
+  for (let i = 1; i <= converge; i++) {
+    const check = await runStagedFlow(staged, vars, `repair-${stamp}-${i}`, { headed: flags.has('headed'), onProgress });
+    const bad = notConverged(check);
+    say(`converge ${i}/${converge}: ${check.passed}/${check.total} step(s) ${check.status}, ${(check.driftTickets ?? []).length} drift ticket(s)`);
+    if (bad.length) {
+      if (json) console.log(JSON.stringify({ ...report, wrote: null, converged: false, notConverged: bad }, null, 2));
+      console.error(`not converged: ${bad.join(', ')}`);
+      process.exit(3);
+    }
+  }
+
+  if (dryRun) {
+    if (json) console.log(JSON.stringify({ ...report, wrote: null, dryRun: true }, null, 2));
+    else console.log(`dry run: ${changed.length} change(s), nothing written (would have written ${outFile})`);
+    return;
+  }
+
+  // Re-emit from the repaired IR — the owned file is generated in full, every
+  // time, so a promoted candidate shows up in the diff as a reordered chain in
+  // both the FLOW constant and the generated step body.
+  const emitted = emitFlowFile(reloadStaged(staged).spec, { tier: 'plain' });
+  fs.writeFileSync(outFile, emitted.source);
+  if (json) console.log(JSON.stringify({ ...report, wrote: outFile, converged: true }, null, 2));
+  else {
+    for (const w of emitted.warnings) console.error(`  warning: ${w}`);
+    console.log(`wrote ${outFile} (${changed.length} change(s); the .spec.ts was not touched)`);
+  }
 }

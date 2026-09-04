@@ -70,6 +70,32 @@ needs specifically because it sits on a real database (mongod) that can't be
 reset in-process and has to be stopped, copied, and restarted at the
 filesystem level instead. Nothing like that is needed here.
 
+## Simulated UI drift
+
+```
+GET /__drift?mode=labels|ids|both
+GET /__drift?mode=           -> clears it
+GET /__drift                 -> reports the current mode
+```
+
+Unauthenticated, like `/__reset`, and deliberately not a data mutation: while
+a mode is set the server rewrites the static `.js`/`.html` it serves on the
+fly, so the *same* app presents renamed controls without a single file on disk
+changing. That is what makes a repair run reproducible — reset the drift and
+the app is byte-for-byte what the recording saw.
+
+| mode | what it renames | what it exercises |
+|---|---|---|
+| `labels` | visible wording: "Add part" -> "Attach part", "New ticket" -> "Create ticket", "Mark ready" -> "Set ready" | a chain whose primary is a role/text locator. Invisible to a recording whose primaries are test ids. |
+| `ids` | three `data-testid` values: `add-part` -> `part-attach`, `new-ticket` -> `ticket-new`, `modal-save` -> `dialog-save` | the test-id primary misses, the role fallback resolves: fallthrough -> drift ticket -> `promote-fallback` (no model). |
+| `both` | `ids` + `labels` together | testid primary *and* role/label fallbacks gone at once; only the recorded css path is left, so triage sends it to `patch-segment` (a model re-deriving the locator on the live page) or to re-record. |
+
+`ids` renames whole `data-testid="..."` attributes rather than bare words, so
+`id="modal-save"` and the `$('#modal-save')` the app looks it up with are left
+intact and the app keeps *working* while being harder to *find*. Drift is
+server state, not store state: `/__reset` does not clear it, and it does not
+survive a server restart.
+
 ## Verification endpoints
 
 Two read-only endpoints exist for the harness, not for the agent under test

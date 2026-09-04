@@ -86,6 +86,17 @@ describe('emitFlowFile layout', () => {
     expect(syntaxErrors(source)).toEqual([]);
   });
 
+  // DRIFT is exported unconditionally, not only when `pick` is emitted: a
+  // caller's `.spec.ts` imports it once, statically, and a flow that has no
+  // multi-candidate step TODAY may gain one the moment `repair` widens a
+  // chain — the import in the user's own, never-rewritten file must not have
+  // to change to keep compiling. The array is simply empty until a `pick`
+  // call actually falls through.
+  it('exports DRIFT even when the flow has no step that needs pick', () => {
+    expect(source).not.toContain('async function pick');
+    expect(source).toContain('export const DRIFT: string[] = [];');
+  });
+
   it('types p as an open record when the step has no slots', () => {
     const spec = specOf([{ tool: 'back', args: {}, locators: {} }], { params: {}, segments: [segment([{ tool: 'back', args: {}, locators: {} }], { params: {} })] });
     expect(emit(spec)).toContain("async '01-do'(page: Page, p: Record<string, string>, outputs: Outputs)");
@@ -157,6 +168,44 @@ describe('step bodies', () => {
     expect(out).toContain("import { expect, type Locator, type Page } from '@playwright/test';");
   });
 
+  it('reports a fallthrough as one stable, grep-able drift line and pushes it into DRIFT', () => {
+    const out = one({
+      tool: 'fill',
+      args: { target: '@e1', value: 'x' },
+      locators: {
+        target: [
+          { kind: 'id', selector: '#login-email' },
+          { kind: 'css', selector: '[data-testid="form-dialog"] input' },
+        ],
+      },
+    });
+    expect(out).toContain("const el1 = await pick(page, [");
+    expect(out).toContain("  page.locator('#login-email'),");
+    expect(out).toContain("  page.locator('[data-testid=\"form-dialog\"] input'),");
+    expect(out).toContain("], '01-do s_test1/1 target');");
+    expect(out).toContain('if (i > 0) {');
+    expect(out).toContain(
+      "const line = `[sitelooper drift] ${where}: primary ${String(candidates[0])} missed; used #${i + 1} ${String(candidates[i])}`;",
+    );
+    expect(out).toContain('console.warn(line);');
+    expect(out).toContain('DRIFT.push(line);');
+    expect(syntaxErrors(out)).toEqual([]);
+  });
+
+  it('places a @step location comment before each step\'s first statement, in order', () => {
+    const stepA: SkillStep = { tool: 'click', args: { target: '@e1' }, locators: { target: [{ kind: 'id', selector: '#a' }] } };
+    const stepB: SkillStep = { tool: 'click', args: { target: '@e2' }, locators: { target: [{ kind: 'id', selector: '#b' }] } };
+    const out = emit(specOf([stepA, stepB]));
+    const lines = out.split('\n');
+    const stepLines = lines.map((l) => l.trim()).filter((l) => l.startsWith('// @step '));
+    expect(stepLines).toEqual(['// @step 01-do s_test1/1', '// @step 01-do s_test1/2']);
+    // each @step comment is the line immediately above its own statement
+    const i1 = lines.findIndex((l) => l.trim() === '// @step 01-do s_test1/1');
+    expect(lines[i1 + 1]).toContain("page.locator('#a').click();");
+    const i2 = lines.findIndex((l) => l.trim() === '// @step 01-do s_test1/2');
+    expect(lines[i2 + 1]).toContain("page.locator('#b').click();");
+  });
+
   it('drops a duplicate candidate expression rather than resolving it twice', () => {
     const out = one({
       tool: 'click',
@@ -180,7 +229,7 @@ describe('step bodies', () => {
       locators: { target: [{ kind: 'id', selector: '#rows' }, { kind: 'css', selector: '.row' }] },
       label: 'rows',
     });
-    expect(out).toContain('], { any: true });');
+    expect(out).toMatch(/], '[^']+', \{ any: true \}\);/);
   });
 
   it('names what Tier 2 loses when a point candidate is dropped', () => {
@@ -350,9 +399,10 @@ describe('flow-level wiring', () => {
 describe('emitSpecFile', () => {
   it('is a thin user-owned scaffold that imports the generated half', () => {
     const source = emitSpecFile(specOf([{ tool: 'back', args: {}, locators: {} }]));
-    expect(source).toContain("import { runFlow, steps } from './demo.flow';");
+    expect(source).toContain("import { runFlow, steps, DRIFT } from './demo.flow';");
     expect(source).toContain("const outputs = await runFlow(page, { name: process.env.NAME ?? '' });");
     expect(source).toContain('sitelooper never rewrites it');
+    expect(source).toContain("DRIFT.length");
     expect(syntaxErrors(source, 'demo.spec.ts')).toEqual([]);
   });
 });

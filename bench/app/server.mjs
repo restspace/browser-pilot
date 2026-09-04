@@ -29,16 +29,46 @@ const CONTENT_TYPES = {
  * Drift simulation for repair-bench validation: while a mode is set (via
  * /__drift?mode=labels), served frontend files are rewritten on the fly so
  * the app presents renamed controls without touching the files on disk.
- * `labels` renames visible control wording only (testids/ids stay) — the
- * localized drift a locator chain should survive via fallbacks, and the
- * post-session repair pass should then promote those fallbacks.
+ *
+ *   labels  renames visible control wording only (testids/ids stay) — the
+ *           localized drift a locator chain should survive via its label/text
+ *           fallbacks, and the post-session repair pass should then promote
+ *           those fallbacks.
+ *   ids     renames three data-testid VALUES, leaving wording and element ids
+ *           alone. This is the mode that bites a recording whose primary
+ *           locators are test ids (every fwrd* store): the primary misses, the
+ *           role fallback resolves, the replay fallthroughs, and repair
+ *           promotes the role locator to primary. The app itself keeps
+ *           working because the only selector app.js builds from a testid
+ *           ([data-testid="new-ticket"]) contains the same string and is
+ *           rewritten with it — and #modal-save is an ELEMENT id, untouched.
+ *   both    ids + labels: the testid primary AND the role/label fallbacks are
+ *           gone at once, so nothing is left in the chain but the recorded css
+ *           path. That is the "chain dead" case triage sends to patch-segment
+ *           (a model re-deriving the locator on the live page) or, when the
+ *           page no longer resembles the recording, to re-record.
+ *
+ * The renames are written as whole `data-testid="..."` attributes rather than
+ * bare words on purpose: a bare "modal-save" would also rewrite id="modal-save"
+ * and the $('#modal-save') the app looks it up with, which would break the app
+ * instead of drifting it.
  */
+const LABEL_DRIFTS = [
+  ['Add part', 'Attach part'],
+  ['New ticket', 'Create ticket'],
+  ['Mark ready', 'Set ready'],
+]
+
+const ID_DRIFTS = [
+  ['data-testid="add-part"', 'data-testid="part-attach"'],
+  ['data-testid="new-ticket"', 'data-testid="ticket-new"'],
+  ['data-testid="modal-save"', 'data-testid="dialog-save"'],
+]
+
 const DRIFTS = {
-  labels: [
-    ['Add part', 'Attach part'],
-    ['New ticket', 'Create ticket'],
-    ['Mark ready', 'Set ready'],
-  ],
+  labels: LABEL_DRIFTS,
+  ids: ID_DRIFTS,
+  both: [...ID_DRIFTS, ...LABEL_DRIFTS],
 }
 
 const applyDrift = (body, file, mode) => {
