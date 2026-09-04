@@ -1,0 +1,81 @@
+
+[sweep] run 1/3: fwkb5-n1 (store: /home/user/sleep-walker/bench/results/fwkb5-skills)
+[harness] kanboard: defaulting APP_URL
+[harness] kanboard: defaulting APP_EMAIL
+[harness] kanboard: defaulting APP_PASSWORD
+[reset] kanboard: no leftover bench tasks
+[harness] kanboard responded 302 at http://127.0.0.1:8085/
+stopped: fwkb5-n1
+  flow "fwkb5" saved: 5 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwkb5.json
+  warning: warning: 12 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  s_474e1a.reportTemplate.summary: "Backlog, Ready, Work in progress, Done" (output) in "Signed in as admin, navigated to the 'Bench Board' project, and opened its board view. The board has 4 columns in left-to-right order: Backlog, Ready, Work in p"
+  s_474e1a.reportTemplate.values.columns: "Backlog, Ready, Work in progress, Done" (output) in "Backlog, Ready, Work in progress, Done"
+  s_1e46d8.steps[16].locators.target[0].text: "Due date:" (output) in "Due date:"
+  s_1e46d8.reportTemplate.values.due_date_label: "Due date:" (output) in "Due date:"
+  s_1e46d8.reportTemplate.values.due_date_displayed_2: "Due date: 12/31/2026 09:26" (output) in "Due date: 12/31/2026 09:26"
+  s_1e46d8.reportTemplate.values.due_date_displayed_2: "Due date:" (output) in "Due date: 12/31/2026 09:26"
+  s_22ca54.steps[6].locators.target[0].text: "Column: Work in progress" (output) in "Column: Work in progress"
+  s_22ca54.reportTemplate.summary: "Due date: 12/31/2026 09:26" (output) in "Final verification complete. On the Bench Board, task #4 '{{v2}}' is in the 'Work in progress' column. The task page shows: title '{{v2}}', description 'Bench t"
+  s_22ca54.reportTemplate.summary: "Due date:" (output) in "Final verification complete. On the Bench Board, task #4 '{{v2}}' is in the 'Work in progress' column. The task page shows: title '{{v2}}', description 'Bench t"
+  s_22ca54.reportTemplate.values.due_date_label: "Due date:" (output) in "Due date:"
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwkb5-n1 stop=completed
+turns=6 wall=1078.3s
+commands=5 cmdTime=1053.6s cmdBytes=3184 timeouts=0
+orchestrator in=5833 cw=0 cr=12736 out=1759
+inner prompt=1403849 cached=902977 completion=16130
+spend=$0.2124 maxUsd=2
+learn: A_n=0 replayed=0/5 full=0 repaired=0 compiled=5 variants=0
+-> /home/user/sleep-walker/bench/results/fwkb5-n1-sleep-walker-result.json
+
+fwkb5-n1: objectives passed 6/6
+  obj 1: PASS — all 4 column names reported (Backlog | Ready | Work in progress | Done)
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: PASS — task id 4 reported
+
+[sweep] run 2/3: fwkb5-n2 (replay flow fwkb5, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+
+fwkb5-n2: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+[sweep] run 3/3: fwkb5-n3 (replay flow fwkb5, no orchestrator)
+[reset] kanboard: deleted 1 leftover bench task(s)
+
+fwkb5-n3: objectives passed 4/6
+  obj 1: UNVERIFIABLE — no result file with finalText found
+  obj 2: PASS — description includes runid=true
+  obj 3: PASS — column=Work in progress
+  obj 4: PASS — 1 comment(s), runid present=true
+  obj 5: PASS — date_due=2026-12-31, want 2026-12-31
+  obj 6: UNVERIFIABLE — no result file with finalText found
+
+Learning sweep fwkb5 (K=3)
+┌─────────┬───┬────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid      │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwkb5-n1' │ '6/6'    │ 'completed' │ 6     │ 5    │ 0.2124    │ 0   │ '0/5'        │ 1078   │
+│ 1       │ 2 │ 'fwkb5-n2' │ '4/4'    │ 'success'   │ 0     │ 5    │ 0         │ 1   │ '5/5 (flow)' │ 23     │
+│ 2       │ 3 │ 'fwkb5-n3' │ '4/4'    │ 'success'   │ 0     │ 5    │ 0         │ 1   │ '5/5 (flow)' │ 23     │
+└─────────┴───┴────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8085
+  s_474e1a  validated    6 steps  3/3 (100%)
+           Open {{v1}} and sign in with username admin and password admin. Then navigate to the project named 'Bench Boar…
+  s_3ad51e  validated    5 steps  3/3 (100%)
+           On the Kanboard app (already signed in as admin), in the project 'Bench Board', create a new task with title e…
+  s_bcd20c  validated    4 steps  3/3 (100%)
+           On the Kanboard board of the project 'Bench Board' (already signed in as admin), move the task titled '{{v1}} …
+  s_1e46d8  validated   19 steps  3/3 (100%)
+           On Kanboard (already signed in as admin), open the task page for task #4 titled '{{v2}}' in project 'Bench Boa…
+  s_22ca54  validated    8 steps  3/3 (100%)
+           Final verification on Kanboard (signed in as admin, project 'Bench Board'): (1) Open the board and confirm whi…
+store: /home/user/sleep-walker/bench/results/fwkb5-skills
+
+summary: /home/user/sleep-walker/bench/results/fwkb5-sweep.json

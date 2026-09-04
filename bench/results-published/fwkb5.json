@@ -1,0 +1,126 @@
+{
+  "name": "fwkb5",
+  "origin": "http://127.0.0.1:8085",
+  "startUrl": "http://127.0.0.1:8085/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-open",
+      "instruction": "Open http://127.0.0.1:8085/ and sign in with username admin and password admin. Then navigate to the project named 'Bench Board' and open its board view. Report the names of the board's columns in their exact left-to-right order as displayed on the board page. Do not modify anything.",
+      "skill": "s_474e1a",
+      "params": {
+        "v1": "http://127.0.0.1:8085/"
+      },
+      "outputs": [
+        "columns"
+      ],
+      "recorded": {
+        "columns": "Backlog, Ready, Work in progress, Done"
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "On the Kanboard app (already signed in as admin), in the project 'Bench Board', create a new task with title exactly '{{runid}} Bench Task' and a description that includes the text '{{runid}}' (e.g. 'Bench task for run {{runid}}'). Use the 'New task' button on the board or the project's task creation form, filling any required fields. After saving, report the task's numeric ID exactly as the app displays it (shown as #<number> on the task card or task page), and confirm the description text shown on the task page. Do not touch tasks whose titles start with 'Seed:'.",
+      "skill": "s_3ad51e",
+      "params": {
+        "v2": "{{runid}} Bench Task",
+        "v1": "{{runid}}",
+        "v3": "Bench task for run {{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "03-verify",
+      "instruction": "On the Kanboard board of the project 'Bench Board' (already signed in as admin), move the task titled '{{runid}} Bench Task' (task #4) from the Backlog column into the 'Work in progress' column. You can drag the card between columns, or use the card's dropdown menu to move it. Do not touch tasks whose titles start with 'Seed:'. After moving, verify on the board that the card '{{runid}} Bench Task' now appears in the 'Work in progress' column and report which column it is in.",
+      "skill": "s_bcd20c",
+      "params": {
+        "v1": "{{runid}}"
+      },
+      "outputs": [],
+      "recorded": {}
+    },
+    {
+      "id": "04-open",
+      "instruction": "On Kanboard (already signed in as admin), open the task page for task #4 titled '{{runid}} Bench Task' in project 'Bench Board'. Do two things: (1) Add a comment to the task whose text includes '{{runid}}' (e.g. 'Comment for run {{runid}}'), using the comments section / 'Add a comment' form on the task page. (2) Set the task's due date to 2026-12-31 (edit the task's due date field via the task's edit form or the details section; the app may expect a date format like 2026-12-31 or MM/DD/YYYY — enter it so it saves as December 31, 2026). After saving both, verify on the task page that the comment text appears in the comments list and the due date shows 2026-12-31 (or Dec 31 2026), and report both values as displayed.",
+      "skill": "s_1e46d8",
+      "params": {
+        "v2": "{{runid}} Bench Task",
+        "v1": "{{runid}}",
+        "v3": "Comment for run {{runid}}"
+      },
+      "outputs": [
+        "due_date_label",
+        "due_date_displayed_2",
+        "comment_text_displayed"
+      ],
+      "recorded": {
+        "due_date_label": "Due date:",
+        "due_date_displayed_2": "Due date: 12/31/2026 09:26",
+        "comment_text_displayed": "Comment for run fwkb5-n1"
+      },
+      "outputEvidence": {
+        "due_date_displayed_2": {
+          "same": 0,
+          "differed": 1
+        },
+        "comment_text_displayed": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Final verification on Kanboard (signed in as admin, project 'Bench Board'): (1) Open the board and confirm which column contains the card titled '{{runid}} Bench Task' and what numeric ID (#number) is shown on that card. (2) Open that task's page and report: its title, its description text, its due date as displayed, and the text of any comments listed. Report all of these values exactly as displayed. Do not modify anything.",
+      "skill": "s_22ca54",
+      "params": {
+        "v2": "{{runid}} Bench Task",
+        "v1": "{{runid}}"
+      },
+      "outputs": [
+        "task_title",
+        "due_date_label",
+        "comment_preview_form_text",
+        "description_text",
+        "column_name"
+      ],
+      "recorded": {
+        "task_title": "fwkb5-n1 Bench Task",
+        "due_date_label": "Due date:",
+        "comment_preview_form_text": "Preview\nVisibility:\nStandard users\nApplication managers or more\nAdministrators\nSave",
+        "description_text": "A",
+        "column_name": "Column: Work in progress"
+      },
+      "outputEvidence": {
+        "task_title": {
+          "same": 0,
+          "differed": 1
+        },
+        "due_date_label": {
+          "same": 1,
+          "differed": 0
+        },
+        "comment_preview_form_text": {
+          "same": 1,
+          "differed": 0
+        },
+        "description_text": {
+          "same": 1,
+          "differed": 0
+        },
+        "column_name": {
+          "same": 1,
+          "differed": 0
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwkb5-n1",
+    "created": "2026-09-04T09:31:18.228Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
