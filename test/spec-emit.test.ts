@@ -137,6 +137,52 @@ describe('step bodies', () => {
     expect(out).not.toContain('outputs[');
   });
 
+  it('resolves a multi-candidate action through pick, never through a .or() union', () => {
+    const out = one({
+      tool: 'fill',
+      args: { target: '@e1', value: 'x' },
+      locators: {
+        target: [
+          { kind: 'id', selector: '#login-email' },
+          { kind: 'css', selector: '[data-testid="form-dialog"] input' },
+        ],
+      },
+    });
+    expect(out).toContain('const el1 = await pick(page, [');
+    expect(out).toContain("  page.locator('#login-email'),");
+    expect(out).toContain('await el1.fill(');
+    // a union would be a strict-mode violation the moment a fallback matched two inputs
+    expect(out).not.toContain('.or(page');
+    expect(out).toContain('async function pick(page: Page, candidates: Locator[]');
+    expect(out).toContain("import { expect, type Locator, type Page } from '@playwright/test';");
+  });
+
+  it('drops a duplicate candidate expression rather than resolving it twice', () => {
+    const out = one({
+      tool: 'click',
+      args: { target: '@e1' },
+      locators: { target: [{ kind: 'id', selector: '#go' }, { kind: 'css', selector: '#go' }] },
+    });
+    expect(out).toContain("await page.locator('#go').click();");
+    expect(out).not.toContain('pick(page');
+  });
+
+  it('inlines the pick helper only when a step needs it', () => {
+    const out = one({ tool: 'click', args: { target: '@e1' }, locators: { target: [{ kind: 'id', selector: '#b' }] } });
+    expect(out).not.toContain('async function pick');
+    expect(out).toContain("import { expect, type Page } from '@playwright/test';");
+  });
+
+  it('lets a read_all match many, which is what it is for', () => {
+    const out = one({
+      tool: 'read_all',
+      args: { target: '@e1', what: 'text' },
+      locators: { target: [{ kind: 'id', selector: '#rows' }, { kind: 'css', selector: '.row' }] },
+      label: 'rows',
+    });
+    expect(out).toContain('], { any: true });');
+  });
+
   it('names what Tier 2 loses when a point candidate is dropped', () => {
     const out = one({
       tool: 'click',
@@ -172,19 +218,24 @@ describe('expectations', () => {
     expect(withExpect({ urlPattern: 'http://app.test/items/:id' })).not.toContain('function escapeRe');
   });
 
-  it('asserts parameterised page changes and structural ones, and only observes the rest', () => {
+  it('groups the recorded lines into one any-of assertion per group, as the effect gate has them', () => {
     const out = withExpect({
       addedContains: ['- heading "{{v1}} Widget"', '- status "Loading…"', '- generic "sidebar"', '- tab "New Project"'],
     });
-    expect(out).toContain("await expect(page.getByRole('heading', { name: `${p.v1} Widget`, exact: true }).first()).toBeVisible();");
-    expect(out).toContain("await expect(page.getByRole('tab', { name: 'New Project', exact: true }).first()).toBeVisible();");
-    expect(out).toContain('// observed: - generic "sidebar"');
+    // the parameterised group is its own assertion: those lines are the hard gate
+    expect(out).toContain("await expect(page.getByRole('heading', { name: `${p.v1} Widget`, exact: false }).first()).toBeVisible();");
+    // the plain lines are ONE union, not one assertion each — replay stops only when none of them shows
+    expect(out).toContain("await expect(page.getByRole('generic', { name: 'sidebar', exact: false })");
+    expect(out).toContain(".or(page.getByRole('tab', { name: 'New Project', exact: false }))");
+    expect(out.split('\n').filter((l) => l.includes('toBeVisible')).length).toBe(2);
     // a transient line never becomes an assertion (the FLOW constant still records it)
     expect(out).not.toContain("getByRole('status'");
   });
 
-  it('asserts an opener line, which is what says a menu actually opened', () => {
-    expect(withExpect({ addedContains: ['- menu "View Details Remove"'] })).toContain("page.getByRole('menu', { name: 'View Details Remove', exact: true })");
+  it('names the presence check loosely, because a recorded line is not a Playwright name', () => {
+    expect(withExpect({ addedContains: ['- menu "View Details Remove"'] })).toContain(
+      "await expect(page.getByRole('menu', { name: 'View Details Remove', exact: false }).first()).toBeVisible();",
+    );
   });
 
   it('drops a fill echo in favour of the consequential change', () => {
@@ -195,7 +246,8 @@ describe('expectations', () => {
 
   it('keeps a lone echo as an observation rather than inventing a locator', () => {
     const out = withExpect({ addedContains: ['- textbox "": {{v1}}'] }, 'fill', { target: '@e1', value: '{{v1}}' });
-    expect(out).toContain('// observed (parameterised, but nothing nameable in it): - textbox "": {{v1}}');
+    expect(out).toContain('// observed (nothing nameable in it): - textbox "": {{v1}}');
+    expect(out).not.toContain('toBeVisible');
   });
 
   it('asserts a url only where the pattern changes', () => {
@@ -249,6 +301,7 @@ describe('preconditions, minting and loops', () => {
     expect(source).toContain("const guard1 = page.getByRole('button', { name: 'Remove', exact: true });");
     expect(source).toContain('for (let i = 0; i < 7 && (await guard1.count()) > 0; i++) {');
     expect(source).toContain(".first().click();");
+    expect(source).not.toContain('.or(page');
     expect(source).toContain('// FIRST match');
     expect(syntaxErrors(source)).toEqual([]);
   });

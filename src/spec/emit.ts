@@ -19,9 +19,9 @@
  */
 import type { LocatorCandidate } from '../daemon/recorder.js';
 import { TRANSIENT_LINE } from '../skills/compile.js';
-import { OPENER_LINE, consequentialExpectations } from '../skills/replay.js';
+import { consequentialExpectations } from '../skills/replay.js';
 import type { SkillStep } from '../skills/store.js';
-import { chainSource, matcherSource, stringSource } from './locators.js';
+import { candidateSources, chainSource, matcherSource, stringSource } from './locators.js';
 import type { SpecFlow, SpecSegment, SpecStep } from './ir.js';
 
 export interface EmitOptions {
@@ -34,13 +34,12 @@ const BEGIN_MARKER = '// @sitelooper-flow-begin';
 const END_MARKER = '// @sitelooper-flow-end';
 
 /**
- * Roles whose appearance is worth an assertion on its own. A recorded page
- * change with no parameter in it is soft in replay (the gate warns rather
- * than stopping), so asserting every one of them would fail the spec on app
- * furniture. These are the lines that mean the step DID something: a tab or
- * heading appeared, an action became available, a row rendered.
+ * What the inlined `pick` waits, mirroring replay's own resolve window
+ * (resolveWaitMs / RESOLVE_POLL_MS): a spec has no observation turns, and an
+ * app that renders a beat late is the normal case, not a failure.
  */
-const STRUCTURAL_ROLES = new Set(['tab', 'heading', 'button', 'link', 'cell']);
+const PICK_WAIT_MS = 3_000;
+const PICK_POLL_MS = 100;
 
 /** Playwright's own default; only a different timeout is worth carrying over. */
 const DEFAULT_WAIT_MS = 10_000;
@@ -125,6 +124,39 @@ const HELPERS: { token: string; source: string[] }[] = [
     ],
   },
   {
+    token: 'pick(',
+    source: [
+      '/**',
+      ' * The first recorded way of naming the control that resolves to exactly ONE',
+      ' * element, tried in the order the recording measured. Not `.or()`: that is a',
+      ' * union, so a fallback matching several elements (a dialog-wide input selector,',
+      ' * say) would make the action a strict-mode violation, where the replay it',
+      ' * mirrors simply skips a candidate that is not unique and tries the next.',
+      ' *',
+      ' * It polls, because a spec has none of the observation turns that used to hide',
+      " * an app rendering a beat late (resolveChain's waitMs). `any` is for the two",
+      ' * places ambiguity is the normal shape: reading across every match, and a loop',
+      ' * body whose per-record locator matches every record.',
+      ' */',
+      `const PICK_WAIT_MS = ${PICK_WAIT_MS};`,
+      `const PICK_POLL_MS = ${PICK_POLL_MS};`,
+      'async function pick(page: Page, candidates: Locator[], opts: { any?: boolean } = {}): Promise<Locator> {',
+      '  const enough = (n: number) => (opts.any ? n > 0 : n === 1);',
+      '  for (let waited = 0; ; waited += PICK_POLL_MS) {',
+      '    for (const candidate of candidates) {',
+      '      if (enough(await candidate.count().catch(() => 0))) return candidate;',
+      '    }',
+      '    if (waited >= PICK_WAIT_MS) break;',
+      '    await page.waitForTimeout(PICK_POLL_MS);',
+      '  }',
+      '  throw new Error(',
+      '    `none of ${candidates.length} recorded locators resolved: ` +',
+      "      candidates.slice(0, 3).map((c) => String(c)).join(' | '),",
+      '  );',
+      '}',
+    ],
+  },
+  {
     token: 'escapeRe(',
     source: [
       '/** A value interpolated into a pattern is DATA: its own metacharacters must not become pattern. */',
@@ -143,6 +175,8 @@ interface Ctx {
   slots: Set<string>;
   warnings: string[];
   downloads: number;
+  /** Resolved-target locals emitted so far, so each names its own. */
+  picks: number;
   /**
    * The url pattern already asserted, so an SPA whose every step records the
    * same pattern is asserted once rather than twenty times. The assertion
@@ -195,29 +229,62 @@ function urlRegexSource(pattern: string): string | null {
  * observation as a comment rather than inventing an assertion.
  */
 function lineLocator(line: string): string | null {
+  // `exact: false`, unlike an action's locator. A recorded line's name comes
+  // from the daemon's own accessible-name walk (describeInPage in
+  // src/daemon/diff.ts), which composes a name out of the subtree and can
+  // disagree with Playwright's exact matcher on spacing, punctuation and
+  // decorative children - `link "RD Repair Desk"` is a real example. An
+  // ACTION must name one control exactly; a presence check only has to find
+  // the evidence, and replay's own lineShows matches loosely too.
   const roled = /^-?\s*([a-zA-Z]+)\s+"((?:[^"\\]|\\.)*)"/.exec(line);
   if (roled) {
     const name = roled[2].replace(/\\(.)/g, '$1');
     if (!name.trim()) return null;
-    return `page.getByRole(${q(roled[1])}, { name: ${match(name)}, exact: true }).first()`;
+    return `page.getByRole(${q(roled[1])}, { name: ${match(name)}, exact: false })`;
   }
   const text = /^-?\s*(?:text:)?\s*(.+?)\s*$/.exec(line);
   const value = text?.[1];
   if (!value || value.includes('"')) return null;
-  return `page.getByText(${match(value)}, { exact: true }).first()`;
+  return `page.getByText(${match(value)}, { exact: false })`;
 }
 
-/** The role token a page line starts with, for the structural test. */
-function lineRole(line: string): string {
-  return /^-?\s*([a-zA-Z]+)\b/.exec(line)?.[1] ?? '';
+/**
+ * One any-of assertion for a group of recorded lines.
+ *
+ * `lineShows` is ANY-of: replay stops only when NONE of the parameterised
+ * lines is on the page, and separately when NONE of the plain ones is. A spec
+ * asserting each line on its own would be strictly stricter than the gate it
+ * claims to mirror, and fails on the single line whose recorded name the
+ * daemon composed differently — which is what `link "RD Repair Desk"` did on
+ * the first real run. `.or()` is a union, so a union taken `.first()` is
+ * exactly "at least one of these is showing".
+ */
+function anyOfAssertion(lines: string[], label: string, out: string[]): void {
+  const usable: string[] = [];
+  const listed: string[] = [];
+  for (const line of lines) {
+    const loc = lineLocator(line);
+    if (loc && !usable.includes(loc)) {
+      usable.push(loc);
+      listed.push(line);
+    } else if (!loc) {
+      out.push(`// observed (nothing nameable in it): ${commentSafe(line)}`);
+    }
+  }
+  if (!usable.length) return;
+  out.push(`// ${label} — any one of these, as replay's effect gate has it:`);
+  for (const line of listed) out.push(`//   ${commentSafe(line)}`);
+  const union = usable[0] + usable.slice(1).map((u) => `\n${CONT_INDENT}.or(${u})`).join('');
+  out.push(`await expect(${union}${usable.length === 1 ? '' : `\n${CONT_INDENT}`}.first()).toBeVisible();`);
 }
 
 /**
  * The step's recorded page changes as assertions, mirroring the
- * `expectedChanges` gate: a line carrying a slot is HARD (it is what
- * distinguishes this run from the recorded one, so its absence means the
- * step acted on the wrong thing), everything else is soft and only becomes
- * an assertion when it is the kind of line that means the action landed.
+ * `expectedChanges` gate: the lines carrying a slot are HARD as a GROUP —
+ * they are what distinguishes this run from the recorded one, so none of them
+ * showing means the step acted on the wrong thing — and the plain lines are a
+ * second group, because a step none of whose recorded effects appeared did
+ * not have its recorded effect.
  */
 function expectationLines(step: SkillStep, out: string[]): void {
   const recorded = step.expect?.addedContains ?? [];
@@ -228,19 +295,10 @@ function expectationLines(step: SkillStep, out: string[]): void {
   if (step.tool === 'fill' && typeof step.args.value === 'string') {
     lines = consequentialExpectations(lines, step.args.value);
   }
-  for (const line of lines) {
-    const hard = SLOT_LINE.test(line);
-    if (!hard && !OPENER_LINE.test(line) && !STRUCTURAL_ROLES.has(lineRole(line))) {
-      out.push(`// observed: ${commentSafe(line)}`);
-      continue;
-    }
-    const loc = lineLocator(line);
-    if (!loc) {
-      out.push(`// observed${hard ? ' (parameterised, but nothing nameable in it)' : ''}: ${commentSafe(line)}`);
-      continue;
-    }
-    out.push(`await expect(${loc}).toBeVisible();`);
-  }
+  const hard = lines.filter((l) => SLOT_LINE.test(l));
+  const plain = lines.filter((l) => !SLOT_LINE.test(l));
+  if (hard.length) anyOfAssertion(hard, "this run's own values must show", out);
+  if (plain.length) anyOfAssertion(plain, "the step's recorded effect must show", out);
 }
 
 /** The url and alert halves of a step's expectation. */
@@ -268,15 +326,33 @@ function noteSlots(value: unknown, ctx: Ctx): void {
 }
 
 /**
- * The chain as source, with what Tier 2 could not carry reported as a TODO.
- * Returns null when nothing at all could be expressed — the caller then
- * emits the action as a TODO rather than a statement it cannot target.
+ * The expression an action acts on, emitting the resolution above it when the
+ * recording measured more than one way of naming the element.
+ *
+ * A single candidate is used inline. Several become one `pick(...)` call: the
+ * chain is an ORDERED list of ways to name one control, not a union of
+ * elements, and only `pick` preserves that. Returns null when nothing in the
+ * chain could be expressed — the caller then emits a TODO rather than a
+ * statement it cannot target.
  */
-function targetSource(step: SkillStep, key: 'target' | 'source', ctx: Ctx): string | null {
+function actionTarget(
+  step: SkillStep,
+  key: 'target' | 'source',
+  ctx: Ctx,
+  out: string[],
+  opts: { first?: boolean; any?: boolean } = {},
+): string | null {
   const chain = step.locators?.[key] ?? [];
   noteSlots(chain, ctx);
-  const { source } = chainSource(chain, { slot: slotAsParam, indent: CONT_INDENT });
-  return source || null;
+  const { sources } = candidateSources(chain, { slot: slotAsParam });
+  if (!sources.length) return null;
+  // In a loop the cursor is always the first match: the record this pass acts on.
+  if (sources.length === 1) return opts.first ? `(${sources[0]}).first()` : sources[0];
+  const name = `el${++ctx.picks}`;
+  out.push(`const ${name} = await pick(page, [`);
+  for (const source of sources) out.push(`${CONT_INDENT}${source},`);
+  out.push(`]${opts.any ? ', { any: true }' : ''});`);
+  return opts.first ? `${name}.first()` : name;
 }
 
 /** The `point` candidates a step lost, as one honest comment. */
@@ -363,15 +439,23 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
     if (step.label) out.push(`outputs[${q(`${ctx.stepId}.${step.label}`)}] = page.url();`);
     return out;
   }
+  // An unlabelled read published nothing — it was the agent orienting itself —
+  // so it needs no locator, and reporting one as missing would be a defect
+  // where replay simply skips: a read is an observation, never a state change.
+  if (isRead && !step.label) {
+    out.push(`// observed: ${step.tool} ${commentSafe(str('what', 'text'))} (unlabelled — it published no value)`);
+    return out;
+  }
 
-  const raw = targetSource(step, 'target', ctx);
-  if (!raw) {
+  // Ambiguity is the normal shape in exactly two places: a read across every
+  // match, and a loop body whose per-record locator names every record.
+  const any = step.tool === 'read_all' || first;
+  const target = actionTarget(step, 'target', ctx, out, { first, any });
+  if (!target) {
     ctx.warnings.push(`${ctx.stepId}: step ${index} (${step.tool}) has no locator a spec can express`);
     out.push(`// TODO: no locator this compiler can express for ${step.tool} — fill it in by hand.`);
     return out;
   }
-  // In a loop the cursor is always the first match: the record this pass acts on.
-  const target = first ? `(${raw}).first()` : raw;
 
   switch (step.tool) {
     case 'click':
@@ -427,7 +511,7 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
       break;
     }
     case 'drag': {
-      const source = targetSource(step, 'source', ctx);
+      const source = actionTarget(step, 'source', ctx, out);
       if (source) out.push(`await ${source}.dragTo(${target});`);
       else out.push(`// TODO: no locator this compiler can express for the drag source.`);
       break;
@@ -475,15 +559,10 @@ function waitForLine(target: string, args: Record<string, unknown>, timeout?: nu
   }
 }
 
-/**
- * A read publishes a value later steps reference by `<stepId>.<label>`. An
- * unlabelled read fed nothing downstream — it was the agent orienting itself
- * — so it is left as a comment rather than an assertion nobody asked for.
- */
+/** A read publishes the value later steps reference by `<stepId>.<label>`; an unlabelled one never reaches here. */
 function readLine(target: string, step: SkillStep, ctx: Ctx): string[] {
   const what = String(step.args?.what ?? 'text');
-  if (!step.label) return [`// observed: ${step.tool} ${commentSafe(what)} (unlabelled — it published no value)`];
-  const out = `outputs[${q(`${ctx.stepId}.${step.label}`)}]`;
+  const out = `outputs[${q(`${ctx.stepId}.${step.label ?? ''}`)}]`;
   if (what === 'value') return [`${out} = await ${target}.inputValue();`];
   if (what === 'text') {
     // read_all legitimately matches many elements, so textContent's strict
@@ -492,7 +571,7 @@ function readLine(target: string, step: SkillStep, ctx: Ctx): string[] {
       ? [`${out} = (await ${target}.allTextContents()).join('\\n');`]
       : [`${out} = (await ${target}.textContent()) ?? '';`];
   }
-  return [`// TODO: read what=${commentSafe(what)} has no Tier 2 form (label ${commentSafe(step.label)}).`];
+  return [`// TODO: read what=${commentSafe(what)} has no Tier 2 form (label ${commentSafe(step.label ?? '')}).`];
 }
 
 /**
@@ -632,7 +711,7 @@ export function emitFlowFile(spec: SpecFlow, o: EmitOptions): { source: string; 
 
   // Bodies first: which helpers the file needs is decided by what they use.
   const bodies = spec.steps.map((step) => {
-    const ctx: Ctx = { stepId: step.id, slots: new Set(), warnings, downloads: 0, lastUrl: null, loops: 0 };
+    const ctx: Ctx = { stepId: step.id, slots: new Set(), warnings, downloads: 0, lastUrl: null, loops: 0, picks: 0 };
     const lines: string[] = [];
     if (!step.segments.length) {
       lines.push(`// TODO: no converged procedure for ${JSON.stringify(commentSafe(step.instruction))}`);
@@ -653,7 +732,7 @@ export function emitFlowFile(spec: SpecFlow, o: EmitOptions): { source: string; 
     '// @sitelooper-flow v1',
     `// Generated by sitelooper from flow ${JSON.stringify(spec.name)} — do not edit by hand.`,
     '// Repair drift with `sitelooper repair <this file>`; the FLOW constant below is the source of truth.',
-    "import { expect, type Page } from '@playwright/test';",
+    `import { expect, ${helpers.some((h) => h.token === 'pick(') ? 'type Locator, ' : ''}type Page } from '@playwright/test';`,
     '',
     BEGIN_MARKER,
     `export const FLOW = ${JSON.stringify(spec, null, 2)};`,

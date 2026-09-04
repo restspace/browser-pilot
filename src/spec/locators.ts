@@ -194,11 +194,11 @@ export function candidateSource(c: LocatorCandidate, o: SourceOptions = {}): str
  *  ResolvePolicy.requireIdentity. Returns the source, the candidates that could not be
  *  expressed, and the hasText guards applied. Multi-line pretty form: one candidate per
  *  line, `.or(` continuation lines indented by `indent`. */
-export function chainSource(
+/** The chain as an ordered list of expressions, best first, with the identity guards applied. */
+export function candidateSources(
   chain: LocatorCandidate[],
-  o: SourceOptions & { indent?: string } = {},
-): { source: string; dropped: LocatorCandidate[]; identity: string[] } {
-  const indent = o.indent ?? '  ';
+  o: SourceOptions = {},
+): { sources: string[]; dropped: LocatorCandidate[]; identity: string[] } {
   const spec = specOf(chain);
   const ordered = [...spec.identity, ...spec.handles, ...spec.path];
   const scoped = spec.identity as Extract<LocatorCandidate, { kind: 'scoped' }>[];
@@ -206,7 +206,7 @@ export function chainSource(
 
   const dropped: LocatorCandidate[] = [];
   const applied = new Set<string>();
-  const parts: string[] = [];
+  const sources: string[] = [];
   for (const c of ordered) {
     let src = candidateSource(c, o);
     if (src === null) {
@@ -226,8 +226,34 @@ export function chainSource(
         applied.add(g);
       }
     }
-    parts.push(src);
+    // A recorded chain routinely names the same element twice - an `id`
+    // candidate and the `css` candidate built from the same selector - and
+    // two identical expressions are two identical resolutions: no extra
+    // coverage, one more line for a reviewer to read past.
+    if (!sources.includes(src)) sources.push(src);
   }
-  const source = parts.length ? parts[0] + parts.slice(1).map((p) => `\n${indent}.or(${p})`).join('') : '';
-  return { source, dropped, identity: [...applied] };
+  return { sources, dropped, identity: [...applied] };
+}
+
+/** The whole chain as ONE expression: candidates ordered by specOf (identity, handles,
+ *  path), joined with .or(), point dropped. When the chain carries identity (a scoped
+ *  candidate with hasText), every non-identity candidate is guarded with
+ *  .filter({ hasText }) so a fallback cannot land on another record - mirrors
+ *  ResolvePolicy.requireIdentity. Returns the source, the candidates that could not be
+ *  expressed, and the hasText guards applied. Multi-line pretty form: one candidate per
+ *  line, `.or(` continuation lines indented by `indent`.
+ *
+ *  `.or()` is a UNION, so this expresses "any of these", not "the first of
+ *  these that names exactly one element". That is right for a presence check
+ *  and wrong for an action - see the emitter's `pick` helper.
+ */
+export function chainSource(
+  chain: LocatorCandidate[],
+  o: SourceOptions & { indent?: string } = {},
+): { source: string; dropped: LocatorCandidate[]; identity: string[] } {
+  const indent = o.indent ?? '  ';
+  const { sources, dropped, identity } = candidateSources(chain, o);
+  const source = sources.length ? sources[0] + sources.slice(1).map((p) => `
+${indent}.or(${p})`).join('') : '';
+  return { source, dropped, identity };
 }
