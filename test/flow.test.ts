@@ -853,3 +853,30 @@ describe('input echoes are not outputs (fwgr23 05-open)', () => {
     expect(flow.steps[1].instruction).toContain(`{{${flow.steps[0].id}.time_range}}`);
   });
 });
+
+describe('remapParams', () => {
+  it("re-derives a re-pinned step's bindings by value, not by the old slot names (rpat1 04-add / 07-delete)", async () => {
+    const { remapParams } = await import('../src/skills/flow.js');
+    const skill = {
+      params: {
+        v1: { example: 'rpat1-r1', usedIn: [6], known: true },
+        v2: { example: 'rpat1-r1 MTP Bench Project', usedIn: [2], known: true },
+        v3: { example: '200', usedIn: [4] },
+        v5: { example: 'rpat1-r1 MTP Item A', usedIn: [1], known: true },
+        v6: { example: 'Project Manager', usedIn: [], known: true },
+      },
+    } as never;
+    const known = [
+      { template: '{{runid}} MTP Bench Project', value: 'rpat1-r1 MTP Bench Project' },
+      { template: '{{runid}}', value: 'rpat1-r1' },
+      { template: '{{01-open.landed_page}}', value: 'Project Manager' },
+    ];
+    expect(remapParams(skill, known)).toEqual({
+      v1: '{{runid}}',
+      v2: '{{runid}} MTP Bench Project',
+      v3: '200',
+      v5: '{{runid}} MTP Item A',
+      v6: '{{01-open.landed_page}}',
+    });
+  });
+});

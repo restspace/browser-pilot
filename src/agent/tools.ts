@@ -34,6 +34,10 @@ const STATE_CHANGING = new Set([
 
 /** Beat given to async renders (React, in-flight fetches) before the after-capture. */
 const SETTLE_MS = 150;
+/** Tools whose effect may be a navigation the app performs on the answer to a request. */
+const NAVIGATING = new Set(['click', 'dblclick', 'press', 'submit', 'select']);
+/** How long a click's late navigation is given before its effect is captured as final. */
+const LATE_NAV_MS = 1_500;
 
 const MAX_BATCH_STEPS = 10;
 
@@ -545,7 +549,19 @@ async function runStep(
   let diff: StepDiff | undefined;
   let fingerprintAfter: number[] | undefined;
   if (wantDiff && before) {
-    const after = await settledSignature(page!);
+    let after = await settledSignature(page!);
+    // A click that starts a request and routes on its answer looks finished
+    // while the request is in flight: the DOM is quiet and the url is still
+    // the old one. fwat2's sign-in was recorded that way — expected url "/"
+    // and an added "Logging in..." button — and the replay, which arrived at
+    // the landing page, could match neither. Give a late navigation a moment
+    // before the effect is taken as final; a step that changed the url
+    // already, or changes nothing, pays nothing.
+    if (after && NAVIGATING.has(name) && after.url === before.url) {
+      const deadline = Date.now() + LATE_NAV_MS;
+      while (Date.now() < deadline && page!.url() === before.url) await new Promise((r) => setTimeout(r, 100));
+      if (page!.url() !== before.url) after = await settledSignature(page!);
+    }
     if (after) {
       diff = scrubSecretsDeep({
         url: after.url,

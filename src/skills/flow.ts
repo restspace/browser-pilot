@@ -767,6 +767,39 @@ export function ignorableRefs(missing: string[], step: FlowStep, skill: Skill | 
   });
 }
 
+/**
+ * Slot bindings for a step that has just been re-pinned onto another skill.
+ * The old bindings are keyed by the OLD skill's slot names, which mean
+ * nothing to the new skill — rpat1-r1 re-pinned 04-add and kept
+ * `v2: "{{runid}}"` where the new skill's v2 was the project name, so r2
+ * bound the wrong values and the delete step was refused for a missing
+ * slot. Bindings are re-derived by VALUE: each new slot's example (the value
+ * the recovery actually used) is matched against what this run knew —
+ * the old bindings as resolved, the declared vars, earlier steps' outputs —
+ * and the matching template is carried over; a value containing a known
+ * value is templated on that part; anything else stays literal, which is
+ * what the recovery typed.
+ */
+export function remapParams(
+  skill: Skill,
+  known: Array<{ template: string; value: string }>,
+): Record<string, string> {
+  const sources = known.filter((k) => k.value && k.value.trim().length >= 2).sort((a, b) => b.value.length - a.value.length);
+  const out: Record<string, string> = {};
+  for (const [name, p] of Object.entries(skill.params)) {
+    const ex = String(p.example ?? '');
+    const whole = sources.find((s) => s.value === ex);
+    if (whole) {
+      out[name] = whole.template;
+      continue;
+    }
+    let text = ex;
+    for (const s of sources) if (text.includes(s.value)) text = text.split(s.value).join(s.template);
+    out[name] = text;
+  }
+  return out;
+}
+
 export function resolveStepParams(
   step: FlowStep,
   vars: Record<string, string>,

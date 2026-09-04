@@ -8,7 +8,7 @@ import { urlPattern as compiledUrlPattern, stranded, urlParts } from '../skills/
 import type { DriftTicket } from '../skills/repair.js';
 import type { Page } from 'playwright-core';
 import { agentGesturesOutsideReplay, bindSkill, canAdoptPin, decideRepin, learnFromInstruction, matchTemplate, publishedOutputs, selectCandidates, synthesizeReport } from '../skills/learn.js';
-import { buildFlow, consumedUrlOutputs, ignorableRefs, lintFlowRefs, listFlows, loadFlow, loadFlowFile, lookupOutput, noteOutputEvidence, recoveryRoute, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
+import { buildFlow, consumedUrlOutputs, ignorableRefs, lintFlowRefs, listFlows, loadFlow, loadFlowFile, lookupOutput, noteOutputEvidence, recoveryRoute, remapParams, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
 import { recordCandidateEvidence } from '../skills/repair.js';
@@ -992,6 +992,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       }
       // Learn from a repair so the flow's steps get cheaper over successive runs.
       let repinned;
+      let repinParams: Record<string, string> | undefined;
       if (this.browser.learn) {
         const recoveryEntries = this.browser.script?.entriesSince(mark) ?? [];
         const learned = learnFromInstruction(this.browser.learn, {
@@ -1051,6 +1052,15 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         } else if (decision) {
           repinned = decision.skill;
           pendingPins.set(step.id, decision.skill);
+          // The new skill's slots are named and numbered its own way: bind
+          // them by value from what this run knew (see remapParams).
+          if (candidate) {
+            const known: Array<{ template: string; value: string }> = [];
+            for (const [name, tmpl] of Object.entries(step.params ?? {})) known.push({ template: tmpl, value: String(bound?.params[name] ?? '') });
+            for (const [k, v] of Object.entries(varsIn)) known.push({ template: `{{${k}}}`, value: String(v ?? '') });
+            for (const [sid, vals] of Object.entries(outputs)) for (const [k, v] of Object.entries(vals)) known.push({ template: `{{${sid}.${k}}}`, value: String(v ?? '') });
+            repinParams = remapParams(candidate, known);
+          }
           if (decision.graduated) {
             graduated.add(step.id);
             opts.progress(`[flow ${flow.name}] ${step.id}: adopted step graduated — pinned ${decision.skill} (${outcome?.status}), shedding model-first replay`);
@@ -1140,6 +1150,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         repaired: Boolean(sk?.repaired),
         turns: result.turns,
         ...(repinned ? { repinned } : {}),
+        ...(repinParams ? { repinParams } : {}),
       });
       if (result.report.status !== 'success') {
         // An adopted step does not halt the flow: the recording's own path
@@ -1165,6 +1176,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         const step = flow.steps.find((st) => st.id === r.id);
         if (step) {
           step.skill = String(r.repinned);
+          if (r.repinParams) step.params = r.repinParams as Record<string, string>;
           // A graduated adopted step is no longer model-first: it now owns a
           // skill that completed it, so drop the flag that gave it the doubled
           // recovery budget and the 'adopted' recovery route.
