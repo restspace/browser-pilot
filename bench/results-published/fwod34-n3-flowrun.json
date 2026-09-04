@@ -1,0 +1,182 @@
+{
+  "flow": "fwod34",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-signin",
+      "status": "success",
+      "summary": "Successfully signed into Odoo with admin/admin, navigated to Contacts, created a new contact named 'fwod34-n3 Bench Customer' with City 'Benchville', saved it. Verified the saved record: the Name field shows \"fwod34-n3 Bench Customer\" and the City field shows \"Benchville\".",
+      "values": {
+        "customer_name": "fwod34-n3 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "20/20",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Replayed stored procedure s_c925b1; observed product_name=Chair floor protection, unit_price=12.00, line_total_2=£ 36.00, quotation_ref=S00023.",
+      "values": {
+        "product_name": "Chair floor protection",
+        "unit_price": "12.00",
+        "line_total_2": "£ 36.00",
+        "quotation_ref": "S00023"
+      },
+      "tier": "A",
+      "replayed": "21/21",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Opened existing draft quotation S00023 for fwod34-n3 Bench Customer. Added a second order line with product \"[FURN_6666] Acoustic Bloc Screens\" (unit price auto-filled at £295.00), quantity set to 2, and saved. The new Untaxed Amount for the whole order is £626.00 (first line: £36.00 + second line: £590.00).",
+      "values": {
+        "second_product_name": "[FURN_6666] Acoustic Bloc Screens",
+        "second_unit_price": "295.00",
+        "new_untaxed_amount": "£ 626.00",
+        "order_reference": "S00023",
+        "new_untaxed_amount_2": "£ 626.00"
+      },
+      "tier": "A",
+      "replayed": "3/13",
+      "repaired": false,
+      "turns": 8
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_059a1e; observed first_line_qty=5.00, untaxed_amount_2=£ 650.00, ref=S00023.",
+      "values": {
+        "first_line_qty": "5.00",
+        "untaxed_amount_2": "£ 650.00",
+        "ref": "S00023"
+      },
+      "tier": "A",
+      "replayed": "6/6",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Replayed stored procedure s_f1434f; observed order_reference=S00023, statusbar_text=Sales Order\nQuotation Sent\nQuotation.",
+      "values": {
+        "order_reference": "S00023",
+        "statusbar_text": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "A",
+      "replayed": "4/4",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "06-open",
+      "status": "success",
+      "summary": "Opened confirmed sales order S00023 and cancelled it via the Cancel action, accepting any confirmation dialogs. After cancellation, the status bar shows \"Cancelled\".",
+      "values": {
+        "order_reference": "S00023",
+        "statusbar_text": "Cancelled",
+        "statusbar_text_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "20/20",
+      "repaired": false,
+      "turns": 2,
+      "repinned": "s_e7d322",
+      "repinParams": {
+        "v1": "S00022",
+        "v2": "fwod34-n2"
+      }
+    },
+    {
+      "id": "07-open",
+      "status": "success",
+      "summary": "Read-only check of sales order S00023: the status bar shows \"Sales Order\" as the active/current status (with \"Quotation Sent\" and \"Quotation\" as alternative steps).",
+      "values": {
+        "current_status": "Sales Order",
+        "order_status": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "08-open",
+      "status": "success",
+      "summary": "Sales order S00023 was already in Cancelled status. The status bar shows \"Cancelled\" as the active (checked/disabled) radio — the cancel action had been performed in a previous step of this session, so nothing further was needed.",
+      "values": {
+        "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00023"
+      },
+      "tier": "A",
+      "replayed": "2/2",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "09-change",
+      "status": "success",
+      "summary": "Replayed stored procedure s_4634ba; observed statusbar_text=Cancelled\nSales Order\nQuotation Sent\nQuotation, order_reference=S00023, customer_name=fwod34-n3 Bench Customer.",
+      "values": {
+        "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00023",
+        "customer_name": "fwod34-n3 Bench Customer"
+      },
+      "tier": "A",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 0
+    }
+  ],
+  "passed": 9,
+  "total": 9,
+  "repinned": 1,
+  "drift": 2,
+  "driftTickets": [
+    {
+      "flow": "fwod34",
+      "step": "03-open",
+      "skill": "s_3073e0",
+      "atStep": "4",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Confirm', exact: true }).nth(1)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod34",
+      "step": "06-open",
+      "skill": "s_e7d322",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "the flow step has no pinned skill",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 243495,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 119233,
+    "completionTokens": 2242,
+    "cachedTokens": 76032
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 119233,
+      "completionTokens": 2242,
+      "cachedTokens": 76032
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

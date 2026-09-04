@@ -1,0 +1,304 @@
+{
+  "name": "fwod34",
+  "origin": "http://127.0.0.1:8069",
+  "startUrl": "http://127.0.0.1:8069/",
+  "vars": [
+    "runid"
+  ],
+  "steps": [
+    {
+      "id": "01-signin",
+      "instruction": "Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the Sales app (or via the main menu), create a new customer/contact named '{{runid}} Bench Customer' with City set to 'Benchville' (leave other address fields as defaults/blank unless required). Save it. Then verify the customer record exists by reopening it and report the Name and City values shown on the saved record. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_8ab698",
+      "params": {
+        "v2": "{{runid}} Bench Customer",
+        "v3": "Benchville"
+      },
+      "outputs": [
+        "customer_name",
+        "city"
+      ],
+      "recorded": {
+        "customer_name": "fwod34-n1 Bench Customer",
+        "city": "Benchville"
+      },
+      "outputEvidence": {
+        "customer_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "city": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "02-create",
+      "instruction": "In the Odoo Sales app, create a new quotation (RFQ/sales order draft) for the customer '{{runid}} Bench Customer' — the customer field is an autocomplete dropdown, so actually select the matching option from the dropdown, do not just type the name. Add exactly ONE order line: pick any real product from the product catalogue (again via the autocomplete dropdown, selecting an actual option), and set the quantity to 3. Leave the unit price as whatever the app auto-fills. Save the quotation. Then report: (a) the product name you chose, (b) the unit price the app filled in on that line, (c) the untaxed amount (Untaxed Amount / Amount Untaxed) the quotation computes, and (d) the quotation's reference name (e.g. S00042). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_d595d3",
+      "params": {
+        "v1": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "product_name",
+        "unit_price",
+        "line_total",
+        "untaxed_amount",
+        "quotation_ref",
+        "line_total_2"
+      ],
+      "recorded": {
+        "product_name": "Chair floor protection",
+        "unit_price": "12.00",
+        "line_total": "£36.00",
+        "untaxed_amount": "£36.00",
+        "quotation_ref": "S00021",
+        "line_total_2": "£ 36.00"
+      },
+      "outputEvidence": {
+        "product_name": {
+          "same": 2,
+          "differed": 0
+        },
+        "unit_price": {
+          "same": 2,
+          "differed": 0
+        },
+        "quotation_ref": {
+          "same": 0,
+          "differed": 2
+        },
+        "line_total_2": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "03-open",
+      "instruction": "Open the existing draft quotation {{02-create.quotation_ref}} for customer '{{runid}} Bench Customer' in the Odoo Sales app. Add a SECOND order line below the existing '{{02-create.product_name}}' line: choose a DIFFERENT product from the product catalogue (via the autocomplete dropdown, actually selecting an option), and set its quantity to 2. Leave the unit price as whatever the app auto-fills. Save the quotation. Then report: (a) the name of the second product you chose, (b) its unit price, and (c) the new total untaxed amount (Untaxed Amount) the quotation now computes for the whole order. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_d654ba",
+      "params": {
+        "v1": "{{02-create.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-create.product_name}}"
+      },
+      "outputs": [
+        "second_product_name",
+        "second_unit_price",
+        "new_untaxed_amount",
+        "new_untaxed_amount_2",
+        "ref"
+      ],
+      "recorded": {
+        "second_product_name": "Conference Chair",
+        "second_unit_price": "33.00",
+        "new_untaxed_amount": "£102.00",
+        "new_untaxed_amount_2": "£ 102.00",
+        "ref": "S00021"
+      },
+      "outputEvidence": {
+        "second_product_name": {
+          "same": 1,
+          "differed": 1
+        },
+        "second_unit_price": {
+          "same": 1,
+          "differed": 1
+        },
+        "new_untaxed_amount": {
+          "same": 0,
+          "differed": 2
+        },
+        "new_untaxed_amount_2": {
+          "same": 1,
+          "differed": 1
+        },
+        "ref": {
+          "same": 0,
+          "differed": 1
+        }
+      }
+    },
+    {
+      "id": "04-open",
+      "instruction": "Open the existing draft quotation {{02-create.quotation_ref}} for customer '{{runid}} Bench Customer' in the Odoo Sales app. On the FIRST order line (the '{{02-create.product_name}}' line), change the quantity from 3 to 5. Save the quotation. Then report the new total untaxed amount (Untaxed Amount) the quotation computes for the whole order, and confirm the first line's quantity now shows 5. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_059a1e",
+      "params": {
+        "v1": "{{02-create.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer",
+        "v4": "{{02-create.product_name}}"
+      },
+      "outputs": [
+        "first_line_qty",
+        "untaxed_amount",
+        "untaxed_amount_2",
+        "ref"
+      ],
+      "recorded": {
+        "first_line_qty": "5.00",
+        "untaxed_amount": "£126.00",
+        "untaxed_amount_2": "£ 126.00",
+        "ref": "S00021"
+      },
+      "outputEvidence": {
+        "first_line_qty": {
+          "same": 2,
+          "differed": 0
+        },
+        "untaxed_amount_2": {
+          "same": 1,
+          "differed": 1
+        },
+        "ref": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "05-open",
+      "instruction": "Open the quotation {{02-create.quotation_ref}} for customer '{{runid}} Bench Customer' in the Odoo Sales app and confirm it (click the Confirm / Confirm Order button so it becomes a sales order). Then report: (a) the order reference/name shown (e.g. {{02-create.quotation_ref}}), and (b) the status the app now shows for the order (e.g. 'Sales Order' or similar status label visible on the form). Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_f1434f",
+      "params": {
+        "v1": "{{02-create.quotation_ref}}",
+        "v2": "{{runid}} Bench Customer"
+      },
+      "outputs": [
+        "order_reference",
+        "order_status",
+        "statusbar_text"
+      ],
+      "recorded": {
+        "order_reference": "S00021",
+        "order_status": "Sales Order",
+        "statusbar_text": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "outputEvidence": {
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        },
+        "statusbar_text": {
+          "same": 2,
+          "differed": 0
+        }
+      }
+    },
+    {
+      "id": "06-open",
+      "instruction": "Open the confirmed sales order {{02-create.quotation_ref}} for customer '{{runid}} Bench Customer' in the Odoo Sales app and cancel it (use the Cancel action, confirming any dialog that appears, so the order is no longer active). Then report the status the app shows for the order after cancelling (e.g. 'Cancelled'). Do not wait for network idle; wait on concrete page state instead.",
+      "outputs": [],
+      "recorded": {},
+      "adopted": true,
+      "skill": "s_e7d322",
+      "params": {
+        "v1": "S00022",
+        "v2": "fwod34-n2"
+      }
+    },
+    {
+      "id": "07-open",
+      "instruction": "Open the sales order {{02-create.quotation_ref}} (record id {{02-create.url.q.id}}, model sale.order) in the Odoo Sales app and report ONLY its current status: read the status bar / state field on the form and tell me exactly what status label is currently shown (e.g. 'Sales Order', 'Cancelled'). Do not click any buttons or change anything — this is a read-only check.",
+      "skill": "s_04d970",
+      "params": {
+        "v1": "{{02-create.quotation_ref}}",
+        "v2": "{{02-create.url.q.id}}",
+        "v3": "Sales Order"
+      },
+      "outputs": [
+        "current_status",
+        "order_status",
+        "order_reference"
+      ],
+      "recorded": {
+        "current_status": "Sales Order",
+        "order_status": "Sales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00021"
+      },
+      "outputEvidence": {
+        "current_status": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_status": {
+          "same": 0,
+          "differed": 2
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "08-open",
+      "instruction": "The sales order {{02-create.quotation_ref}} (model sale.order, record id {{02-create.url.q.id}}) is currently in 'Sales Order' status and needs to be cancelled. In the Odoo Sales app, open {{02-create.quotation_ref}} and click the 'Cancel' button in the form header. A modal dialog/wizard will appear asking about cancelling (it may offer options like sending a cancellation email to the customer). In that dialog, do NOT choose any option that sends an email — just confirm/click the plain 'Cancel' button in the dialog (leave any 'send email' checkbox unchecked). If no dialog appears, the cancel may apply directly. Afterwards, verify the order's status bar now shows 'Cancelled' and report the exact status label shown. Do not wait for network idle; wait on concrete page state instead.",
+      "skill": "s_c86522",
+      "params": {
+        "v1": "{{02-create.quotation_ref}}",
+        "v3": "Sales Order"
+      },
+      "outputs": [
+        "order_status",
+        "statusbar_text",
+        "order_reference"
+      ],
+      "recorded": {
+        "order_status": "Cancelled",
+        "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00021"
+      },
+      "outputEvidence": {
+        "statusbar_text": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    },
+    {
+      "id": "09-change",
+      "instruction": "Read-only check, do not change anything: open the sales order {{02-create.quotation_ref}} (model sale.order, record id {{02-create.url.q.id}}) in the Odoo Sales app and report its current status label from the status bar, plus the customer name shown on the order. Do not click any action buttons.",
+      "skill": "s_4634ba",
+      "params": {
+        "v1": "{{02-create.quotation_ref}}"
+      },
+      "outputs": [
+        "order_status",
+        "customer_name",
+        "statusbar_text",
+        "order_reference"
+      ],
+      "recorded": {
+        "order_status": "Cancelled",
+        "customer_name": "fwod34-n1 Bench Customer",
+        "statusbar_text": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "order_reference": "S00021"
+      },
+      "outputEvidence": {
+        "customer_name": {
+          "same": 0,
+          "differed": 2
+        },
+        "statusbar_text": {
+          "same": 2,
+          "differed": 0
+        },
+        "order_reference": {
+          "same": 0,
+          "differed": 2
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "session": "fwod34-n1",
+    "created": "2026-09-04T14:27:28.065Z",
+    "model": "deepseek/deepseek-v4-flash"
+  }
+}
