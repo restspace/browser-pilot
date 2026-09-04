@@ -1,0 +1,103 @@
+{
+  "arm": "sleep-walker",
+  "target": "odoo",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "b4fd21d"
+  },
+  "mutationLogPath": null,
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwod34-n1",
+  "task": "bench/tasks/odoo-sale-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 11,
+  "wallMs": 1451473,
+  "orchestrator": {
+    "input": 5822,
+    "cacheWrite": 0,
+    "cacheRead": 37920,
+    "output": 5791
+  },
+  "inner": {
+    "promptTokens": 4483190,
+    "cachedTokens": 3857504,
+    "completionTokens": 30334,
+    "instructions": 10,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 3671175,
+        "completionTokens": 26361,
+        "cachedTokens": 3079168,
+        "instructions": 9
+      },
+      "z-ai/glm-5.3": {
+        "promptTokens": 812015,
+        "completionTokens": 3973,
+        "cachedTokens": 778336,
+        "instructions": 1
+      }
+    },
+    "skills": {
+      "instructions": 9,
+      "offered": 6,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 131,
+      "compiled": 8,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 10,
+  "subcommands": {
+    "open": 1,
+    "do": 9
+  },
+  "invocationCount": 10,
+  "commandMs": 1335366,
+  "commandBytes": 7096,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwod34-skills",
+    "instructions": 9,
+    "offered": 6,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 131,
+    "compiled": 8,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Fireworks"
+  ],
+  "orReportedCostUsd": 0.0435,
+  "maxUsd": 2,
+  "spendUsd": 0.3793,
+  "finalText": "All six objectives are complete and verified. Final report:\n\n**1. DONE** — Customer `fwod34-n1 Bench Customer` created and verified on the saved record: Name = \"fwod34-n1 Bench Customer\", City = \"Benchville\".\n\n**2. DONE** — Quotation `S00021` created for that customer with one order line: product **Chair floor protection**, quantity 3, unit price auto-filled at **12.00**, untaxed amount computed as **£36.00**.\n\n**3. DONE** — Second order line added: product **Conference Chair**, quantity 2, unit price auto-filled at **33.00**. New untaxed amount for the order: **£102.00** (Chair floor protection £36.00 + Conference Chair £66.00).\n\n**4. DONE** — First line (Chair floor protection) quantity changed from 3 to 5 (verified showing 5.00). Untaxed amount afterwards: **£126.00** (5 × 12.00 = £60.00 + 2 × 33.00 = £66.00).\n\n**5. DONE** — Quotation confirmed via the Confirm button. Order reference: **S00021**. Status shown: **\"Sales Order\"** (status bar, with \"Quotation Sent\" and \"Quotation\" as inactive alternatives).\n\n**6. DONE** — Sales order cancelled via the header Cancel button, then the plain \"Cancel\" button in the Cancel Sales Order wizard (no cancellation email sent). Status shown after cancelling: **\"Cancelled\"** — re-verified on a separate read-only check that the order remains in \"Cancelled\" status with customer \"fwod34-n1 Bench Customer\", so nothing created by this run stays active.\n\nNote: the first cancel attempt timed out inside the cancel wizard (it was struggling with the modal's button options); a read-only check confirmed the order was still \"Sales Order\" at that point, and a retry that explicitly avoided the \"Send and cancel\" option completed the cancellation successfully.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwod34-n1-sleep-walker-transcript.jsonl"
+}

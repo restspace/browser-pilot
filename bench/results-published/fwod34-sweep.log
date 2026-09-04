@@ -1,0 +1,117 @@
+
+[sweep] run 1/3: fwod34-n1 (store: /home/user/sleep-walker/bench/results/fwod34-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod34-n1
+  flow "fwod34" saved: 9 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwod34.json
+  warning: note: dropped 4 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: note: 1 step(s) adopted from non-success instruction(s) whose work the session continued from (06-open) — they replay model-first with doubled budget, and a non-success there does not halt the flow
+  warning: warning: 83 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "Benchville" (output) in "Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the Sales app (or via the main menu), create a new cu"
+  flow.steps[0].params.v3: "Benchville" (output) in "Benchville"
+  flow.steps[4].instruction: "Sales Order" (output) in "Open the quotation {{02-create.quotation_ref}} for customer '{{runid}} Bench Customer' in the Odoo Sales app and confirm it (click the Confirm / Confirm Order b"
+  flow.steps[5].instruction: "Cancelled" (output) in "Open the confirmed sales order {{02-create.quotation_ref}} for customer '{{runid}} Bench Customer' in the Odoo Sales app and cancel it (use the Cancel action, c"
+  flow.steps[6].instruction: "Sales Order" (output) in "Open the sales order {{02-create.quotation_ref}} (record id {{02-create.url.q.id}}, model sale.order) in the Odoo Sales app and report ONLY its current status: "
+  flow.steps[6].instruction: "Cancelled" (output) in "Open the sales order {{02-create.quotation_ref}} (record id {{02-create.url.q.id}}, model sale.order) in the Odoo Sales app and report ONLY its current status: "
+  flow.steps[6].params.v3: "Sales Order" (output) in "Sales Order"
+  flow.steps[7].instruction: "Sales Order" (output) in "The sales order {{02-create.quotation_ref}} (model sale.order, record id {{02-create.url.q.id}}) is currently in 'Sales Order' status and needs to be cancelled."
+  flow.steps[7].instruction: "Cancelled" (output) in "The sales order {{02-create.quotation_ref}} (model sale.order, record id {{02-create.url.q.id}}) is currently in 'Sales Order' status and needs to be cancelled."
+  flow.steps[7].params.v3: "Sales Order" (output) in "Sales Order"
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwod34-n1 stop=completed
+turns=11 wall=1451.5s
+commands=10 cmdTime=1335.4s cmdBytes=7096 timeouts=0
+orchestrator in=5822 cw=0 cr=37920 out=5791
+inner prompt=4483190 cached=3857504 completion=30334
+spend=$0.3793 maxUsd=2
+learn: A_n=0 replayed=0/9 full=0 repaired=0 compiled=8 variants=0
+-> /home/user/sleep-walker/bench/results/fwod34-n1-sleep-walker-result.json
+
+fwod34-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod34-n2 (replay flow fwod34, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod34-n2: 3 drift ticket(s) → fwod34-n2-drift.json
+
+fwod34-n2: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00022
+
+[sweep] run 3/3: fwod34-n3 (replay flow fwod34, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod34-n3: 2 drift ticket(s) → fwod34-n3-drift.json
+
+fwod34-n3: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00023
+
+Learning sweep fwod34 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod34-n1' │ '6/6'    │ 'completed' │ 11    │ 10   │ 0.3793    │ 0   │ '0/9'        │ 1451   │
+│ 1       │ 2 │ 'fwod34-n2' │ '6/6'    │ 'success'   │ 84    │ 9    │ 0.0272    │ 1   │ '9/9 (flow)' │ 664    │
+│ 2       │ 3 │ 'fwod34-n3' │ '6/6'    │ 'success'   │ 10    │ 9    │ 0.0034    │ 1   │ '9/9 (flow)' │ 243    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_c86522  demoted      9 steps  1/4 (25%)
+           The sales order {{v1}} (model sale.order, record id 21) is currently in '{{v3}}' status and needs to be cancel…
+  s_24f725  validated    6 steps  3/3 (100%)
+           Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the…
+  s_bb3966  validated    4 steps  3/3 (100%)
+           Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the…
+  s_aea942  validated    1 steps  3/3 (100%)
+           Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the…
+  s_eee5b1  validated    4 steps  3/3 (100%)
+           Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the…
+  s_017161  validated    2 steps  3/3 (100%)
+           Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the…
+  s_8ab698  validated    3 steps  3/3 (100%)
+           Sign in to this Odoo instance with username 'admin' and password 'admin' (submit the login form). Then, in the…
+  s_cadcaa  validated    1 steps  3/3 (100%)
+           In the Odoo Sales app, create a new quotation (RFQ/sales order draft) for the customer '{{v1}}' — the customer…
+  s_c99d6c  validated    7 steps  3/3 (100%)
+           In the Odoo Sales app, create a new quotation (RFQ/sales order draft) for the customer '{{v1}}' — the customer…
+  s_c925b1  validated    5 steps  3/3 (100%)
+           In the Odoo Sales app, create a new quotation (RFQ/sales order draft) for the customer '{{v1}}' — the customer…
+  s_d595d3  validated    8 steps  3/3 (100%)
+           In the Odoo Sales app, create a new quotation (RFQ/sales order draft) for the customer '{{v1}}' — the customer…
+  s_059a1e  validated    6 steps  3/3 (100%)
+           Open the existing draft quotation {{v1}} for customer '{{v2}}' in the Odoo Sales app. On the FIRST order line …
+  s_f1434f  validated    4 steps  3/3 (100%)
+           Open the quotation {{v1}} for customer '{{v2}}' in the Odoo Sales app and confirm it (click the Confirm / Conf…
+  s_04d970  validated    2 steps  3/3 (100%)
+           Open the sales order {{v1}} (record id {{v2}}, model sale.order) in the Odoo Sales app and report ONLY its cur…
+  s_4634ba  validated    3 steps  3/3 (100%)
+           Read-only check, do not change anything: open the sales order {{v1}} (model sale.order, record id 21) in the O…
+  s_d654ba  provisional 12 steps  1/2 (50%)
+           Open the existing draft quotation {{v1}} for customer '{{v2}}' in the Odoo Sales app. Add a SECOND order line …
+  s_3073e0  provisional 13 steps  1/2 (50%)  variant of s_d654ba
+           Open the existing draft quotation {{v1}} for customer '{{v2}} Bench Customer' in the Odoo Sales app. Add a SEC…
+  s_e7d322  validated   20 steps  2/2 (100%)  variant of s_c86522
+           Open the confirmed sales order {{v1}} for customer '{{v2}} Bench Customer' in the Odoo Sales app and cancel it…
+  s_3e0857  validated    2 steps  2/2 (100%)  variant of s_c86522
+           The sales order {{v1}} (model sale.order, record id {{02-create.url.q.id}}) is currently in 'Sales Order' stat…
+  s_dc0408  provisional 10 steps  1/1 (100%)  variant of s_3073e0
+           Open the existing draft quotation {{v1}} for customer '{{v2}} Bench Customer' in the Odoo Sales app. Add a SEC…
+store: /home/user/sleep-walker/bench/results/fwod34-skills
+
+summary: /home/user/sleep-walker/bench/results/fwod34-sweep.json
