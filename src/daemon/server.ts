@@ -1049,21 +1049,23 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
         });
         if (decision && 'refused' in decision) {
           opts.progress(`[flow ${flow.name}] ${step.id}: ${decision.refused}`);
-        } else if (decision) {
-          repinned = decision.skill;
-          pendingPins.set(step.id, decision.skill);
+        } else if (decision && candidate) {
           // The new skill's slots are named and numbered its own way: bind
-          // them by value from what this run knew (see remapParams).
-          if (candidate) {
-            const known: Array<{ template: string; value: string }> = [];
-            for (const [name, tmpl] of Object.entries(step.params ?? {})) known.push({ template: tmpl, value: String(bound?.params[name] ?? '') });
-            for (const [k, v] of Object.entries(varsIn)) known.push({ template: `{{${k}}}`, value: String(v ?? '') });
-            for (const [sid, vals] of Object.entries(outputs)) for (const [k, v] of Object.entries(vals)) known.push({ template: `{{${sid}.${k}}}`, value: String(v ?? '') });
-            repinParams = remapParams(candidate, known);
-          }
-          if (decision.graduated) {
-            graduated.add(step.id);
-            opts.progress(`[flow ${flow.name}] ${step.id}: adopted step graduated — pinned ${decision.skill} (${outcome?.status}), shedding model-first replay`);
+          // them by ORIGIN (see remapParams). A record-identifying slot with
+          // no origin would replay as the learning run's literal — rpat2
+          // named a live run's items after an earlier run that way — so
+          // such a re-pin is refused and the incumbent keeps the step.
+          const remap = remapParams(candidate);
+          if (remap.unbound.length) {
+            opts.progress(`[flow ${flow.name}] ${step.id}: not re-pinning ${candidate.id} — slot(s) ${remap.unbound.join(', ')} identify the record but carry no origin to rebind from`);
+          } else {
+            repinned = decision.skill;
+            repinParams = remap.params;
+            pendingPins.set(step.id, decision.skill);
+            if (decision.graduated) {
+              graduated.add(step.id);
+              opts.progress(`[flow ${flow.name}] ${step.id}: adopted step graduated — pinned ${decision.skill} (${outcome?.status}), shedding model-first replay`);
+            }
           }
         }
       }

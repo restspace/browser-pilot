@@ -855,28 +855,42 @@ describe('input echoes are not outputs (fwgr23 05-open)', () => {
 });
 
 describe('remapParams', () => {
-  it("re-derives a re-pinned step's bindings by value, not by the old slot names (rpat1 04-add / 07-delete)", async () => {
+  // rpat1 re-pinned 04-add and kept the OLD skill's slot names; rpat2 then
+  // guessed by value and wrote an earlier run's literal into a live run.
+  // Bindings are re-derived by ORIGIN: the binding key each slot recorded.
+  it("re-derives a re-pinned step's bindings from each slot's recorded origin", async () => {
     const { remapParams } = await import('../src/skills/flow.js');
     const skill = {
       params: {
-        v1: { example: 'rpat1-r1', usedIn: [6], known: true },
-        v2: { example: 'rpat1-r1 MTP Bench Project', usedIn: [2], known: true },
+        v1: { example: 'fwat2-n3', usedIn: [6], known: true, binding: 'runid' },
+        v2: { example: 'fwat2-n3 MTP Bench Project', usedIn: [2], known: true }, // composite: templated on v1
         v3: { example: '200', usedIn: [4] },
-        v5: { example: 'rpat1-r1 MTP Item A', usedIn: [1], known: true },
-        v6: { example: 'Project Manager', usedIn: [], known: true },
+        v4: { example: 'Project Manager', usedIn: [], known: true, binding: 'output:01-open:landed_page' },
+        v5: { example: 'abx91', usedIn: [3], known: true, binding: 'url:02-create:p1' },
+        v6: { example: 'Open', usedIn: [1], known: true, binding: 'var:mode' },
       },
     } as never;
-    const known = [
-      { template: '{{runid}} MTP Bench Project', value: 'rpat1-r1 MTP Bench Project' },
-      { template: '{{runid}}', value: 'rpat1-r1' },
-      { template: '{{01-open.landed_page}}', value: 'Project Manager' },
-    ];
-    expect(remapParams(skill, known)).toEqual({
-      v1: '{{runid}}',
-      v2: '{{runid}} MTP Bench Project',
-      v3: '200',
-      v5: '{{runid}} MTP Item A',
-      v6: '{{01-open.landed_page}}',
+    expect(remapParams(skill)).toEqual({
+      params: {
+        v1: '{{runid}}',
+        v2: '{{runid}} MTP Bench Project',
+        v3: '200',
+        v4: '{{01-open.landed_page}}',
+        v5: '{{02-create.url.p1}}',
+        v6: '{{mode}}',
+      },
+      unbound: [],
     });
+  });
+
+  it('names a record-identifying slot that has no origin, so the re-pin can be refused', async () => {
+    const { remapParams } = await import('../src/skills/flow.js');
+    const skill = {
+      params: {
+        v1: { example: 'fwat2-n3 MTP Bench Project', usedIn: [2], known: true },
+        v3: { example: '25', usedIn: [4] },
+      },
+    } as never;
+    expect(remapParams(skill)).toEqual({ params: { v1: 'fwat2-n3 MTP Bench Project', v3: '25' }, unbound: ['v1'] });
   });
 });

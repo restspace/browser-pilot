@@ -780,24 +780,51 @@ export function ignorableRefs(missing: string[], step: FlowStep, skill: Skill | 
  * value is templated on that part; anything else stays literal, which is
  * what the recovery typed.
  */
-export function remapParams(
-  skill: Skill,
-  known: Array<{ template: string; value: string }>,
-): Record<string, string> {
-  const sources = known.filter((k) => k.value && k.value.trim().length >= 2).sort((a, b) => b.value.length - a.value.length);
-  const out: Record<string, string> = {};
+export function remapParams(skill: Skill): { params: Record<string, string>; unbound: string[] } {
+  // A binding key names where a value comes from: "runid" / "var:runid" (a
+  // declared var), "01-open.landed_page" / "output:01-open:landed_page" (an
+  // earlier step's output), "02-create.url.p1" / "url:02-create:p1" (a url
+  // part a step minted). All of them are a {{ref}} the flow resolves.
+  const templateOf = (key: string): string | null => {
+    const m = /^(var|url|output|input)(?::(.*))?$/.exec(key);
+    if (!m) return `{{${key}}}`;
+    if (m[1] === 'var') return `{{${m[2]}}}`;
+    if (m[1] === 'url') {
+      const [step, label] = String(m[2]).split(':');
+      return step && label ? `{{${step}.url.${label}}}` : null;
+    }
+    if (m[1] === 'output') {
+      const [step, name] = String(m[2]).split(':');
+      return step && name ? `{{${step}.${name}}}` : null;
+    }
+    return null; // 'input': the run typed it — the example is the value
+  };
+  // Slots with an origin, as (example → template) pairs; a slot whose
+  // example is a composite ("<runid> MTP Bench Project") is templated on the
+  // bound slots' examples — this skill's own run, so the values line up.
+  const bound: Array<{ value: string; template: string }> = [];
+  for (const p of Object.values(skill.params)) {
+    const t = p.binding ? templateOf(p.binding) : null;
+    if (t && p.example) bound.push({ value: String(p.example), template: t });
+  }
+  bound.sort((a, b) => b.value.length - a.value.length);
+  const params: Record<string, string> = {};
+  const unbound: string[] = [];
   for (const [name, p] of Object.entries(skill.params)) {
     const ex = String(p.example ?? '');
-    const whole = sources.find((s) => s.value === ex);
-    if (whole) {
-      out[name] = whole.template;
+    const direct = p.binding ? templateOf(p.binding) : null;
+    if (direct) {
+      params[name] = direct;
       continue;
     }
     let text = ex;
-    for (const s of sources) if (text.includes(s.value)) text = text.split(s.value).join(s.template);
-    out[name] = text;
+    for (const b of bound) if (b.value && text.includes(b.value)) text = text.split(b.value).join(b.template);
+    params[name] = text;
+    // A value that identifies the record (known) and could not be templated
+    // would replay as the LEARNING run's literal — the re-pin is not safe.
+    if (p.known && text === ex) unbound.push(name);
   }
-  return out;
+  return { params, unbound };
 }
 
 export function resolveStepParams(

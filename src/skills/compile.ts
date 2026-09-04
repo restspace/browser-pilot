@@ -307,12 +307,13 @@ export function compileSkills(input: CompileInput): Skill[] {
   const bindings = new Map<string, string>();
   const inTemplate = new Set(Array.from(finalTemplate.matchAll(/\{\{(v\d+)\}\}/g), (m) => m[1]));
   for (const [name, value] of [...keptSlots]) {
-    if (inTemplate.has(name)) continue;
+    // Every slot whose origin is known records it — the ones the template
+    // can supply too. A re-pin onto this skill from another run rebinds its
+    // slots by origin (remapParams); without the origin it could only guess
+    // by value, and rpat2 guessed an earlier run's literal into a live run.
     const origin = originOfValue.get(value);
-    if (origin) {
-      bindings.set(name, origin);
-      continue;
-    }
+    if (origin) bindings.set(name, origin);
+    if (inTemplate.has(name) || origin) continue;
     keptSlots.delete(name);
   }
   // Every slot that did not survive is re-inlined as its recorded literal —
