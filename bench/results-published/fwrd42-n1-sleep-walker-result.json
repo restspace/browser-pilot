@@ -1,0 +1,96 @@
+{
+  "arm": "sleep-walker",
+  "target": "repairdesk",
+  "machine": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.22.2",
+    "cpus": 4,
+    "memGB": 17,
+    "tool": "sleep-walker — agent-in-the-loop Playwright CLI",
+    "commit": "81d2ea2"
+  },
+  "mutationLogPath": "/home/user/sleep-walker/bench/results/fwrd42-n1-sleep-walker-mutationlog.json",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "runid": "fwrd42-n1",
+  "task": "bench/tasks/repairdesk-ticket-flow.md",
+  "briefed": false,
+  "reset": true,
+  "stopReason": "completed",
+  "turns": 8,
+  "wallMs": 1212205,
+  "orchestrator": {
+    "input": 4914,
+    "cacheWrite": 0,
+    "cacheRead": 23313,
+    "output": 2646
+  },
+  "inner": {
+    "promptTokens": 1394281,
+    "cachedTokens": 708864,
+    "completionTokens": 11601,
+    "instructions": 7,
+    "byModel": {
+      "deepseek/deepseek-v4-flash": {
+        "promptTokens": 1394281,
+        "completionTokens": 11601,
+        "cachedTokens": 708864,
+        "instructions": 7
+      }
+    },
+    "skills": {
+      "instructions": 7,
+      "offered": 4,
+      "invoked": 0,
+      "fullReplays": 0,
+      "repaired": 0,
+      "refused": 0,
+      "tierA": 0,
+      "stepsReplayed": 0,
+      "deterministicActions": 0,
+      "totalActions": 70,
+      "compiled": 7,
+      "merged": 0,
+      "variants": 0
+    },
+    "model": "deepseek/deepseek-v4-flash",
+    "fallbackModel": "z-ai/glm-5.3",
+    "provider": "openrouter"
+  },
+  "commandCount": 7,
+  "subcommands": {
+    "do": 7
+  },
+  "invocationCount": 7,
+  "commandMs": 1167917,
+  "commandBytes": 5292,
+  "timeouts": 0,
+  "contextTruncations": 0,
+  "coarse": true,
+  "learn": {
+    "dir": "/home/user/sleep-walker/bench/results/fwrd42-skills",
+    "instructions": 7,
+    "offered": 4,
+    "invoked": 0,
+    "fullReplays": 0,
+    "repaired": 0,
+    "refused": 0,
+    "tierA": 0,
+    "stepsReplayed": 0,
+    "deterministicActions": 0,
+    "totalActions": 70,
+    "compiled": 7,
+    "merged": 0,
+    "variants": 0,
+    "deterministicFraction": 0
+  },
+  "orBackends": [
+    "Fireworks"
+  ],
+  "orReportedCostUsd": 0.0246,
+  "maxUsd": 2,
+  "spendUsd": 0.071,
+  "finalText": "All objectives are complete and verified. Final report:\n\n**Objective 1 — DONE.** Ticket `fwrd42-n1 RD Bench Ticket` created (reference **RD-1015**, customer \"Bench Test Customer\", created 2026-09-04), initially in status **Draft**.\n\n**Objective 2 — DONE.** Part `fwrd42-n1 RD Part A` added with cost **$100.00** and markup **25%** (qty 1). The app computed a price of **$125.00**.\n\n**Objective 3 — DONE.** Part `fwrd42-n1 RD Part B` added with cost **$200.00** and markup **25%** (qty 1). The app computed a price of **$250.00**. (Combined parts total at that point: $375.00.)\n\n**Objective 4 — DONE.** Part A's cost changed from 100 to **$150.00** (markup kept at 25%). The app recomputed the price to **$187.50** (combined parts total: $437.50).\n\n**Objective 5 — DONE.** Status set to **Ready**. The app enforced one precondition, surfaced as this verbatim validation error on the first attempt: *\"Ticket is not ready Part \"fwrd42-n1 RD Part B\" has no supplier\"*. The requirement was that every part on the ticket must have a supplier. I satisfied it by editing Part B and setting its supplier to \"Bench Supplier Co\" (Part A already had a supplier). After that, \"Mark Ready\" succeeded and the status changed from Draft to **Ready**.\n\n**Objective 6 — DONE.** Both parts removed, each via a confirmation modal reading *\"Delete the part 'fwrd42-n1 RD Part A' from this ticket? This cannot be undone.\"* (and the same for Part B), confirmed with the \"Delete part\" button. The parts table then showed *\"No parts on this ticket yet.\"* (0 parts). The ticket was then archived — the \"Archive ticket\" button flipped to \"Unarchive ticket\" (no separate confirmation dialog). Final verified state: status **Ready**, **Archived** badge shown, **0 parts**; the ticket is hidden from the default list and only appears when \"Show archived\" is checked, so nothing created by this run remains active.",
+  "transcriptPath": "/home/user/sleep-walker/bench/results/fwrd42-n1-sleep-walker-transcript.jsonl"
+}

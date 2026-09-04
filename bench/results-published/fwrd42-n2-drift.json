@@ -1,0 +1,66 @@
+[
+  {
+    "flow": "fwrd42",
+    "step": "01-open",
+    "skill": "s_8d7c18",
+    "atStep": "5",
+    "key": "target",
+    "similarity": 1.001,
+    "missedLocator": "page.getByText('fwrd42-n2 RD Bench Ticket', { exact: true })",
+    "fallbackUsed": "page.locator('#ticket-rows tr', { hasText: 'fwrd42-n2 RD Bench Ticket' }).locator('td:nth-of-type(2)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  },
+  {
+    "flow": "fwrd42",
+    "step": "02-add",
+    "skill": "s_93dad9",
+    "atStep": "1",
+    "key": "target",
+    "similarity": 1.004,
+    "missedLocator": "page.locator('\"RD-1016\"')",
+    "fallbackUsed": "page.locator('#ticket-rows tr', { hasText: 'fwrd42-n2 RD Bench Ticket' }).locator('td:nth-of-type(1) > a')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd42",
+    "step": "02-add",
+    "skill": "s_05e528",
+    "atStep": "7",
+    "key": "target",
+    "similarity": 1.004,
+    "missedLocator": "page.getByText('fwrd42-n2 RD Part A', { exact: true })",
+    "fallbackUsed": "page.locator('tr', { hasText: 'fwrd42-n2 RD Part A' }).locator('td:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd42",
+    "step": "03-add",
+    "skill": "s_a75905",
+    "atStep": "13",
+    "key": "target",
+    "similarity": 0.999,
+    "missedLocator": "page.getByText('fwrd42-n2 RD Part B', { exact: true })",
+    "fallbackUsed": "page.locator('tr', { hasText: 'fwrd42-n2 RD Part B' }).locator('td:nth-of-type(1)')",
+    "fallbackIndex": 1,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets/:id"
+  },
+  {
+    "flow": "fwrd42",
+    "step": "07-verify",
+    "skill": "s_da5eeb",
+    "atStep": "2",
+    "key": "target",
+    "similarity": 1,
+    "missedLocator": "(none recorded)",
+    "fallbackUsed": null,
+    "recovered": false,
+    "pageUrlPattern": "http://127.0.0.1:4180/#/tickets"
+  }
+]
