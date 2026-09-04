@@ -38,6 +38,8 @@ const SETTLE_MS = 150;
 const NAVIGATING = new Set(['click', 'dblclick', 'press', 'submit', 'select']);
 /** How long a click's late navigation is given before its effect is captured as final. */
 const LATE_NAV_MS = 1_500;
+/** A url that has not moved for this long, after moving, is where the step left the page. */
+const URL_STILL_MS = 500;
 
 const MAX_BATCH_STEPS = 10;
 
@@ -557,10 +559,24 @@ async function runStep(
     // the landing page, could match neither. Give a late navigation a moment
     // before the effect is taken as final; a step that changed the url
     // already, or changes nothing, pays nothing.
-    if (after && NAVIGATING.has(name) && after.url === before.url) {
+    // The same in the other direction: a click whose url changed once and
+    // then again (Odoo autosaves the record, then opens the catalogue) was
+    // captured between the two, and the compiler cut a segment boundary at
+    // a page the procedure was only passing through. So: wait until the url
+    // has held still, whether it has moved yet or not.
+    if (after && NAVIGATING.has(name)) {
       const deadline = Date.now() + LATE_NAV_MS;
-      while (Date.now() < deadline && page!.url() === before.url) await new Promise((r) => setTimeout(r, 100));
-      if (page!.url() !== before.url) after = await settledSignature(page!);
+      let seen = page!.url();
+      let stillSince = Date.now();
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 100));
+        const now = page!.url();
+        if (now !== seen) {
+          seen = now;
+          stillSince = Date.now();
+        } else if (now !== before.url && Date.now() - stillSince >= URL_STILL_MS) break;
+      }
+      if (seen !== after.url) after = await settledSignature(page!);
     }
     if (after) {
       diff = scrubSecretsDeep({
