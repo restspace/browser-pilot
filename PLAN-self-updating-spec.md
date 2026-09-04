@@ -61,7 +61,7 @@ request. That is the trade PLAN-compile-to-code §3.5a asks for.
 | 1 | **Emitter, Tier 2** | Pure Playwright. Chains are tried in recorded order by a ten-line inlined `pick()` helper, not `.or()`: Playwright's `.or()` is a union, so a fallback that matches several elements trips strict mode where the chain resolver would skip it. Identity guards as `.filter({hasText})`; expectations as any-of presence checks, mirroring `lineShows`. Bench as a fifth Matrix-2 column. DONE 2026-09-04, first live run on repairdesk. | `makeLocator`, `specOf`, `lineShows` |
 | 2 | **Runtime extraction** | `@sitelooper/runtime`: `resolveChain`, `settleDom`, `markPoint`, expectation checks, pulled out of `replay.ts` with no daemon/ledger deps. Tier 3 emit. Runtime writes the drift sidecar. `--strict`. | `replay.ts:955`, `recorder.ts:121` |
 | 3 | **Lift** | Parse the owned file back to `SpecFlow`, and lower it to `Flow` + `Skill[]` so replay and repair can run on it. Round-trip tests both ways. DONE 2026-09-04 (lift, lower). | `src/spec/lift.ts`, `src/spec/lower.ts` |
-| 4 | **Repair on spec** | `repair --spec --drift`: triage → codemod / agent patch / segment re-record → re-emit → converge gate → PR. Expose via the sitelooper skill so Claude Code can run it off a CI failure. | `repair.ts` triage, `promoteFallback`, `patchSegment` |
+| 4 | **Repair on spec** | `sitelooper repair <x.flow.ts> --var k=v --converge n`: lift → isolated temp store → live daemon run with the ladder → drain tickets (promote without a model, patch with the model, re-record reported) → change list → re-emit the owned file only. `{n}` in a var mints per-run values. Emitted specs print `[sitelooper drift]` on every fallthrough. DONE 2026-09-04; live demo on repairdesk `ids` drift: 13 promotions, repaired spec passes under drift. | `src/spec/repair.ts`, `cli.ts` |
 | 5 | **Convergence gate** | Per-step N clean tier-A replays before emit or before a repair PR opens. Floor N=2. | set-28 evidence |
 | 6 | **Fits an existing suite** | Auth state, fixtures, params, mints → teardown docs, GitHub Action that runs the spec and uploads the sidecar. | — |
 
@@ -97,3 +97,24 @@ That last rule is what keeps a green build meaning something (PLAN-compile-to-co
 1. `sitelooper script` on the `Skill[]` path.
 2. Emit Tier 2 for the set-28 flows; score with the existing verifiers.
 3. Round-trip test harness: `lift(emit(skill))` deep-equals `skill`.
+
+## Status 2026-09-04 and known gaps
+
+Phases 0, 1, 3, 4 are on the `compile-to-spec` branch and demonstrated end to end on the
+local repairdesk app. Left open:
+
+1. **Model balance.** The configured provider key returned `NOT_ENOUGH_BALANCE`, so the
+   patch-segment path (a moved control with a dead chain, bench app drift mode `both`) is
+   implemented but unproven against a live model. Top up and rerun `repair` under `both`.
+2. **A recording defect blocks convergence on fwrd42.** Skill `s_640d6e` step 4 waits for a
+   part the step has just deleted; the daemon replay halts there on every run, so
+   `--converge 1` cannot pass on that flow without recovery. The compiled spec passes the
+   same step because its any-of presence check finds the name elsewhere on the page. Either
+   re-record 06-report or treat it as the first case for the "re-record one segment" path.
+3. **Scoped row locator divergence.** `resolveChain` accepted a `tr`-hasText candidate that
+   the inlined `pick()` rejected; under investigation, likely a multi-match the resolver
+   disambiguates by box plausibility or `nth` and Tier 2 cannot.
+4. **Only repairdesk is run.** The other Matrix-2 targets are cloud-hosted.
+5. **Phase 2 (runtime extraction) not started.** Survey in the session scratchpad
+   (RUNTIME-EXTRACTION.md): almost everything needed is already pure; the entanglement is
+   import-graph, and the one real rewrite is StepDiff assembly out of `agent/tools.ts`.
