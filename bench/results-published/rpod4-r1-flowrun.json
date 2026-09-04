@@ -1,0 +1,184 @@
+{
+  "flow": "fwod33",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Odoo 17 with admin/admin, navigated to Contacts, created a new contact named 'rpod4-r1 Bench Customer' with City set to 'Benchville', and saved it. The record was created (id=44) and the form displays the name as \"rpod4-r1 Bench Customer\" and the city as \"Benchville\", confirming both values were saved correctly.",
+      "values": {
+        "customer_name": "rpod4-r1 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a Quotation (S00021) for customer 'rpod4-r1 Bench Customer'. Added one order line: product **[E-COM07] Large Cabinet**, quantity 3. The app auto-filled **Unit Price = £320.00** (excl. tax), and computed **Untaxed Amount = £960.00** (3 × £320.00). The quotation is saved but not yet confirmed.",
+      "values": {
+        "customer_name": "rpod4-r1 Bench Customer",
+        "quotation_ref": "S00021",
+        "product_name": "[E-COM07] Large Cabinet",
+        "quantity": "3.00",
+        "unit_price": "320.00",
+        "untaxed_amount": "£ 960.00",
+        "city": "Benchville",
+        "untaxed_amount_2": "£ 960.00"
+      },
+      "tier": "A",
+      "replayed": "0/1",
+      "repaired": false,
+      "turns": 25
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "On Quotation S00021 (customer 'rpod4-r1 Bench Customer'), which already had line 1: [E-COM07] Large Cabinet qty 3 × £320.00 = £960.00, added a second order line via the Catalog: **[E-COM08] Storage Box**, quantity 2, unit price **£15.80**, line subtotal £31.60. The app computed the new **Untaxed Amount = £991.60** (£960.00 + £31.60). The quotation remains unconfirmed (status: Quotation).",
+      "values": {
+        "order_reference": "S00021",
+        "customer_name": "rpod4-r1 Bench Customer",
+        "first_line_product": "[E-COM07] Large Cabinet",
+        "first_line_quantity": "3.00",
+        "first_line_unit_price": "320.00",
+        "first_line_subtotal": "£ 960.00",
+        "second_product_name": "[E-COM08] Storage Box",
+        "second_unit_price": "15.80",
+        "second_line_quantity": "2.00",
+        "second_line_subtotal": "£ 31.60",
+        "untaxed_amount_total": "£ 991.60",
+        "tax_20_percent": "£ 198.32",
+        "total": "£ 1,189.92",
+        "status": "Quotation",
+        "second_line_subtotal_2": "£ 31.60",
+        "first_line_subtotal_2": "£ 960.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 20
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "On Quotation S00021 (customer 'rpod4-r1 Bench Customer'), changed the first line ([E-COM07] Large Cabinet) quantity from 3 to 5. Unit price stayed £320.00, so the new first line subtotal = **£1,600.00** (5 × £320.00). The second line ([E-COM08] Storage Box qty 2 × £15.80 = £31.60) unchanged. The app computed new **Untaxed Amount = £1,631.60** (£1,600.00 + £31.60). Quotation remains unconfirmed.",
+      "values": {
+        "order_reference": "S00021",
+        "first_line_product": "[E-COM07] Large Cabinet",
+        "first_line_quantity": "5.00",
+        "first_line_unit_price": "320.00",
+        "first_line_subtotal": "£ 1,600.00",
+        "second_line_subtotal": "£ 31.60",
+        "untaxed_amount": "£ 1,631.60",
+        "tax_20_percent": "£ 326.32",
+        "total": "£ 1,957.92",
+        "first_line_subtotal_2": "£ 1,600.00",
+        "untaxed_amount_2": "Untaxed Amount\t£ 1,631.60"
+      },
+      "tier": "B",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 3
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed Quotation S00021 (customer 'rpod4-r1 Bench Customer') into a Sales Order. The status bar now displays **\"Sales Order\"** as the active state. The order reference remains **S00021**.",
+      "values": {
+        "order_reference": "S00021",
+        "status_display": "Sales Order",
+        "status_bar": "Sales Order\nQuotation Sent\nQuotation",
+        "customer_name": "rpod4-r1 Bench Customer"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 6
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Cancelled Sales Order S00021 (customer 'rpod4-r1 Bench Customer'). A confirmation dialog appeared and was accepted (action=\"Cancel\"). The status bar now displays **\"Cancelled\"** as the active state. The order reference remains S00021.",
+      "values": {
+        "order_reference": "S00021",
+        "status_display": "Cancelled",
+        "full_status_bar": "Cancelled\nSales Order\nQuotation Sent\nQuotation",
+        "customer_name": "rpod4-r1 Bench Customer"
+      },
+      "tier": "B",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 3
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwod33",
+      "step": "02-create",
+      "skill": "s_4e9e36",
+      "similarity": 0.151,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_4e9e36 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=316&cids=:id&id=21&menu_id=194&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=316&cids=:id&id=21&menu_id=194&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+    },
+    {
+      "flow": "fwod33",
+      "step": "04-open",
+      "skill": "s_ee6db2",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod33",
+      "step": "05-open",
+      "skill": "s_19b963",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod33",
+      "step": "06-report",
+      "skill": "s_e757e8",
+      "similarity": 0.999,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 324381,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 851611,
+    "completionTokens": 12582,
+    "cachedTokens": 648704
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 851611,
+      "completionTokens": 12582,
+      "cachedTokens": 648704
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}
