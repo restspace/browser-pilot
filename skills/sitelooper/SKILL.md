@@ -65,6 +65,15 @@ commented-out one; anything unresolvable is a `TODO`, never a wrong selector. Re
 committing — it replays the path the agent took, detours included. `script --clear` discards the
 recording; adding `--clear` to a write starts a fresh one.
 
+For a flow whose steps have already converged into stored procedures (via `--learn`, see below),
+`sitelooper compile <flow-name-or-path> [--out <dir>] [--force]` is the other route to a spec: no
+session, no daemon, no model call — it emits an owned `<name>.flow.ts` (the flow plus one generated
+step function per `FlowStep`, compiled straight from the stored locator chains) and a `<name>.spec.ts`
+scaffold written once and never overwritten. It is compile-time only: no live-page measurement, no
+point-candidate clicks, and no runtime recovery if a locator has since drifted — a drifted step fails
+the spec outright rather than reasoning its way to the moved control. `compile` exits 2 when a step
+never converged to a stored procedure.
+
 ## Learning mode — repeated work gets cheaper
 
 If you will run the same kind of steps against a site more than once (a test plan you re-run, a flow

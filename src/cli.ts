@@ -13,6 +13,7 @@ import { fillParams } from './skills/compile.js';
 import { SkillStore, successRate, type Skill } from './skills/store.js';
 import { listFlows, loadFlow } from './skills/flow.js';
 import { patchSegment, promoteFallback, triage, type DriftTicket, type ProposeLocator, type TriageAction } from './skills/repair.js';
+import { compileFlow } from './spec/index.js';
 
 const USAGE = `sitelooper — agent-in-the-loop Playwright CLI
 
@@ -25,6 +26,9 @@ Usage:
   sitelooper reset                       # clear the LLM conversation only (browser/cookies/briefing/notes kept)
   sitelooper peek [--selector <sel>] [--interactive]
   sitelooper script [out.spec.ts] [--title T] [--clear]   # emit a Playwright spec from the recorded actions
+  sitelooper compile <flow-name-or-path> [--out <dir>] [--force] [--json]
+                                          # compile a converged flow to a standalone Playwright
+                                          # spec (Tier 2, no sitelooper runtime) — no daemon needed
   sitelooper skills list [--origin <origin>]             # stored procedures (learning mode; no daemon needed)
   sitelooper skills show <id>
   sitelooper skills rm <id>
@@ -135,6 +139,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'recovery-model',
     'drift',
     'var',
+    'out',
   ]);
   /**
    * Every flag that takes no value. Unknown options are rejected rather than
@@ -151,6 +156,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'append',
     'clear',
     'dry-run',
+    'force',
     'full-page',
     'headed',
     'help',
@@ -366,6 +372,10 @@ async function main(): Promise<void> {
   }
   if (command === 'flow' && positional[0] !== undefined && positional[0] !== 'run') {
     flowCommand(positional, json);
+    return;
+  }
+  if (command === 'compile') {
+    await compileCommand(positional, flags, json);
     return;
   }
   if (command === 'session') {
@@ -839,6 +849,31 @@ function flowCommand(positional: string[], json: boolean): void {
     return;
   }
   fail(`unknown "flow ${op}" (try: list, show <name>)`, 2);
+}
+
+// --- compile (reads the flow + skill store directly; no daemon involved) ---
+
+async function compileCommand(positional: string[], flags: Map<string, string | boolean>, json: boolean): Promise<void> {
+  const flowNameOrPath = positional[0];
+  if (!flowNameOrPath) fail('usage: compile <flow-name-or-path> [--out <dir>] [--force] [--json]', 2);
+  const outDir = flags.get('out') ? String(flags.get('out')) : '.';
+  let result: ReturnType<typeof compileFlow>;
+  try {
+    result = compileFlow(flowNameOrPath, { outDir, force: flags.has('force') });
+  } catch (err) {
+    fail(`compile failed: ${(err as Error).message}`, 2);
+  }
+  if (json) {
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(`flow: ${result.flowFile}`);
+    console.log(result.specFile ? `spec: ${result.specFile}` : 'spec: unchanged (already exists — pass --force to overwrite)');
+    for (const w of result.warnings) console.error(`  warning: ${w}`);
+  }
+  if (!result.compilable) {
+    const missing = result.spec.steps.filter((s) => s.segments.length === 0).length;
+    fail(`not compilable: ${missing} step(s) have no converged procedure`, 2);
+  }
 }
 
 function allSessionNames(): string[] {

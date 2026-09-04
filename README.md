@@ -113,6 +113,27 @@ sitelooper run ticket-flow --var runid=m3 --progress
 #   ticket-flow: 2/2 steps, 8s — success
 ```
 
+### Compile to a Playwright spec
+
+`sitelooper compile <flow-name-or-path> [--out <dir>] [--force]` takes a saved flow whose steps
+have converged into stored procedures and emits two files: an owned `<name>.flow.ts` that carries
+the flow as a `FLOW` constant plus one generated `async` step function per `FlowStep` (durable
+locators, expectations, and parameter threading compiled to literal Playwright calls — no
+sitelooper process, daemon, or model call involved), and a `<name>.spec.ts` scaffold that imports
+`runFlow` and is written once and never touched again — it's yours to add assertions to. Re-running
+`compile` regenerates the `.flow.ts` file (with `repair` able to patch it against a live page later)
+but leaves an existing `.spec.ts` alone unless you pass `--force`.
+
+Be honest about what this loses relative to a live `run`: this is Tier 2, compile-time only,
+generated from the locator evidence a session already recorded — it does not measure anything
+against the live page at compile time. A step whose stored procedure has no converged locator chain
+compiles to a `throw` with a `TODO` rather than a guess, and `compile` exits 2 when any step is not
+compilable. Point candidates (a last-resort click by screen position) are not expressible as a
+Playwright locator and are dropped with a comment. And unlike `run`, a compiled spec has no runtime
+recovery: if a locator has drifted since it was recorded, the spec fails outright instead of the
+agent reasoning its way to the moved control — you get speed and zero cost per run in exchange for
+giving up the LLM safety net.
+
 `sitelooper flow list | show <name>` and `sitelooper skills list | show <id>` show what was
 kept; flows are plain JSON under `~/.sitelooper/flows/`. A `run` prints per-step tier (A = zero
 model), turns spent and drift tickets, and `--json` returns all of it.
@@ -136,6 +157,8 @@ sitelooper skills list | show <id> | rm <id> | repair --drift <run-drift.json>
 sitelooper flow list | show <name>
 sitelooper run <flow> [--var k=v ...] [--json] [--progress]
 sitelooper script [out.spec.ts]                  # emit a plain Playwright spec from the recorded actions
+sitelooper compile <flow-name-or-path> [--out <dir>] [--force] [--json]
+                                                  # compile a converged flow to a standalone spec
 sitelooper session list | stop [--all] [--save-flow <name>]
 sitelooper doctor | config | config set <key> <value>
 ```
@@ -173,15 +196,30 @@ Matrix 2 exist.
 
 **Matrix 2 — every run after the first.** The same four flows repeated: sitelooper replays (set
 24, two replays each) against re-running the agent, against a Playwright script the agent authored
-from its own run, and against literal codegen from the recording.
+from its own run, against literal codegen from the recording, and against **Tier 2 spec** — the
+same recording compiled by `sitelooper compile` into a standalone `@playwright/test` spec with no
+sitelooper runtime in the loop at all, then replayed under the real Playwright test runner
+(`bench/spec-replay.mjs`).
 
-| target | sitelooper replay (r1, r2) | agent re-run | authored script | codegen |
-|---|---|---|---|---|
-| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 24s, 23s (set 28) | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
-| kanboard | **4/4 checkable, same** · $0.00, $0.00 · 23s, 23s (set 28; two objectives are report-based and a zero-model replay writes no report) | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
-| grafana | **6/6, 6/6** · $0.00, $0.00 · 47s, 47s (set 28, zero model turns); set 26 as recorded: 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
-| odoo | **6/6, 6/6** · $0.03, $0.00 · 664s, 243s (set 28d; the create step at tier A on both replays) | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
-| atelyr | 12/12 flow steps · $0.13, $0.43 · 710s, 1002s (set 28e; 114 then 134 model turns; nine of twelve steps at zero turns on the second replay, the three re-pinned steps among them) | — | — | — |
+| target | sitelooper replay (r1, r2) | agent re-run | authored script | codegen | Tier 2 spec |
+|---|---|---|---|---|---|
+| repairdesk | **7/7, 7/7** · $0.00, $0.00 · 24s, 23s (set 28) | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 | not yet run — see below |
+| kanboard | **4/4 checkable, same** · $0.00, $0.00 · 23s, 23s (set 28; two objectives are report-based and a zero-model replay writes no report) | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 | not yet run |
+| grafana | **6/6, 6/6** · $0.00, $0.00 · 47s, 47s (set 28, zero model turns); set 26 as recorded: 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 | not yet run |
+| odoo | **6/6, 6/6** · $0.03, $0.00 · 664s, 243s (set 28d; the create step at tier A on both replays) | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 | not yet run |
+| atelyr | 12/12 flow steps · $0.13, $0.43 · 710s, 1002s (set 28e; 114 then 134 model turns; nine of twelve steps at zero turns on the second replay, the three re-pinned steps among them) | — | — | — | not yet run |
+
+**Tier 2 spec, status.** `bench/spec-replay.mjs` compiles a published flow + skill store
+(`sitelooper compile <flow> --out <tmp>` with `SITELOOPER_SKILLS_DIR` pointing at the store) and
+runs the emitted `<name>.spec.ts` under `npx playwright test`, scored by the same app-side
+verifiers as every other arm (`<tag>-spec-result.json`, `arm: "spec"`). It is dry-run tested only
+— `node bench/spec-replay.mjs --flow <flow> --skills <dir> --tag <tag> --target <target> --dry`
+prints the compile and test commands without executing either. Two things block a real run:
+`sitelooper compile` (`src/spec/*`, `compile-to-spec` branch) has not landed yet, and
+`@playwright/test` is not installed in this repo — only `playwright` and `playwright-core` are,
+which is not enough because the compiler's emitted files import `@playwright/test` directly.
+`npm install -D @playwright/test` and a build close both gaps; `spec-replay.mjs` checks for both
+and fails fast with that instruction rather than partway through a Playwright stack trace.
 
 Set 24 also caught two engine regressions of its own (kanboard's replays at 22 and 37 turns
 where set 15 needed none; grafana's replays losing objective 1 and recovering one step at 19 and
