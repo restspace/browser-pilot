@@ -111,9 +111,11 @@ local repairdesk app. Left open:
    `--converge 1` cannot pass on that flow without recovery. The compiled spec passes the
    same step because its any-of presence check finds the name elsewhere on the page. Either
    re-record 06-report or treat it as the first case for the "re-record one segment" path.
-3. **Scoped row locator divergence.** `resolveChain` accepted a `tr`-hasText candidate that
-   the inlined `pick()` rejected; under investigation, likely a multi-match the resolver
-   disambiguates by box plausibility or `nth` and Tier 2 cannot.
+3. **Scoped row locator divergence: resolved.** It was a sampling race, not semantics: the
+   app defers its list refetch, and `pick()` counted the primary a few milliseconds before the
+   repaint landed, so a fallback won. `pick()` now re-samples every candidate ahead of a hit
+   before demoting the primary (replay has the same guarantee through `settleDom`). 8/8 runs
+   with zero drift lines after the fix.
 4. **Only repairdesk is run.** The other Matrix-2 targets are cloud-hosted.
 5. **Phase 2 (runtime extraction) not started.** Survey in the session scratchpad
    (RUNTIME-EXTRACTION.md): almost everything needed is already pure; the entanglement is

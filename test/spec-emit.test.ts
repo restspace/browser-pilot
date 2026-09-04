@@ -28,6 +28,41 @@ function syntaxErrors(source: string, fileName = 'flow.ts'): string[] {
   return (out.diagnostics ?? []).map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' '));
 }
 
+type Stub = { count: () => Promise<number> };
+
+/** A Locator stub whose count() answers from `next`, one call at a time. */
+function locatorStub(next: () => number): Stub {
+  return { count: async () => next() };
+}
+
+/** A Page stub for the inlined `pick`: it only ever waits. */
+function pageStub(): { waitForTimeout: (ms: number) => Promise<void> } {
+  return { waitForTimeout: async () => {} };
+}
+
+/**
+ * The `pick` helper cut out of an emitted file and made callable, so its
+ * BEHAVIOUR can be tested rather than its text. Only the final brace of the
+ * function sits at column 0, which is what bounds the cut.
+ */
+function runnablePick(source: string): {
+  pick: (page: unknown, candidates: Stub[], where: string, opts?: { any?: boolean }) => Promise<Stub>;
+  drift: string[];
+} {
+  const consts = /const PICK_WAIT_MS = \d+;\nconst PICK_POLL_MS = \d+;/.exec(source);
+  const fn = /\nasync function pick\(page: Page[\s\S]*?\n\}\n/.exec(source);
+  if (!consts || !fn) throw new Error('pick helper not found in the emitted source');
+  const js = ts.transpileModule(`${consts[0]}\n${fn[0]}`, {
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+  }).outputText;
+  const drift: string[] = [];
+  const build = new Function('DRIFT', 'console', `${js}\nreturn pick;`) as (
+    d: string[],
+    c: unknown,
+  ) => (page: unknown, candidates: Stub[], where: string, opts?: { any?: boolean }) => Promise<Stub>;
+  return { pick: build(drift, { warn: () => {} }), drift };
+}
+
 /** The FLOW constant as LIFT will read it back. */
 function flowConstant(source: string): unknown {
   const body = /\/\/ @sitelooper-flow-begin\n([\s\S]*?)\n\/\/ @sitelooper-flow-end/.exec(source);
@@ -183,13 +218,76 @@ describe('step bodies', () => {
     expect(out).toContain("  page.locator('#login-email'),");
     expect(out).toContain("  page.locator('[data-testid=\"form-dialog\"] input'),");
     expect(out).toContain("], '01-do s_test1/1 target');");
-    expect(out).toContain('if (i > 0) {');
+    expect(out).toContain('if (won > 0) {');
     expect(out).toContain(
-      "const line = `[sitelooper drift] ${where}: primary ${String(candidates[0])} missed; used #${i + 1} ${String(candidates[i])}`;",
+      "const line = `[sitelooper drift] ${where}: primary ${String(candidates[0])} missed; used #${won + 1} ${String(candidates[won])}`;",
     );
     expect(out).toContain('console.warn(line);');
     expect(out).toContain('DRIFT.push(line);');
     expect(syntaxErrors(out)).toEqual([]);
+  });
+
+  /**
+   * fwrd42, `sitelooper repair` had promoted
+   * `page.locator('tr', { hasText: '{{v5}}' }).locator('td:nth-of-type(1)')` to
+   * primary off live replay evidence, yet the compiled spec logged it as missed
+   * on ~40% of runs and took `getByText` (twice a purely structural fallback)
+   * instead. Not ambiguity and not hasText semantics: the repair-desk bench
+   * defers its parts refetch ~500ms BY DESIGN, landing on a poll boundary, and
+   * a pass of `pick` is not one instant — every count() is its own round trip.
+   * Measured, the scoped primary counted 0 at t, getByText counted 1 at t+3ms,
+   * and the primary counted 1 again 3ms after that.
+   */
+  describe('pick re-checks the candidates ahead before demoting the primary', () => {
+    const scopedChain: SkillStep = {
+      tool: 'wait_for',
+      args: { target: '@e1', state: 'visible' },
+      locators: {
+        target: [
+          { kind: 'scoped', container: 'tr', hasText: '{{v1}}', selector: 'td:nth-of-type(1)' },
+          { kind: 'text', text: '{{v1}}' },
+        ],
+      },
+    };
+
+    it('emits the scoped primary ahead of the text fallback', () => {
+      const out = one(scopedChain);
+      expect(out).toContain("  page.locator('tr', { hasText: `${p.v1}` }).locator('td:nth-of-type(1)'),");
+      expect(out).toContain('  page.getByText(`${p.v1}`, { exact: true }),');
+      expect(syntaxErrors(out)).toEqual([]);
+    });
+
+    it('keeps the primary when it only missed because the row painted mid-pass', async () => {
+      const { pick, drift } = runnablePick(one(scopedChain));
+      // The primary is sampled first in every pass, so it is the candidate a
+      // paint at the poll boundary makes look absent. It is there 3ms later.
+      let samples = 0;
+      const primary = locatorStub(() => (++samples === 1 ? 0 : 1));
+      const fallback = locatorStub(() => 1);
+      expect(await pick(pageStub(), [primary, fallback], 'w')).toBe(primary);
+      expect(drift).toEqual([]);
+    });
+
+    it('still falls through, and still reports drift, when the primary is really gone', async () => {
+      const { pick, drift } = runnablePick(one(scopedChain));
+      const primary = locatorStub(() => 0);
+      const fallback = locatorStub(() => 1);
+      expect(await pick(pageStub(), [primary, fallback], '01-do s_test1/1 target')).toBe(fallback);
+      expect(drift).toHaveLength(1);
+      expect(drift[0]).toContain('[sitelooper drift] 01-do s_test1/1 target: primary');
+      expect(drift[0]).toContain('used #2');
+    });
+
+    it('does not let the re-check hand back a candidate that is ambiguous', async () => {
+      const { pick, drift } = runnablePick(one(scopedChain));
+      // Two rows carry the text: replay skips a candidate that is not unique
+      // and so must the spec — the re-check is about WHEN a candidate is
+      // sampled, never about relaxing what counts as resolved.
+      const primary = locatorStub(() => 2);
+      const fallback = locatorStub(() => 1);
+      expect(await pick(pageStub(), [primary, fallback], 'w')).toBe(fallback);
+      expect(drift).toHaveLength(1);
+    });
   });
 
   it('places a @step location comment before each step\'s first statement, in order', () => {
