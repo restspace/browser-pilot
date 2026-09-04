@@ -1056,22 +1056,26 @@ function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExp
 }
 
 /**
- * A control's displayed VALUE that is an app-minted identifier is the
- * recording's record, not the procedure's effect. atelyr's project picker
- * recorded `- combobox "…": 13f9pv52yozr` — the id of the project the
- * recording had just created — and every replay's own project had another
- * id, so the add-item steps stopped at "did not show … as it did when
- * recorded" and went to recovery. The value after the colon is wildcarded
- * when it is id-like (the same judgement urlPattern applies to a path
- * segment); a value that is a word or a number the caller typed stays.
+ * An effect expectation asserts what the PROCEDURE put on the page, and the
+ * procedure only ever puts values there through its own fills and choices —
+ * which are slots (`{{vN}}`, or a `{{dN}}` the app minted and a url showed)
+ * by the time this runs, because substitute() went first. A control's
+ * displayed value that is NOT a slot is therefore the app's: a default, a
+ * computed figure, the id of the record the recording happened to make.
+ * atelyr's project picker recorded `- combobox "…": 13f9pv52yozr` — the
+ * recording's own project id — and every replay's project had another, so
+ * both add-item steps stopped at "did not show … as it did when recorded".
+ *
+ * Provenance, not shape: no attempt is made to recognise an identifier by
+ * how it looks, which breaks on the next app. The role and name still have
+ * to match; only the value after the colon is wildcarded.
  */
 export function maskMinted(line: string): string {
-  // A displayed value is minted when it is id-like by the url rule, or an
-  // opaque letters-and-digits token of ten or more characters (atelyr's
-  // 12-character base-36 ids fall under the url rule's 16-character bar). A
-  // short number (a quantity, a count) is something a person could type.
-  const minted = (v: string) => (isIdLike(v) && !/^\d{1,3}$/.test(v)) || (/^[A-Za-z0-9_-]{10,}$/.test(v) && /\d/.test(v) && /[A-Za-z]/.test(v));
-  return line.replace(/(:\s*)(\S+)\s*$/, (whole, sep: string, value: string) => (minted(value) ? `${sep}${WILDCARD}` : whole));
+  // `- role "name" [state]: value` — the value colon is the one after the
+  // (quoted) name and any state markers, never one inside the name.
+  return line.replace(/^(-?\s*\S+(?:\s+"(?:[^"\\]|\\.)*")?(?:\s+\[[^\]]*\])*)(:\s*)(\S.*?)\s*$/, (whole, head: string, sep: string, value: string) =>
+    value.includes('{{') ? whole : `${head}${sep}${WILDCARD}`,
+  );
 }
 
 /**

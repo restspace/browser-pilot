@@ -1287,16 +1287,24 @@ describe('dropDismissedDialogs (fwgr25: a dialog opened and cancelled is a no-op
 });
 
 describe('maskMinted', () => {
-  it('wildcards an app-minted id shown as a control value (atelyr project picker)', async () => {
+  // Provenance, not shape: a control value the procedure did not put there
+  // (no slot) is the app's, whatever it looks like — an id, a default, a
+  // computed figure. No rule here tries to recognise an identifier.
+  it("wildcards a control value the procedure did not fill (atelyr's project picker showed the recording's own project id)", async () => {
     const { maskMinted, WILDCARD } = await import('../src/skills/compile.js');
     expect(maskMinted('- combobox "Fixture Project One {{v2}} MTP Bench Project": 13f9pv52yozr')).toBe(`- combobox "Fixture Project One {{v2}} MTP Bench Project": ${WILDCARD}`);
     expect(maskMinted('- textbox "Reference": RD-1017')).toBe(`- textbox "Reference": ${WILDCARD}`);
+    expect(maskMinted('- spinbutton "Qty": 42')).toBe(`- spinbutton "Qty": ${WILDCARD}`);
+    expect(maskMinted('- combobox "Status": Specified')).toBe(`- combobox "Status": ${WILDCARD}`);
+    expect(maskMinted('- textbox "Due" [checked]: 12/31/2026')).toBe(`- textbox "Due" [checked]: ${WILDCARD}`);
   });
-  it('keeps a value the caller could have typed', async () => {
+  it('keeps a value the procedure filled (a slot) and lines with no value', async () => {
     const { maskMinted } = await import('../src/skills/compile.js');
-    expect(maskMinted('- spinbutton "Qty": 42')).toBe('- spinbutton "Qty": 42');
     expect(maskMinted('- textbox "Name": {{v1}}')).toBe('- textbox "Name": {{v1}}');
-    expect(maskMinted('- combobox "Status": Specified')).toBe('- combobox "Status": Specified');
+    expect(maskMinted('- textbox "Ref": {{d1}}')).toBe('- textbox "Ref": {{d1}}');
     expect(maskMinted('- heading "Panel Title"')).toBe('- heading "Panel Title"');
+    // a colon inside the name is not a value colon
+    expect(maskMinted('- heading "Panel: Title"')).toBe('- heading "Panel: Title"');
+    expect(maskMinted('- link "Support"')).toBe('- link "Support"');
   });
 });
