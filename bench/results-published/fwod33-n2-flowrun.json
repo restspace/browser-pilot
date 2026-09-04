@@ -1,0 +1,188 @@
+{
+  "flow": "fwod33",
+  "status": "success",
+  "steps": [
+    {
+      "id": "01-open",
+      "status": "success",
+      "summary": "Signed into Odoo 17 with admin/admin, navigated to Contacts, created a new contact named 'fwod33-n2 Bench Customer' with City set to 'Benchville', and saved it. The record was created (id=44) and the form displays the name as \"fwod33-n2 Bench Customer\" and the city as \"Benchville\", confirming both values were saved correctly.",
+      "values": {
+        "customer_name": "fwod33-n2 Bench Customer",
+        "city": "Benchville"
+      },
+      "tier": "A",
+      "replayed": "18/18",
+      "repaired": false,
+      "turns": 0
+    },
+    {
+      "id": "02-create",
+      "status": "success",
+      "summary": "Created a new Quotation (S00023) for customer 'fwod33-n2 Bench Customer' (city: Benchville). Added one order line: product '[FURN_1118] Corner Desk Left Sit', quantity 3, unit price £85.00 (auto-filled by the app), Untaxed Amount £255.00 (3 × £85.00). The quotation was saved successfully and all values are visible on the form.",
+      "values": {
+        "quotation_reference": "S00023",
+        "customer_name": "fwod33-n2 Bench Customer",
+        "city": "Benchville",
+        "product_name": "[FURN_1118] Corner Desk Left Sit",
+        "quantity": "3.00",
+        "unit_price": "85.00",
+        "untaxed_amount": "£ 255.00",
+        "tax_20%": "£ 51.00",
+        "total": "£ 306.00",
+        "product_name_2": "Untaxed Amount",
+        "untaxed_amount_2": "£ 255.00"
+      },
+      "tier": "A",
+      "replayed": "0/1",
+      "repaired": false,
+      "turns": 30
+    },
+    {
+      "id": "03-open",
+      "status": "success",
+      "summary": "Resumed after turn cap and verified the previous attempt's work had actually completed successfully. Quotation S00023 (customer 'fwod33-n2 Bench Customer') now has two order lines: line 1 '[FURN_1118] Corner Desk Left Sit' qty 3 @ £85.00 (£255.00), and the newly added line 2 'Chair floor protection' qty 2 @ £12.00 (£24.00). The app computed the new total Untaxed Amount as £279.00 (TAX 20% £55.80, Total £334.80). The quotation was saved and remains in 'Quotation' status — not confirmed, as instructed.",
+      "values": {
+        "order_reference": "S00023",
+        "customer_name": "fwod33-n2 Bench Customer",
+        "first_line_product": "[FURN_1118] Corner Desk Left Sit",
+        "first_line_quantity": "3.00",
+        "first_line_subtotal": "£ 255.00",
+        "second_product_name": "Chair floor protection",
+        "second_line_quantity": "2.00",
+        "second_unit_price": "12.00",
+        "second_line_subtotal": "£ 24.00",
+        "untaxed_amount_total": "£ 279.00",
+        "tax_20_percent": "£ 55.80",
+        "total": "£ 334.80",
+        "status": "Quotation",
+        "untaxed_amount_total_2": "£ 279.00"
+      },
+      "tier": null,
+      "replayed": null,
+      "repaired": false,
+      "turns": 34
+    },
+    {
+      "id": "04-open",
+      "status": "success",
+      "summary": "Changed the first line's quantity from 3 to 5 on Quotation S00023 (customer 'fwod33-n2 Bench Customer'). The first line '[FURN_1118] Corner Desk Left Sit' now shows qty 5 @ £85.00 with subtotal £425.00. The second line 'Chair floor protection' remains qty 2 @ £12.00 (£24.00). The new Untaxed Amount is £449.00 (TAX 20% £89.80, Total £538.80). The quotation was saved and remains unconfirmed.",
+      "values": {
+        "order_reference": "S00023",
+        "first_line_product": "[FURN_1118] Corner Desk Left Sit",
+        "first_line_quantity": "5.00",
+        "first_line_unit_price": "85.00",
+        "first_line_subtotal": "£ 425.00",
+        "second_line_subtotal": "£ 24.00",
+        "untaxed_amount": "£ 449.00",
+        "tax_20_percent": "£ 89.80",
+        "total": "£ 538.80",
+        "first_line_subtotal_2": "£ 425.00",
+        "untaxed_amount_2": "Untaxed Amount\t£ 449.00"
+      },
+      "tier": "B",
+      "replayed": "13/13",
+      "repaired": false,
+      "turns": 2
+    },
+    {
+      "id": "05-open",
+      "status": "success",
+      "summary": "Confirmed Quotation S00023 (customer 'fwod33-n2 Bench Customer') by clicking the Confirm button. The order reference remains S00023 and the status bar now shows 'Sales Order' as the active status (with 'Quotation Sent' and 'Quotation' as past stages). The order has been converted to a Sales Order.",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Sales Order",
+        "status_2": "Sales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "3/3",
+      "repaired": false,
+      "turns": 4
+    },
+    {
+      "id": "06-report",
+      "status": "success",
+      "summary": "Cancelled Sales Order S00023 (customer 'fwod33-n2 Bench Customer') by clicking the Cancel button and accepting the confirmation dialog. The status bar now displays 'Cancelled' as the active status (with 'Sales Order', 'Quotation Sent', and 'Quotation' as past stages).",
+      "values": {
+        "order_reference": "S00023",
+        "status": "Cancelled",
+        "status_2": "Cancelled\nSales Order\nQuotation Sent\nQuotation"
+      },
+      "tier": "B",
+      "replayed": "9/9",
+      "repaired": false,
+      "turns": 2
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "repinned": 0,
+  "drift": 4,
+  "driftTickets": [
+    {
+      "flow": "fwod33",
+      "step": "02-create",
+      "skill": "s_4e9e36",
+      "similarity": 0.151,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_4e9e36 stopped at step ? — not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=316&cids=:id&id=22&menu_id=194&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "reason": "not on the page this procedure starts from (expects http://127.0.0.1:8069/web#action=316&cids=:id&id=22&menu_id=194&model=sale.order&view_type=form, browser is at http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban) — nothing was run",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#cids=:id&menu_id=:id&model=product.product&view_type=kanban"
+    },
+    {
+      "flow": "fwod33",
+      "step": "04-open",
+      "skill": "s_ee6db2",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod33",
+      "step": "05-open",
+      "skill": "s_19b963",
+      "similarity": 1.002,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    },
+    {
+      "flow": "fwod33",
+      "step": "06-report",
+      "skill": "s_e757e8",
+      "similarity": 1.001,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "unresolved reference(s): 02-create.order_reference, 02-create.order_reference",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&id=:id&menu_id=:id&model=sale.order&view_type=form"
+    }
+  ],
+  "wallMs": 1152833,
+  "model": "deepseek/deepseek-v4-flash",
+  "usage": {
+    "promptTokens": 1075626,
+    "completionTokens": 9012,
+    "cachedTokens": 512822
+  },
+  "usageByModel": {
+    "deepseek/deepseek-v4-flash": {
+      "promptTokens": 1001234,
+      "completionTokens": 7328,
+      "cachedTokens": 469248
+    },
+    "z-ai/glm-5.3": {
+      "promptTokens": 74392,
+      "completionTokens": 1684,
+      "cachedTokens": 43574
+    }
+  },
+  "recoveryModel": "z-ai/glm-5.3",
+  "provider": "openrouter"
+}

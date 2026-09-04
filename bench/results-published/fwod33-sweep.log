@@ -1,0 +1,142 @@
+
+[sweep] run 1/3: fwod33-n1 (store: /home/user/sleep-walker/bench/results/fwod33-skills)
+[harness] odoo: defaulting APP_URL
+[harness] odoo: defaulting APP_EMAIL
+[harness] odoo: defaulting APP_PASSWORD
+[reset] odoo: no leftover bench customers
+[harness] odoo responded 303 at http://127.0.0.1:8069/
+stopped: fwod33-n1
+  flow "fwod33" saved: 6 step(s), vars runid → /home/user/sleep-walker/bench/results/flows/fwod33.json
+  warning: note: dropped 1 locator candidate(s) carrying a value this run minted (known only by export time)
+  warning: warning: 123 run value(s) survived unslotted (non-fatal — a stale urlPattern fails loudly, a stale reportTemplate is caught by synthesizeReport):
+  flow.steps[0].instruction: "Benchville" (output) in "Open http://127.0.0.1:8069/ and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contact) named exactly '{{runid}} Bench "
+  flow.steps[0].params.v4: "Benchville" (output) in "Benchville"
+  flow.steps[4].instruction: "Sales Order" (output) in "In Odoo 17, open Quotation {{02-create.order_reference}} (customer '{{runid}} Bench Customer') and confirm it so it becomes a Sales Order. Report the order refe"
+  flow.steps[5].instruction: "Sales Order" (output) in "In Odoo 17, cancel the Sales Order {{02-create.order_reference}} (customer '{{runid}} Bench Customer'). If a confirmation dialog appears, accept it. Report the "
+  flow.steps[5].instruction: "Cancelled" (output) in "In Odoo 17, cancel the Sales Order {{02-create.order_reference}} (customer '{{runid}} Bench Customer'). If a confirmation dialog appears, accept it. Report the "
+  s_1f1d99.reportTemplate.summary: "44" (url) in "Signed into Odoo 17 with admin/admin, navigated to Contacts, created a new contact named '{{v3}}' with City set to '{{v4}}', and saved it. The record was create"
+  s_04e603.steps[5].expect.addedContains[3]: "S00021" (output) in "- heading \"S00021\""
+  s_4e9e36.steps[0].expect.urlPattern: "product.product" (url) in "http://127.0.0.1:8069/web#cids=:id&menu_id={{d2}}&model=product.product&view_type=kanban"
+  s_f8eecd.preconditions.urlPattern: "product.product" (url) in "http://127.0.0.1:8069/web#cids=:id&menu_id={{d2}}&model=product.product&view_type=kanban"
+  s_194be1.steps[1].locators.target[0].name: "[E-COM08] Storage Box" (output) in "[E-COM08] Storage Box"
+arm=sleep-walker model=z-ai/glm-5.3 runid=fwod33-n1 stop=completed
+turns=7 wall=1334.6s
+commands=6 cmdTime=1313.3s cmdBytes=4032 timeouts=0
+orchestrator in=3714 cw=0 cr=19456 out=1004
+inner prompt=2219362 cached=1431968 completion=15073
+spend=$0.1498 maxUsd=2
+learn: A_n=0 replayed=0/6 full=0 repaired=0 compiled=6 variants=0
+-> /home/user/sleep-walker/bench/results/fwod33-n1-sleep-walker-result.json
+
+fwod33-n1: objectives passed 6/6
+  obj 1: PASS — city="Benchville"
+  obj 2: PASS — orders for customer: 1, lines: 2
+  obj 3: PASS — 2 lines, 2 distinct products
+  obj 4: PASS — quantities: 5, 2
+  obj 5: PASS — state tracking shows confirmation
+  obj 6: PASS — final state=cancel, ref=S00021
+
+[sweep] run 2/3: fwod33-n2 (replay flow fwod33, no orchestrator)
+[reset] odoo: deleted 1 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod33-n2: 4 drift ticket(s) → fwod33-n2-drift.json
+  *** DUPLICATE WORK *** 2 orders exist for this customer (S00023, S00022) — the run created the record more than once, so objectives 3-6 cannot be attributed to any single order.
+
+fwod33-n2: objectives passed 1/6
+  obj 1: PASS — city="Benchville"
+  obj 2: FAIL — orders for customer: 2
+  obj 3: FAIL — no single order to check
+  obj 4: FAIL — no single order to check
+  obj 5: FAIL — no order
+  obj 6: FAIL — no order
+
+[sweep] run 3/3: fwod33-n3 (replay flow fwod33, no orchestrator)
+[reset] odoo: action_cancel refused (Expected singleton: sale.order(23, 22)) — cancelling by state instead
+[reset] odoo: force-cancelled 1 order(s) the Cancel action left uncancelled
+[reset] odoo: deleted 2 leftover bench order(s)
+[reset] odoo: deleted 1 leftover bench customer(s)
+[sweep] fwod33-n3: 4 drift ticket(s) → fwod33-n3-drift.json
+  *** DUPLICATE WORK *** 2 orders exist for this customer (S00025, S00024) — the run created the record more than once, so objectives 3-6 cannot be attributed to any single order.
+
+fwod33-n3: objectives passed 1/6
+  obj 1: PASS — city="Benchville"
+  obj 2: FAIL — orders for customer: 2
+  obj 3: FAIL — no single order to check
+  obj 4: FAIL — no single order to check
+  obj 5: FAIL — no order
+  obj 6: FAIL — no order
+
+Learning sweep fwod33 (K=3)
+┌─────────┬───┬─────────────┬──────────┬─────────────┬───────┬──────┬───────────┬─────┬──────────────┬────────┐
+│ (index) │ n │ runid       │ verified │ stop        │ turns │ cmds │ total_usd │ A_n │ replayed     │ wall_s │
+├─────────┼───┼─────────────┼──────────┼─────────────┼───────┼──────┼───────────┼─────┼──────────────┼────────┤
+│ 0       │ 1 │ 'fwod33-n1' │ '6/6'    │ 'completed' │ 7     │ 6    │ 0.1498    │ 0   │ '0/6'        │ 1335   │
+│ 1       │ 2 │ 'fwod33-n2' │ '1/6'    │ 'success'   │ 72    │ 6    │ 0.0969    │ 1   │ '6/6 (flow)' │ 1153   │
+│ 2       │ 3 │ 'fwod33-n3' │ '1/6'    │ 'success'   │ 48    │ 6    │ 0.0287    │ 1   │ '6/6 (flow)' │ 980    │
+└─────────┴───┴─────────────┴──────────┴─────────────┴───────┴──────┴───────────┴─────┴──────────────┴────────┘
+http://127.0.0.1:8069
+  s_087872  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_b0af6e  validated    1 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_37f8d1  validated    8 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_43ce76  validated    3 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_1f1d99  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_fb7f24  validated    2 steps  3/3 (100%)
+           Open {{v2}} and sign in with username admin and password admin. Then in Odoo 17, create a new Customer (contac…
+  s_e986a7  validated    1 steps  3/3 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v1}}' (choose the customer from the autocom…
+  s_04e603  validated    6 steps  3/3 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v1}}' (choose the customer from the autocom…
+  s_e40c0b  validated    3 steps  3/3 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v1}}' (choose the customer from the autocom…
+  s_ee6db2  validated   13 steps  3/3 (100%)
+           In Odoo 17, open Quotation {{v1}} (customer '{{v2}}', two lines: '{{v4}}' qty 3, '{{v5}}' qty 2). Change the F…
+  s_19b963  validated    3 steps  3/3 (100%)
+           In Odoo 17, open Quotation {{v1}} (customer '{{v2}}') and confirm it so it becomes a Sales Order. Report the o…
+  s_e757e8  validated    9 steps  3/3 (100%)
+           In Odoo 17, cancel the {{v1}} {{v2}} (customer '{{v3}}'). If a confirmation dialog appears, accept it. Report …
+  s_a83eb2  validated   31 steps  2/2 (100%)
+           In Odoo 17, open the existing Quotation for customer '{{v1}} Bench Customer' (it currently has one line: '{{v2…
+  s_4e9e36  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v1}}' (choose the customer from the autocom…
+  s_f8eecd  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v1}}' (choose the customer from the autocom…
+  s_194be1  provisional 10 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v1}}' (choose the customer from the autocom…
+  s_da4bc1  provisional 20 steps  1/1 (100%)
+           In Odoo 17, open the existing Quotation {{v1}} for customer '{{v2}}' (it currently has one line: '{{v4}}', qty…
+  s_cdb597  provisional  3 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_90e525  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_498b7c  provisional  6 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_72e4bc  provisional  2 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_8f3d9b  provisional  9 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_d81277  provisional 11 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_b7c3c0  provisional  3 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_19e70c  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_4f8791  provisional  6 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_1f37cd  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_976fc3  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_c26f1c  provisional  1 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_2f5ed5  provisional  7 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+  s_22c023  provisional  7 steps  1/1 (100%)
+           In Odoo 17, go to Sales and create a new Quotation for customer '{{v2}}' (choose the customer from the autocom…
+store: /home/user/sleep-walker/bench/results/fwod33-skills
+
+summary: /home/user/sleep-walker/bench/results/fwod33-sweep.json
