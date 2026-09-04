@@ -212,14 +212,9 @@ sitelooper runtime in the loop at all, then replayed under the real Playwright t
 **Tier 2 spec, status.** `bench/spec-replay.mjs` compiles a published flow + skill store
 (`sitelooper compile <flow> --out <tmp>` with `SITELOOPER_SKILLS_DIR` pointing at the store) and
 runs the emitted `<name>.spec.ts` under `npx playwright test`, scored by the same app-side
-verifiers as every other arm (`<tag>-spec-result.json`, `arm: "spec"`). It is dry-run tested only
-— `node bench/spec-replay.mjs --flow <flow> --skills <dir> --tag <tag> --target <target> --dry`
-prints the compile and test commands without executing either. Two things block a real run:
-`sitelooper compile` (`src/spec/*`, `compile-to-spec` branch) has not landed yet, and
-`@playwright/test` is not installed in this repo — only `playwright` and `playwright-core` are,
-which is not enough because the compiler's emitted files import `@playwright/test` directly.
-`npm install -D @playwright/test` and a build close both gaps; `spec-replay.mjs` checks for both
-and fails fast with that instruction rather than partway through a Playwright stack trace.
+verifiers as every other arm (`<tag>-spec-result.json`, `arm: "spec"`). First real run against
+the local repairdesk app is in progress on the `compile-to-spec` branch; the cells above fill in
+as each target is run.
 
 Set 24 also caught two engine regressions of its own (kanboard's replays at 22 and 37 turns
 where set 15 needed none; grafana's replays losing objective 1 and recovering one step at 19 and

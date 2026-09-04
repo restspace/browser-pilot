@@ -57,10 +57,10 @@ request. That is the trade PLAN-compile-to-code §3.5a asks for.
 
 | # | phase | what it delivers | leans on |
 |---|---|---|---|
-| 0 | **Rewire `script`** | `sitelooper script` reads the converged `Skill[]`, not `RecordedEntry[]`. Pick the owned-zone representation. | `cli.ts`, `codegen.ts` → new `emit.ts` |
-| 1 | **Emitter, Tier 2** | Pure Playwright, chains as `.or()` + `.filter({hasText})`, expectations as `expect(...)`. Demoable, no runtime needed. Bench it as a fifth Matrix-2 column. | `makeLocator`, `specOf`, `consequentialExpectations` |
+| 0 | **`compile` command** | `sitelooper compile <flow>` reads the converged `Skill[]` through the flow; `script` keeps the raw-recording path for sessions. Owned file is `<name>.flow.ts`. DONE 2026-09-04. | `cli.ts`, `src/spec/*` |
+| 1 | **Emitter, Tier 2** | Pure Playwright. Chains are tried in recorded order by a ten-line inlined `pick()` helper, not `.or()`: Playwright's `.or()` is a union, so a fallback that matches several elements trips strict mode where the chain resolver would skip it. Identity guards as `.filter({hasText})`; expectations as any-of presence checks, mirroring `lineShows`. Bench as a fifth Matrix-2 column. DONE 2026-09-04, first live run on repairdesk. | `makeLocator`, `specOf`, `lineShows` |
 | 2 | **Runtime extraction** | `@sitelooper/runtime`: `resolveChain`, `settleDom`, `markPoint`, expectation checks, pulled out of `replay.ts` with no daemon/ledger deps. Tier 3 emit. Runtime writes the drift sidecar. `--strict`. | `replay.ts:955`, `recorder.ts:121` |
-| 3 | **Lift** | Parse the owned file back to `SpecFlow`. Round-trip test. This is what makes the spec agent-editable. | the `FLOW` constant is JSON between two marker comments; lift is JSON.parse plus shape checks |
+| 3 | **Lift** | Parse the owned file back to `SpecFlow`, and lower it to `Flow` + `Skill[]` so replay and repair can run on it. Round-trip tests both ways. DONE 2026-09-04 (lift, lower). | `src/spec/lift.ts`, `src/spec/lower.ts` |
 | 4 | **Repair on spec** | `repair --spec --drift`: triage → codemod / agent patch / segment re-record → re-emit → converge gate → PR. Expose via the sitelooper skill so Claude Code can run it off a CI failure. | `repair.ts` triage, `promoteFallback`, `patchSegment` |
 | 5 | **Convergence gate** | Per-step N clean tier-A replays before emit or before a repair PR opens. Floor N=2. | set-28 evidence |
 | 6 | **Fits an existing suite** | Auth state, fixtures, params, mints → teardown docs, GitHub Action that runs the spec and uploads the sidecar. | — |
