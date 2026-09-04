@@ -1285,3 +1285,18 @@ describe('dropDismissedDialogs (fwgr25: a dialog opened and cancelled is a no-op
     expect(dropDismissedDialogs([click('Exit edit', DIALOG), click('Cancel', ['- heading "Something appeared"'])]).length).toBe(2);
   });
 });
+
+describe('maskMinted', () => {
+  it('wildcards an app-minted id shown as a control value (atelyr project picker)', async () => {
+    const { maskMinted, WILDCARD } = await import('../src/skills/compile.js');
+    expect(maskMinted('- combobox "Fixture Project One {{v2}} MTP Bench Project": 13f9pv52yozr')).toBe(`- combobox "Fixture Project One {{v2}} MTP Bench Project": ${WILDCARD}`);
+    expect(maskMinted('- textbox "Reference": RD-1017')).toBe(`- textbox "Reference": ${WILDCARD}`);
+  });
+  it('keeps a value the caller could have typed', async () => {
+    const { maskMinted } = await import('../src/skills/compile.js');
+    expect(maskMinted('- spinbutton "Qty": 42')).toBe('- spinbutton "Qty": 42');
+    expect(maskMinted('- textbox "Name": {{v1}}')).toBe('- textbox "Name": {{v1}}');
+    expect(maskMinted('- combobox "Status": Specified')).toBe('- combobox "Status": Specified');
+    expect(maskMinted('- heading "Panel Title"')).toBe('- heading "Panel Title"');
+  });
+});

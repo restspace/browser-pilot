@@ -280,6 +280,31 @@ d('skill replay (fixture page)', () => {
     expect((await session.getPage()).url()).toBe(page.url());
   }, 30_000);
 
+  /**
+   * fwat2's sign-in: the click answered at "/" and the app routed to
+   * /project-manager a moment later; the url gate judged too early and sent
+   * the step to recovery on every replay. A navigation in flight gets the
+   * resolve window.
+   */
+  it('gives a recorded url that is still on its way the resolve window', async () => {
+    const page = await session.getPage();
+    await page.goto(fixtureUrl);
+    await page.evaluate(() => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'Sign in late';
+      btn.addEventListener('click', () => setTimeout(() => (location.hash = '#landed'), 900));
+      document.body.append(btn);
+    });
+    const skill = clickSkill('s_lateurl', [{ name: 'Sign in late', role: 'button', added: [] }]);
+    skill.steps[0].expect = { urlPattern: `${fixtureUrl}#landed` };
+    session.learn!.put(skill);
+    const out = await run('run_skill', { id: skill.id, params: {} });
+    session.learn!.remove(skill.id);
+    expect(out.replay?.ok).toBe(true);
+    expect(page.url()).toBe(`${fixtureUrl}#landed`);
+  }, 30_000);
+
   it('a goto-first procedure navigates itself: no start-page refusal', async () => {
     const page = await session.getPage();
     await page.goto('about:blank');

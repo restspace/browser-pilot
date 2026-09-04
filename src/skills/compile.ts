@@ -2,7 +2,7 @@ import type { LocatorCandidate, RecordedEntry, RecordedInstruction, RecordedStep
 import type { Report } from '../agent/report.js';
 import { newSkillId, originOf, type Skill, type SkillParam, type SkillStep, type StepExpectation } from './store.js';
 import { identifierLike } from './ledger.js';
-import { maskVolatile } from '../shared/text.js';
+import { WILDCARD, maskVolatile } from '../shared/text.js';
 
 /** Args whose string values are candidates for parameter slots. */
 const VALUE_ARGS = new Set(['value', 'text', 'option', 'url', 'prompt_text']);
@@ -1050,9 +1050,28 @@ function expectationFor(step: RecordedStep, slots: Map<string, string>): StepExp
     // click's only page change, and every replay — which caught the page
     // after the spinner — stopped there and recovered for 24 turns.
     const lasting = step.diff.added.filter((l) => !TRANSIENT_LINE.test(l));
-    if (lasting.length) out.addedContains = lasting.slice(0, MAX_ADDED_LINES).map((l) => maskVolatile(substitute(l, slots)).slice(0, 120));
+    if (lasting.length) out.addedContains = lasting.slice(0, MAX_ADDED_LINES).map((l) => maskMinted(maskVolatile(substitute(l, slots))).slice(0, 120));
   }
   return Object.keys(out).length ? out : undefined;
+}
+
+/**
+ * A control's displayed VALUE that is an app-minted identifier is the
+ * recording's record, not the procedure's effect. atelyr's project picker
+ * recorded `- combobox "…": 13f9pv52yozr` — the id of the project the
+ * recording had just created — and every replay's own project had another
+ * id, so the add-item steps stopped at "did not show … as it did when
+ * recorded" and went to recovery. The value after the colon is wildcarded
+ * when it is id-like (the same judgement urlPattern applies to a path
+ * segment); a value that is a word or a number the caller typed stays.
+ */
+export function maskMinted(line: string): string {
+  // A displayed value is minted when it is id-like by the url rule, or an
+  // opaque letters-and-digits token of ten or more characters (atelyr's
+  // 12-character base-36 ids fall under the url rule's 16-character bar). A
+  // short number (a quantity, a count) is something a person could type.
+  const minted = (v: string) => (isIdLike(v) && !/^\d{1,3}$/.test(v)) || (/^[A-Za-z0-9_-]{10,}$/.test(v) && /\d/.test(v) && /[A-Za-z]/.test(v));
+  return line.replace(/(:\s*)(\S+)\s*$/, (whole, sep: string, value: string) => (minted(value) ? `${sep}${WILDCARD}` : whole));
 }
 
 /**

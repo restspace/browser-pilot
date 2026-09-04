@@ -5,7 +5,7 @@ import { cosine, fingerprintPage } from '../daemon/fingerprint.js';
 import { candidateExpr, makeLocator, markPoint, type LocatorCandidate, type StepDiff } from '../daemon/recorder.js';
 import { retired } from './repair.js';
 import { isRefTarget } from '../daemon/refs.js';
-import { TRANSIENT_LINE, WILDCARD, fillParams, fillParamsDeep, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
+import { TRANSIENT_LINE, WILDCARD, fillParams, fillParamsDeep, maskMinted, maskVolatile, softUrlMatch, urlMatches, urlPart, urlPattern } from './compile.js';
 
 /** Tools that look at or move to an element without setting or choosing anything. */
 const OBSERVATION_TOOLS = new Set(['scroll_into_view', 'wait_for', 'hover', 'scroll', 'focus', 'screenshot', 'peek']);
@@ -706,9 +706,18 @@ type StepGate = (g: StepGateInput) => Promise<StepVerdict | null> | StepVerdict 
  * same-shape url whose literal segment(s) disagree is treated as volatile
  * (mechanism 2): warn, stage the generalisation, continue.
  */
-const expectedUrl: StepGate = ({ step, page, params, tag, failIndex }) => {
+const expectedUrl: StepGate = async ({ step, page, params, tag, failIndex }) => {
   const pattern = step.expect?.urlPattern;
   if (!pattern || urlMatches(pattern, page.url(), params)) return null;
+  // The recorded url may still be on its way: an SPA sign-in answers the
+  // click, then routes to the landing page a moment later. fwat2's sign-in
+  // step was judged at "/" on every replay and sent to recovery, whose
+  // report then lacked the landing-page value every later step referred to.
+  // Give a navigation in flight the resolve window before judging.
+  for (let waited = 0; waited < resolveWaitMs(); waited += RESOLVE_POLL_MS) {
+    await new Promise((r) => setTimeout(r, RESOLVE_POLL_MS));
+    if (urlMatches(pattern, page.url(), params)) return null;
+  }
   const soft = softUrlMatch(pattern, page.url(), params);
   if (!soft) return { stop: `after step ${tag} expected url ${fillParams(pattern, params)} but browser is at ${urlPattern(page.url())}` };
   return {
@@ -759,8 +768,8 @@ const expectedChanges: StepGate = async ({ outcome, step, params, tag, args, pag
   // store compiled before TRANSIENT_LINE existed stops failing on them.
   const lines = step.expect.addedContains.filter((l) => !TRANSIENT_LINE.test(l));
   if (!lines.length) return null;
-  let parameterised = lines.filter(isParam).map((l) => fillParams(maskVolatile(l), params));
-  const plain = lines.filter((l) => !isParam(l)).map((l) => fillParams(maskVolatile(l), params));
+  let parameterised = lines.filter(isParam).map((l) => fillParams(maskMinted(maskVolatile(l)), params));
+  const plain = lines.filter((l) => !isParam(l)).map((l) => fillParams(maskMinted(maskVolatile(l)), params));
   // A positionally-resolved fill must prove itself with a CONSEQUENTIAL
   // change: its own echo in a same-role element is what the wrong element
   // produces too (see consequentialExpectations). When the echo is all the
@@ -1306,7 +1315,7 @@ export function openerLines(step: SkillStep, params: Record<string, string>): st
   if (step.tool !== 'click' || !step.expect?.addedContains?.length) return [];
   const plain = step.expect.addedContains.filter((l) => !TRANSIENT_LINE.test(l) && !/\{\{v\d+\}\}/.test(l));
   if (!plain.some((l) => OPENER_LINE.test(l))) return [];
-  return plain.map((l) => fillParams(maskVolatile(l), params));
+  return plain.map((l) => fillParams(maskMinted(maskVolatile(l)), params));
 }
 
 /**
