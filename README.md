@@ -160,7 +160,7 @@ glm-5.3.
 |---|---|---|
 | repairdesk (in-repo SPA) | 7/7 · $0.09 · 819s | 6/6 · $0.19 · 67s |
 | kanboard (PHP, drag-and-drop) | 6/6 · $0.04 · 385s | **2/6 (turn-cap)** · $0.77 · 118s |
-| grafana (React SPA) | 6/6 · $0.48 · 2037s | 6/6 · $1.05 · 448s |
+| grafana (React SPA) | 6/6 · $0.14 · 1381s (set 28; set 26: 6/6 · $0.48 · 2037s) | 6/6 · $1.05 · 448s |
 | odoo (dense CRUD) | 6/6 · $0.59 · 1651s | 6/6 · $1.51 · 302s |
 
 On first contact sleep-walker is the slowest arm on every target, by design: it drives a cheap
@@ -177,7 +177,7 @@ from its own run, and against literal codegen from the recording.
 |---|---|---|---|---|
 | repairdesk | **7/7, 7/7** · $0.00, $0.00 · 18s, 18s | 6/6 · $0.19 · 67s every time | 1/6, 1/6 · $0 | 6/6, 6/6 · $0 |
 | kanboard | **6/6, 6/6** · $0.00, $0.00 · 21s, 21s | 2/6 · $0.77 · 118s every time | 5/6, 5/6 · $0 | 4/4 (+2 n/a) · $0 |
-| grafana | 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s (set 26); **6/6, 6/6** · ≈$0.01, ≈$0.08 · 151s, 272s (set-24 recording re-exported on the fixed engine) | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
+| grafana | **6/6, 6/6** · $0.00, $0.00 · 47s, 47s (set 28, zero model turns); set 26 as recorded: 5/6, 5/6 · $0.18, $0.55 · 661s, 1864s | 6/6 · $1.05 · 448s every time | 0/6, 0/6 · $0 | 0/6, 0/6 · $0 |
 | odoo | **6/6, 6/6** · $0.16, $0.01 · 661s, 189s | 6/6 · $1.51 · 302s every time | 1/6, 1/6 · $0 | 0/6, 0/6 · $0 |
 
 Set 24 also caught two engine regressions of its own (kanboard's replays at 22 and 37 turns

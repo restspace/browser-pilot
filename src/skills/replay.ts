@@ -885,7 +885,8 @@ export function specOf(chain: LocatorCandidate[]): ElementSpec {
   return {
     identity: chain.filter((c) => c.kind === 'scoped'),
     handles: chain.filter((c) => c.kind !== 'scoped' && !structural(c)),
-    path: chain.filter((c) => c.kind !== 'scoped' && structural(c)),
+    // Paths, then where it was: a point is the last resort behind every path.
+    path: [...chain.filter((c) => c.kind !== 'scoped' && c.kind !== 'point' && structural(c)), ...chain.filter((c) => c.kind === 'point')],
   };
 }
 

@@ -129,28 +129,43 @@ export async function markPoint(page: Page, c: Extract<LocatorCandidate, { kind:
         }
         const hit = document.elementFromPoint(x - window.scrollX, y - window.scrollY);
         if (!hit) return null;
-        const el = (hit.closest(ACTIONABLE) as Element | null) ?? hit;
-        const tagOf = el.tagName.toLowerCase();
-        const type = (el.getAttribute('type') || '').toLowerCase();
-        const implicit = (): string | null => {
-          if (tagOf === 'button') return 'button';
-          if (tagOf === 'a') return el.hasAttribute('href') ? 'link' : null;
-          if (tagOf === 'select') return el.hasAttribute('multiple') ? 'listbox' : 'combobox';
-          if (tagOf === 'textarea') return 'textbox';
-          if (tagOf === 'img') return 'img';
-          if (/^h[1-6]$/.test(tagOf)) return 'heading';
-          if (tagOf === 'input') {
-            if (type === 'checkbox') return 'checkbox';
-            if (type === 'radio') return 'radio';
-            if (type === 'submit' || type === 'button' || type === 'reset') return 'button';
-            if (type === 'search') return 'searchbox';
-            if (type === 'number') return 'spinbutton';
-            if (['text', 'email', 'tel', 'url', 'password', ''].includes(type)) return 'textbox';
+        const kindOf = (el: Element): { role: string | null; tag: string } => {
+          const tagOf = el.tagName.toLowerCase();
+          const type = (el.getAttribute('type') || '').toLowerCase();
+          const implicit = (): string | null => {
+            if (tagOf === 'button') return 'button';
+            if (tagOf === 'a') return el.hasAttribute('href') ? 'link' : null;
+            if (tagOf === 'select') return el.hasAttribute('multiple') ? 'listbox' : 'combobox';
+            if (tagOf === 'textarea') return 'textbox';
+            if (tagOf === 'img') return 'img';
+            if (/^h[1-6]$/.test(tagOf)) return 'heading';
+            if (tagOf === 'input') {
+              if (type === 'checkbox') return 'checkbox';
+              if (type === 'radio') return 'radio';
+              if (type === 'submit' || type === 'button' || type === 'reset') return 'button';
+              if (type === 'search') return 'searchbox';
+              if (type === 'number') return 'spinbutton';
+              if (['text', 'email', 'tel', 'url', 'password', ''].includes(type)) return 'textbox';
+              return null;
+            }
             return null;
-          }
-          return null;
+          };
+          return { role: el.getAttribute('role') || implicit(), tag: tagOf };
         };
-        const roleOf = el.getAttribute('role') || implicit();
+        // The point lands on whatever is painted there — a heading's text
+        // span, a button's icon. Walk up a few ancestors for the recorded
+        // KIND (fwgr27: every heading point missed because the hit was the
+        // title's inner span); failing that, the nearest actionable ancestor.
+        let el: Element | null = null;
+        for (let cur: Element | null = hit, hops = 0; cur && hops < 6; cur = cur.parentElement, hops++) {
+          const k = kindOf(cur);
+          if (role ? k.role === role : k.tag === tag) {
+            el = cur;
+            break;
+          }
+        }
+        el ??= (hit.closest(ACTIONABLE) as Element | null) ?? hit;
+        const { role: roleOf, tag: tagOf } = kindOf(el);
         const same = role ? roleOf === role : tagOf === tag;
         if (!same) return null;
         for (const old of Array.from(document.querySelectorAll(`[${mark}]`))) old.removeAttribute(mark);

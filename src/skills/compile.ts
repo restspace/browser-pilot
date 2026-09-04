@@ -1109,6 +1109,9 @@ function firstUrl(steps: RecordedStep[]): string | undefined {
  */
 export function stableFirst(chain: LocatorCandidate[]): LocatorCandidate[] {
   const volatile = (c: LocatorCandidate): boolean => {
+    // Where it was is the last resort by definition: behind every name and
+    // every path. fwgr27's store had it second, ahead of the anchored path.
+    if (c.kind === 'point') return true;
     if (c.kind === 'testid' || c.kind === 'id' || c.kind === 'css') {
       const text = c.kind === 'testid' ? c.value : c.selector;
       return text
@@ -1122,7 +1125,9 @@ export function stableFirst(chain: LocatorCandidate[]): LocatorCandidate[] {
     return Boolean(name) && !name.includes('{{') && isIdLike(name.trim());
   };
   const stable = chain.filter((c) => !volatile(c));
-  return stable.length ? [...stable, ...chain.filter(volatile)] : chain;
+  const points = chain.filter((c) => c.kind === 'point');
+  const rest = chain.filter((c) => volatile(c) && c.kind !== 'point');
+  return stable.length || points.length ? [...stable, ...rest, ...points] : chain;
 }
 
 /** Steps are structurally the same procedure: same tools, same primary locator shapes. */

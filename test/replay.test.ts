@@ -1128,7 +1128,39 @@ d('identity-scoped locators (fixture page)', () => {
     // the same place, but the recording had a link there: not the same kind
     const asLink: LocatorCandidate[] = [{ kind: 'point', ...geom, role: 'link', tag: 'a' }];
     expect(await resolveChain(page, asLink, { waitMs: 0 })).toBeNull();
+    // fwgr27: every heading point missed because the element under the
+    // point was the title's inner span. The walk climbs to the recorded kind.
+    const hgeom = await page.evaluate(() => {
+      const h = document.createElement('h2');
+      h.id = 'panel-title';
+      const span = document.createElement('span');
+      span.textContent = 'Request rate';
+      h.append(span);
+      document.body.append(h);
+      const r = span.getBoundingClientRect();
+      return { x: Math.round(r.left + r.width / 2 + window.scrollX), y: Math.round(r.top + r.height / 2 + window.scrollY), w: r.width, h: r.height, vw: window.innerWidth, vh: window.innerHeight };
+    });
+    const asHeading: LocatorCandidate[] = [
+      { kind: 'role', role: 'heading', name: 'Gone' },
+      { kind: 'point', ...hgeom, role: 'heading', tag: 'h2' },
+    ];
+    const heading = await resolveChain(page, asHeading, { waitMs: 0 });
+    expect(await heading!.locator.getAttribute('id')).toBe('panel-title');
   }, 30_000);
+
+  it('orders a point candidate behind every path at compile and at replay', async () => {
+    const { specOf } = await import('../src/skills/replay.js');
+    const { stableFirst } = await import('../src/skills/compile.js');
+    const point: LocatorCandidate = { kind: 'point', x: 1, y: 1, w: 1, h: 1, role: 'heading', tag: 'h2', vw: 100, vh: 100 };
+    const chain: LocatorCandidate[] = [
+      { kind: 'role', role: 'heading', name: '{{v6}}' },
+      point,
+      { kind: 'css', selector: '[data-testid="header-container"] h2' },
+      { kind: 'css', selector: 'div:nth-of-type(1) > section > h2' },
+    ];
+    expect(stableFirst(chain).at(-1)).toBe(point);
+    expect(specOf(chain).path.at(-1)).toBe(point);
+  });
 
   /**
    * rpgr13: `div > … > button` resolved a header button for a control that
