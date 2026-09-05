@@ -1,0 +1,62 @@
+{
+  "file": "bench/results/sp1rd-spec/fwrd42.flow.ts",
+  "flow": "fwrd42",
+  "workspace": "/tmp/sitelooper-repair-e0hBH7",
+  "run": {
+    "status": "success",
+    "passed": 7,
+    "total": 7,
+    "drift": 5
+  },
+  "tickets": 5,
+  "promoted": [
+    {
+      "skill": "s_8d7c18",
+      "step": "5",
+      "from": "page.getByText('sp1rdr-0 RD Bench Ticket', { exact: true })",
+      "to": "page.locator('#ticket-rows tr', { hasText: 'sp1rdr-0 RD Bench Ticket' }).locator('td:nth-of-type(2)')"
+    },
+    {
+      "skill": "s_93dad9",
+      "step": "1",
+      "from": "page.locator('\"RD-1017\"')",
+      "to": "page.locator('#ticket-rows tr', { hasText: 'sp1rdr-0 RD Bench Ticket' }).locator('td:nth-of-type(1) > a')"
+    },
+    {
+      "skill": "s_05e528",
+      "step": "7",
+      "from": "page.getByText('sp1rdr-0 RD Part A', { exact: true })",
+      "to": "page.locator('tr', { hasText: 'sp1rdr-0 RD Part A' }).locator('td:nth-of-type(1)')"
+    },
+    {
+      "skill": "s_a75905",
+      "step": "13",
+      "from": "page.getByText('sp1rdr-0 RD Part B', { exact: true })",
+      "to": "page.locator('tr', { hasText: 'sp1rdr-0 RD Part B' }).locator('td:nth-of-type(1)')"
+    }
+  ],
+  "patched": [],
+  "reRecord": [],
+  "skipped": [
+    {
+      "skill": "s_da5eeb",
+      "step": "07-verify",
+      "why": "step 2 (read) was recorded without a locator, so nothing drifted - there is nothing to patch"
+    }
+  ],
+  "changes": [
+    "01-open: candidate promoted: page.locator('#ticket-rows tr', { hasText: '{{v5}}' }).locator('td:nth-of-type(2)') now primary (was #1) — s_8d7c18 step 5 target",
+    "02-add: candidate promoted: page.locator('#ticket-rows tr', { hasText: '{{v1}}' }).locator('td:nth-of-type(1) > a') now primary (was #1) — s_93dad9 step 1 target",
+    "02-add: candidate promoted: page.locator('tr', { hasText: '{{v4}}' }).locator('td:nth-of-type(1)') now primary (was #1) — s_05e528 step 7 target",
+    "03-add: candidate promoted: page.locator('tr', { hasText: '{{v5}}' }).locator('td:nth-of-type(1)') now primary (was #1) — s_a75905 step 13 target",
+    "04-edit: no change",
+    "05-change: no change",
+    "06-report: no change",
+    "07-verify: no change"
+  ],
+  "evidence": [],
+  "droppedExpectations": [],
+  "weakenedByVariant": [],
+  "wrote": "bench/results/sp1rd-spec/fwrd42.flow.ts",
+  "converged": true
+}
