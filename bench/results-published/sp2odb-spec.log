@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 fwod34.spec.ts:4:1 › fwod34 (7.9s)
+
+
+  1) fwod34.spec.ts:4:1 › fwod34 ───────────────────────────────────────────────────────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /^http:\/\/127\.0\.0\.1:8069\/web(?:\?[^#]*)?#action=316&cids=1&menu_id=194&model=sale\.order&view_type=list$/
+    Received string:  "http://127.0.0.1:8069/web#action=316&model=sale.order&view_type=list&cids=1&menu_id=194"
+    Timeout: 5000ms
+
+   [spec-replay] sp2odb: 0/1 passed, exit=1, 10s, 0 drift line(s) — result written
+ value "http://127.0.0.1:8069/web#action=316&model=sale.order&view_type=list&cids=1&menu_id=194"
+
+
+       at fwod34.flow.ts:4457
+
+      4455 |     p.d5 = await urlPartWhen(page, 'q.menu_id', urlBefore2); // recorded example: 194
+      4456 |     // This step CREATES a record (its id is url part 'q.action') — clean it up in your teardown.
+    > 4457 |     await expect(page).toHaveURL(new RegExp(`^http://127\\.0\\.0\\.1:8069/web(?:\\?[^#]*)?#action=${escapeRe(p.d4)}&cids=${escapeRe(p.d2)}&menu_id=${escapeRe(p.d5)}&model=sale\\.order&view_type=list$`));
+           |                        ^
+      4458 |     // the step's recorded effect must show — any one of these, as replay's effect gate has it:
+      4459 |     //   - menu "Orders To Invoice Products Reporting Configuration"
+      4460 |     //   - button "Orders"
+        at Object.01-signin (/home/user/sitelooper/bench/results/sp2odb-spec-tmp/fwod34.flow.ts:4457:24)
+        at runFlow (/home/user/sitelooper/bench/results/sp2odb-spec-tmp/fwod34.flow.ts:5687:3)
+        at /home/user/sitelooper/bench/results/sp2odb-spec-tmp/fwod34.spec.ts:5:19
+
+    Error Context: ../../../test-results/fwod34-fwod34/error-context.md
+
+  1 failed
+    fwod34.spec.ts:4:1 › fwod34 ────────────────────────────────────────────────────────────────────
+EXIT=1

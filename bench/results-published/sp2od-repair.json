@@ -1,0 +1,64 @@
+{
+  "file": "bench/results/sp2od-spec/fwod34.flow.ts",
+  "flow": "fwod34",
+  "workspace": "/tmp/sitelooper-repair-pSMXqx",
+  "run": {
+    "status": "halted",
+    "passed": 5,
+    "total": 9,
+    "drift": 1
+  },
+  "tickets": 1,
+  "promoted": [],
+  "patched": [],
+  "reRecord": [],
+  "skipped": [
+    {
+      "skill": "s_d654ba",
+      "step": "4",
+      "why": "no-proposal",
+      "url": "http://127.0.0.1:8069/web#cids=1&menu_id=194&action=316&model=sale.order&view_type=form&id=21",
+      "snapshotRows": 109,
+      "snapshotBytes": 3034,
+      "modelReply": ""
+    }
+  ],
+  "changes": [
+    "01-signin: no change",
+    "02-create: no change",
+    "03-open: no change",
+    "04-open: no change",
+    "05-open: no change",
+    "06-open: no change",
+    "07-open: no change",
+    "08-open: no change",
+    "09-change: no change",
+    "candidate retired: page.getByRole('button', { name: 'Confirm', exact: true }).nth(1) — missed 2 run(s), never hit; now last — s_d654ba step 4 target"
+  ],
+  "evidence": [
+    "candidate retired: page.getByRole('button', { name: 'Confirm', exact: true }).nth(1) — missed 2 run(s), never hit; now last — s_d654ba step 4 target"
+  ],
+  "droppedExpectations": [],
+  "weakenedByVariant": [],
+  "wrote": null,
+  "converged": false,
+  "notConverged": [
+    "06-open (tier none)",
+    "08-open (tier none)"
+  ],
+  "convergeTickets": [
+    {
+      "flow": "fwod34",
+      "step": "03-open",
+      "skill": "s_d654ba",
+      "atStep": "4",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Confirm', exact: true }).nth(1)",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+      "pageUrl": "http://127.0.0.1:8069/web#cids=1&menu_id=194&action=316&model=sale.order&view_type=form&id=22"
+    }
+  ]
+}
