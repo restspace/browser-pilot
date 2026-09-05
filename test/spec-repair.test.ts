@@ -5,7 +5,19 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { SkillStore } from '../src/skills/store.js';
 import type { SpecFlow, SpecSegment, SpecStep } from '../src/spec/ir.js';
 import { flowToSpec } from '../src/spec/ir.js';
-import { describeSpecChanges, diffSpecChanges, foldPatchedVariants, reloadStaged, stageRepair } from '../src/spec/repair.js';
+import {
+  describeSpecChanges,
+  diffSpecChanges,
+  foldPatchedVariants,
+  foldTicketEvidence,
+  orderByEvidence,
+  reloadStaged,
+  reorderByEvidence,
+  stageRepair,
+  ticketIsNews,
+} from '../src/spec/repair.js';
+import { candidateExpr, type LocatorCandidate } from '../src/daemon/recorder.js';
+import type { DriftTicket } from '../src/skills/repair.js';
 
 // The repair summary is a pure function of two IRs, so every interesting case
 // — a fallback promoted, a model-proposed locator, a re-pin to a variant, an
@@ -431,5 +443,297 @@ describe('foldPatchedVariants', () => {
     foldPatchedVariants(store, rows);
     expect(foldPatchedVariants(store, rows)[0]).toContain('could not fold');
     expect(reloadStaged(st).spec.steps[0].segments[0].steps[0].locators.target).toHaveLength(4);
+  });
+});
+
+// The evidence codemod is the one repair action PLAN-self-updating-spec.md
+// calls "cheap, no model": reorder / retire from sidecar evidence, never a
+// guess. Every rule it has is stated here directly, because the live proof
+// (fwrd42's 06-report, which filed the same ticket on every run until the
+// chronically-missing candidate was retired) costs a browser and ten minutes.
+describe('orderByEvidence', () => {
+  const c = (over: Record<string, unknown>) => ({ kind: 'role', role: 'button', name: 'x', ...over }) as never as LocatorCandidate;
+  const scoped = (over: Record<string, unknown> = {}) => c({ kind: 'scoped', container: 'tr', hasText: 'A', selector: 'button', ...over });
+  const css = (selector: string, over: Record<string, unknown> = {}) => c({ kind: 'css', selector, ...over });
+  const names = (list: LocatorCandidate[]) => list.map((x) => candidateExpr(x));
+
+  it('leaves a chain with no evidence exactly as recorded', () => {
+    const chain = [scoped(), c({ name: 'Delete' }), css('tr:nth-of-type(1) button')];
+    expect(orderByEvidence(chain)).toEqual(chain);
+  });
+
+  it('sorts a demonstrated-volatile candidate last: never hit, missed twice', () => {
+    const dead = c({ name: 'Delete', seen: { hit: 0, miss: 2 } });
+    const chain = [dead, c({ name: 'Remove' }), css('td button')];
+    expect(names(orderByEvidence(chain))).toEqual([
+      "page.getByRole('button', { name: 'Remove', exact: true })",
+      "page.locator('td button')",
+      "page.getByRole('button', { name: 'Delete', exact: true })",
+    ]);
+  });
+
+  it('keeps a candidate that missed ONCE where it was — one miss is a transient', () => {
+    const chain = [c({ name: 'Delete', seen: { hit: 0, miss: 1 } }), c({ name: 'Remove' })];
+    expect(orderByEvidence(chain)).toEqual(chain);
+  });
+
+  it('puts a candidate that has resolved ahead of one that has only missed', () => {
+    const chain = [c({ name: 'Delete', seen: { hit: 0, miss: 2 } }), c({ name: 'Remove', seen: { hit: 3, miss: 0 } })];
+    expect(names(orderByEvidence(chain))[0]).toBe("page.getByRole('button', { name: 'Remove', exact: true })");
+  });
+
+  it('breaks an evidence tie by specOf class, then by recorded order', () => {
+    // All three carry the same verdict, so nothing may move: identity first,
+    // handle next, path last is both specOf's order and the recorded one.
+    const chain = [scoped(), c({ name: 'Delete' }), css('div > button')];
+    expect(orderByEvidence(chain)).toEqual(chain);
+    // Same verdict, recorded the other way round: the class order decides.
+    const shuffled = [css('div > button'), c({ name: 'Delete' }), scoped()];
+    expect(names(orderByEvidence(shuffled))).toEqual([
+      "page.locator('tr', { hasText: 'A' }).locator('button')",
+      "page.getByRole('button', { name: 'Delete', exact: true })",
+      "page.locator('div > button')",
+    ]);
+  });
+
+  it('never floats a structural path over an identity/handle candidate that has hits', () => {
+    // The structural path is the ONLY thing with a recorded hit, and it still
+    // does not become primary: a css path names a position, not a control, and
+    // promoting one on evidence is how a chain stops testing what it says it
+    // tests (fwrd26l retired two identity anchors that way).
+    const anchor = c({ name: 'Delete', seen: { hit: 2, miss: 0 } });
+    const path = css('tr:nth-of-type(1) button', { seen: { hit: 5, miss: 0 } });
+    expect(names(orderByEvidence([anchor, path]))[0]).toBe("page.getByRole('button', { name: 'Delete', exact: true })");
+    expect(names(orderByEvidence([path, anchor]))[0]).toBe("page.getByRole('button', { name: 'Delete', exact: true })");
+  });
+
+  it('lets a structural path rise only when nothing non-structural has ever resolved', () => {
+    const path = css('tr:nth-of-type(1) button', { seen: { hit: 1, miss: 0 } });
+    const dead = c({ name: 'Delete', seen: { hit: 0, miss: 2 } });
+    expect(names(orderByEvidence([dead, path]))[0]).toBe("page.locator('tr:nth-of-type(1) button')");
+  });
+});
+
+describe('foldTicketEvidence / reorderByEvidence', () => {
+  const dirs: string[] = [];
+  const tmp = () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-evidence-test-'));
+    dirs.push(d);
+    return d;
+  };
+  afterEach(() => {
+    for (const d of dirs.splice(0)) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  const ticket = (over: Partial<DriftTicket> = {}): DriftTicket => ({
+    flow: 'demo',
+    step: '02-add',
+    skill: 's_1',
+    atStep: '1',
+    key: 'target',
+    similarity: 1,
+    missedLocator: "page.getByTestId('add-part')",
+    fallbackUsed: null,
+    recovered: false,
+    ...over,
+  });
+
+  const staged = () => {
+    const s = stageRepair(specOf([segment('s_1')]), tmp());
+    return new SkillStore(s.skillsDir);
+  };
+
+  it('banks a miss for a DEAD chain — the case replay itself banks nothing for', () => {
+    const store = staged();
+    expect(foldTicketEvidence(store, [ticket()])).toBe(1);
+    expect(store.get('s_1')!.steps[0].locators.target[0].seen).toEqual({ hit: 0, miss: 1 });
+  });
+
+  it('banks a miss when a STRUCTURAL fallback won: the win is not trusted, the miss still happened', () => {
+    const store = staged();
+    const t = ticket({ fallbackUsed: "page.locator('#view > section > header > button')", fallbackIndex: 2 });
+    expect(foldTicketEvidence(store, [t])).toBe(1);
+    expect(store.get('s_1')!.steps[0].locators.target[0].seen).toEqual({ hit: 0, miss: 1 });
+  });
+
+  it('never invents a hit — only ever a miss', () => {
+    const store = staged();
+    foldTicketEvidence(store, [ticket(), ticket(), ticket()]);
+    const seen = store.get('s_1')!.steps[0].locators.target.map((c) => c.seen);
+    expect(seen.every((s) => (s?.hit ?? 0) === 0)).toBe(true);
+  });
+
+  it('leaves a non-structural fallthrough alone — replay already banked that one', () => {
+    const store = staged();
+    const t = ticket({ fallbackUsed: "page.getByRole('button', { name: 'Add part', exact: true })", fallbackIndex: 1 });
+    expect(foldTicketEvidence(store, [t])).toBe(0);
+    expect(store.get('s_1')!.steps[0].locators.target[0].seen).toBeUndefined();
+  });
+
+  it('counts one miss per RUN, not one per loop iteration', () => {
+    const store = staged();
+    // A folded loop files the same ticket under 1.1.x, 1.2.x, ... — the same
+    // bad locator seen once, not nine times.
+    expect(foldTicketEvidence(store, [ticket(), ticket(), ticket()])).toBe(1);
+    expect(store.get('s_1')!.steps[0].locators.target[0].seen).toEqual({ hit: 0, miss: 1 });
+  });
+
+  it('matches a ticket against a SLOTTED candidate, whose expression carries {{v1}}', () => {
+    const store = staged();
+    const skill = store.get('s_1')!;
+    skill.steps[0].locators.target.unshift({ kind: 'text', text: '{{v1}}' } as never);
+    store.put(skill);
+    // The ticket recorded the expression with this run's parameter filled in.
+    const n = foldTicketEvidence(store, [ticket({ missedLocator: "page.getByText('Part A', { exact: true })" })]);
+    expect(n).toBe(1);
+    expect(store.get('s_1')!.steps[0].locators.target[0].seen).toEqual({ hit: 0, miss: 1 });
+  });
+
+  it('retires a chronic candidate on its SECOND run and says so in the change list', () => {
+    const store = staged();
+    foldTicketEvidence(store, [ticket()]);
+    expect(reorderByEvidence(store)).toEqual([]); // one miss is a transient
+    foldTicketEvidence(store, [ticket()]);
+    const lines = reorderByEvidence(store);
+    // The chain also reordered: the retired testid is now behind the two that
+    // still have no verdict against them.
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toBe(
+      "candidate retired: page.getByTestId('add-part') — missed 2 run(s), never hit; now last — s_1 step 1 target",
+    );
+    const chain = store.get('s_1')!.steps[0].locators.target;
+    expect(candidateExpr(chain[chain.length - 1])).toBe("page.getByTestId('add-part')");
+  });
+
+  it('reports a retirement even when nothing can move — a chain of one', () => {
+    // The fwrd42 case exactly: `wait_for` on one text candidate. Nothing to
+    // reorder, and the retirement is the whole news, because from the next run
+    // on that miss stops counting against the converge gate.
+    const store = staged();
+    const skill = store.get('s_1')!;
+    skill.steps[0].locators.target = [{ kind: 'text', text: 'Part A' }] as never;
+    store.put(skill);
+    const t = ticket({ missedLocator: "page.getByText('Part A', { exact: true })" });
+    foldTicketEvidence(store, [t]);
+    foldTicketEvidence(store, [t]);
+    expect(reorderByEvidence(store)).toEqual([
+      "candidate retired: page.getByText('Part A', { exact: true }) — missed 2 run(s), never hit; now last — s_1 step 1 target",
+    ]);
+  });
+
+  it('says each retirement once across a whole repair, not once per run', () => {
+    const store = staged();
+    const reported = new Set<string>();
+    foldTicketEvidence(store, [ticket()]);
+    foldTicketEvidence(store, [ticket()]);
+    expect(reorderByEvidence(store, reported)).toHaveLength(1);
+    // A third run re-observes the same miss; the change list has said it.
+    foldTicketEvidence(store, [ticket()]);
+    expect(reorderByEvidence(store, reported)).toEqual([]);
+  });
+
+  it('is idempotent: a second pass over an already-ordered store moves nothing', () => {
+    const store = staged();
+    foldTicketEvidence(store, [ticket()]);
+    foldTicketEvidence(store, [ticket()]);
+    const reported = new Set<string>();
+    expect(reorderByEvidence(store, reported)).toHaveLength(1);
+    const order = store.get('s_1')!.steps[0].locators.target.map((c) => candidateExpr(c));
+    reorderByEvidence(store, reported);
+    expect(store.get('s_1')!.steps[0].locators.target.map((c) => candidateExpr(c))).toEqual(order);
+  });
+});
+
+describe('ticketIsNews (the converge gate rule)', () => {
+  const dirs: string[] = [];
+  afterEach(() => {
+    for (const d of dirs.splice(0)) fs.rmSync(d, { recursive: true, force: true });
+  });
+  const staged = () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-gate-test-'));
+    dirs.push(d);
+    return new SkillStore(stageRepair(specOf([segment('s_1')]), d).skillsDir);
+  };
+  const ticket = (over: Partial<DriftTicket> = {}): DriftTicket => ({
+    flow: 'demo', step: '02-add', skill: 's_1', atStep: '1', key: 'target',
+    similarity: 1, missedLocator: "page.getByTestId('add-part')", fallbackUsed: null, recovered: false, ...over,
+  });
+
+  it('counts a first miss: two runs is the cheapest evidence that is not one bad afternoon', () => {
+    const store = staged();
+    expect(ticketIsNews(store, ticket())).toBe(true);
+    foldTicketEvidence(store, [ticket()]);
+    expect(ticketIsNews(store, ticket())).toBe(true);
+  });
+
+  it('stops counting once the candidate is retired BY EVIDENCE — that is no longer drift', () => {
+    const store = staged();
+    foldTicketEvidence(store, [ticket()]);
+    foldTicketEvidence(store, [ticket()]);
+    reorderByEvidence(store);
+    expect(ticketIsNews(store, ticket())).toBe(false);
+  });
+
+  it('still counts a miss on a candidate that has ever resolved', () => {
+    const store = staged();
+    const skill = store.get('s_1')!;
+    skill.steps[0].locators.target[0].seen = { hit: 1, miss: 9 };
+    store.put(skill);
+    expect(ticketIsNews(store, ticket())).toBe(true);
+  });
+
+  it('counts a recovery with no locator to blame — very much news', () => {
+    const store = staged();
+    expect(ticketIsNews(store, ticket({ missedLocator: null, recovered: true, fellBack: 'no matching skill' }))).toBe(true);
+  });
+
+  it('counts a ticket it cannot map onto the store at all', () => {
+    const store = staged();
+    expect(ticketIsNews(store, ticket({ skill: 's_gone' }))).toBe(true);
+    expect(ticketIsNews(store, ticket({ atStep: '99' }))).toBe(true);
+  });
+});
+
+describe('cli: --reset-cmd and the evidence codemod wiring', () => {
+  const cliSource = fs.readFileSync(path.resolve(__dirname, '../src/cli.ts'), 'utf8');
+
+  it('takes --reset-cmd as a value flag, so the whole shell command survives parsing', () => {
+    expect(cliSource).toMatch(/'converge',\s*\n\s*'reset-cmd',/);
+  });
+
+  it('documents it next to {n}, the other answer to run-to-run state', () => {
+    expect(cliSource).toContain('--reset-cmd, which runs a shell command before run 1 and');
+  });
+
+  it('runs it through a shell and refuses to continue when it fails', () => {
+    expect(cliSource).toMatch(/spawnSync\(cmd, \{ shell: true/);
+    expect(cliSource).toContain('refusing to run against an app that was not reset');
+  });
+
+  it('resets before run 1 AND before every converge run', () => {
+    expect(cliSource).toContain("runResetCmd(resetCmd, 'run 1', say)");
+    expect(cliSource).toMatch(/for \(let i = 1; i <= converge; i\+\+\) \{\s*\n\s*runResetCmd\(resetCmd, `converge/);
+  });
+
+  it('folds ticket evidence and reorders after run 1 and after each converge run', () => {
+    expect(cliSource.match(/foldTicketEvidence\(staged\.store/g)).toHaveLength(2);
+    expect(cliSource.match(/reorderByEvidence\(staged\.store, retirementsReported\)/g)).toHaveLength(2);
+  });
+
+  it('carries ONE retirement set across the whole repair, so each is said once', () => {
+    expect(cliSource).toContain('const retirementsReported = new Set<string>();');
+  });
+
+  it('prints the failing tickets, not just the step ids, when the gate does not hold', () => {
+    expect(cliSource).toContain('for (const t of checkTickets) {');
+  });
+
+  it('gates the converge run on the store, so a retired candidate stops counting', () => {
+    expect(cliSource).toContain('notConverged(check, dryRun ? undefined : staged.store)');
+    expect(cliSource).toContain('if (store && !ticketIsNews(store, t)) continue;');
+  });
+
+  it('puts the tickets themselves in the --json report, not just how many', () => {
+    expect(cliSource).toMatch(/\r?\n    tickets,\r?\n/);
   });
 });

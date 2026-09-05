@@ -156,7 +156,20 @@ needs re-recording is reported, never attempted. It then prints a reviewer-reada
 runs come back as clean tier-A replays with no drift does it rewrite the `.flow.ts` — the
 `.spec.ts` is never touched. A record-creating flow needs a fresh identity each of those runs;
 `{n}` in a `--var` value is replaced by the run number (`--var runid=fix-{n}` becomes `fix-0`,
-`fix-1`, ...).
+`fix-1`, ...). That gives each run its own records but not its own *app* — everything the
+previous run left behind is still there — so `--reset-cmd "<shell command>"` runs a command of
+your choosing before run 1 and before every converge run (`--reset-cmd "curl -s -X POST
+http://127.0.0.1:4180/__reset"`). It runs through a shell and a non-zero exit aborts the
+repair: a converge pass over an app that was not reset is a verdict about nothing.
+
+Repair also folds each run's evidence back into the chains as a pure codemod, no model: a
+candidate that has never resolved and has now missed on two runs is sorted to the *back* of its
+chain and reported as `candidate retired: <expr> — missed 2 run(s), never hit; now last`.
+Evidence outranks kind, with one exception — a structural css path never floats over an
+identity or handle candidate that has actually resolved. Once a candidate is retired this way
+the fallthrough that names it stops counting against `--converge`: the spec now records that
+fact, so re-observing it is not new drift. Without that rule one chronically volatile locator
+keeps the gate from ever clearing.
 
 Exit codes matter here: `2` means the file was hand-edited or otherwise refused outright (not a
 sitelooper flow file, or a missing `--var`); `3` means the repair itself worked but the convergence
@@ -172,9 +185,11 @@ $ npx playwright test fwrd42.spec.ts
 $ npx playwright test fwrd42.spec.ts        # after the app renamed a button
   ✓ fwrd42 (6.1s)
     [sitelooper drift] 02-add s_05e528/1 target: primary getByTestId('add-part') missed; used #2 getByRole('button', { name: 'Add part', exact: true })
-$ sitelooper repair fwrd42.flow.ts --var runid=fix-{n} --converge 1
+$ sitelooper repair fwrd42.flow.ts --var runid=fix-{n} --converge 1 \
+    --reset-cmd "curl -s -X POST http://127.0.0.1:4180/__reset"
   02-add: candidate promoted: page.getByRole('button', { name: 'Add part', exact: true }) now primary (was #1)
-  wrote fwrd42.flow.ts (13 change(s); the .spec.ts was not touched)
+  candidate retired: page.getByText('{{v4}}', { exact: true }) — missed 2 run(s), never hit; now last — s_640d6e step 4 target
+  wrote fwrd42.flow.ts (14 change(s); the .spec.ts was not touched)
 ```
 
 Be honest about what the loop still doesn't give back, even after `repair`: this stays Tier 2 —
@@ -205,6 +220,11 @@ sitelooper run <flow> [--var k=v ...] [--json] [--progress]
 sitelooper script [out.spec.ts]                  # emit a plain Playwright spec from the recorded actions
 sitelooper compile <flow-name-or-path> [--out <dir>] [--force] [--json]
                                                   # compile a converged flow to a standalone spec
+sitelooper repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>]
+                                 [--reset-cmd "<shell command>"] [--dry-run] [--model M] [--json]
+                                                  # replay a compiled flow against the live app and
+                                                  # fold the adaptation back into the owned .flow.ts;
+                                                  # --reset-cmd runs before run 1 and every converge run
 sitelooper session list | stop [--all] [--save-flow <name>]
 sitelooper doctor | config | config set <key> <value>
 ```

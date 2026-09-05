@@ -16,6 +16,7 @@ import { BrowserSession } from '../src/daemon/browser.js';
 import { compileSkill } from '../src/skills/compile.js';
 import { LOCALIZED_SIMILARITY, drainDrift, patchSegment, promoteFallback, repairPageUrl, stepByTag, triage, type DriftTicket } from '../src/skills/repair.js';
 import { SkillStore, type Skill } from '../src/skills/store.js';
+import type { Page } from 'playwright-core';
 
 const enabled = process.env.BP_BROWSER_TESTS === '1';
 const d = enabled ? describe : describe.skip;
@@ -393,5 +394,179 @@ describe('drainDrift', () => {
       },
     });
     expect(String(summary.skipped[0].why)).toContain('the repair model could not be reached');
+  });
+});
+
+// --- soundness: a proposal must be the same KIND of control ------------------
+
+/**
+ * The live failure this guards: a `wait_for` on the text of a part that had
+ * just been deleted was "repaired" with `getByTestId('archive')` — the Archive
+ * button — because it RESOLVED. Resolution is not intent.
+ */
+describe('patchSegment soundness', () => {
+  const dirs: string[] = [];
+  const tmp = () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-kind-'));
+    dirs.push(d);
+    return d;
+  };
+  afterAll(() => {
+    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  /** A Page stub whose every locator resolves to one element of `kind`. */
+  const pageOf = (kind: { role: string | null; tag: string }, count = 1): Page => {
+    const loc = { count: async () => count, evaluate: async () => kind, nth: () => loc };
+    const any = () => loc;
+    return {
+      evaluate: async () => [],
+      getByTestId: any, getByRole: any, getByLabel: any, getByPlaceholder: any, getByText: any, locator: any,
+    } as unknown as Page;
+  };
+
+  const storeWith = (dir: string, step: import('../src/skills/store.js').SkillStep): SkillStore => {
+    const store = new SkillStore(dir);
+    store.put({
+      id: 's_x', origin: 'http://app.test', template: 'do the thing', params: {},
+      preconditions: { urlPattern: 'http://app.test/' },
+      steps: [step],
+      stats: { uses: 1, successes: 1, partial: 0, created: 'now', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated',
+      provenance: { session: 's', instruction: 'do the thing', created: 'now' },
+    });
+    return store;
+  };
+
+  /** A fill whose chain still carries the recorded element's own role: a textbox. */
+  const fillStep = (): import('../src/skills/store.js').SkillStep => ({
+    tool: 'fill',
+    args: { target: '@e1', value: '{{v1}}' },
+    locators: {
+      target: [
+        { kind: 'label', label: 'Quantity' },
+        { kind: 'point', x: 100, y: 200, w: 80, h: 24, role: 'textbox', tag: 'input', vw: 1280, vh: 720 },
+      ],
+    },
+  });
+
+  it('accepts a proposal of the recorded kind, and tells the proposer what that kind is', async () => {
+    const store = storeWith(tmp(), fillStep());
+    const seen: Array<{ recordedKind?: string; tool?: string }> = [];
+    const res = await patchSegment(store, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'input' }), async (ctx) => {
+      seen.push({ recordedKind: ctx.recordedKind, tool: ctx.tool });
+      return { kind: 'testid', attr: 'data-testid', value: 'quantity' };
+    });
+    expect(seen).toEqual([{ recordedKind: 'textbox', tool: 'fill' }]);
+    expect(res.outcome).toBe('patched');
+    expect(res.unverifiedKind).toBeUndefined();
+    expect(store.get(res.variant!)!.status).toBe('provisional');
+  });
+
+  it('rejects a button proposed where the recording named a textbox — even though it resolves', async () => {
+    const store = storeWith(tmp(), fillStep());
+    const before = store.all().length;
+    const res = await patchSegment(store, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'button' }), async () => ({
+      kind: 'testid', attr: 'data-testid', value: 'archive',
+    }));
+    expect(res.outcome).toBe('wrong-kind');
+    expect(res.detail).toContain('proposed a button, the recorded control was a textbox');
+    expect(store.all().length).toBe(before);
+  });
+
+  it('derives the kind from a role candidate, and from the tool when the chain says nothing', async () => {
+    const roleOnly = storeWith(tmp(), {
+      tool: 'click', args: { target: '@e1' },
+      locators: { target: [{ kind: 'role', role: 'button', name: 'Save' }] },
+    });
+    // a link where a button was recorded is the same kind of control
+    expect((await patchSegment(roleOnly, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'a' }), async () => ({ kind: 'id', selector: '#save' }))).outcome).toBe('patched');
+    // a textbox is not
+    const roleOnly2 = storeWith(tmp(), {
+      tool: 'click', args: { target: '@e1' },
+      locators: { target: [{ kind: 'role', role: 'button', name: 'Save' }] },
+    });
+    expect((await patchSegment(roleOnly2, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'textarea' }), async () => ({ kind: 'id', selector: '#notes' }))).outcome).toBe('wrong-kind');
+    // no point, no role: `select` still implies a select-like control
+    const byTool = storeWith(tmp(), {
+      tool: 'select', args: { target: '@e1', value: 'x' },
+      locators: { target: [{ kind: 'css', selector: 'form > div:nth-of-type(2) > select' }] },
+    });
+    expect((await patchSegment(byTool, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'button' }), async () => ({ kind: 'id', selector: '#b' }))).outcome).toBe('wrong-kind');
+  });
+
+  it('accepts but flags a patch it could not check the kind of', async () => {
+    const store = storeWith(tmp(), {
+      tool: 'click', args: { target: '@e1' },
+      locators: { target: [{ kind: 'css', selector: 'div > div > span' }] },
+    });
+    const res = await patchSegment(store, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'span' }), async () => ({ kind: 'id', selector: '#x' }));
+    expect(res.outcome).toBe('patched');
+    expect(res.unverifiedKind).toBe(true);
+  });
+
+  const waitForText = (): import('../src/skills/store.js').SkillStep => ({
+    tool: 'wait_for',
+    args: { target: '@e1', state: 'visible' },
+    locators: { target: [{ kind: 'text', text: 'Screen protector' }] },
+  });
+
+  it('never asks a proposer for a control when the step waits for TEXT', async () => {
+    const store = storeWith(tmp(), waitForText());
+    let asked = 0;
+    const res = await patchSegment(store, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'button' }), async () => {
+      asked += 1;
+      return { kind: 'testid', attr: 'data-testid', value: 'archive' };
+    });
+    expect(asked).toBe(0);
+    expect(res.outcome).toBe('not-a-control');
+    expect(res.detail).toContain('"Screen protector"');
+    expect(res.detail).toContain('failed expectation for a human');
+    expect(store.all()).toHaveLength(1);
+  });
+
+  it('the same for a wait_for on a text_* state, and for a read of text', async () => {
+    const onState = storeWith(tmp(), {
+      tool: 'wait_for', args: { target: '#banner', state: 'text_contains', text: 'Saved' },
+      locators: { target: [{ kind: 'id', selector: '#banner' }] },
+    });
+    expect((await patchSegment(onState, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'div' }), async () => ({ kind: 'id', selector: '#x' }))).outcome).toBe('not-a-control');
+    const read = storeWith(tmp(), {
+      tool: 'read', args: { target: '@e1', what: 'text' },
+      locators: { target: [{ kind: 'text', text: 'Screen protector' }] },
+    });
+    expect((await patchSegment(read, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'div' }), async () => ({ kind: 'id', selector: '#x' }))).outcome).toBe('not-a-control');
+    // a read of a control (a value out of an input) is still patchable
+    const readInput = storeWith(tmp(), {
+      tool: 'read', args: { target: '@e1', what: 'value' },
+      locators: { target: [{ kind: 'label', label: 'Quantity' }, { kind: 'point', x: 1, y: 2, w: 3, h: 4, role: 'textbox', tag: 'input', vw: 1280, vh: 720 }] },
+    });
+    expect((await patchSegment(readInput, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: null, tag: 'input' }), async () => ({ kind: 'id', selector: '#qty' }))).outcome).toBe('patched');
+  });
+
+  it('triage routes a text observation to skip, so no page or model is spent on it', () => {
+    const store = storeWith(tmp(), waitForText());
+    const t = ticket({ skill: 's_x', atStep: '1' });
+    const [routed] = triage([t], store);
+    expect(routed.kind).toBe('skip');
+    expect(String((routed as { why: string }).why)).toContain('no control to propose');
+    // without a store to look the step up in, triage behaves exactly as before
+    expect(triage([t])[0].kind).toBe('patch-segment');
+  });
+
+  it('drainDrift skips it too, without opening a page', async () => {
+    const store = storeWith(tmp(), waitForText());
+    let opened = 0;
+    const summary = await drainDrift(store, [ticket({ skill: 's_x', atStep: '1', pageUrl: 'http://app.test/x' })], {
+      dryRun: false,
+      openPage: async () => {
+        opened += 1;
+        return null;
+      },
+      propose: async () => ({ kind: 'testid', attr: 'data-testid', value: 'archive' }),
+    });
+    expect(opened).toBe(0);
+    expect(summary.patched).toHaveLength(0);
+    expect(String(summary.skipped[0].why)).toContain('no control to propose');
   });
 });

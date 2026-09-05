@@ -80,7 +80,7 @@ export type TriageAction =
  * Classify a run's drift tickets into repair work. Pure and deterministic —
  * the model is only ever involved later, in executing `patch-segment`.
  */
-export function triage(tickets: DriftTicket[]): TriageAction[] {
+export function triage(tickets: DriftTicket[], store?: Pick<SkillStore, 'get'>): TriageAction[] {
   const seen = new Set<string>();
   const out: TriageAction[] = [];
   // Loop iterations ("2.1.1", "2.4.1") all share one body step — canonicalise
@@ -102,6 +102,14 @@ export function triage(tickets: DriftTicket[]): TriageAction[] {
       continue;
     }
     if (t.missedLocator !== null) {
+      // An observation step that waits for or reads TEXT is not repairable by
+      // proposing a control: see notAControlWhy. Routed here, with the store
+      // to hand, so no proposer is ever asked for a locator for it.
+      const notAControl = store ? notAControlWhy(store.get(t.skill), t) : null;
+      if (notAControl) {
+        out.push({ kind: 'skip', ticket: t, why: notAControl });
+        continue;
+      }
       // A POSITIONAL fallback that worked is a symptom, not a self-heal:
       // promoting it would put "wherever sorted into that slot" first in the
       // chain and enshrine exactly what verify-artifacts flags (fwgr17-n3's
@@ -159,6 +167,157 @@ export interface ProposeContext {
   chain: LocatorCandidate[];
   /** A textual snapshot of the live page's interactive elements. */
   snapshot: string;
+  /**
+   * What KIND of control the recording named - the point candidate's role (or
+   * its tag when it had none), else a role candidate's role, else what the
+   * step's tool implies. Undefined when nothing in the step says. Given to the
+   * proposer so it can be told what to look for, and enforced afterwards by
+   * patchSegment.
+   */
+  recordedKind?: string;
+  /** The drifted step's tool ("click", "fill", ...), for the same reason. */
+  tool?: string;
+}
+
+/**
+ * The kind of control a drifted step named, as far as the recording can say.
+ * `families` are the live roles that count as the SAME kind (a button that
+ * became a link is still a command; a textbox that became a searchbox is
+ * still a text input) - matching on the family rather than the exact role
+ * keeps honest repairs while still refusing a button in a textbox's place.
+ */
+export interface RecordedKind {
+  /** How to name it to a human or a model: the role, or the tag when there is no role. */
+  label: string;
+  families: string[];
+  source: 'point' | 'role' | 'tool';
+}
+
+const ROLE_FAMILY: Record<string, string> = {
+  textbox: 'text-input', searchbox: 'text-input', spinbutton: 'text-input',
+  combobox: 'select', listbox: 'select',
+  checkbox: 'toggle', radio: 'toggle', switch: 'toggle',
+  button: 'command', link: 'command', tab: 'command', option: 'command',
+  menuitem: 'command', menuitemcheckbox: 'command', menuitemradio: 'command',
+};
+
+const TAG_FAMILY: Record<string, string> = {
+  input: 'text-input', textarea: 'text-input', select: 'select',
+  button: 'command', a: 'command', summary: 'command',
+};
+
+/**
+ * The family a role/tag belongs to. An unknown role is its own family
+ * (`role:heading`), so it still compares equal to itself and unequal to
+ * everything else - unknown must not mean "matches anything".
+ */
+export function kindFamily(k: { role?: string | null; tag?: string | null }): string | null {
+  if (k.role) return ROLE_FAMILY[k.role] ?? `role:${k.role}`;
+  if (k.tag) return TAG_FAMILY[k.tag] ?? `tag:${k.tag}`;
+  return null;
+}
+
+/** What the step's tool alone implies about its target, when the chain says nothing. */
+const TOOL_KIND: Record<string, { label: string; families: string[] }> = {
+  // A combobox in the ARIA sense is often a typed-into autocomplete, so a fill
+  // may legitimately land on either.
+  fill: { label: 'text input', families: ['text-input', 'select'] },
+  type: { label: 'text input', families: ['text-input', 'select'] },
+  select: { label: 'combobox', families: ['select'] },
+  check: { label: 'checkbox', families: ['toggle'] },
+  uncheck: { label: 'checkbox', families: ['toggle'] },
+};
+
+/**
+ * What kind of control the drifted step named - the whole point of the
+ * soundness check in patchSegment. In order of how much the recording
+ * actually knows: the `point` candidate carries the recorded element's own
+ * role and tag (the recorder reads them off the element at record time); a
+ * `role` candidate carries the role it was matched by; and failing both, the
+ * tool implies a shape (you do not `fill` a button). Null when nothing says -
+ * a click on a css path, say.
+ */
+export function recordedKindOf(step: { tool: string } | null | undefined, chain: LocatorCandidate[]): RecordedKind | null {
+  const point = chain.find((c): c is Extract<LocatorCandidate, { kind: 'point' }> => c.kind === 'point');
+  if (point) {
+    const label = point.role ?? point.tag;
+    const family = kindFamily({ role: point.role, tag: point.tag });
+    if (label && family) return { label, families: [family], source: 'point' };
+  }
+  const role = chain.find((c): c is Extract<LocatorCandidate, { kind: 'role' }> => c.kind === 'role');
+  if (role) return { label: role.role, families: [kindFamily({ role: role.role })!], source: 'role' };
+  const byTool = step ? TOOL_KIND[step.tool] : undefined;
+  return byTool ? { ...byTool, source: 'tool' } : null;
+}
+
+/**
+ * The role/tag of the element a candidate resolves to on the LIVE page, read
+ * the way the recorder reads it (recorder.ts's `implicitRole`, and markPoint's
+ * `kindOf`): an explicit role attribute, else the tag's implicit role.
+ * Mirrored here rather than imported because both copies live inside
+ * page.evaluate bodies in recorder.ts and are not exported.
+ */
+export async function liveKind(page: Page, c: LocatorCandidate): Promise<{ role: string | null; tag: string } | null> {
+  try {
+    return await makeLocator(page, c).evaluate((el: Element) => {
+      const tag = el.tagName.toLowerCase();
+      const type = (el.getAttribute('type') || '').toLowerCase();
+      const implicit = (): string | null => {
+        if (tag === 'button') return 'button';
+        if (tag === 'a') return el.hasAttribute('href') ? 'link' : null;
+        if (tag === 'select') return el.hasAttribute('multiple') ? 'listbox' : 'combobox';
+        if (tag === 'textarea') return 'textbox';
+        if (tag === 'img') return 'img';
+        if (/^h[1-6]$/.test(tag)) return 'heading';
+        if (tag === 'input') {
+          if (type === 'checkbox') return 'checkbox';
+          if (type === 'radio') return 'radio';
+          if (type === 'submit' || type === 'button' || type === 'reset') return 'button';
+          if (type === 'search') return 'searchbox';
+          if (type === 'number') return 'spinbutton';
+          if (['text', 'email', 'tel', 'url', 'password', ''].includes(type)) return 'textbox';
+          return null;
+        }
+        return null;
+      };
+      return { role: el.getAttribute('role') || implicit(), tag };
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Why this ticket cannot be repaired by proposing a CONTROL, or null when it
+ * can.
+ *
+ * A `wait_for` (or `read`) whose target names TEXT is an EXPECTATION, not a
+ * control that moved: "wait until the page shows 'Screen protector'". When it
+ * stops resolving, the honest reading is that the page no longer shows that
+ * text - the thing was deleted, or renamed, or never got created - and asking
+ * a model for "the element that serves the same purpose" invites exactly the
+ * answer a live repair gave: `getByTestId('archive')`, the Archive BUTTON,
+ * offered as the replacement for the text of a part that had just been
+ * deleted. Resolution is not intent. This is a failed expectation for a human
+ * to look at, not drift for a machine to patch.
+ */
+export function notAControlWhy(skill: Skill | null | undefined, ticket: DriftTicket): string | null {
+  const step = skill ? stepByTag(skill, ticket.atStep) : null;
+  const chain = step?.locators[ticket.key ?? 'target'];
+  if (!step || !chain) return null;
+  if (!['wait_for', 'read', 'read_all'].includes(step.tool)) return null;
+  const primary = chain[0];
+  const namesText =
+    (primary?.kind === 'text' && !!primary.text) ||
+    (primary?.kind === 'scoped' && !!primary.hasText && !primary.selector) ||
+    (step.tool === 'wait_for' && /^text_/.test(String(step.args.state ?? '')));
+  if (!namesText) return null;
+  const what =
+    primary?.kind === 'text' ? JSON.stringify(primary.text)
+    : primary?.kind === 'scoped' ? JSON.stringify(primary.hasText)
+    : JSON.stringify(String(step.args.text ?? ''));
+  const verb = step.tool === 'wait_for' ? 'waits for' : 'reads';
+  return `step ${ticket.atStep ?? '?'} ${verb} the text ${what}, which the page no longer shows: a failed expectation for a human to look at, not a control that drifted - there is no control to propose`;
 }
 
 /** Re-derives a locator for a moved control; null when it cannot. */
@@ -168,8 +327,15 @@ export interface PatchResult {
   ticket: DriftTicket;
   /** The new provisional variant skill, stored; undefined when the patch was not possible. */
   variant?: string;
-  outcome: 'patched' | 'no-proposal' | 'proposal-does-not-resolve' | 'not-applicable';
+  outcome: 'patched' | 'no-proposal' | 'proposal-does-not-resolve' | 'not-applicable' | 'wrong-kind' | 'not-a-control';
   detail?: string;
+  /**
+   * Patched without being able to check the proposal is the same KIND of
+   * control - the recording said nothing about the kind, or the live element's
+   * role could not be read. The patch stands; the flag is so a report can say
+   * this one was taken on trust.
+   */
+  unverifiedKind?: boolean;
 }
 
 /**
@@ -192,8 +358,15 @@ export async function patchSegment(
   const chain = step?.locators[ticket.key ?? 'target'];
   if (!skill || !step || !chain) return { ticket, outcome: 'not-applicable', detail: 'the ticket no longer maps onto a stored skill step' };
 
+  // Before any model is asked anything: some steps have no control to
+  // re-derive at all. Asking anyway is what produced the Archive button as the
+  // replacement for a deleted part's text.
+  const notAControl = notAControlWhy(skill, ticket);
+  if (notAControl) return { ticket, outcome: 'not-a-control', detail: notAControl };
+
+  const recorded = recordedKindOf(step, chain);
   const snapshot = await interactiveSnapshot(page);
-  const proposed = await propose({ skill, ticket, chain, snapshot });
+  const proposed = await propose({ skill, ticket, chain, snapshot, recordedKind: recorded?.label, tool: step.tool });
   if (!proposed) return { ticket, outcome: 'no-proposal' };
 
   // Verify against the live page before adopting anything.
@@ -205,6 +378,27 @@ export async function patchSegment(
   }
   if (count !== 1) {
     return { ticket, outcome: 'proposal-does-not-resolve', detail: `${candidateExpr(proposed)} matched ${count} element(s)` };
+  }
+
+  // RESOLVING IS NOT INTENT. A locator that finds exactly one element on the
+  // live page has proved only that the element exists - not that it is the
+  // control the step was about. Ask the live element what kind of thing it is,
+  // the same way the recorder asked at record time, and refuse a proposal of a
+  // different kind outright.
+  const live = await liveKind(page, proposed);
+  const liveFamily = live ? kindFamily(live) : null;
+  let unverifiedKind = false;
+  if (!recorded || !live || !liveFamily) {
+    // Nothing to check against (a click on a bare css path, or an element
+    // whose role could not be read). Take the proposal, but say so.
+    unverifiedKind = true;
+  } else if (!recorded.families.includes(liveFamily)) {
+    const liveLabel = live.role ?? live.tag;
+    return {
+      ticket,
+      outcome: 'wrong-kind',
+      detail: `${candidateExpr(proposed)} proposed a ${liveLabel}, the recorded control was a ${recorded.label}`,
+    };
   }
 
   const variant: Skill = structuredClone(skill);
@@ -222,7 +416,7 @@ export async function patchSegment(
   variant.stats = { uses: 0, successes: 0, partial: 0, created: now, failedAtStep: {}, fallthroughs: 0 };
   variant.provenance = { ...variant.provenance, session: 'post-session-repair', created: now };
   store.put(variant);
-  return { ticket, variant: variant.id, outcome: 'patched', detail: candidateExpr(proposed) };
+  return { ticket, variant: variant.id, outcome: 'patched', detail: candidateExpr(proposed), ...(unverifiedKind ? { unverifiedKind } : {}) };
 }
 
 /**
@@ -345,17 +539,23 @@ export interface DiagnosticProposer extends ProposeLocator {
 
 /** ProposeLocator backed by the repair model: strict-JSON locator proposals from the live-page snapshot. */
 export function llmProposer(provider: Provider): DiagnosticProposer {
-  const propose: DiagnosticProposer = async ({ skill, ticket, chain, snapshot }) => {
+  const propose: DiagnosticProposer = async ({ skill, ticket, chain, snapshot, recordedKind, tool }) => {
     const prompt = [
       "A stored browser procedure has drifted: one step's locator no longer resolves on the live page.",
       `Procedure template: ${skill.template}`,
       `Step ${ticket.atStep ?? '?'} (${ticket.key ?? 'target'}); its known locators, best first, ALL of which failed to resolve:`,
       ...chain.map((c) => `  - ${candidateExpr(c)}`),
+      // The kind is the one fact that rules out the plausible-looking wrong
+      // answer: a live repair once offered the Archive BUTTON in place of a
+      // textbox. A proposal of a different kind is rejected after the fact,
+      // so saying it up front saves the round trip.
+      ...(recordedKind ? [`The control was a ${recordedKind}${tool ? ` (the step ${tool}s it)` : ''}; propose an element of that same kind and nothing else.`] : []),
       '',
       'Interactive elements currently on the page, one per line:',
       snapshot || '(none found)',
       '',
       'Pick the ONE element that serves the same purpose the dead locators described (the control probably moved or was renamed).',
+      'Do NOT offer a nearby element of a different kind just because it exists: if the control itself is gone, that is not a rename.',
       'Reply with ONLY a JSON object, no prose, in one of these shapes:',
       '{"kind":"role","role":"button","name":"..."} {"kind":"label","label":"..."} {"kind":"placeholder","placeholder":"..."}',
       '{"kind":"testid","attr":"data-testid","value":"..."} {"kind":"id","selector":"#..."} {"kind":"text","text":"..."} {"kind":"css","selector":"..."}',
@@ -433,7 +633,7 @@ export interface DrainOptions {
  * The triage and the summary shape are identical for all three.
  */
 export async function drainDrift(store: SkillStore, tickets: DriftTicket[], opts: DrainOptions): Promise<DrainSummary> {
-  const actions = triage(tickets);
+  const actions = triage(tickets, store);
   const summary: DrainSummary = { promoted: [], patched: [], reRecord: [], skipped: [] };
 
   for (const a of actions) {
@@ -487,7 +687,7 @@ export async function drainDrift(store: SkillStore, tickets: DriftTicket[], opts
     }
     const diagnostic = 'last' in propose ? propose.last : undefined;
     if (res.outcome === 'patched') {
-      summary.patched.push({ skill: a.ticket.skill, step: a.ticket.atStep, key: a.ticket.key ?? 'target', variant: res.variant, locator: res.detail, url, model: opts.model });
+      summary.patched.push({ skill: a.ticket.skill, step: a.ticket.atStep, key: a.ticket.key ?? 'target', variant: res.variant, locator: res.detail, url, model: opts.model, ...(res.unverifiedKind ? { unverifiedKind: true } : {}) });
     } else {
       summary.skipped.push({
         skill: a.ticket.skill, step: a.ticket.atStep,

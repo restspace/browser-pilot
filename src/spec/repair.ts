@@ -17,10 +17,11 @@
 // `droppedExpectations` is what the CLI gates the write on.
 import fs from 'node:fs';
 import path from 'node:path';
-import { candidateExpr, type LocatorCandidate } from '../daemon/recorder.js';
-import { stepByTag } from '../skills/repair.js';
+import { candidateExpr, positionalExpr, type LocatorCandidate } from '../daemon/recorder.js';
+import { retired, stepByTag, type DriftTicket } from '../skills/repair.js';
+import { structural } from '../skills/replay.js';
 import type { Flow } from '../skills/flow.js';
-import { SkillStore, type SkillStep } from '../skills/store.js';
+import { SkillStore, type Skill, type SkillStep } from '../skills/store.js';
 import { flowToSpec, type SpecFlow, type SpecSegment, type SpecStep } from './ir.js';
 import { stageForReplay } from './lower.js';
 
@@ -318,4 +319,201 @@ export function foldPatchedVariants(
     lines.push(`${originalId} step ${tag ?? '?'} ${key}: ${expr} folded in as primary (from variant ${variantId})`);
   }
   return lines;
+}
+
+// --- evidence codemod --------------------------------------------------------
+//
+// PLAN-self-updating-spec.md, "what the agent is allowed to change": reorder
+// candidates and retire a candidate are the CHEAP, no-model edits — "always a
+// pure codemod from sidecar evidence". Everything below is that codemod. It
+// reads only `seen` (the hit/miss counters replay banks) and the run's own
+// drift tickets, and it never invents a hit: the only counter it writes is a
+// miss the run demonstrably observed.
+
+/**
+ * Does `expr` (a drift ticket's `missedLocator`, recorded with this run's
+ * parameters already filled in) name this stored candidate?
+ *
+ * Stored chains carry `{{v4}}` slots, so a literal comparison misses exactly
+ * the candidates that identify a record — the ones the evidence rule most
+ * needs to reach. A slotted expression is matched as a pattern instead: the
+ * literal parts must line up, the slots may be anything.
+ */
+export function candidateMatchesExpr(c: LocatorCandidate, expr: string): boolean {
+  const own = candidateExpr(c);
+  if (own === expr) return true;
+  if (!own.includes('{{')) return false;
+  const escaped = own
+    .split(/\{\{[^}]*\}\}/)
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('[\\s\\S]*');
+  return new RegExp(`^${escaped}$`).test(expr);
+}
+
+/** Every locator chain in a stored skill, addressed the way a ticket addresses one. */
+function chainsOfSkill(skill: Skill): Array<{ tag: string; key: string; chain: LocatorCandidate[] }> {
+  const out: Array<{ tag: string; key: string; chain: LocatorCandidate[] }> = [];
+  for (const { tag, step } of flatten(skill.steps)) {
+    for (const [key, chain] of chainsOf(step)) out.push({ tag, key, chain });
+  }
+  return out;
+}
+
+/**
+ * Bank the misses a run's drift tickets prove, for the chains replay itself
+ * banks nothing about.
+ *
+ * `replay.ts` records per-candidate evidence ONLY when a NON-STRUCTURAL
+ * candidate won — deliberately, because banking a structural win would
+ * confirm "whatever sorted into that slot" and retire the anchors it beat
+ * (fwrd26l). The consequence is a blind spot with a name: a chain whose
+ * winner is structural, and a chain where NOTHING resolved, both leave the
+ * missed candidate with an empty `seen` for ever. It misses on every run, it
+ * is never retired, and it files an identical drift ticket every run — which
+ * is precisely why the convergence gate on fwrd42 could not clear.
+ *
+ * So the miss is banked from the ticket. The miss is a real observation; the
+ * win, in these two cases, is not one we are willing to trust, and no hit is
+ * ever written here. That asymmetry IS the rule.
+ */
+export function foldTicketEvidence(store: SkillStore, tickets: DriftTicket[]): number {
+  let banked = 0;
+  // One bump per (skill, step, key, candidate) per RUN: a loop body that
+  // missed on nine iterations saw one bad locator once, not nine times, and
+  // `retired`'s "two independent runs" threshold means what it says.
+  const done = new Set<string>();
+  for (const t of tickets) {
+    if (!t.missedLocator || !t.atStep) continue;
+    // A non-structural fallback that won is already banked by replay; banking
+    // it again here would double-count and retire on one run instead of two.
+    if (t.fallbackUsed !== null && !positionalExpr(t.fallbackUsed)) continue;
+    const skill = store.get(t.skill);
+    if (!skill) continue;
+    const step = stepByTag(skill, t.atStep);
+    const chain = step?.locators[t.key ?? 'target'];
+    if (!chain) continue;
+    const named = chain.filter((c) => candidateMatchesExpr(c, t.missedLocator!));
+    if (named.length !== 1) continue;
+    const key = `${t.skill}|${t.atStep}|${t.key ?? 'target'}|${candidateExpr(named[0])}`;
+    if (done.has(key)) continue;
+    done.add(key);
+    named[0].seen = { hit: named[0].seen?.hit ?? 0, miss: (named[0].seen?.miss ?? 0) + 1 };
+    store.put(skill);
+    banked++;
+  }
+  return banked;
+}
+
+/**
+ * Where a candidate sorts, by evidence: 0 it has resolved at least once, 1 no
+ * verdict yet, 2 demonstrated volatile (`retired`: never hit, missed twice).
+ */
+function evidenceRank(c: LocatorCandidate): 0 | 1 | 2 {
+  if ((c.seen?.hit ?? 0) > 0) return 0;
+  return retired(c) ? 2 : 1;
+}
+
+/** identity / handle / path, as `specOf` classes them. */
+function classRank(c: LocatorCandidate): 0 | 1 | 2 {
+  if (c.kind === 'scoped') return 0;
+  return structural(c) ? 2 : 1;
+}
+
+/**
+ * One chain, reordered by what the evidence says — the whole rule in one
+ * function, so the unit tests can state it directly.
+ *
+ * Evidence outranks kind, because kind is a PRIOR about what a candidate is
+ * and evidence is a measurement of whether it works (the same reason
+ * `resolveChain` sorts `byEvidence` inside each class). Ties keep both the
+ * recorded order and `specOf`'s class order, so nothing shuffles for free.
+ *
+ * The one thing evidence may NOT do is float a structural path over an
+ * identity or handle candidate that has actually resolved: a css path names
+ * no element, only a position, and promoting one on evidence is how a chain
+ * quietly stops testing the control it was recorded against. Structural
+ * candidates are therefore clamped out of the top rank whenever any
+ * non-structural candidate in the chain has a hit.
+ */
+export function orderByEvidence(chain: LocatorCandidate[]): LocatorCandidate[] {
+  const anchored = chain.some((c) => !structural(c) && (c.seen?.hit ?? 0) > 0);
+  const rank = (c: LocatorCandidate) => {
+    const r = evidenceRank(c);
+    return structural(c) && anchored ? Math.max(r, 1) : r;
+  };
+  return chain
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => rank(a.c) - rank(b.c) || classRank(a.c) - classRank(b.c) || a.i - b.i)
+    .map((x) => x.c);
+}
+
+/**
+ * Apply `orderByEvidence` to every chain in the staged store, in place, and
+ * say what moved in the vocabulary the change list uses.
+ *
+ * Retirements get their own line because they are the interesting half: a
+ * reviewer reading the diff should see WHY a locator dropped to the back of
+ * its chain, and "missed 3 run(s), never hit" is the whole argument. They are
+ * reported even when NOTHING moves — a chain of one candidate cannot reorder,
+ * and that is precisely the chain whose retirement the reader most needs told
+ * about, because from the next run on it stops counting as drift.
+ *
+ * `reported` is how a repair pass that calls this after every run says each
+ * retirement once. Pass one set for the whole invocation; the default makes
+ * the function stand alone for a single pass.
+ */
+export function reorderByEvidence(store: SkillStore, reported = new Set<string>()): string[] {
+  const lines: string[] = [];
+  for (const skill of store.all()) {
+    let touched = false;
+    for (const { tag, key, chain } of chainsOfSkill(skill)) {
+      const where = `${skill.id} step ${tag} ${key}`;
+      for (const c of chain) {
+        if (!retired(c)) continue;
+        const id = `${where}|${candidateExpr(c)}`;
+        if (reported.has(id)) continue;
+        reported.add(id);
+        lines.push(`candidate retired: ${candidateExpr(c)} — missed ${c.seen?.miss ?? 0} run(s), never hit; now last — ${where}`);
+      }
+      const ordered = orderByEvidence(chain);
+      if (ordered.every((c, i) => c === chain[i])) continue;
+      // Only a candidate that EARNED the front gets a line of its own. One
+      // that merely inherited it, because the candidate above it was retired,
+      // is already accounted for by the retirement line above.
+      const head = ordered[0];
+      const from = chain.indexOf(head);
+      if (from > 0 && (head.seen?.hit ?? 0) > 0) {
+        lines.push(`candidate reordered: ${candidateExpr(head)} now primary (was #${from}) on ${head.seen?.hit ?? 0} hit(s) — ${where}`);
+      }
+      chain.splice(0, chain.length, ...ordered);
+      touched = true;
+    }
+    if (touched) store.put(skill);
+  }
+  return lines;
+}
+
+/**
+ * Is this drift ticket NEW information?
+ *
+ * A fallthrough (or a dead chain) whose missed candidate the evidence has
+ * ALREADY retired is not drift: the store has recorded the verdict, the
+ * codemod has moved that candidate to the back of its chain, and the run is
+ * simply re-observing a fact the spec already carries. Counting it would make
+ * `--converge n` unclearable on any flow with one chronically volatile
+ * candidate — which is exactly what fwrd42's 06-report did.
+ *
+ * Anything else still counts. A first or second miss is news; a miss on a
+ * candidate that has ever resolved is news; a recovery with no locator to
+ * blame is very much news.
+ */
+export function ticketIsNews(store: Pick<SkillStore, 'get'>, t: DriftTicket): boolean {
+  if (!t.missedLocator || !t.atStep) return true;
+  const skill = store.get(t.skill);
+  const step = skill ? stepByTag(skill, t.atStep) : null;
+  const chain = step?.locators[t.key ?? 'target'];
+  if (!chain) return true;
+  const named = chain.filter((c) => candidateMatchesExpr(c, t.missedLocator!));
+  if (named.length !== 1) return true;
+  return !retired(named[0]);
 }

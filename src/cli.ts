@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { clip } from './shared/text.js';
 import net from 'node:net';
@@ -14,7 +14,7 @@ import { SkillStore, successRate, type Skill } from './skills/store.js';
 import { listFlows, loadFlow } from './skills/flow.js';
 import { drainDrift, llmProposer, triage, type DrainSummary, type DriftTicket } from './skills/repair.js';
 import { compileFlow } from './spec/index.js';
-import { mintVars } from './spec/repair.js';
+import { foldTicketEvidence, mintVars, reorderByEvidence, ticketIsNews } from './spec/repair.js';
 import { emitFlowFile } from './spec/emit.js';
 import { flowToSpec, type SpecFlow } from './spec/ir.js';
 import { LiftError, liftFlowFile } from './spec/lift.js';
@@ -44,7 +44,7 @@ Usage:
                                           # (signed into nothing). Prefer "sitelooper repair" below,
                                           # which drains the same tickets on the live, signed-in page.
   sitelooper repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>]
-                                   [--dry-run] [--model M] [--json]
+                                   [--reset-cmd "<shell command>"] [--dry-run] [--model M] [--json]
                                           # self-updating spec: replay a compiled flow file against
                                           # the live app in an ISOLATED temp store, let the recovery
                                           # ladder adapt it, fold the adaptation back into the owned
@@ -54,7 +54,10 @@ Usage:
                                           # clean tier-A replay with no drift. Each of those runs is
                                           # a REAL run against the app: give a record-creating flow
                                           # a per-run name with {n} (--var runid=fix-{n} becomes
-                                          # fix-0, fix-1, ...) or reset the app between runs.
+                                          # fix-0, fix-1, ...), or reset the app between runs with
+                                          # --reset-cmd, which runs a shell command before run 1 and
+                                          # before every converge run and aborts if it exits non-zero
+                                          # (--reset-cmd "curl -s -X POST http://localhost:3000/__reset").
   sitelooper var <name>=<value>          # EXPERIMENTAL: declare a run variable (becomes {{name}} in a flow)
   sitelooper flow list | show <name>     # EXPERIMENTAL: saved flows (recorded sessions you can replay with run)
   sitelooper run <flow> [--var k=v ...]  # EXPERIMENTAL: replay a saved flow, repairing drifted steps
@@ -162,6 +165,7 @@ function parseArgv(argv: string[]): ParsedArgs {
     'var',
     'out',
     'converge',
+    'reset-cmd',
   ]);
   /**
    * Every flag that takes no value. Unknown options are rejected rather than
@@ -1113,18 +1117,52 @@ async function runStagedFlow(
 }
 
 /**
+ * Put the app back where every run of a converge loop expects to find it.
+ *
+ * `{n}`-minted vars solve half of the accumulation problem (each run works its
+ * own records); they do not solve the other half, which is everything the
+ * PREVIOUS run left behind — rows in a list a locator counts, a seeded fixture
+ * a create step consumes, a queue that grows. A record-creating flow replayed
+ * three times is three different apps unless something resets it, and the gate
+ * would then be measuring the app's history rather than the spec's stability.
+ *
+ * Deliberately a shell command rather than anything sitelooper knows how to
+ * do: the reset is the application's business (a fixture endpoint, a `docker
+ * compose down -v`, a seed script), and the only thing this tool has an
+ * opinion about is that a reset which FAILED must stop the run — a converge
+ * pass over an un-reset app reports a verdict about nothing.
+ */
+function runResetCmd(cmd: string | undefined, label: string, say: (m: string) => void): void {
+  if (!cmd) return;
+  say(`  reset (${label}): ${cmd}`);
+  const res = spawnSync(cmd, { shell: true, stdio: 'pipe', encoding: 'utf8' });
+  if (res.error) fail(`--reset-cmd could not run: ${res.error.message}`, 2);
+  if (res.status !== 0) {
+    if (res.stderr?.trim()) console.error(res.stderr.trim());
+    fail(`--reset-cmd exited ${res.status ?? 'by signal'} before ${label}; refusing to run against an app that was not reset`, 2);
+  }
+}
+
+/**
  * Steps that are not "clean tier A", in the convergence gate's own vocabulary:
  * a step that did not succeed, a step that needed the model (any tier but A),
  * or a step that succeeded but still filed a drift ticket. A run that halted
  * reports its unreached steps too — silence about them would read as success.
  */
-function notConverged(run: FlowRunResult): string[] {
+function notConverged(run: FlowRunResult, store?: Pick<SkillStore, 'get'>): string[] {
   const bad = new Map<string, string>();
   for (const st of run.steps) {
     if (st.status !== 'success') bad.set(st.id, st.status);
     else if (st.tier !== 'A') bad.set(st.id, `tier ${st.tier ?? 'none'}`);
   }
   for (const t of run.driftTickets ?? []) {
+    // Not every ticket is drift. A fallthrough whose missed candidate the
+    // evidence has already RETIRED is the run re-observing something the spec
+    // now records — the codemod has moved that candidate to the back of its
+    // chain, and there is nothing left to learn from it. Counting it would
+    // leave `--converge n` permanently unclearable on any flow with one
+    // chronically volatile locator (fwrd42's 06-report). See ticketIsNews.
+    if (store && !ticketIsNews(store, t)) continue;
     if (!bad.has(t.step)) bad.set(t.step, `drift (${t.missedLocator ?? t.reason ?? t.fellBack ?? 'recovered'})`);
   }
   if (run.steps.length < run.total) bad.set('(unreached)', `${run.total - run.steps.length} step(s) the run never got to`);
@@ -1150,7 +1188,7 @@ async function repairFlowCommand(
   onProgress?: (m: string) => void,
 ): Promise<void> {
   const file = positional[0];
-  if (!file) fail('usage: repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>] [--dry-run] [--model M] [--json]', 2);
+  if (!file) fail('usage: repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>] [--reset-cmd "<cmd>"] [--dry-run] [--model M] [--json]', 2);
   let source: string;
   try {
     source = fs.readFileSync(file, 'utf8');
@@ -1173,6 +1211,7 @@ async function repairFlowCommand(
   const converge = flags.has('converge') ? Number(flags.get('converge')) : 1;
   if (!Number.isInteger(converge) || converge < 0) fail('--converge takes a non-negative integer', 2);
   const dryRun = flags.has('dry-run');
+  const resetCmd = flags.get('reset-cmd') ? String(flags.get('reset-cmd')) : undefined;
   const outFile = flags.get('out') ? String(flags.get('out')) : file;
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-repair-'));
@@ -1182,6 +1221,16 @@ async function repairFlowCommand(
     if (!json) console.log(m);
   };
   say(`repairing ${file} (${before.steps.length} step(s)) in ${dir}`);
+
+  // Every line the evidence codemod produced, across run 1 and every converge
+  // run. Kept beside the IR diff rather than inside it because a retirement is
+  // an observation ABOUT a chain, not a shape change the diff can see: a
+  // candidate that dropped to the back of a chain reads, in the emitted file,
+  // as a reordering with no reason attached.
+  const evidenceLines: string[] = [];
+  // One retirement, one line, however many runs re-observe it.
+  const retirementsReported = new Set<string>();
+  runResetCmd(resetCmd, 'run 1', say);
 
   const { run, drained } = await runStagedFlow(staged, mintVars(vars, 0), `repair-${stamp}-0`, {
     headed: flags.has('headed'),
@@ -1207,11 +1256,23 @@ async function repairFlowCommand(
   const folded = dryRun ? [] : foldPatchedVariants(staged.store, summary.patched);
   for (const line of folded) say(`  folded           ${line}`);
 
+  // The cheap, no-model half of "what the agent is allowed to change": bank
+  // the misses this run's tickets prove for the chains replay banks nothing
+  // about (a dead chain, or one a structural path won), then reorder every
+  // chain by that evidence. Run 1 files the first miss; the converge runs
+  // below file the second, which is what `retired` needs.
+  if (!dryRun) {
+    foldTicketEvidence(staged.store, tickets);
+    evidenceLines.push(...reorderByEvidence(staged.store, retirementsReported));
+    for (const line of evidenceLines) say(`  evidence         ${line}`);
+  }
+
   let diff = diffSpecChanges(before, reloadStaged(staged).spec);
   const printChanges = (heading: string, d: typeof diff) => {
     if (json) return;
     console.log(heading);
     for (const line of d.lines) console.log(`  ${line}`);
+    for (const line of evidenceLines) console.log(`  ${line}`);
   };
   if (!json) {
     console.log(
@@ -1234,8 +1295,13 @@ async function repairFlowCommand(
     flow: before.name,
     workspace: dir,
     run: { status: run.status, passed: run.passed, total: run.total, drift: tickets.length },
+    // The tickets themselves, not just how many: "15 drift ticket(s)" cannot be
+    // acted on, and the one question a stuck converge loop asks is WHICH
+    // locator keeps missing and what won instead.
+    tickets,
     ...summary,
-    changes: diff.lines,
+    changes: [...diff.lines, ...evidenceLines],
+    evidence: evidenceLines,
     droppedExpectations: diff.droppedExpectations,
     weakenedByVariant: diff.weakenedByVariant,
   });
@@ -1253,7 +1319,7 @@ async function repairFlowCommand(
   };
   gateExpectations();
 
-  let changed = diff.lines.filter((l) => !l.endsWith(': no change'));
+  let changed = [...diff.lines.filter((l) => !l.endsWith(': no change')), ...evidenceLines];
   if (!changed.length && summary.reRecord.length) {
     if (json) console.log(JSON.stringify({ ...report(), wrote: null, refused: 'needs re-record' }, null, 2));
     else console.log('nothing could be repaired without re-recording — re-record the segment(s) listed above and compile again');
@@ -1261,11 +1327,28 @@ async function repairFlowCommand(
   }
 
   for (let i = 1; i <= converge; i++) {
+    runResetCmd(resetCmd, `converge ${i}/${converge}`, say);
     const { run: check } = await runStagedFlow(staged, mintVars(vars, i), `repair-${stamp}-${i}`, { headed: flags.has('headed'), onProgress });
-    const bad = notConverged(check);
-    say(`converge ${i}/${converge}: ${check.passed}/${check.total} step(s) ${check.status}, ${(check.driftTickets ?? []).length} drift ticket(s)`);
+    const checkTickets = check.driftTickets ?? [];
+    // Fold and reorder BEFORE gating, not after: this run's misses are part of
+    // the evidence this run is judged on. A candidate whose second miss lands
+    // here is retired here, and the ticket that reported it is then exactly
+    // what the codemod just recorded — a fact about the spec, not drift.
+    if (!dryRun) {
+      foldTicketEvidence(staged.store, checkTickets);
+      const moved = reorderByEvidence(staged.store, retirementsReported);
+      evidenceLines.push(...moved);
+      for (const line of moved) say(`  evidence         ${line}`);
+    }
+    const bad = notConverged(check, dryRun ? undefined : staged.store);
+    say(`converge ${i}/${converge}: ${check.passed}/${check.total} step(s) ${check.status}, ${checkTickets.length} drift ticket(s)${bad.length ? '' : ' — clean'}`);
     if (bad.length) {
-      if (json) console.log(JSON.stringify({ ...report(), wrote: null, converged: false, notConverged: bad }, null, 2));
+      if (json) console.log(JSON.stringify({ ...report(), wrote: null, converged: false, notConverged: bad, convergeTickets: checkTickets }, null, 2));
+      // The tickets, not just the step ids: a gate failure is only actionable
+      // if it names the locator that missed and what resolved instead.
+      for (const t of checkTickets) {
+        console.error(`  ticket: ${t.step} ${t.skill}${t.atStep ? `/${t.atStep}` : ''} ${t.key ?? ''}: ${t.missedLocator ?? t.reason ?? t.fellBack ?? 'recovered'}${t.fallbackUsed ? ` → used ${t.fallbackUsed}` : ' → nothing resolved'}`);
+      }
       console.error(`not converged: ${bad.join(', ')}`);
       process.exit(3);
     }
@@ -1279,7 +1362,7 @@ async function repairFlowCommand(
   const finalDiff = diffSpecChanges(before, finalSpec);
   if (finalDiff.lines.join('\n') !== diff.lines.join('\n')) {
     diff = finalDiff;
-    changed = diff.lines.filter((l) => !l.endsWith(': no change'));
+    changed = [...diff.lines.filter((l) => !l.endsWith(': no change')), ...evidenceLines];
     printChanges('--- changes (after the convergence run(s) adopted what the repair proposed) ---', diff);
     gateExpectations();
   }
