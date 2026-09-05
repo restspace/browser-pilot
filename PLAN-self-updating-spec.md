@@ -98,25 +98,36 @@ That last rule is what keeps a green build meaning something (PLAN-compile-to-co
 2. Emit Tier 2 for the set-28 flows; score with the existing verifiers.
 3. Round-trip test harness: `lift(emit(skill))` deep-equals `skill`.
 
-## Status 2026-09-04 and known gaps
+## Status 2026-09-05
 
 Phases 0, 1, 3, 4 are on the `compile-to-spec` branch and demonstrated end to end on the
-local repairdesk app. Left open:
+local repairdesk app with OpenRouter (z-ai/glm-5.3) as the repair model.
 
-1. **Model balance.** The configured provider key returned `NOT_ENOUGH_BALANCE`, so the
-   patch-segment path (a moved control with a dead chain, bench app drift mode `both`) is
-   implemented but unproven against a live model. Top up and rerun `repair` under `both`.
-2. **A recording defect blocks convergence on fwrd42.** Skill `s_640d6e` step 4 waits for a
-   part the step has just deleted; the daemon replay halts there on every run, so
-   `--converge 1` cannot pass on that flow without recovery. The compiled spec passes the
-   same step because its any-of presence check finds the name elsewhere on the page. Either
-   re-record 06-report or treat it as the first case for the "re-record one segment" path.
-3. **Scoped row locator divergence: resolved.** It was a sampling race, not semantics: the
-   app defers its list refetch, and `pick()` counted the primary a few milliseconds before the
-   repaint landed, so a fallback won. `pick()` now re-samples every candidate ahead of a hit
-   before demoting the primary (replay has the same guarantee through `settleDom`). 8/8 runs
-   with zero drift lines after the fix.
-4. **Only repairdesk is run.** The other Matrix-2 targets are cloud-hosted.
-5. **Phase 2 (runtime extraction) not started.** Survey in the session scratchpad
-   (RUNTIME-EXTRACTION.md): almost everything needed is already pure; the entanglement is
-   import-graph, and the one real rewrite is StepDiff assembly out of `agent/tools.ts`.
+Closed since 2026-09-04:
+
+1. **Model path proven.** Under the bench app's `both` drift (test ids and labels renamed
+   together) three dead chains were patched with model-proposed locators on the signed-in
+   run page; the cold "cannot be revisited" class is gone (tickets carry the concrete url and
+   a daemon `patch` command drains them before the session stops).
+2. **The step 06 "recording defect" was an engine defect.** The step waits for a deleted
+   part's text to be hidden, which is a correct assertion; replay treated the absence as a
+   locator miss. Replay now counts a hidden/count-0 wait as satisfied, the emitter asserts
+   `toBeHidden` on the candidate union, and `fwrd42` converges under `ids` drift: exit 0,
+   two clean runs, the written spec passes under drift with zero fallthroughs.
+3. **Chronic candidates.** Misses from tickets are folded into the staged store and chains
+   are reordered by evidence after each run (hit=0, miss>=2 sorts last); a ticket for an
+   already-retired candidate is not drift. `--reset-cmd` resets the app before every run.
+4. **Proposal soundness.** A proposal must be the same kind of control as the recording
+   (by family: text input, select, toggle, command); waits and reads on text, and steps
+   recorded with no locator, never reach the model, and the gate ignores their tickets.
+5. **Scoped row race** fixed in `pick()` by re-sampling the candidates ahead of a hit.
+
+Still open:
+
+1. **Expectations that no longer hold** (a dialog renamed from "Add part" to "Attach part")
+   fail the spec and are refused by repair by design; the "re-record one segment" path that
+   would regenerate them is reported, not automated.
+2. **Only repairdesk is run.** The other Matrix-2 targets are cloud-hosted.
+3. **Phase 2 (runtime extraction) not started.** Survey in the session scratchpad
+   (RUNTIME-EXTRACTION.md): almost everything needed is already pure; the one real rewrite
+   is StepDiff assembly out of `agent/tools.ts`.
