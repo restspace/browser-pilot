@@ -1,0 +1,74 @@
+{
+  "file": "bench/results/sp1od-spec/fwod34.flow.ts",
+  "flow": "fwod34",
+  "workspace": "/tmp/sitelooper-repair-9cl9gL",
+  "run": {
+    "status": "success",
+    "passed": 9,
+    "total": 9,
+    "drift": 1
+  },
+  "tickets": 1,
+  "promoted": [],
+  "patched": [
+    {
+      "skill": "s_d654ba",
+      "step": "4",
+      "key": "target",
+      "variant": "s_436f9c",
+      "locator": "page.getByLabel('Save manually')",
+      "url": "http://127.0.0.1:8069/web#cids=1&menu_id=194&action=316&model=sale.order&view_type=form&id=21",
+      "model": "z-ai/glm-5.3"
+    }
+  ],
+  "reRecord": [],
+  "skipped": [],
+  "changes": [
+    "01-signin: no change",
+    "02-create: no change",
+    "03-open: new locator: page.getByLabel('Save manually') (model-proposed) — s_d654ba step 4 target",
+    "04-open: no change",
+    "05-open: no change",
+    "06-open: no change",
+    "07-open: no change",
+    "08-open: no change",
+    "09-change: no change"
+  ],
+  "evidence": [],
+  "droppedExpectations": [],
+  "weakenedByVariant": [],
+  "wrote": null,
+  "converged": false,
+  "notConverged": [
+    "03-open (drift (after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- row \\\"Conference Chair [E-COM12] Conference Chair (Steel) 1.00 33.00 20% £ 33.00\\\"\") — the step ran but did not have its recorded effect))",
+    "06-open (drift (page.getByRole('button', { name: 'Cancel', exact: true })))"
+  ],
+  "convergeTickets": [
+    {
+      "flow": "fwod34",
+      "step": "03-open",
+      "skill": "s_d654ba",
+      "similarity": null,
+      "missedLocator": null,
+      "fallbackUsed": null,
+      "recovered": true,
+      "fellBack": "s_d654ba stopped at step 4 — after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- row \\\"Conference Chair [E-COM12] Conference Chair (Steel) 1.00 33.00 20% £ 33.00\\\"\") — the step ran but did not have its recorded effect",
+      "reason": "after step 4 none of the 5 recorded page change(s) appeared (e.g. \"- row \\\"Conference Chair [E-COM12] Conference Chair (Steel) 1.00 33.00 20% £ 33.00\\\"\") — the step ran but did not have its recorded effect",
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&cids=:id&id=:id&menu_id=:id&model=sale.order&view_type=form",
+      "pageUrl": "http://127.0.0.1:8069/web#cids=1&menu_id=194&action=316&model=sale.order&view_type=form&id=22"
+    },
+    {
+      "flow": "fwod34",
+      "step": "06-open",
+      "skill": "s_2be9be",
+      "atStep": "3",
+      "key": "target",
+      "similarity": null,
+      "missedLocator": "page.getByRole('button', { name: 'Cancel', exact: true })",
+      "fallbackUsed": null,
+      "recovered": true,
+      "pageUrlPattern": "http://127.0.0.1:8069/web#action=:id&menu_id=:id&model=sale.order&view_type=list",
+      "pageUrl": "http://127.0.0.1:8069/web#action=316&model=sale.order&view_type=list&menu_id=194"
+    }
+  ]
+}

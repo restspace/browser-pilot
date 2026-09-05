@@ -1,0 +1,34 @@
+{
+  "arm": "spec",
+  "runid": "sp1odb",
+  "target": "odoo",
+  "flow": "sp1od.json",
+  "flowName": "fwod34",
+  "skillsDir": "/home/user/sitelooper/bench/results/sp1od-skills",
+  "compiled": true,
+  "flowFile": "bench/results/sp1odb-spec-tmp/fwod34.flow.ts",
+  "specFile": "bench/results/sp1odb-spec-tmp/fwod34.spec.ts",
+  "wallMs": 9842,
+  "exitCode": 1,
+  "timedOut": false,
+  "costUsd": 0,
+  "stats": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "title": "fwod34",
+      "status": "unexpected",
+      "ok": false,
+      "durationMs": 6625,
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/^http:\\/\\/127\\.0\\.0\\.1:8069\\/web(?:\\?[^#]*)?#action=&cids=&menu_id=$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:8069/web#action=123&cids=1&menu_id=81\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:8069/web\"\u001b[22m\n\u001b[2m    8 × unexpected value \"http://127.0.0.1:8069/web#action=123&cids=1&menu_id=81\"\u001b[22m\n",
+      "drift": []
+    }
+  ],
+  "drift": [],
+  "driftCount": 0,
+  "logTail": "\nRunning 1 test using 1 worker\n\n  ✘  1 fwod34.spec.ts:4:1 › fwod34 (6.6s)\n\n\n  1) fwod34.spec.ts:4:1 › fwod34 ───────────────────────────────────────────────────────────────────\n\n    Error: expect(page).toHaveURL(expected) failed\n\n    Expected pattern: /^http:\\/\\/127\\.0\\.0\\.1:8069\\/web(?:\\?[^#]*)?#action=&cids=&menu_id=$/\n    Received string:  \"http://127.0.0.1:8069/web#action=123&cids=1&menu_id=81\"\n    Timeout: 5000ms\n\n    Call log:\n      - Expect \"toHaveURL\" with timeout 5000ms\n        5 × unexpected value \"http://127.0.0.1:8069/web\"\n        8 × unexpected value \"http://127.0.0.1:8069/web#action=123&cids=1&menu_id=81\"\n\n\n       at fwod34.flow.ts:4122\n\n      4120 |     p.d3 = urlPart(page.url(), 'q.menu_id'); // recorded example: 81\n      4121 |     // This step CREATES a record (its id is url part 'q.action') — clean it up in your teardown.\n    > 4122 |     await expect(page).toHaveURL(new RegExp(`^http://127\\\\.0\\\\.0\\\\.1:8069/web(?:\\\\?[^#]*)?#action=${escapeRe(p.d1)}&cids=${escapeRe(p.d2)}&menu_id=${escapeRe(p.d3)}$`));\n           |                        ^\n      4123 |     // the step's recorded effect must show — any one of these, as replay's effect gate has it:\n      4124 |     //   - button \"Home Menu\"\n      4125 |     //   - menuitem \"Discuss\"\n        at Object.01-signin (/home/user/sitelooper/bench/results/sp1odb-spec-tmp/fwod34.flow.ts:4122:24)\n        at runFlow (/home/user/sitelooper/bench/results/sp1odb-spec-tmp/fwod34.flow.ts:5274:3)\n        at /home/user/sitelooper/bench/results/sp1odb-spec-tmp/fwod34.spec.ts:5:19\n\n    Error Context: ../../../test-results/fwod34-fwod34/error-context.md\n\n  1 failed\n    fwod34.spec.ts:4:1 › fwod34 ────────────────────────────────────────────────────────────────────\n"
+}
