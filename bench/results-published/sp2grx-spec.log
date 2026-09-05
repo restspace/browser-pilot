@@ -1,0 +1,26 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 fwgr27.spec.ts:4:1 › fwgr27 (19.8s)
+
+
+  1) fwgr27.spec.ts:4:1 › fwgr27 ───────────────────────────────────────────────────────────────────
+
+    Error: none of 4 recorded locators resolved: getByTestId('data-testid Edit dashboard button') | getByRole('button', { name: 'Edit', exact: true }) | locator('[data-testid="[spec-replay] sp2grx: 0/1 passed, exit=1, 22s, 0 drift line(s) — result written
+  await page.waitForTimeout(PICK_POLL_MS);
+      3228 |   }
+    > 3229 |   throw new Error(
+           |         ^
+      3230 |     `none of ${candidates.length} recorded locators resolved: ` +
+      3231 |       candidates.slice(0, 3).map((c) => String(c)).join(' | '),
+      3232 |   );
+        at pick (/home/user/sitelooper/bench/results/sp2grx-spec-tmp/fwgr27.flow.ts:3229:9)
+        at Object.03-add (/home/user/sitelooper/bench/results/sp2grx-spec-tmp/fwgr27.flow.ts:3742:17)
+        at runFlow (/home/user/sitelooper/bench/results/sp2grx-spec-tmp/fwgr27.flow.ts:4382:3)
+        at /home/user/sitelooper/bench/results/sp2grx-spec-tmp/fwgr27.spec.ts:5:19
+
+    Error Context: ../../../test-results/fwgr27-fwgr27/error-context.md
+
+  1 failed
+    fwgr27.spec.ts:4:1 › fwgr27 ────────────────────────────────────────────────────────────────────
+EXIT=1

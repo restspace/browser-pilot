@@ -1,0 +1,34 @@
+{
+  "arm": "spec",
+  "runid": "sp2gra",
+  "target": "grafana",
+  "flow": "sp2gr.json",
+  "flowName": "fwgr27",
+  "skillsDir": "/home/user/sitelooper/bench/results/sp2gr-skills",
+  "compiled": true,
+  "flowFile": "bench/results/sp2gra-spec-tmp/fwgr27.flow.ts",
+  "specFile": "bench/results/sp2gra-spec-tmp/fwgr27.spec.ts",
+  "wallMs": 23583,
+  "exitCode": 1,
+  "timedOut": false,
+  "costUsd": 0,
+  "stats": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "title": "fwgr27",
+      "status": "unexpected",
+      "ok": false,
+      "durationMs": 20255,
+      "error": "Error: none of 4 recorded locators resolved: getByTestId('data-testid Edit dashboard button') | getByRole('button', { name: 'Edit', exact: true }) | locator('[data-testid=\"data-testid Nav toolbar\"] button')",
+      "drift": []
+    }
+  ],
+  "drift": [],
+  "driftCount": 0,
+  "logTail": "\nRunning 1 test using 1 worker\n\n  ✘  1 fwgr27.spec.ts:4:1 › fwgr27 (20.3s)\n\n\n  1) fwgr27.spec.ts:4:1 › fwgr27 ───────────────────────────────────────────────────────────────────\n\n    Error: none of 4 recorded locators resolved: getByTestId('data-testid Edit dashboard button') | getByRole('button', { name: 'Edit', exact: true }) | locator('[data-testid=\"data-testid Nav toolbar\"] button')\n\n       at fwgr27.flow.ts:3217\n\n      3215 |     await page.waitForTimeout(PICK_POLL_MS);\n      3216 |   }\n    > 3217 |   throw new Error(\n           |         ^\n      3218 |     `none of ${candidates.length} recorded locators resolved: ` +\n      3219 |       candidates.slice(0, 3).map((c) => String(c)).join(' | '),\n      3220 |   );\n        at pick (/home/user/sitelooper/bench/results/sp2gra-spec-tmp/fwgr27.flow.ts:3217:9)\n        at Object.03-add (/home/user/sitelooper/bench/results/sp2gra-spec-tmp/fwgr27.flow.ts:3730:17)\n        at runFlow (/home/user/sitelooper/bench/results/sp2gra-spec-tmp/fwgr27.flow.ts:4370:3)\n        at /home/user/sitelooper/bench/results/sp2gra-spec-tmp/fwgr27.spec.ts:5:19\n\n    Error Context: ../../../test-results/fwgr27-fwgr27/error-context.md\n\n  1 failed\n    fwgr27.spec.ts:4:1 › fwgr27 ────────────────────────────────────────────────────────────────────\n"
+}

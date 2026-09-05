@@ -1,0 +1,72 @@
+{
+  "file": "bench/results/sp2gr-spec/fwgr27.flow.ts",
+  "flow": "fwgr27",
+  "workspace": "/tmp/sitelooper-repair-qBqQhN",
+  "run": {
+    "status": "success",
+    "passed": 5,
+    "total": 5,
+    "drift": 4
+  },
+  "tickets": 4,
+  "promoted": [
+    {
+      "skill": "s_939c34",
+      "step": "2",
+      "from": "elementAt(99, 165) /* heading */",
+      "to": "page.locator('[data-testid=\"header-container\"] h2')"
+    }
+  ],
+  "patched": [],
+  "reRecord": [],
+  "skipped": [
+    {
+      "skill": "s_b80251",
+      "step": "2",
+      "why": "no-proposal",
+      "url": "http://127.0.0.1:3000/d/bench-service-health/service-health?from=now-6h&to=now&timezone=browser",
+      "snapshotRows": 8,
+      "snapshotBytes": 230,
+      "modelReply": "null"
+    },
+    {
+      "skill": "s_b80251",
+      "step": "3",
+      "why": "no-proposal",
+      "url": "http://127.0.0.1:3000/d/bench-service-health/service-health?from=now-6h&to=now&timezone=browser",
+      "snapshotRows": 102,
+      "snapshotBytes": 3927,
+      "modelReply": "null"
+    },
+    {
+      "skill": "s_b80251",
+      "step": "4",
+      "why": "proposal-does-not-resolve: page.getByTestId('Panel header Latency by endpoint') matched 0 element(s)",
+      "url": "http://127.0.0.1:3000/d/bench-service-health/service-health?from=now-6h&to=now&timezone=browser",
+      "snapshotRows": 102,
+      "snapshotBytes": 3927,
+      "modelReply": "{\"kind\":\"testid\",\"attr\":\"data-testid\",\"value\":\"Panel header Latency by endpoint\"}"
+    }
+  ],
+  "changes": [
+    "01-open: candidate promoted: page.locator('[data-testid=\"header-container\"] h2').nth(0) now primary (was #1) — s_b80251 step 2 target",
+    "01-open: candidate promoted: page.locator('[data-testid=\"header-container\"] h2').nth(1) now primary (was #1) — s_b80251 step 3 target",
+    "01-open: candidate promoted: page.locator('[data-testid=\"header-container\"] h2').nth(2) now primary (was #1) — s_b80251 step 4 target",
+    "02-create: candidate promoted: page.locator('[data-testid=\"header-container\"] h2') now primary (was #1) — s_939c34 step 2 target",
+    "03-add: no change",
+    "04-add: no change",
+    "05-report: no change",
+    "candidate retired: elementAt(68, 165) /* heading */ — missed 2 run(s), never hit; now last — s_b80251 step 2 target",
+    "candidate retired: elementAt(691, 165) /* heading */ — missed 2 run(s), never hit; now last — s_b80251 step 3 target",
+    "candidate retired: elementAt(1036, 165) /* heading */ — missed 2 run(s), never hit; now last — s_b80251 step 4 target"
+  ],
+  "evidence": [
+    "candidate retired: elementAt(68, 165) /* heading */ — missed 2 run(s), never hit; now last — s_b80251 step 2 target",
+    "candidate retired: elementAt(691, 165) /* heading */ — missed 2 run(s), never hit; now last — s_b80251 step 3 target",
+    "candidate retired: elementAt(1036, 165) /* heading */ — missed 2 run(s), never hit; now last — s_b80251 step 4 target"
+  ],
+  "droppedExpectations": [],
+  "weakenedByVariant": [],
+  "wrote": "bench/results/sp2gr-spec/fwgr27.flow.ts",
+  "converged": true
+}
