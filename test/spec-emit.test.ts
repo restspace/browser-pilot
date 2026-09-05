@@ -611,3 +611,30 @@ describe('compileFlow', () => {
     expect(() => compileFlow('no-such-flow', { outDir: dir })).toThrow(/no flow named/);
   });
 });
+
+/**
+ * A wait for the target to be GONE is satisfied by its absence. pick() would
+ * throw on a chain nothing resolves, so the emitter uses the union of every
+ * candidate under toBeHidden instead — fwrd42's 06-report waits for a deleted
+ * part's text and used to fail the compiled spec and the replay alike.
+ */
+describe('wait_for on an absent target', () => {
+  const one = (step: SkillStep) => emit(specOf([step]));
+  const gone: SkillStep = {
+    tool: 'wait_for',
+    args: { target: 'text=x', state: 'hidden' },
+    locators: { target: [{ kind: 'text', text: '{{v4}}' }, { kind: 'css', selector: 'td.name' }] },
+  };
+  it('asserts the union is hidden instead of picking a candidate', () => {
+    const out = one(gone);
+    expect(out).not.toContain('await pick(');
+    expect(out).toContain("await expect((page.getByText(`${p.v4}`, { exact: true })");
+    expect(out).toContain(".or(page.locator('td.name'))).first()).toBeHidden();");
+    expect(syntaxErrors(out)).toEqual([]);
+  });
+  it('does the same for a count of zero', () => {
+    const out = one({ ...gone, args: { target: 'text=x', state: 'count', count: 0 } });
+    expect(out).not.toContain('await pick(');
+    expect(out).toContain('.first()).toHaveCount(0);');
+  });
+});

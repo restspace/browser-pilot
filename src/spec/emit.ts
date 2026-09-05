@@ -19,7 +19,7 @@
  */
 import type { LocatorCandidate } from '../daemon/recorder.js';
 import { TRANSIENT_LINE } from '../skills/compile.js';
-import { consequentialExpectations } from '../skills/replay.js';
+import { consequentialExpectations, waitsForAbsence } from '../skills/replay.js';
 import type { SkillStep } from '../skills/store.js';
 import { candidateSources, chainSource, matcherSource, stringSource } from './locators.js';
 import type { SpecFlow, SpecSegment, SpecStep } from './ir.js';
@@ -522,6 +522,21 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
   // Ambiguity is the normal shape in exactly two places: a read across every
   // match, and a loop body whose per-record locator names every record.
   const any = step.tool === 'read_all' || first;
+  // A wait for the target to be GONE cannot go through pick(): pick demands a
+  // resolving candidate, and absence is the condition. The union of every
+  // candidate with .first() is exactly "none of these is on the page" under
+  // toBeHidden / toHaveCount(0) — the same rule replay applies (waitsForAbsence).
+  if (waitsForAbsence(step, args)) {
+    const chain = step.locators?.target ?? [];
+    noteSlots(chain, ctx);
+    const union = chainSource(chain, { slot: slotAsParam, indent: CONT_INDENT }).source;
+    if (!union) {
+      out.push(`// TODO: no locator this compiler can express for ${step.tool} — fill it in by hand.`);
+      return out;
+    }
+    out.push(waitForLine(`(${union}).first()`, args, num('timeout_ms')));
+    return out;
+  }
   const target = actionTarget(step, 'target', ctx, out, { first, any });
   if (!target) {
     ctx.warnings.push(`${ctx.stepId}: step ${index} (${step.tool}) has no locator a spec can express`);

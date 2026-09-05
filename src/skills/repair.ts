@@ -305,6 +305,14 @@ export function notAControlWhy(skill: Skill | null | undefined, ticket: DriftTic
   const step = skill ? stepByTag(skill, ticket.atStep) : null;
   const chain = step?.locators[ticket.key ?? 'target'];
   if (!step || !chain) return null;
+  // A step recorded with NO locator at all was never findable: the agent read
+  // something back without naming an element ("(read-back)"), so there is
+  // nothing that drifted and nothing a proposal could replace. Without this the
+  // model was asked for "the control" of an unlabelled read and, having no
+  // recorded kind to be checked against, its guess (a search box) was stored.
+  if (!chain.length) {
+    return `step ${ticket.atStep ?? '?'} (${step.tool}) was recorded without a locator, so nothing drifted - there is nothing to patch`;
+  }
   if (!['wait_for', 'read', 'read_all'].includes(step.tool)) return null;
   const primary = chain[0];
   const namesText =

@@ -463,6 +463,19 @@ describe('patchSegment soundness', () => {
     expect(store.get(res.variant!)!.status).toBe('provisional');
   });
 
+  it('never asks for a control on a step that was recorded without any locator', async () => {
+    const store = storeWith(tmp(), { tool: 'read', args: { target: '(read-back)', what: 'text' }, locators: { target: [] } });
+    let asked = 0;
+    const res = await patchSegment(store, ticket({ skill: 's_x', atStep: '1' }), pageOf({ role: 'searchbox', tag: 'input' }), async () => {
+      asked++;
+      return { kind: 'testid', attr: 'data-testid', value: 'search' };
+    });
+    expect(asked).toBe(0);
+    expect(res.outcome).toBe('not-a-control');
+    expect(res.detail).toContain('recorded without a locator');
+    expect(store.all()).toHaveLength(1);
+  });
+
   it('rejects a button proposed where the recording named a textbox — even though it resolves', async () => {
     const store = storeWith(tmp(), fillStep());
     const before = store.all().length;

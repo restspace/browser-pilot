@@ -303,7 +303,9 @@ export async function replaySkill(
         allowMultiple: step.tool === 'read_all',
         ambiguousNth,
         requireIdentity: identity,
-        waitMs: resolveWaitMs(),
+        // Polling to FIND something that is supposed to be gone only delays
+        // the answer; the absence is the condition (see waitsForAbsence).
+        waitMs: waitsForAbsence(step, args) ? 0 : resolveWaitMs(),
         stayOnOrigin: originOf(step.expect?.urlPattern ?? '') ?? originOf(page.url()) ?? undefined,
       };
       let hit = await resolveChain(page, chain, policy);
@@ -314,6 +316,15 @@ export async function replaySkill(
       // of the page before giving up on an observation.
       if (!hit && isRead && (await sweepPage(page))) hit = await resolveChain(page, chain, { ...policy, waitMs: 0 });
       if (!hit) {
+        // A wait for an element to be HIDDEN is satisfied by its absence: the
+        // step's own success condition is "nothing matches", so a dead chain
+        // here is the recorded outcome, not drift. fwrd42's 06-report waited
+        // for a deleted part's text to go and filed a drift ticket on every
+        // run, which no repair could clear because nothing was wrong.
+        if (waitsForAbsence(step, args)) {
+          res.lines.push(`${head} → condition met: ${String(args.state)} (nothing matched)`);
+          return 'ran';
+        }
         resolveError = `no element matched any known locator for ${key}${chain.length ? ` (tried ${chain.length}: ${chain.slice(0, 3).map(candidateExpr).join(', ')}${chain.length > 3 ? ', …' : ''})` : ' (none recorded)'}`;
         res.misses.push({ step: tag, key, primary: chain[0] ? candidateExpr(chain[0]) : '(none recorded)', used: null });
         break;
@@ -1241,6 +1252,12 @@ const LOOP_SHRINK_POLL_MS = 100;
  * absent. Overridable so a test exercising a FALLBACK path need not sit
  * through the wait that precedes it.
  */
+/** A wait_for whose recorded condition is that its target is NOT there. */
+export function waitsForAbsence(step: SkillStep, args: Record<string, unknown>): boolean {
+  if (step.tool !== 'wait_for') return false;
+  return args.state === 'hidden' || (args.state === 'count' && Number(args.count) === 0);
+}
+
 function resolveWaitMs(): number {
   const raw = Number(process.env.SITELOOPER_RESOLVE_WAIT_MS);
   return Number.isFinite(raw) && raw >= 0 ? raw : 3_000;

@@ -508,10 +508,15 @@ export function reorderByEvidence(store: SkillStore, reported = new Set<string>(
  * blame is very much news.
  */
 export function ticketIsNews(store: Pick<SkillStore, 'get'>, t: DriftTicket): boolean {
-  if (!t.missedLocator || !t.atStep) return true;
   const skill = store.get(t.skill);
-  const step = skill ? stepByTag(skill, t.atStep) : null;
+  const step = t.atStep && skill ? stepByTag(skill, t.atStep) : null;
   const chain = step?.locators[t.key ?? 'target'];
+  // A step recorded with no locator at all cannot drift: nothing was ever
+  // findable, so its ticket says the same thing every run and triage skips it
+  // for the same reason (notAControlWhy). The gate must agree with the drain,
+  // or a flow with one unlabelled read-back can never converge.
+  if (chain && !chain.length) return false;
+  if (!t.missedLocator || !t.atStep) return true;
   if (!chain) return true;
   const named = chain.filter((c) => candidateMatchesExpr(c, t.missedLocator!));
   if (named.length !== 1) return true;

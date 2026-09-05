@@ -659,6 +659,19 @@ describe('ticketIsNews (the converge gate rule)', () => {
     similarity: 1, missedLocator: "page.getByTestId('add-part')", fallbackUsed: null, recovered: false, ...over,
   });
 
+  it('is not news for a step that was recorded without any locator', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-news-'));
+    const store = new SkillStore(dir);
+    store.put({
+      id: 's_r', origin: 'http://app.test', template: 'verify', params: {},
+      preconditions: { urlPattern: 'http://app.test/' },
+      steps: [{ tool: 'read', args: { target: '(read-back)', what: 'text' }, locators: { target: [] } }],
+      stats: { uses: 1, successes: 1, partial: 0, created: 'now', failedAtStep: {}, fallthroughs: 0 },
+      status: 'validated', provenance: { session: 's', instruction: 'verify', created: 'now' },
+    });
+    expect(ticketIsNews(store, { flow: 'f', step: '07', skill: 's_r', atStep: '1', key: 'target', similarity: null, missedLocator: '(none recorded)', fallbackUsed: null, recovered: false })).toBe(false);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
   it('counts a first miss: two runs is the cheapest evidence that is not one bad afternoon', () => {
     const store = staged();
     expect(ticketIsNews(store, ticket())).toBe(true);
