@@ -1,0 +1,34 @@
+{
+  "arm": "spec",
+  "runid": "sp2kba",
+  "target": "kanboard",
+  "flow": "sp2kb.json",
+  "flowName": "fwkb5",
+  "skillsDir": "/home/user/sitelooper/bench/results/sp2kb-skills",
+  "compiled": true,
+  "flowFile": "bench/results/sp2kba-spec-tmp/fwkb5.flow.ts",
+  "specFile": "bench/results/sp2kba-spec-tmp/fwkb5.spec.ts",
+  "wallMs": 15679,
+  "exitCode": 1,
+  "timedOut": false,
+  "costUsd": 0,
+  "stats": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "title": "fwkb5",
+      "status": "unexpected",
+      "ok": false,
+      "durationMs": 12537,
+      "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: '{{*}} {{*}}' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: '{{*}} {{*}}' }).first()\u001b[22m\n",
+      "drift": []
+    }
+  ],
+  "drift": [],
+  "driftCount": 0,
+  "logTail": "\nRunning 1 test using 1 worker\n\n  ✘  1 fwkb5.spec.ts:4:1 › fwkb5 (12.5s)\n\n\n  1) fwkb5.spec.ts:4:1 › fwkb5 ─────────────────────────────────────────────────────────────────────\n\n    Error: expect(locator).toBeVisible() failed\n\n    Locator: getByRole('textbox', { name: '{{*}} {{*}}' }).first()\n    Expected: visible\n    Timeout: 5000ms\n    Error: element(s) not found\n\n    Call log:\n      - Expect \"toBeVisible\" with timeout 5000ms\n      - waiting for getByRole('textbox', { name: '{{*}} {{*}}' }).first()\n\n\n       at fwkb5.flow.ts:2231\n\n      2229 |     // the step's recorded effect must show — any one of these, as replay's effect gate has it:\n      2230 |     //   - textbox \"{{*}} {{*}}\": {{*}}\n    > 2231 |     await expect(page.getByRole('textbox', { name: '{{*}} {{*}}', exact: false }).first()).toBeVisible();\n           |                                                                                            ^\n      2232 |\n      2233 |     // @step 04-open s_1e46d8/11\n      2234 |     // TODO: dropped the recorded position fallback (heading at 640,22) — a spec cannot find an element by where it was.\n        at Object.04-open (/home/user/sitelooper/bench/results/sp2kba-spec-tmp/fwkb5.flow.ts:2231:92)\n        at runFlow (/home/user/sitelooper/bench/results/sp2kba-spec-tmp/fwkb5.flow.ts:2419:3)\n        at /home/user/sitelooper/bench/results/sp2kba-spec-tmp/fwkb5.spec.ts:5:19\n\n    Error Context: ../../../test-results/fwkb5-fwkb5/error-context.md\n\n  1 failed\n    fwkb5.spec.ts:4:1 › fwkb5 ──────────────────────────────────────────────────────────────────────\n"
+}
