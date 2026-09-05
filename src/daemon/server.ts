@@ -11,7 +11,7 @@ import { agentGesturesOutsideReplay, bindSkill, canAdoptPin, decideRepin, learnF
 import { buildFlow, consumedUrlOutputs, ignorableRefs, lintFlowRefs, listFlows, loadFlow, loadFlowFile, lookupOutput, noteOutputEvidence, recoveryRoute, remapParams, resolveInstruction, resolveStepParams, softResolveInstruction, saveFlow, saveRejectedFlow, stableOutputs, staleInstructionIds, unbankedMutations, urlOutputs } from '../skills/flow.js';
 import { applyRelabelToEntries, applyRelabelToSkills, relabelCases, requestRelabelPlan } from '../skills/relabel.js';
 import { renderReplay } from '../skills/replay.js';
-import { recordCandidateEvidence } from '../skills/repair.js';
+import { drainDrift, llmProposer, recordCandidateEvidence } from '../skills/repair.js';
 import { RunLedger, bindingKey, describeLeaks, fatal, scanForLeaks, type Leak } from '../skills/ledger.js';
 import { originOf, type Skill } from '../skills/store.js';
 import type { LocatorCandidate } from './recorder.js';
@@ -537,6 +537,46 @@ ${describeLeaks(leaks.slice(0, 6))}`);
         } finally {
           if (this.inflight === controller) this.inflight = null;
         }
+      }
+
+      /**
+       * Drain a run's drift tickets IN SESSION, before the browser closes.
+       *
+       * This is the whole difference between a repair that works and one that
+       * reports "no-proposal": patch-segment has to look at the drifted
+       * control on a page that is signed in and reachable, and the only
+       * process holding such a page is this one. A cold pass in a fresh
+       * browser gets the login screen for every authenticated url, and cannot
+       * reach a page whose url carries an id this run minted at all.
+       *
+       * The store is the daemon's own (`SITELOOPER_SKILLS_DIR`-honouring, so
+       * `sitelooper repair` points it at a throwaway temp store), and the
+       * proposer runs on the recovery model — the same tier flow recovery
+       * uses, for the same reason: a dead chain is not the easy case.
+       */
+      case 'patch': {
+        const store = this.browser.learn;
+        if (!store) throw new Error('this session has no skill store (start it with --learn or SITELOOPER_SKILLS=1)');
+        const tickets = (a.tickets as DriftTicket[]) ?? [];
+        const dryRun = a.dryRun === true;
+        const model = a.model ? String(a.model) : undefined;
+        const provider = this.recoveryProvider(model);
+        const summary = await drainDrift(store, tickets, {
+          dryRun,
+          model: provider.model,
+          propose: llmProposer(provider),
+          openPage: async (url: string) => {
+            const page = await this.browser.getPage();
+            if (page.url() !== url) {
+              progress(`[patch] revisiting ${url}`);
+              await page.goto(url, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
+              await waitForContent(page).catch(() => {});
+            }
+            return page;
+          },
+        });
+        progress(`[patch] ${tickets.length} ticket(s) → ${summary.promoted.length} promoted, ${summary.patched.length} patched, ${summary.reRecord.length} re-record, ${summary.skipped.length} skipped`);
+        return { tickets: tickets.length, ...summary };
       }
 
       case 'stop': {
@@ -1109,11 +1149,18 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
       // locator miss, plus one for a recovery with no structured miss to blame.
       if (sk?.invoked) {
         const pageUrlPattern = sk.replayUrl ? compiledUrlPattern(sk.replayUrl) : undefined;
+        // Both forms travel: the pattern is cross-run evidence, the concrete
+        // url is the only thing a repair pass can navigate back to. See
+        // DriftTicket.pageUrl — a pattern that generalised a run-minted id is
+        // unfillable afterwards, which is what used to send three of fwrd42's
+        // tickets to "needs re-record" when they were perfectly patchable.
+        const pageUrl = sk.replayUrl;
         for (const m of sk.misses ?? []) {
           driftTickets.push({
             flow: flow.name, step: step.id, skill: m.skill ?? sk.invoked, atStep: m.step, key: m.key,
             similarity: sk.similarity, missedLocator: m.primary, fallbackUsed: m.used, ...(m.usedIndex !== undefined ? { fallbackIndex: m.usedIndex } : {}), recovered,
             ...(pageUrlPattern ? { pageUrlPattern } : {}),
+            ...(pageUrl ? { pageUrl } : {}),
           });
         }
         if (recovered && !(sk.misses ?? []).length) {
@@ -1123,6 +1170,7 @@ ${direct.prelude}` : recoveryText) + blankNote + resetNote,
             fellBack,
             ...(sk.failReason ? { reason: sk.failReason } : {}),
             ...(pageUrlPattern ? { pageUrlPattern } : {}),
+            ...(pageUrl ? { pageUrl } : {}),
           });
         }
       }

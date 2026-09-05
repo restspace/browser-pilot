@@ -18,6 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { candidateExpr, type LocatorCandidate } from '../daemon/recorder.js';
+import { stepByTag } from '../skills/repair.js';
 import type { Flow } from '../skills/flow.js';
 import { SkillStore, type SkillStep } from '../skills/store.js';
 import { flowToSpec, type SpecFlow, type SpecSegment, type SpecStep } from './ir.js';
@@ -84,6 +85,19 @@ export interface SpecDiff {
   lines: string[];
   /** Expectation losses; non-empty means the repair must be refused, not written. */
   droppedExpectations: string[];
+  /**
+   * Expectation losses on a step that was re-pinned to a repair VARIANT.
+   *
+   * Reported loudly, but not a refusal, and the distinction is not a loophole:
+   * `patchSegment` drops the drifted step's recorded page-change expectation
+   * BY CONSTRUCTION, because that expectation names the control that moved
+   * (its accessible label, the text it produced) and would hard-fail the very
+   * replay the new locator makes possible. The safety here is the variant
+   * lifecycle — it has to earn adoption across runs — plus this line in front
+   * of a human. A loss with no variant behind it has no such story, and stays
+   * a refusal.
+   */
+  weakenedByVariant: string[];
 }
 
 /**
@@ -101,6 +115,7 @@ export interface SpecDiff {
 export function diffSpecChanges(before: SpecFlow, after: SpecFlow): SpecDiff {
   const lines: string[] = [];
   const droppedExpectations: string[] = [];
+  const weakenedByVariant: string[] = [];
   const afterById = new Map(after.steps.map((s) => [s.id, s]));
 
   for (const b of before.steps) {
@@ -110,14 +125,14 @@ export function diffSpecChanges(before: SpecFlow, after: SpecFlow): SpecDiff {
       lines.push(`${b.id}: step is gone from the repaired flow`);
       continue;
     }
-    own.push(...diffStep(b, a, droppedExpectations));
+    own.push(...diffStep(b, a, droppedExpectations, weakenedByVariant));
     lines.push(...own.map((l) => `${b.id}: ${l}`));
     if (!own.length) lines.push(`${b.id}: no change`);
   }
   for (const a of after.steps) {
     if (!before.steps.some((b) => b.id === a.id)) lines.push(`${a.id}: new step`);
   }
-  return { lines, droppedExpectations };
+  return { lines, droppedExpectations, weakenedByVariant };
 }
 
 /** `diffSpecChanges`, as the plain list of lines the CLI prints. */
@@ -125,7 +140,7 @@ export function describeSpecChanges(before: SpecFlow, after: SpecFlow): string[]
   return diffSpecChanges(before, after).lines;
 }
 
-function diffStep(b: SpecStep, a: SpecStep, droppedExpectations: string[]): string[] {
+function diffStep(b: SpecStep, a: SpecStep, droppedExpectations: string[], weakenedByVariant: string[]): string[] {
   const out: string[] = [];
   if (a.segments.length !== b.segments.length) {
     out.push(`procedure now has ${a.segments.length} segment(s) (was ${b.segments.length})`);
@@ -139,7 +154,7 @@ function diffStep(b: SpecStep, a: SpecStep, droppedExpectations: string[]): stri
     // by the run that followed. Reported first, because every locator line
     // under it is then a line about the variant, not about the original.
     if (as.id !== bs.id) out.push(`step re-pinned to variant ${as.id} (was ${bs.id})`);
-    out.push(...diffSegment(b.id, bs, as, as.id !== bs.id, droppedExpectations));
+    out.push(...diffSegment(b.id, bs, as, as.id !== bs.id, droppedExpectations, weakenedByVariant));
   }
   return out;
 }
@@ -150,6 +165,7 @@ function diffSegment(
   as: SpecSegment,
   isVariant: boolean,
   droppedExpectations: string[],
+  weakenedByVariant: string[],
 ): string[] {
   const out: string[] = [];
   const bSteps = flatten(bs.steps);
@@ -167,8 +183,8 @@ function diffSegment(
     const loss = expectationLoss(bStep.step, aStep.step);
     if (loss) {
       const line = `${where}: ${loss}`;
-      droppedExpectations.push(`${stepId}: ${line}`);
-      out.push(`EXPECTATION DROPPED — ${line}`);
+      (isVariant ? weakenedByVariant : droppedExpectations).push(`${stepId}: ${line}`);
+      out.push(`${isVariant ? 'REVIEW — the repair variant no longer asserts what the old control produced' : 'EXPECTATION DROPPED'} — ${line}`);
     }
 
     const aChains = new Map(chainsOf(aStep.step));
@@ -246,4 +262,60 @@ export function reloadStaged(staged: Pick<StagedRepair, 'flowFile' | 'skillsDir'
  */
 export function mintVars(vars: Record<string, string>, n: number): Record<string, string> {
   return Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, v.split('{n}').join(String(n))]));
+}
+
+/**
+ * Fold a patch-segment VARIANT back into the chain it was cloned from.
+ *
+ * `patchSegment` stores its proposal as a provisional variant skill, to be
+ * adopted (or not) by the normal replay lifecycle over later runs. That is
+ * right for a long-lived store and wrong here, for two reasons.
+ *
+ * First, correctness: the variant is a clone, `seq` included, so a mid-chain
+ * segment's variant claims the SAME chain slot as its original and
+ * `flowToSpec` then compiles both — fwrd42's sign-in step went from three
+ * segments to four, with the drifted one still first. Second, purpose: in the
+ * spec loop the store is a scratch buffer, the `.flow.ts` is the artifact, and
+ * the thing that makes an adaptation safe is not a provisional status nobody
+ * will ever look at — it is the convergence gate plus a human reading the
+ * diff. So the model's locator goes to the FRONT of the real chain, every
+ * candidate that was already there stays behind it (drift can revert), the
+ * step's expectations are untouched, and the variant is dropped.
+ *
+ * Returns one line per fold, for the summary.
+ */
+export function foldPatchedVariants(
+  store: SkillStore,
+  patched: Array<Record<string, unknown>>,
+): string[] {
+  const lines: string[] = [];
+  for (const row of patched) {
+    const variantId = typeof row.variant === 'string' ? row.variant : null;
+    const originalId = typeof row.skill === 'string' ? row.skill : null;
+    if (!variantId || !originalId) continue;
+    const variant = store.get(variantId);
+    const original = store.get(originalId);
+    const tag = typeof row.step === 'string' ? row.step : undefined;
+    const key = typeof row.key === 'string' ? row.key : 'target';
+    const vstep = variant ? stepByTag(variant, tag) : null;
+    const ostep = original ? stepByTag(original, tag) : null;
+    const proposed = vstep?.locators[key]?.[0];
+    const chain = ostep?.locators[key];
+    if (!variant || !original || !proposed || !chain) {
+      lines.push(`could not fold ${variantId} into ${originalId}: the patched step is no longer there`);
+      continue;
+    }
+    const expr = candidateExpr(proposed);
+    if (chain.length && candidateExpr(chain[0]) === expr) {
+      store.remove(variantId);
+      continue;
+    }
+    // Never a replacement: the dead candidate keeps its place behind the new
+    // one, because an app that drifts back should still be found.
+    chain.unshift(proposed);
+    store.put(original);
+    store.remove(variantId);
+    lines.push(`${originalId} step ${tag ?? '?'} ${key}: ${expr} folded in as primary (from variant ${variantId})`);
+  }
+  return lines;
 }

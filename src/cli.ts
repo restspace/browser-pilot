@@ -12,13 +12,13 @@ import { candidateExpr } from './daemon/recorder.js';
 import { fillParams } from './skills/compile.js';
 import { SkillStore, successRate, type Skill } from './skills/store.js';
 import { listFlows, loadFlow } from './skills/flow.js';
-import { patchSegment, promoteFallback, triage, type DriftTicket, type ProposeLocator, type TriageAction } from './skills/repair.js';
+import { drainDrift, llmProposer, triage, type DrainSummary, type DriftTicket } from './skills/repair.js';
 import { compileFlow } from './spec/index.js';
 import { mintVars } from './spec/repair.js';
 import { emitFlowFile } from './spec/emit.js';
 import { flowToSpec, type SpecFlow } from './spec/ir.js';
 import { LiftError, liftFlowFile } from './spec/lift.js';
-import { diffSpecChanges, reloadStaged, stageRepair } from './spec/repair.js';
+import { diffSpecChanges, foldPatchedVariants, reloadStaged, stageRepair } from './spec/repair.js';
 import os from 'node:os';
 
 const USAGE = `sitelooper — agent-in-the-loop Playwright CLI
@@ -39,7 +39,10 @@ Usage:
   sitelooper skills show <id>
   sitelooper skills rm <id>
   sitelooper skills clear --origin <origin> | --all
-  sitelooper skills repair --drift <run-drift.json> [--dry-run] [--model M]   # post-session repair: drain a run's drift tickets
+  sitelooper skills repair --drift <run-drift.json> [--dry-run] [--model M]
+                                          # post-session repair of a drift sidecar, in a COLD browser
+                                          # (signed into nothing). Prefer "sitelooper repair" below,
+                                          # which drains the same tickets on the live, signed-in page.
   sitelooper repair <name.flow.ts> [--var k=v ...] [--out <file>] [--converge <n>]
                                    [--dry-run] [--model M] [--json]
                                           # self-updating spec: replay a compiled flow file against
@@ -955,7 +958,35 @@ async function repairCommand(positional: string[], flags: Map<string, string | b
   }
   const dryRun = flags.has('dry-run');
   const store = new SkillStore();
-  const summary = await drainDrift(store, tickets, { dryRun, model: flags.get('model') ? String(flags.get('model')) : undefined });
+  // The COLD path: a browser of its own, signed into nothing. Kept for the
+  // standalone case (a drift sidecar from a CI run, days later, with no
+  // session to attach to) — `sitelooper repair <flow.ts>` drains the same
+  // tickets inside the run's own session, on a page that is still signed in,
+  // and should be preferred whenever the flow file is at hand.
+  const wantsPage = !dryRun && triage(tickets).some((a) => a.kind === 'patch-segment');
+  const model = flags.get('model') ? String(flags.get('model')) : undefined;
+  let browser: import('./daemon/browser.js').BrowserSession | null = null;
+  let summary: DrainSummary;
+  try {
+    let propose;
+    let openPage;
+    if (wantsPage) {
+      const config = resolveProviderConfig({ model });
+      const resolved = model ?? (config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model);
+      const provider: Provider = config.provider === 'anthropic' ? new AnthropicProvider({ ...config, model: resolved }) : new OpenAICompatProvider({ ...config, model: resolved });
+      propose = llmProposer(provider);
+      const { BrowserSession } = await import('./daemon/browser.js');
+      browser = new BrowserSession({ session: 'repair', persist: false });
+      openPage = async (url: string) => {
+        const page = await browser!.getPage();
+        await page.goto(url, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
+        return page;
+      };
+    }
+    summary = await drainDrift(store, tickets, { dryRun, model, propose, openPage });
+  } finally {
+    await browser?.close();
+  }
 
   if (json) {
     console.log(JSON.stringify({ tickets: tickets.length, ...summary }, null, 2));
@@ -968,128 +999,6 @@ async function repairCommand(positional: string[], flags: Map<string, string | b
   for (const p of summary.skipped) console.log(`  skipped    ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}`);
 }
 
-
-/** What one drain pass did, as rows a reporter (text or JSON) can print. */
-export interface DrainSummary {
-  promoted: Array<Record<string, unknown>>;
-  patched: Array<Record<string, unknown>>;
-  reRecord: Array<Record<string, unknown>>;
-  skipped: Array<Record<string, unknown>>;
-}
-
-/**
- * Drain a run's drift tickets onto `store`: triage, then the cheap codemod
- * (promote-fallback), then the model-and-live-page one (patch-segment).
- * Re-record is REPORTED, never attempted — a broad redesign is a fresh
- * recording, and guessing at it is how a spec quietly stops testing what it
- * says it tests (PLAN-self-updating-spec.md, "what the agent is allowed to
- * change").
- *
- * Takes the store as an argument rather than opening `~/.sitelooper` itself,
- * because `sitelooper repair <flow.ts>` hands it a THROWAWAY store staged
- * from the compiled spec — the whole point of the spec-first loop is that
- * nothing outside the user's repo mutates.
- */
-async function drainDrift(store: SkillStore, tickets: DriftTicket[], opts: { dryRun: boolean; model?: string }): Promise<DrainSummary> {
-  const actions = triage(tickets);
-  const summary: DrainSummary = { promoted: [], patched: [], reRecord: [], skipped: [] };
-
-  for (const a of actions) {
-    if (a.kind === 'promote-fallback') {
-      const ok = opts.dryRun ? true : promoteFallback(store, a.ticket);
-      (ok ? summary.promoted : summary.skipped).push({
-        skill: a.ticket.skill, step: a.ticket.atStep, from: a.ticket.missedLocator, to: a.ticket.fallbackUsed,
-        ...(opts.dryRun ? { dryRun: true } : {}), ...(ok ? {} : { why: 'ticket no longer maps onto the stored skill' }),
-      });
-    } else if (a.kind === 're-record') {
-      summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: a.why });
-    } else if (a.kind === 'skip') {
-      summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.step, why: a.why });
-    }
-  }
-
-  const patches = actions.filter((a): a is Extract<TriageAction, { kind: 'patch-segment' }> => a.kind === 'patch-segment');
-  if (patches.length && !opts.dryRun) {
-    const config = resolveProviderConfig({ model: opts.model });
-    const model = opts.model ?? (config.fallbackModel && config.fallbackModel !== 'none' ? config.fallbackModel : config.model);
-    const provider: Provider = config.provider === 'anthropic' ? new AnthropicProvider({ ...config, model }) : new OpenAICompatProvider({ ...config, model });
-    const { BrowserSession } = await import('./daemon/browser.js');
-    const session = new BrowserSession({ session: 'repair', persist: false });
-    try {
-      for (const a of patches) {
-        const url = repairPageUrl(store, a.ticket);
-        if (!url) {
-          summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: 'the drifted page cannot be revisited (its url needs run-specific ids)' });
-          continue;
-        }
-        const page = await session.getPage();
-        await page.goto(url, { waitUntil: 'load', timeout: 30_000 }).catch(() => {});
-        // A proposer that cannot run at all (no key, no balance, a provider
-        // outage) is a REPORTABLE outcome, not a crash: the promotions this
-        // pass already made are real work, and losing them to an unhandled
-        // 403 would make the whole repair look like a tool bug.
-        let res: Awaited<ReturnType<typeof patchSegment>>;
-        try {
-          res = await patchSegment(store, a.ticket, page, llmProposer(provider));
-        } catch (err) {
-          summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `the repair model could not be reached (${(err as Error).message.slice(0, 200)})` });
-          continue;
-        }
-        if (res.outcome === 'patched') summary.patched.push({ skill: a.ticket.skill, step: a.ticket.atStep, variant: res.variant, locator: res.detail, model });
-        else summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `${res.outcome}${res.detail ? `: ${res.detail}` : ''}` });
-      }
-    } finally {
-      await session.close();
-    }
-  } else if (patches.length) {
-    for (const a of patches) summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: 'patch-segment (dry run: needs the repair model + live page)' });
-  }
-  return summary;
-}
-
-/** A concrete url the drifted page can be revisited at, or null when it cannot. */
-function repairPageUrl(store: SkillStore, ticket: DriftTicket): string | null {
-  const skill = store.get(ticket.skill);
-  if (!skill) return null;
-  const candidates = [ticket.pageUrlPattern, skill.preconditions.urlPattern];
-  for (const c of candidates) {
-    if (!c) continue;
-    const filled = fillParams(c, Object.fromEntries(Object.entries(skill.params).map(([k, p]) => [k, p.example])));
-    if (!filled.includes(':id') && !filled.includes('{{')) return filled;
-  }
-  return null;
-}
-
-/** ProposeLocator backed by the repair model: strict-JSON locator proposals from the live-page snapshot. */
-function llmProposer(provider: Provider): ProposeLocator {
-  return async ({ skill, ticket, chain, snapshot }) => {
-    const prompt = [
-      "A stored browser procedure has drifted: one step's locator no longer resolves on the live page.",
-      `Procedure template: ${skill.template}`,
-      `Step ${ticket.atStep ?? '?'} (${ticket.key ?? 'target'}); its known locators, best first, ALL of which failed to resolve:`,
-      ...chain.map((c) => `  - ${candidateExpr(c)}`),
-      '',
-      'Interactive elements currently on the page, one per line:',
-      snapshot || '(none found)',
-      '',
-      'Pick the ONE element that serves the same purpose the dead locators described (the control probably moved or was renamed).',
-      'Reply with ONLY a JSON object, no prose, in one of these shapes:',
-      '{"kind":"role","role":"button","name":"..."} {"kind":"label","label":"..."} {"kind":"placeholder","placeholder":"..."}',
-      '{"kind":"testid","attr":"data-testid","value":"..."} {"kind":"id","selector":"#..."} {"kind":"text","text":"..."} {"kind":"css","selector":"..."}',
-      'If no element on the page serves that purpose, reply with exactly: null',
-    ].join('\n');
-    const completion = await provider.complete([{ role: 'user', content: prompt }], []);
-    const text = (completion.text ?? '').trim().replace(/^```(?:json)?\s*|\s*```$/g, '');
-    if (!text || text === 'null') return null;
-    try {
-      const parsed = JSON.parse(text);
-      if (parsed && typeof parsed === 'object' && typeof parsed.kind === 'string') return parsed;
-    } catch {
-      /* not JSON */
-    }
-    return null;
-  };
-}
 
 // --- repair on a compiled spec (PLAN-self-updating-spec.md, phase 4) ---
 
@@ -1150,8 +1059,20 @@ async function runStagedFlow(
   staged: { flowFile: string; skillsDir: string },
   vars: Record<string, string>,
   session: string,
-  opts: { headed: boolean; onProgress?: (m: string) => void },
-): Promise<FlowRunResult> {
+  opts: {
+    headed: boolean;
+    onProgress?: (m: string) => void;
+    /**
+     * Drain the run's drift tickets on the SAME connection, before the session
+     * stops. That is the point of doing it here rather than back in the CLI:
+     * the daemon still holds a signed-in page at the url each miss happened
+     * on, which is what patch-segment needs and what a cold browser of our own
+     * could never have — it lands on the login screen for every authenticated
+     * url, and cannot reach a page whose url carries an id this run minted.
+     */
+    drain?: { dryRun: boolean; model?: string };
+  },
+): Promise<{ run: FlowRunResult; drained?: DrainSummary }> {
   const prev = { skills: process.env.SITELOOPER_SKILLS, dir: process.env.SITELOOPER_SKILLS_DIR };
   process.env.SITELOOPER_SKILLS = '1';
   process.env.SITELOOPER_SKILLS_DIR = staged.skillsDir;
@@ -1160,7 +1081,16 @@ async function runStagedFlow(
     try {
       const res = await request(conn, 'run', { name: staged.flowFile, vars }, opts.onProgress);
       if (!res.ok) fail(res.error ?? 'the flow run failed', res.errorKind === 'infra' ? 2 : 1);
-      return res.data as FlowRunResult;
+      const run = res.data as FlowRunResult;
+      if (!opts.drain) return { run };
+      const patched = await request(
+        conn,
+        'patch',
+        { tickets: run.driftTickets ?? [], dryRun: opts.drain.dryRun, model: opts.drain.model },
+        opts.onProgress,
+      );
+      if (!patched.ok) fail(patched.error ?? 'the drift drain failed', patched.errorKind === 'infra' ? 2 : 1);
+      return { run, drained: patched.data as DrainSummary };
     } finally {
       conn.destroy();
     }
@@ -1253,72 +1183,109 @@ async function repairFlowCommand(
   };
   say(`repairing ${file} (${before.steps.length} step(s)) in ${dir}`);
 
-  const run = await runStagedFlow(staged, mintVars(vars, 0), `repair-${stamp}-0`, { headed: flags.has('headed'), onProgress });
+  const { run, drained } = await runStagedFlow(staged, mintVars(vars, 0), `repair-${stamp}-0`, {
+    headed: flags.has('headed'),
+    onProgress,
+    // The drain runs even under --dry-run, but as TRIAGE only: the summary is
+    // what a dry run is FOR, and it cannot be described without classifying
+    // the tickets. --dry-run governs the irreversible things — reordering a
+    // stored chain, storing a variant, writing the user's `.flow.ts`.
+    drain: { dryRun, model: flags.get('model') ? String(flags.get('model')) : undefined },
+  });
   const tickets = run.driftTickets ?? [];
+  const summary: DrainSummary = drained ?? { promoted: [], patched: [], reRecord: [], skipped: [] };
   say(`run 1: ${run.passed}/${run.total} step(s) ${run.status}, ${tickets.length} drift ticket(s)`);
   for (const st of run.steps) {
     say(`  [${st.status === 'success' ? 'OK' : st.status.toUpperCase()}] ${st.id} (tier ${st.tier ?? 'none'})${st.status === 'success' ? '' : ` — ${st.summary ?? ''}`}`);
   }
 
-  // The drain runs even under --dry-run: the summary IS the repair, and it
-  // cannot be described without performing it. --dry-run governs the one
-  // irreversible thing — writing the user's `.flow.ts`.
-  const drained = await drainDrift(staged.store, tickets, {
-    dryRun: false,
-    model: flags.get('model') ? String(flags.get('model')) : undefined,
-  });
+  // A patch the daemon verified on the live page is a proposal about THIS
+  // spec, not a candidate for some future store's lifecycle: fold it into the
+  // chain before anything reads the IR back, or the variant compiles as an
+  // extra segment beside the drifted one it was meant to replace. The
+  // convergence gate below is what it has to earn its place against.
+  const folded = dryRun ? [] : foldPatchedVariants(staged.store, summary.patched);
+  for (const line of folded) say(`  folded           ${line}`);
 
-  const after = reloadStaged(staged).spec;
-  const diff = diffSpecChanges(before, after);
-  const changed = diff.lines.filter((l) => !l.endsWith(': no change'));
+  let diff = diffSpecChanges(before, reloadStaged(staged).spec);
+  const printChanges = (heading: string, d: typeof diff) => {
+    if (json) return;
+    console.log(heading);
+    for (const line of d.lines) console.log(`  ${line}`);
+  };
+  if (!json) {
+    console.log(
+      `${tickets.length} drift ticket(s) → ${summary.promoted.length} promoted, ${summary.patched.length} patched, ${summary.reRecord.length} need re-record, ${summary.skipped.length} skipped`,
+    );
+    for (const p of summary.patched) console.log(`  patched          ${p.skill} step ${p.step} → variant ${p.variant} (${p.locator}) on ${p.url}`);
+    for (const p of summary.reRecord) console.log(`  needs re-record  ${p.skill} (${p.flow}/${p.step}): ${p.why}`);
+    for (const p of summary.skipped) {
+      // A no-proposal is only meaningful next to what the model was looking
+      // at: 6 interactive rows means it was shown the login page, 40 means the
+      // page really had nothing that fits.
+      const seen = p.snapshotRows === undefined ? '' : ` [saw ${p.snapshotRows} interactive row(s), ${p.snapshotBytes} bytes, on ${p.url}; model replied ${JSON.stringify(p.modelReply)}]`;
+      console.log(`  skipped          ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}${seen}`);
+    }
+  }
+  printChanges('--- changes ---', diff);
 
-  const report = {
+  const report = () => ({
     file,
     flow: before.name,
     workspace: dir,
     run: { status: run.status, passed: run.passed, total: run.total, drift: tickets.length },
-    ...drained,
+    ...summary,
     changes: diff.lines,
     droppedExpectations: diff.droppedExpectations,
-  };
-
-  if (!json) {
-    console.log(
-      `${tickets.length} drift ticket(s) → ${drained.promoted.length} promoted, ${drained.patched.length} patched, ${drained.reRecord.length} need re-record, ${drained.skipped.length} skipped`,
-    );
-    for (const p of drained.reRecord) console.log(`  needs re-record  ${p.skill} (${p.flow}/${p.step}): ${p.why}`);
-    for (const p of drained.skipped) console.log(`  skipped          ${p.skill}${p.step ? ` step ${p.step}` : ''}: ${p.why}`);
-    console.log('--- changes ---');
-    for (const line of diff.lines) console.log(`  ${line}`);
-  }
+    weakenedByVariant: diff.weakenedByVariant,
+  });
 
   // Never weaken an expectation: an assertion that no longer holds is a test
-  // failure for a human, not drift (PLAN-self-updating-spec.md).
-  if (diff.droppedExpectations.length) {
-    if (json) console.log(JSON.stringify({ ...report, wrote: null, refused: 'expectation dropped' }, null, 2));
+  // failure for a human, not drift (PLAN-self-updating-spec.md). The one
+  // reported-not-refused case is a repair VARIANT — see SpecDiff for why that
+  // is not a loophole.
+  const gateExpectations = () => {
+    for (const w of diff.weakenedByVariant) console.error(`  review: ${w}`);
+    if (!diff.droppedExpectations.length) return;
+    if (json) console.log(JSON.stringify({ ...report(), wrote: null, refused: 'expectation dropped' }, null, 2));
     for (const d of diff.droppedExpectations) console.error(`  expectation dropped: ${d}`);
     fail('refusing to write: the repair would drop an expectation — that is a test failure for a human, not drift', 1);
-  }
+  };
+  gateExpectations();
 
-  if (!changed.length && drained.reRecord.length) {
-    if (json) console.log(JSON.stringify({ ...report, wrote: null, refused: 'needs re-record' }, null, 2));
+  let changed = diff.lines.filter((l) => !l.endsWith(': no change'));
+  if (!changed.length && summary.reRecord.length) {
+    if (json) console.log(JSON.stringify({ ...report(), wrote: null, refused: 'needs re-record' }, null, 2));
     else console.log('nothing could be repaired without re-recording — re-record the segment(s) listed above and compile again');
     process.exit(1);
   }
 
   for (let i = 1; i <= converge; i++) {
-    const check = await runStagedFlow(staged, mintVars(vars, i), `repair-${stamp}-${i}`, { headed: flags.has('headed'), onProgress });
+    const { run: check } = await runStagedFlow(staged, mintVars(vars, i), `repair-${stamp}-${i}`, { headed: flags.has('headed'), onProgress });
     const bad = notConverged(check);
     say(`converge ${i}/${converge}: ${check.passed}/${check.total} step(s) ${check.status}, ${(check.driftTickets ?? []).length} drift ticket(s)`);
     if (bad.length) {
-      if (json) console.log(JSON.stringify({ ...report, wrote: null, converged: false, notConverged: bad }, null, 2));
+      if (json) console.log(JSON.stringify({ ...report(), wrote: null, converged: false, notConverged: bad }, null, 2));
       console.error(`not converged: ${bad.join(', ')}`);
       process.exit(3);
     }
   }
 
+  // A convergence run is not only a check: a patch-segment variant is stored
+  // PROVISIONAL and becomes the step's pin only when a run adopts it, so the
+  // IR can legitimately move again between the drain and here. Re-diff rather
+  // than emit a summary that predates the adoption.
+  const finalSpec = reloadStaged(staged).spec;
+  const finalDiff = diffSpecChanges(before, finalSpec);
+  if (finalDiff.lines.join('\n') !== diff.lines.join('\n')) {
+    diff = finalDiff;
+    changed = diff.lines.filter((l) => !l.endsWith(': no change'));
+    printChanges('--- changes (after the convergence run(s) adopted what the repair proposed) ---', diff);
+    gateExpectations();
+  }
+
   if (dryRun) {
-    if (json) console.log(JSON.stringify({ ...report, wrote: null, dryRun: true }, null, 2));
+    if (json) console.log(JSON.stringify({ ...report(), wrote: null, dryRun: true }, null, 2));
     else console.log(`dry run: ${changed.length} change(s), nothing written (would have written ${outFile})`);
     return;
   }
@@ -1326,9 +1293,9 @@ async function repairFlowCommand(
   // Re-emit from the repaired IR — the owned file is generated in full, every
   // time, so a promoted candidate shows up in the diff as a reordered chain in
   // both the FLOW constant and the generated step body.
-  const emitted = emitFlowFile(reloadStaged(staged).spec, { tier: 'plain' });
+  const emitted = emitFlowFile(finalSpec, { tier: 'plain' });
   fs.writeFileSync(outFile, emitted.source);
-  if (json) console.log(JSON.stringify({ ...report, wrote: outFile, converged: true }, null, 2));
+  if (json) console.log(JSON.stringify({ ...report(), wrote: outFile, converged: true }, null, 2));
   else {
     for (const w of emitted.warnings) console.error(`  warning: ${w}`);
     console.log(`wrote ${outFile} (${changed.length} change(s); the .spec.ts was not touched)`);

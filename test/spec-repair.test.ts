@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { SkillStore } from '../src/skills/store.js';
 import type { SpecFlow, SpecSegment, SpecStep } from '../src/spec/ir.js';
 import { flowToSpec } from '../src/spec/ir.js';
-import { describeSpecChanges, diffSpecChanges, reloadStaged, stageRepair } from '../src/spec/repair.js';
+import { describeSpecChanges, diffSpecChanges, foldPatchedVariants, reloadStaged, stageRepair } from '../src/spec/repair.js';
 
 // The repair summary is a pure function of two IRs, so every interesting case
 // — a fallback promoted, a model-proposed locator, a re-pin to a variant, an
@@ -289,5 +289,147 @@ describe('mintVars', () => {
     const { mintVars } = await import('../src/spec/repair.js');
     expect(mintVars({ runid: 'fix-{n}', other: 'x' }, 0)).toEqual({ runid: 'fix-0', other: 'x' });
     expect(mintVars({ runid: '{n}-{n}' }, 3)).toEqual({ runid: '3-3' });
+  });
+});
+
+// The in-session drain: `repair` asks the DAEMON to drain, on the same
+// connection, before the session stops — a cold browser gets the login page
+// for every authenticated url and cannot reach a run-minted one at all. Source
+// level, like the tests above: importing src/cli.ts runs main().
+describe('in-session drain wiring', () => {
+  const cliSource = fs.readFileSync(path.resolve(__dirname, '../src/cli.ts'), 'utf8');
+  const serverSource = fs.readFileSync(path.resolve(__dirname, '../src/daemon/server.ts'), 'utf8');
+  const protocolSource = fs.readFileSync(path.resolve(__dirname, '../src/shared/protocol.ts'), 'utf8');
+  const skillsRepair = fs.readFileSync(path.resolve(__dirname, '../src/skills/repair.js'.replace('.js', '.ts')), 'utf8');
+
+  it('"patch" is a protocol command and a daemon case', () => {
+    expect(protocolSource).toMatch(/\|\s*'patch'/);
+    expect(serverSource).toMatch(/case 'patch': \{/);
+  });
+
+  it('the daemon drains on ITS store and ITS live page', () => {
+    const body = serverSource.slice(serverSource.indexOf("case 'patch': {"), serverSource.indexOf("case 'stop': {"));
+    expect(body).toMatch(/const store = this\.browser\.learn;/);
+    expect(body).toMatch(/const page = await this\.browser\.getPage\(\);/);
+    expect(body).toMatch(/propose: llmProposer\(provider\)/);
+    expect(body).toMatch(/this\.recoveryProvider\(model\)/); // --model M reaches the proposer
+  });
+
+  it('the run writes the concrete url onto every ticket it files', () => {
+    expect(serverSource).toMatch(/const pageUrl = sk\.replayUrl;/);
+    expect(serverSource).toMatch(/\.\.\.\(pageUrl \? \{ pageUrl \} : \{\}\)/);
+  });
+
+  it('the drain helpers live in skills/repair.ts, shared by all three callers', () => {
+    expect(skillsRepair).toMatch(/export async function drainDrift/);
+    expect(skillsRepair).toMatch(/export function llmProposer/);
+    expect(skillsRepair).toMatch(/export function repairPageUrl/);
+    expect(cliSource).toMatch(/import \{ drainDrift, llmProposer, triage, type DrainSummary, type DriftTicket \} from '\.\/skills\/repair\.js';/);
+    // ...and no longer in cli.ts.
+    expect(cliSource).not.toMatch(/^async function drainDrift/m);
+    expect(cliSource).not.toMatch(/^function llmProposer/m);
+  });
+
+  it('repair patches on the SAME connection, before the session is stopped', () => {
+    const body = cliSource.slice(cliSource.indexOf('async function runStagedFlow'), cliSource.indexOf('function notConverged'));
+    const runAt = body.indexOf("request(conn, 'run'");
+    const patchAt = body.indexOf("'patch',");
+    const stopAt = body.indexOf('stopSessionQuietly(session)');
+    expect(runAt).toBeGreaterThan(0);
+    expect(patchAt).toBeGreaterThan(runAt);
+    expect(stopAt).toBeGreaterThan(patchAt);
+  });
+
+  it('passes --dry-run and --model through to the drain', () => {
+    expect(cliSource).toMatch(/drain: \{ dryRun, model: flags\.get\('model'\) \? String\(flags\.get\('model'\)\) : undefined \}/);
+    expect(cliSource).toMatch(/dryRun: opts\.drain\.dryRun, model: opts\.drain\.model/);
+  });
+
+  it('the standalone --drift path says it is the cold one', () => {
+    expect(cliSource).toMatch(/in a COLD browser/);
+    expect(cliSource).toMatch(/Prefer "sitelooper repair"/);
+  });
+});
+
+describe('expectation loss on a repair variant', () => {
+  it('is reported for review, not refused — patchSegment drops it by construction', () => {
+    const before = specOf([segment('s_1')]);
+    // A variant: new id, model-proposed locator first, and the recorded
+    // page-change expectation gone (it named the control that moved).
+    const after = specOf([segment('s_1~repair')]);
+    after.steps[0].segments[0].steps[0].locators.target.unshift({ kind: 'testid', attr: 'data-testid', value: 'part-attach' } as never);
+    delete after.steps[0].segments[0].steps[0].expect;
+    const diff = diffSpecChanges(before, after);
+    expect(diff.droppedExpectations).toEqual([]);
+    expect(diff.weakenedByVariant).toHaveLength(1);
+    expect(diff.lines.some((l) => l.includes('REVIEW — the repair variant no longer asserts'))).toBe(true);
+  });
+
+  it('but the same loss with no variant behind it stays a refusal', () => {
+    const before = specOf([segment('s_1')]);
+    const after = clone(before);
+    delete after.steps[0].segments[0].steps[0].expect;
+    const diff = diffSpecChanges(before, after);
+    expect(diff.weakenedByVariant).toEqual([]);
+    expect(diff.droppedExpectations).toHaveLength(1);
+  });
+});
+
+describe('foldPatchedVariants', () => {
+  const dirs: string[] = [];
+  const tmp = () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-fold-'));
+    dirs.push(d);
+    return d;
+  };
+  afterEach(() => {
+    for (const d of dirs.splice(0)) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  /** A staged workspace whose skill has been patched: variant stored beside the original. */
+  const staged = () => {
+    const spec = specOf([segment('s_1')]);
+    const st = stageRepair(spec, tmp());
+    const store = new SkillStore(st.skillsDir);
+    const variant = JSON.parse(JSON.stringify(store.get('s_1')!));
+    variant.id = 's_1~repair';
+    variant.variantOf = 's_1';
+    variant.status = 'provisional';
+    delete variant.steps[0].expect; // patchSegment drops it
+    variant.steps[0].locators.target.unshift({ kind: 'testid', attr: 'data-testid', value: 'part-attach' });
+    store.put(variant);
+    return { spec, st, store };
+  };
+
+  it('puts the proposal first in the REAL chain and drops the variant', () => {
+    const { spec, st, store } = staged();
+    const lines = foldPatchedVariants(store, [{ skill: 's_1', step: '1', key: 'target', variant: 's_1~repair' }]);
+    expect(lines[0]).toContain("page.getByTestId('part-attach') folded in as primary");
+    expect(store.get('s_1~repair')).toBeNull();
+    const after = reloadStaged(st).spec;
+    // One segment, not two: the whole point — a mid-chain variant used to
+    // compile as an extra segment beside the drifted one.
+    expect(after.steps[0].segments).toHaveLength(1);
+    const chain = after.steps[0].segments[0].steps[0].locators.target;
+    expect(chain.map((c) => (c as { kind: string }).kind)).toEqual(['testid', 'testid', 'role', 'css']);
+    expect((chain[0] as { value: string }).value).toBe('part-attach');
+    expect(describeSpecChanges(spec, after)[0]).toContain("new locator: page.getByTestId('part-attach') (model-proposed)");
+  });
+
+  it('keeps the dead candidate in the chain, and the step expectation intact', () => {
+    const { spec, st, store } = staged();
+    foldPatchedVariants(store, [{ skill: 's_1', step: '1', key: 'target', variant: 's_1~repair' }]);
+    const after = reloadStaged(st).spec;
+    expect(after.steps[0].segments[0].steps[0].expect).toEqual(spec.steps[0].segments[0].steps[0].expect);
+    expect(diffSpecChanges(spec, after).droppedExpectations).toEqual([]);
+    expect(diffSpecChanges(spec, after).weakenedByVariant).toEqual([]);
+  });
+
+  it('is idempotent and says so when the ticket no longer maps', () => {
+    const { st, store } = staged();
+    const rows = [{ skill: 's_1', step: '1', key: 'target', variant: 's_1~repair' }];
+    foldPatchedVariants(store, rows);
+    expect(foldPatchedVariants(store, rows)[0]).toContain('could not fold');
+    expect(reloadStaged(st).spec.steps[0].segments[0].steps[0].locators.target).toHaveLength(4);
   });
 });

@@ -14,7 +14,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { executeTool } from '../src/agent/tools.js';
 import { BrowserSession } from '../src/daemon/browser.js';
 import { compileSkill } from '../src/skills/compile.js';
-import { LOCALIZED_SIMILARITY, patchSegment, promoteFallback, stepByTag, triage, type DriftTicket } from '../src/skills/repair.js';
+import { LOCALIZED_SIMILARITY, drainDrift, patchSegment, promoteFallback, repairPageUrl, stepByTag, triage, type DriftTicket } from '../src/skills/repair.js';
 import { SkillStore, type Skill } from '../src/skills/store.js';
 
 const enabled = process.env.BP_BROWSER_TESTS === '1';
@@ -226,4 +226,172 @@ d('repair on the fixture page (closed loop)', () => {
     expect(res.outcome).toBe('proposal-does-not-resolve');
     expect(store.all().length).toBe(before);
   }, 30_000);
+});
+
+// --- the shared drain (moved out of cli.ts so the daemon can run it in-session) ---
+
+/** A store with one skill whose target chain is dead, for the patch path. */
+function storeWithSkill(dir: string, over: Partial<Skill> = {}): SkillStore {
+  const store = new SkillStore(dir);
+  const skill: Skill = {
+    id: 's_x',
+    origin: 'http://app.test',
+    template: 'add a part',
+    params: { v1: { example: 'Part A', usedIn: [1] } },
+    preconditions: { urlPattern: 'http://app.test/#/tickets/:id' },
+    steps: [
+      {
+        tool: 'click',
+        args: { target: 'Add part' },
+        locators: { target: [{ kind: 'testid', attr: 'data-testid', value: 'add-part' } as never] },
+      },
+    ],
+    stats: { uses: 1, successes: 1, partial: 0, created: 'now', failedAtStep: {}, fallthroughs: 0 },
+    status: 'validated',
+    provenance: { session: 's', instruction: 'add a part', created: 'now' },
+    ...over,
+  };
+  store.put(skill);
+  return store;
+}
+
+describe('repairPageUrl', () => {
+  const dirs: string[] = [];
+  const tmp = () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-drain-'));
+    dirs.push(d);
+    return d;
+  };
+  afterAll(() => {
+    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  it('prefers the concrete url the miss happened on', () => {
+    const store = storeWithSkill(tmp());
+    const url = repairPageUrl(store, ticket({ pageUrl: 'http://app.test/#/tickets/t42', pageUrlPattern: 'http://app.test/#/tickets/:id' }));
+    expect(url).toBe('http://app.test/#/tickets/t42');
+  });
+
+  it('refuses a pattern whose id was minted by the run — there is nothing to fill it with', () => {
+    const store = storeWithSkill(tmp());
+    expect(repairPageUrl(store, ticket({ pageUrlPattern: 'http://app.test/#/tickets/:id' }))).toBeNull();
+  });
+
+  it('falls back to a pattern that carries no run-specific id', () => {
+    const store = storeWithSkill(tmp());
+    expect(repairPageUrl(store, ticket({ pageUrlPattern: 'http://app.test/#/tickets' }))).toBe('http://app.test/#/tickets');
+  });
+
+  it('ignores a pageUrl that still carries a slot', () => {
+    const store = storeWithSkill(tmp());
+    expect(repairPageUrl(store, ticket({ pageUrl: 'http://app.test/#/tickets/{{v1}}' }))).toBeNull();
+  });
+});
+
+describe('drainDrift', () => {
+  const dirs: string[] = [];
+  const tmp = () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sitelooper-drain-'));
+    dirs.push(d);
+    return d;
+  };
+  afterAll(() => {
+    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  const promotable = () =>
+    ticket({
+      skill: 's_x',
+      atStep: '1',
+      missedLocator: "page.getByTestId('add-part')",
+      // Exactly as candidateExpr prints it: promoteFallback re-checks the
+      // index still names the candidate the ticket promoted.
+      fallbackUsed: "page.getByRole('button', { name: 'Add part', exact: true })",
+      fallbackIndex: 1,
+    });
+
+  it('promotes a proven fallback with no page and no model at all', async () => {
+    const store = storeWithSkill(tmp(), {
+      steps: [
+        {
+          tool: 'click',
+          args: { target: 'Add part' },
+          locators: {
+            target: [
+              { kind: 'testid', attr: 'data-testid', value: 'add-part' } as never,
+              { kind: 'role', role: 'button', name: 'Add part' } as never,
+            ],
+          },
+        },
+      ],
+    });
+    const summary = await drainDrift(store, [promotable()], { dryRun: false });
+    expect(summary.promoted).toHaveLength(1);
+    expect(store.get('s_x')!.steps[0].locators.target[0].kind).toBe('role');
+  });
+
+  it('a dry run classifies without touching the store', async () => {
+    const store = storeWithSkill(tmp(), {
+      steps: [
+        {
+          tool: 'click',
+          args: { target: 'Add part' },
+          locators: {
+            target: [
+              { kind: 'testid', attr: 'data-testid', value: 'add-part' } as never,
+              { kind: 'role', role: 'button', name: 'Add part' } as never,
+            ],
+          },
+        },
+      ],
+    });
+    const summary = await drainDrift(store, [promotable()], { dryRun: true });
+    expect(summary.promoted[0].dryRun).toBe(true);
+    expect(store.get('s_x')!.steps[0].locators.target[0].kind).toBe('testid');
+  });
+
+  it('reports a patch-segment as unrunnable rather than crashing when there is no page to open', async () => {
+    const store = storeWithSkill(tmp());
+    const summary = await drainDrift(store, [ticket({ skill: 's_x', atStep: '1' })], { dryRun: false });
+    expect(summary.patched).toHaveLength(0);
+    expect(String(summary.skipped[0].why)).toContain('no live page or repair model available here');
+  });
+
+  it('sends a patch-segment to the CONCRETE url the miss happened on', async () => {
+    const store = storeWithSkill(tmp());
+    const opened: string[] = [];
+    const summary = await drainDrift(store, [ticket({ skill: 's_x', atStep: '1', pageUrl: 'http://app.test/#/tickets/t42', pageUrlPattern: 'http://app.test/#/tickets/:id' })], {
+      dryRun: false,
+      openPage: async (url) => {
+        opened.push(url);
+        return null; // no browser in a unit test; the url is what is under test
+      },
+      propose: async () => null,
+    });
+    expect(opened).toEqual(['http://app.test/#/tickets/t42']);
+    expect(String(summary.skipped[0].why)).toContain('could not reopen');
+  });
+
+  it('still reports "needs re-record" when no url can be reached at all', async () => {
+    const store = storeWithSkill(tmp());
+    const summary = await drainDrift(store, [ticket({ skill: 's_x', atStep: '1', pageUrlPattern: 'http://app.test/#/tickets/:id' })], {
+      dryRun: false,
+      openPage: async () => null,
+      propose: async () => null,
+    });
+    expect(summary.reRecord).toHaveLength(1);
+    expect(String(summary.reRecord[0].why)).toContain('cannot be revisited');
+  });
+
+  it('turns an unreachable repair model into a reported skip, keeping the promotions it already made', async () => {
+    const store = storeWithSkill(tmp());
+    const summary = await drainDrift(store, [ticket({ skill: 's_x', atStep: '1', pageUrl: 'http://app.test/x' })], {
+      dryRun: false,
+      openPage: async () => ({}) as never, // patchSegment will use it; the proposer throws first
+      propose: async () => {
+        throw new Error('LLM HTTP 403: not enough balance');
+      },
+    });
+    expect(String(summary.skipped[0].why)).toContain('the repair model could not be reached');
+  });
 });

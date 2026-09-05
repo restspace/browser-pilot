@@ -1,5 +1,7 @@
 import { candidateExpr, makeLocator, positionalExpr, type LocatorCandidate } from '../daemon/recorder.js';
 import type { Page } from 'playwright-core';
+import type { Provider } from '../agent/llm.js';
+import { fillParams } from './compile.js';
 import { newSkillId, type Skill, type SkillStore } from './store.js';
 
 /**
@@ -37,6 +39,21 @@ export interface DriftTicket {
   fellBack?: string;
   reason?: string;
   pageUrlPattern?: string;
+  /**
+   * The CONCRETE url the miss happened on, as the live page read it — not the
+   * generalised `pageUrlPattern` beside it.
+   *
+   * Both are kept because they answer different questions. The pattern is
+   * cross-run evidence (which page template drifts, matchable against a
+   * store); the concrete url is the only thing a repair pass can actually
+   * NAVIGATE to. Deriving one from the other is a lossy guess: a pattern that
+   * generalised `#/tickets/t42` to `#/tickets/:id` cannot be filled back in
+   * from the store, because the id was minted by the run — which is exactly
+   * the case `repairPageUrl` has to refuse. With the concrete url the
+   * in-session drain does not need to refuse it at all: it revisits the page
+   * the run itself was standing on, still signed in.
+   */
+  pageUrl?: string;
 }
 
 /**
@@ -295,3 +312,192 @@ export function retired(c: { seen?: { hit: number; miss: number } }): boolean {
 }
 
 const MIN_MISSES_TO_RETIRE = 2;
+
+// --- draining a run's tickets (shared by the daemon and both CLI paths) ------
+
+/** What one drain pass did, as rows a reporter (text or JSON) can print. */
+export interface DrainSummary {
+  promoted: Array<Record<string, unknown>>;
+  patched: Array<Record<string, unknown>>;
+  reRecord: Array<Record<string, unknown>>;
+  skipped: Array<Record<string, unknown>>;
+}
+
+/**
+ * Why a proposal came back empty, in the only terms that distinguish "the
+ * page had nothing to offer" from "the model was looking at the wrong page".
+ * A cold repair pass that landed on a login screen reports 6 interactive
+ * elements and a `null` reply; the same ticket drained inside the live
+ * session reports 40 and a locator. Without this the two are the same line.
+ */
+export interface ProposalDiagnostic {
+  url?: string;
+  snapshotRows: number;
+  snapshotBytes: number;
+  /** The model's raw reply, clipped — the honest answer to "why nothing?". */
+  reply: string;
+}
+
+/** A proposer that remembers what it last saw and said, for the report. */
+export interface DiagnosticProposer extends ProposeLocator {
+  last?: ProposalDiagnostic;
+}
+
+/** ProposeLocator backed by the repair model: strict-JSON locator proposals from the live-page snapshot. */
+export function llmProposer(provider: Provider): DiagnosticProposer {
+  const propose: DiagnosticProposer = async ({ skill, ticket, chain, snapshot }) => {
+    const prompt = [
+      "A stored browser procedure has drifted: one step's locator no longer resolves on the live page.",
+      `Procedure template: ${skill.template}`,
+      `Step ${ticket.atStep ?? '?'} (${ticket.key ?? 'target'}); its known locators, best first, ALL of which failed to resolve:`,
+      ...chain.map((c) => `  - ${candidateExpr(c)}`),
+      '',
+      'Interactive elements currently on the page, one per line:',
+      snapshot || '(none found)',
+      '',
+      'Pick the ONE element that serves the same purpose the dead locators described (the control probably moved or was renamed).',
+      'Reply with ONLY a JSON object, no prose, in one of these shapes:',
+      '{"kind":"role","role":"button","name":"..."} {"kind":"label","label":"..."} {"kind":"placeholder","placeholder":"..."}',
+      '{"kind":"testid","attr":"data-testid","value":"..."} {"kind":"id","selector":"#..."} {"kind":"text","text":"..."} {"kind":"css","selector":"..."}',
+      'If no element on the page serves that purpose, reply with exactly: null',
+    ].join('\n');
+    const completion = await provider.complete([{ role: 'user', content: prompt }], []);
+    const text = (completion.text ?? '').trim().replace(/^```(?:json)?\s*|\s*```$/g, '');
+    propose.last = {
+      snapshotRows: snapshot ? snapshot.split('\n').length : 0,
+      snapshotBytes: snapshot.length,
+      reply: text.slice(0, 300),
+    };
+    if (!text || text === 'null') return null;
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object' && typeof parsed.kind === 'string') return parsed;
+    } catch {
+      /* not JSON */
+    }
+    return null;
+  };
+  return propose;
+}
+
+/**
+ * A url the drifted page can be revisited at, or null when it cannot.
+ *
+ * The concrete url the ticket carries wins outright: it is where the miss
+ * actually happened. The patterns behind it are a fallback for tickets filed
+ * before `pageUrl` existed (and for the standalone `skills repair --drift`
+ * path, whose sidecar may be old), and they are refused the moment they still
+ * carry a slot or a `:id` — a generalised url cannot be filled back in from
+ * the store when the id was minted by the run that drifted.
+ */
+export function repairPageUrl(store: SkillStore, ticket: DriftTicket): string | null {
+  if (ticket.pageUrl && !ticket.pageUrl.includes('{{')) return ticket.pageUrl;
+  const skill = store.get(ticket.skill);
+  if (!skill) return null;
+  const candidates = [ticket.pageUrlPattern, skill.preconditions.urlPattern];
+  for (const c of candidates) {
+    if (!c) continue;
+    const filled = fillParams(c, Object.fromEntries(Object.entries(skill.params).map(([k, p]) => [k, p.example])));
+    if (!filled.includes(':id') && !filled.includes('{{')) return filled;
+  }
+  return null;
+}
+
+export interface DrainOptions {
+  /** Triage and report only: no chain is reordered, no variant is stored, no model is called. */
+  dryRun: boolean;
+  /**
+   * Put a live page on `url` and hand it back, or null when this caller has
+   * no browser to do it with. The daemon passes its OWN page — still signed
+   * in, still where the run left it — which is the whole reason patch-segment
+   * works in-session and did not cold.
+   */
+  openPage?: (url: string) => Promise<Page | null>;
+  propose?: ProposeLocator | DiagnosticProposer;
+  /** Reported beside a patch, so a summary says which model proposed it. */
+  model?: string;
+}
+
+/**
+ * Drain a run's drift tickets onto `store`: triage, then the cheap codemod
+ * (promote-fallback), then the model-and-live-page one (patch-segment).
+ * Re-record is REPORTED, never attempted — a broad redesign is a fresh
+ * recording, and guessing at it is how a spec quietly stops testing what it
+ * says it tests (PLAN-self-updating-spec.md, "what the agent is allowed to
+ * change").
+ *
+ * Takes the store, the page opener and the proposer as arguments rather than
+ * building them, because the three callers differ in exactly those: the
+ * daemon drains in-session on its live page, `sitelooper repair` asks the
+ * daemon to, and `skills repair --drift` opens a cold browser of its own.
+ * The triage and the summary shape are identical for all three.
+ */
+export async function drainDrift(store: SkillStore, tickets: DriftTicket[], opts: DrainOptions): Promise<DrainSummary> {
+  const actions = triage(tickets);
+  const summary: DrainSummary = { promoted: [], patched: [], reRecord: [], skipped: [] };
+
+  for (const a of actions) {
+    if (a.kind === 'promote-fallback') {
+      const ok = opts.dryRun ? true : promoteFallback(store, a.ticket);
+      (ok ? summary.promoted : summary.skipped).push({
+        skill: a.ticket.skill, step: a.ticket.atStep, from: a.ticket.missedLocator, to: a.ticket.fallbackUsed,
+        ...(opts.dryRun ? { dryRun: true } : {}), ...(ok ? {} : { why: 'ticket no longer maps onto the stored skill' }),
+      });
+    } else if (a.kind === 're-record') {
+      summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: a.why });
+    } else if (a.kind === 'skip') {
+      summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.step, why: a.why });
+    }
+  }
+
+  const patches = actions.filter((x): x is Extract<TriageAction, { kind: 'patch-segment' }> => x.kind === 'patch-segment');
+  if (!patches.length) return summary;
+  if (opts.dryRun || !opts.openPage || !opts.propose) {
+    for (const a of patches) {
+      summary.skipped.push({
+        skill: a.ticket.skill, step: a.ticket.atStep,
+        why: opts.dryRun ? 'patch-segment (dry run: needs the repair model + live page)' : 'patch-segment (no live page or repair model available here)',
+      });
+    }
+    return summary;
+  }
+
+  const propose = opts.propose;
+  for (const a of patches) {
+    const url = repairPageUrl(store, a.ticket);
+    if (!url) {
+      summary.reRecord.push({ flow: a.ticket.flow, step: a.ticket.step, skill: a.ticket.skill, why: 'the drifted page cannot be revisited (its url needs run-specific ids)' });
+      continue;
+    }
+    const page = await opts.openPage(url).catch(() => null);
+    if (!page) {
+      summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `could not reopen ${url}` });
+      continue;
+    }
+    // A proposer that cannot run at all (no key, no balance, a provider
+    // outage) is a REPORTABLE outcome, not a crash: the promotions this pass
+    // already made are real work, and losing them to an unhandled 403 would
+    // make the whole repair look like a tool bug.
+    let res: PatchResult;
+    try {
+      res = await patchSegment(store, a.ticket, page, propose);
+    } catch (err) {
+      summary.skipped.push({ skill: a.ticket.skill, step: a.ticket.atStep, why: `the repair model could not be reached (${(err as Error).message.slice(0, 200)})` });
+      continue;
+    }
+    const diagnostic = 'last' in propose ? propose.last : undefined;
+    if (res.outcome === 'patched') {
+      summary.patched.push({ skill: a.ticket.skill, step: a.ticket.atStep, key: a.ticket.key ?? 'target', variant: res.variant, locator: res.detail, url, model: opts.model });
+    } else {
+      summary.skipped.push({
+        skill: a.ticket.skill, step: a.ticket.atStep,
+        why: `${res.outcome}${res.detail ? `: ${res.detail}` : ''}`,
+        // What the model was actually looking at. A `no-proposal` on a page
+        // with 6 interactive rows is a navigation failure wearing a modelling
+        // failure's clothes; with 40 rows it is a genuine "nothing here fits".
+        ...(diagnostic ? { url, snapshotRows: diagnostic.snapshotRows, snapshotBytes: diagnostic.snapshotBytes, modelReply: diagnostic.reply } : { url }),
+      });
+    }
+  }
+  return summary;
+}

@@ -17,6 +17,8 @@ export type CommandName =
   | 'var'
   | 'flow'
   | 'run'
+  /** Drain a run's drift tickets INSIDE the live session — see server.ts's case. */
+  | 'patch'
   | 'stop';
 
 export interface Request {
