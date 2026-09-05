@@ -1,0 +1,57 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 fwgr27.spec.ts:4:1 › fwgr27 (1.0m)
+
+
+  1) fwgr27.spec.ts:4:1 › fwgr27 ───────────────────────────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByTestId('data-testid toggle-viz-picker')
+        - locator resolved to <button tabindex="0" aria-expanded="[spec-replay] sp1grb: 0/1 passed, exit=1, 62s, 0 drift line(s) — result written
+estid="data-testid toggle-viz-picker">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="24" height="24" aria-hidden="true" viewBox="0 0 24 24" class="css-fmaj2t-Icon" xmlns="http://www.w3.org/2000/svg">…</svg> from <div data-overlay-container="true">…</div> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="24" height="24" aria-hidden="true" viewBox="0 0 24 24" class="css-fmaj2t-Icon" xmlns="http://www.w3.org/2000/svg">…</svg> from <div data-overlay-container="true">…</div> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        108 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <svg width="24" height="24" aria-hidden="true" viewBox="0 0 24 24" class="css-fmaj2t-Icon" xmlns="http://www.w3.org/2000/svg">…</svg> from <div data-overlay-container="true">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+
+
+       at fwgr27.flow.ts:3340
+
+      3338 |       page.locator('div > div > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > button'),
+      3339 |     ], '02-create s_1c8609/1 target');
+    > 3340 |     await el2.click();
+           |               ^
+      3341 |     await expect(page).toHaveURL(new RegExp(`^http://127\\.0\\.0\\.1:3000/dashboard/new(?:[?#].*)?$`));
+      3342 |
+      3343 |     // @step 02-create s_1c8609/2
+        at Object.02-create (/home/user/sitelooper/bench/results/sp1grb-spec-tmp/fwgr27.flow.ts:3340:15)
+        at runFlow (/home/user/sitelooper/bench/results/sp1grb-spec-tmp/fwgr27.flow.ts:4174:3)
+        at /home/user/sitelooper/bench/results/sp1grb-spec-tmp/fwgr27.spec.ts:5:19
+
+    Error Context: ../../../test-results/fwgr27-fwgr27/error-context.md
+
+  1 failed
+    fwgr27.spec.ts:4:1 › fwgr27 ────────────────────────────────────────────────────────────────────
+EXIT=1
