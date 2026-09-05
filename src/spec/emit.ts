@@ -19,7 +19,7 @@
  */
 import type { LocatorCandidate } from '../daemon/recorder.js';
 import { TRANSIENT_LINE } from '../skills/compile.js';
-import { consequentialExpectations, waitsForAbsence } from '../skills/replay.js';
+import { OPENER_LINE, consequentialExpectations, waitsForAbsence } from '../skills/replay.js';
 import type { SkillStep } from '../skills/store.js';
 import { candidateSources, chainSource, matcherSource, stringSource } from './locators.js';
 import type { SpecFlow, SpecSegment, SpecStep } from './ir.js';
@@ -83,8 +83,21 @@ function escapeRe(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** The inlined helpers, keyed by the token that proves the body uses one. */
+/**
+ * Per-tier budget for the inlined `click` helper, mirroring the 10s
+ * `timeout` tools.ts hands robustClick, but cut so that ALL THREE tiers plus
+ * the scroll ahead of tier 2 fit well inside a default 60s Playwright test:
+ * grafana's viz-picker burned the whole 60s on tier 1 alone before this.
+ */
+const CLICK_TIER_MS = 5_000;
+
+/** The inlined helpers, keyed by the token that proves the body (or another helper) uses one. */
 const HELPERS: { token: string; source: string[] }[] = [
+  {
+    // Shared by `pick` and `urlPartWhen`: one poll cadence, one window.
+    token: 'PICK_WAIT_MS',
+    source: [`const PICK_WAIT_MS = ${PICK_WAIT_MS};`, `const PICK_POLL_MS = ${PICK_POLL_MS};`],
+  },
   {
     token: 'urlPart(',
     source: [
@@ -120,6 +133,102 @@ const HELPERS: { token: string; source: string[] }[] = [
       '    }',
       '  }',
       "  return parts[label] ?? '';",
+      '}',
+    ],
+  },
+  {
+    token: 'urlPartWhen(',
+    source: [
+      '/**',
+      ' * A url part read AFTER the navigation the step started has landed.',
+      ' *',
+      ' * WHICH REPLAY RULE THIS MIRRORS. runOneStep captures the url before the',
+      ' * action and, when the action changed it, awaits settleDom before binding',
+      " * the step's derived values — the value a spec needs is the one on the url",
+      ' * the step navigated TO, and `page.url()` read in the same tick as the',
+      ' * click still says where the page came FROM. Bound empty, every pattern',
+      ' * built from these parts (`toHaveURL`, an identity marker) can only fail.',
+      ' *',
+      ' * A spec has no settleDom, so it polls on the same cadence and within the',
+      ' * same window `pick` uses, and takes one last reading at the deadline: a',
+      ' * step whose url genuinely does not change (the part was already there)',
+      ' * must still bind what is there rather than hang or throw.',
+      ' */',
+      'async function urlPartWhen(page: Page, label: string, urlBefore: string): Promise<string> {',
+      '  for (let waited = 0; waited < PICK_WAIT_MS; waited += PICK_POLL_MS) {',
+      '    const url = page.url();',
+      '    const value = urlPart(url, label);',
+      '    if (value && url !== urlBefore) return value;',
+      '    await page.waitForTimeout(PICK_POLL_MS);',
+      '  }',
+      '  return urlPart(page.url(), label);',
+      '}',
+    ],
+  },
+  {
+    token: 'await click(',
+    source: [
+      '/**',
+      " * A click that lands, mirroring replay's robustClick (src/agent/tools.ts)",
+      ' * tier for tier, in the same order. A plain `locator.click()` waits for',
+      ' * actionability and NOTHING else, so a control an overlay covers — or one',
+      ' * the app re-mounts between frames — burns the whole test timeout on a',
+      ' * single attempt: grafana\'s `toggle-viz-picker` resolved fine and then sat',
+      ' * behind an `<svg>` in a `data-overlay-container` for 60s.',
+      ' *',
+      ' *  1. Playwright\'s own click, actionability checks and all. What a healthy',
+      ' *     app answers on, and the only tier that proves the control was really',
+      ' *     clickable the way a user would find it.',
+      ' *  2. Scrolled into view and FORCED past the checks. This is the overlay',
+      ' *     tier: a decorative layer that intercepts pointer events, or a sticky',
+      ' *     header over the target, is exactly what the checks refuse and what',
+      ' *     the app itself treats as fine.',
+      ' *  3. A synthetic DOM event dispatched at the element. React and friends',
+      " *     hang delegated handlers off the document, so they see this even when",
+      ' *     the element is not "clickable" by any geometric rule at all.',
+      ' *',
+      ' * Each tier gets its own bounded budget so all three (plus the scroll)',
+      ' * finish well inside one test timeout — replay could afford 10s a tier',
+      ' * because it had turns left afterwards; a spec has one shot.',
+      ' *',
+      ' * A strict-mode violation is rethrown at once, as robustClick does: two',
+      ' * matches is a locator that names the wrong thing, and no tier can fix it —',
+      ' * forcing or dispatching would just act on an arbitrary one of them.',
+      ' * Not mirrored: the re-render window tier (fireWhenAttached), which needs',
+      " * to poll element handles; tier 3's dispatch covers the same apps.",
+      ' */',
+      `const CLICK_TIER_MS = ${CLICK_TIER_MS};`,
+      'async function click(loc: Locator, opts: { dbl?: boolean } = {}): Promise<void> {',
+      '  const act = (o: { timeout: number; force?: boolean }) => (opts.dbl ? loc.dblclick(o) : loc.click(o));',
+      '  let firstFailure: unknown;',
+      '  try {',
+      '    return await act({ timeout: CLICK_TIER_MS });',
+      '  } catch (err) {',
+      '    firstFailure = err;',
+      "    if (/strict mode violation/i.test(err instanceof Error ? err.message : String(err))) throw err;",
+      '  }',
+      '  try {',
+      '    await loc.scrollIntoViewIfNeeded({ timeout: CLICK_TIER_MS }).catch(() => {});',
+      '    return await act({ timeout: CLICK_TIER_MS, force: true });',
+      '  } catch {',
+      '    // the overlay is a real one, or the element moved: fall through',
+      '  }',
+      '  try {',
+      '    await loc',
+      '      .first()',
+      '      .evaluate((el: Element, dbl: boolean) => {',
+      "        const fire = (type: string) => el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));",
+      "        fire('click');",
+      '        if (dbl) {',
+      "          fire('click');",
+      "          fire('dblclick');",
+      '        }',
+      '      }, Boolean(opts.dbl));',
+      '  } catch {',
+      '    // Every tier lost. The FIRST failure is the one worth reporting: it says',
+      '    // what a normal click was actually waiting for.',
+      '    throw firstFailure;',
+      '  }',
       '}',
     ],
   },
@@ -177,8 +286,6 @@ const HELPERS: { token: string; source: string[] }[] = [
       " *  - `byEvidence` (retired candidates last): per-candidate replay evidence",
       ' *    lives in the skill store, not in the spec.',
       ' */',
-      `const PICK_WAIT_MS = ${PICK_WAIT_MS};`,
-      `const PICK_POLL_MS = ${PICK_POLL_MS};`,
       'async function pick(page: Page, candidates: Locator[], where: string, opts: { any?: boolean } = {}): Promise<Locator> {',
       '  const enough = (n: number) => (opts.any ? n > 0 : n === 1);',
       '  const hits = async (i: number) => enough(await candidates[i].count().catch(() => 0));',
@@ -228,6 +335,22 @@ const HELPERS: { token: string; source: string[] }[] = [
   },
 ];
 
+/**
+ * The helpers this body needs, in declaration order — transitively, because a
+ * helper may use another (`urlPartWhen` reads `urlPart`; both poll on `pick`'s
+ * constants). Anything else would emit a file that references a function it
+ * does not carry, which is the one defect a generated spec cannot survive.
+ */
+function neededHelpers(body: string): typeof HELPERS {
+  const chosen = new Set<(typeof HELPERS)[number]>();
+  for (;;) {
+    const text = [body, ...[...chosen].map((h) => h.source.join('\n'))].join('\n');
+    const added = HELPERS.filter((h) => !chosen.has(h) && text.includes(h.token));
+    if (!added.length) return HELPERS.filter((h) => chosen.has(h));
+    for (const h of added) chosen.add(h);
+  }
+}
+
 /** Emission state shared by every step of one flow step's body. */
 interface Ctx {
   /** Flow step id, the prefix of every output key this body writes. */
@@ -251,6 +374,8 @@ interface Ctx {
   lastUrl: string | null;
   /** Hoisted loop guards, so each loop names its own. */
   loops: number;
+  /** Pre-action url captures emitted so far, so each minting step names its own. */
+  urls: number;
 }
 
 const src = (text: string) => stringSource(text, { slot: slotAsParam });
@@ -292,24 +417,31 @@ function urlRegexSource(pattern: string): string | null {
  * control, or a value with no role — in which case the caller leaves the
  * observation as a comment rather than inventing an assertion.
  */
-function lineLocator(line: string): string | null {
-  // `exact: false`, unlike an action's locator. A recorded line's name comes
+function lineLocator(line: string, exact = false): string | null {
+  // `exact: false` by default, unlike an action's locator. A recorded line's name comes
   // from the daemon's own accessible-name walk (describeInPage in
   // src/daemon/diff.ts), which composes a name out of the subtree and can
   // disagree with Playwright's exact matcher on spacing, punctuation and
   // decorative children - `link "RD Repair Desk"` is a real example. An
   // ACTION must name one control exactly; a presence check only has to find
   // the evidence, and replay's own lineShows matches loosely too.
+  //
+  // `exact` is for the one caller that reads presence as a reason NOT to act
+  // (the already-in-effect guard): there a false positive silently drops a
+  // click, and replay's own check is line-exact — `lineShows` looks for the
+  // whole rendered line, quotes and all, so a `button "6"` never matches a
+  // button called "17.6". Loose is safe when it only widens the evidence a
+  // step accepts; it is not safe when it decides the step is unnecessary.
   const roled = /^-?\s*([a-zA-Z]+)\s+"((?:[^"\\]|\\.)*)"/.exec(line);
   if (roled) {
     const name = roled[2].replace(/\\(.)/g, '$1');
     if (!name.trim()) return null;
-    return `page.getByRole(${q(roled[1])}, { name: ${match(name)}, exact: false })`;
+    return `page.getByRole(${q(roled[1])}, { name: ${match(name)}, exact: ${exact} })`;
   }
   const text = /^-?\s*(?:text:)?\s*(.+?)\s*$/.exec(line);
   const value = text?.[1];
   if (!value || value.includes('"')) return null;
-  return `page.getByText(${match(value)}, { exact: false })`;
+  return `page.getByText(${match(value)}, { exact: ${exact} })`;
 }
 
 /**
@@ -324,22 +456,33 @@ function lineLocator(line: string): string | null {
  * exactly "at least one of these is showing".
  */
 function anyOfAssertion(lines: string[], label: string, out: string[]): void {
-  const usable: string[] = [];
-  const listed: string[] = [];
-  for (const line of lines) {
-    const loc = lineLocator(line);
-    if (loc && !usable.includes(loc)) {
-      usable.push(loc);
-      listed.push(line);
-    } else if (!loc) {
-      out.push(`// observed (nothing nameable in it): ${commentSafe(line)}`);
-    }
-  }
-  if (!usable.length) return;
+  const { source, listed, unnameable, count } = lineUnion(lines);
+  for (const line of unnameable) out.push(`// observed (nothing nameable in it): ${commentSafe(line)}`);
+  if (!source) return;
   out.push(`// ${label} — any one of these, as replay's effect gate has it:`);
   for (const line of listed) out.push(`//   ${commentSafe(line)}`);
-  const union = usable[0] + usable.slice(1).map((u) => `\n${CONT_INDENT}.or(${u})`).join('');
-  out.push(`await expect(${union}${usable.length === 1 ? '' : `\n${CONT_INDENT}`}.first()).toBeVisible();`);
+  out.push(`await expect(${source}${count === 1 ? '' : `\n${CONT_INDENT}`}.first()).toBeVisible();`);
+}
+
+/**
+ * A group of recorded lines as ONE union locator — the shape both the effect
+ * gate above and the already-in-effect guard below need, built once so the
+ * two can never disagree about what a recorded line means.
+ */
+function lineUnion(lines: string[], exact = false): { source: string; listed: string[]; unnameable: string[]; count: number } {
+  const usable: string[] = [];
+  const listed: string[] = [];
+  const unnameable: string[] = [];
+  for (const line of lines) {
+    const loc = lineLocator(line, exact);
+    if (!loc) unnameable.push(line);
+    else if (!usable.includes(loc)) {
+      usable.push(loc);
+      listed.push(line);
+    }
+  }
+  const source = usable.length ? usable[0] + usable.slice(1).map((u) => `\n${CONT_INDENT}.or(${u})`).join('') : '';
+  return { source, listed, unnameable, count: usable.length };
 }
 
 /**
@@ -390,6 +533,44 @@ function noteSlots(value: unknown, ctx: Ctx): void {
 }
 
 /**
+ * Wraps everything a click step emitted from `actionStart` on in the
+ * already-in-effect guard, or leaves it alone when the recorded effect opens
+ * no popup.
+ *
+ * WHICH REPLAY RULE THIS MIRRORS. runOneStep, before it acts: a click that
+ * OPENS a popup is a TOGGLE, so re-clicking it while the popup is showing
+ * closes the very thing the next step depends on — and the click that ought
+ * to be a no-op is instead intercepted by the modal overlay it raised, which
+ * on kanboard meant 60s of Playwright waiting for an `#modal-overlay` to stop
+ * eating pointer events. Replay skips such a click ("already in effect"); the
+ * spec asks the same question of the same recorded lines and skips the pick
+ * and the click together, because resolving a control under an open modal is
+ * no more meaningful than clicking it.
+ */
+function wrapAlreadyInEffect(step: SkillStep, out: string[], actionStart: number): void {
+  const opener = openerExpectations(step);
+  if (!opener.length) return;
+  const { source, listed, count } = lineUnion(opener, true);
+  if (!source) return;
+  const acted = out
+    .splice(actionStart)
+    .flatMap((l) => l.split('\n'))
+    .map((l) => (l ? '  ' + l : l));
+  out.push(
+    "// This click OPENS a popup, which makes it a toggle: replay skips it when the",
+    '// recorded effect is already showing (runOneStep, "skipped (already in effect)"),',
+    '// because clicking again would close what the next step needs. Same rule here,',
+    '// off the same recorded lines:',
+    ...listed.map((l) => `//   ${commentSafe(l)}`),
+    `if (await ${source}${count === 1 ? '' : `\n${CONT_INDENT}`}.first().isVisible().catch(() => false)) {`,
+    '  // already in effect: the popup is on the page, so the recorded click has nothing left to do.',
+    '} else {',
+    ...acted,
+    '}',
+  );
+}
+
+/**
  * The expression an action acts on, emitting the resolution above it when the
  * recording measured more than one way of naming the element.
  *
@@ -434,13 +615,45 @@ function droppedNotes(step: SkillStep, out: string[]): void {
   out.push(`// TODO: dropped the recorded position fallback (${where}) — a spec cannot find an element by where it was.`);
 }
 
-/** `p.dN = urlPart(...)` for every value this step mints, bound before the assertions read it. */
-function derivedLines(segment: SpecSegment, index: number, ctx: Ctx, out: string[]): void {
-  for (const [name, d] of Object.entries(segment.derived ?? {})) {
-    if (d.step !== index) continue;
+/** The names this step mints, in the order the segment declares them. */
+function derivedHere(segment: SpecSegment, index: number): [string, { at: string; example: string }][] {
+  return Object.entries(segment.derived ?? {}).filter(([, d]) => d.step === index) as [string, { at: string; example: string }][];
+}
+
+/**
+ * `p.dN = …` for every value this step mints, bound before the assertions
+ * read it.
+ *
+ * `settled` says the url is already the one the step navigated to — true
+ * after a `goto`, which awaits its own navigation. Anywhere else the action
+ * only STARTS the navigation, so the part has to be read the way replay reads
+ * it: after the url changed and the page stopped moving (see `urlPartWhen`).
+ * Read in the same tick instead, every part comes back empty and the
+ * `toHaveURL` built from them can never match — which is what odoo's
+ * `#action=&cids=&menu_id=` did on the first cloud run.
+ */
+function derivedLines(segment: SpecSegment, index: number, ctx: Ctx, out: string[], urlBefore = ''): void {
+  for (const [name, d] of derivedHere(segment, index)) {
     ctx.slots.add(name);
-    out.push(`p.${name} = urlPart(page.url(), ${q(d.at)}); // recorded example: ${commentSafe(d.example)}`);
+    const read = urlBefore ? `await urlPartWhen(page, ${q(d.at)}, ${urlBefore})` : `urlPart(page.url(), ${q(d.at)})`;
+    out.push(`p.${name} = ${read}; // recorded example: ${commentSafe(d.example)}`);
   }
+}
+
+/**
+ * The recorded popup lines that make a click a TOGGLE, or empty.
+ *
+ * Mirrors replay's `openerLines`: only the plain (unparameterised, non
+ * transient) effects count, and they count only when at least one of them
+ * names a popup — a dialog, menu, listbox or tooltip is the thing a second
+ * click closes again, where another row of textboxes is an effect worth
+ * re-producing. Widened to `dblclick` here for the same reason it applies to
+ * `click`; replay only ever recorded the case for `click`.
+ */
+function openerExpectations(step: SkillStep): string[] {
+  if (step.tool !== 'click' && step.tool !== 'dblclick') return [];
+  const lines = (step.expect?.addedContains ?? []).filter((l) => !TRANSIENT_LINE.test(l) && !SLOT_LINE.test(l));
+  return lines.some((l) => OPENER_LINE.test(l)) ? lines : [];
 }
 
 /**
@@ -466,6 +679,7 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
     case 'goto':
       out.push(`await page.goto(${src(str('url'))});`);
       effectLines(step, ctx, out);
+      // page.goto awaits its own navigation: the url is already the landed one.
       derivedLines(segment, index, ctx, out);
       return out;
     case 'back':
@@ -537,6 +751,15 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
     out.push(waitForLine(`(${union}).first()`, args, num('timeout_ms')));
     return out;
   }
+  // The url this step starts from, so a value it mints is read off the url it
+  // navigated TO and not off the one it left (see urlPartWhen / derivedLines).
+  const minting = derivedHere(segment, index).length > 0 || Boolean(step.mints);
+  const urlBefore = minting ? `urlBefore${++ctx.urls}` : '';
+  if (urlBefore) out.push(`const ${urlBefore} = page.url();`);
+
+  // Everything from here to the action itself is what the already-in-effect
+  // guard wraps, so remember where it starts.
+  const actionStart = out.length;
   const target = actionTarget(step, 'target', ctx, out, { first, any });
   if (!target) {
     ctx.warnings.push(`${ctx.stepId}: step ${index} (${step.tool}) has no locator a spec can express`);
@@ -546,17 +769,21 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
 
   switch (step.tool) {
     case 'click':
-      out.push(`await ${target}.click();`);
+      out.push(`await click(${target});`);
       break;
     case 'dblclick':
-      out.push(`await ${target}.dblclick();`);
+      out.push(`await click(${target}, { dbl: true });`);
       break;
+    // Not through the tiers: tools.ts dispatches a right or modifier click as a
+    // plain, single Playwright click too (only click/dblclick reach
+    // robustClick), and a FORCED right click on the wrong layer would open
+    // someone else's context menu.
     case 'right_click':
-      out.push(`await ${target}.click({ button: 'right' });`);
+      out.push(`await ${target}.click({ button: 'right' }); // plain, as replay dispatches it — robustClick's tiers are for click/dblclick only`);
       break;
     case 'modifier_click': {
       const mods = Array.isArray(args.modifiers) ? (args.modifiers as string[]) : [];
-      out.push(`await ${target}.click({ modifiers: [${mods.map(q).join(', ')}] });`);
+      out.push(`await ${target}.click({ modifiers: [${mods.map(q).join(', ')}] }); // plain, as replay dispatches it — robustClick's tiers are for click/dblclick only`);
       break;
     }
     case 'fill':
@@ -616,9 +843,18 @@ function emitSkillStep(step: SkillStep, segment: SpecSegment, index: number, ctx
       break;
   }
 
-  derivedLines(segment, index, ctx, out);
+  wrapAlreadyInEffect(step, out, actionStart);
+  derivedLines(segment, index, ctx, out, urlBefore);
   if (step.mints) {
     out.push(`// This step CREATES a record (its id is url part ${q(step.mints.at)}) — clean it up in your teardown.`);
+    // Nothing else read the post-action url here, so publish the id rather than
+    // leave a teardown to re-derive it: replay keeps the same value (res.created)
+    // for exactly this reason. Read the settled way, off the url the step
+    // navigated TO — the same reason derived values cannot be read in the
+    // click's own tick.
+    if (!derivedHere(segment, index).length) {
+      out.push(`outputs[${q(`${ctx.stepId}.minted`)}] = await urlPartWhen(page, ${q(step.mints.at)}, ${urlBefore});`);
+    }
   }
   if (!isRead) {
     effectLines(step, ctx, out);
@@ -804,7 +1040,7 @@ export function emitFlowFile(spec: SpecFlow, o: EmitOptions): { source: string; 
 
   // Bodies first: which helpers the file needs is decided by what they use.
   const bodies = spec.steps.map((step) => {
-    const ctx: Ctx = { stepId: step.id, slots: new Set(), warnings, downloads: 0, lastUrl: null, loops: 0, picks: 0, segmentId: '', stepIndex: 0 };
+    const ctx: Ctx = { stepId: step.id, slots: new Set(), warnings, downloads: 0, lastUrl: null, loops: 0, picks: 0, urls: 0, segmentId: '', stepIndex: 0 };
     const lines: string[] = [];
     if (!step.segments.length) {
       lines.push(`// TODO: no converged procedure for ${JSON.stringify(commentSafe(step.instruction))}`);
@@ -819,13 +1055,13 @@ export function emitFlowFile(spec: SpecFlow, o: EmitOptions): { source: string; 
   });
 
   const body = bodies.flatMap((b) => b.lines).join('\n');
-  const helpers = HELPERS.filter((h) => body.includes(h.token));
+  const helpers = neededHelpers(body);
 
   const out: string[] = [
     '// @sitelooper-flow v1',
     `// Generated by sitelooper from flow ${JSON.stringify(spec.name)} — do not edit by hand.`,
     '// Repair drift with `sitelooper repair <this file>`; the FLOW constant below is the source of truth.',
-    `import { expect, ${helpers.some((h) => h.token === 'pick(') ? 'type Locator, ' : ''}type Page } from '@playwright/test';`,
+    `import { expect, ${helpers.some((h) => h.source.some((l) => l.includes('Locator'))) ? 'type Locator, ' : ''}type Page } from '@playwright/test';`,
     '',
     BEGIN_MARKER,
     `export const FLOW = ${JSON.stringify(spec, null, 2)};`,
