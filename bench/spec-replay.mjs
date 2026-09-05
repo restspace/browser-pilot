@@ -181,8 +181,21 @@ if (args.reset && args.target) {
 fs.writeFileSync(pwConfigFile, pwConfigSource);
 
 const started = Date.now();
-console.log(`[spec-replay] compiling: ${compileCmd.join(' ')}`);
-const compile = spawnSync(compileCmd[0], compileCmd.slice(1), { encoding: 'utf8', timeout: 120_000, env: compileEnv });
+// --compiled <dir>: run the .flow.ts/.spec.ts already in <dir> instead of
+// compiling afresh. A `sitelooper repair` rewrites the owned .flow.ts, and
+// recompiling from the flow JSON would throw that repair away — this is how
+// the repaired file gets its own scored run.
+let compile;
+if (args.compiled) {
+  const src = path.resolve(String(args.compiled));
+  for (const f of [`${name}.flow.ts`, `${name}.spec.ts`]) fs.copyFileSync(path.join(src, f), path.join(tmpDir, f));
+  console.log(`[spec-replay] using compiled files from ${src} (no compile)`);
+  compile = { status: 0, stdout: `copied ${name}.flow.ts and ${name}.spec.ts from ${src}
+`, stderr: '' };
+} else {
+  console.log(`[spec-replay] compiling: ${compileCmd.join(' ')}`);
+  compile = spawnSync(compileCmd[0], compileCmd.slice(1), { encoding: 'utf8', timeout: 120_000, env: compileEnv });
+}
 const compileOut = `${compile.stdout || ''}${compile.stderr || ''}`;
 fs.writeFileSync(path.join(outDir, `${tag}-spec-compile.log`), compileOut);
 console.log(compileOut.trim());
