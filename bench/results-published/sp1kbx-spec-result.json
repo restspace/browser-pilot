@@ -1,0 +1,34 @@
+{
+  "arm": "spec",
+  "runid": "sp1kbx",
+  "target": "kanboard",
+  "flow": "sp1kb.json",
+  "flowName": "fwkb5",
+  "skillsDir": "/home/user/sitelooper/bench/results/sp1kb-skills",
+  "compiled": true,
+  "flowFile": "bench/results/sp1kbx-spec-tmp/fwkb5.flow.ts",
+  "specFile": "bench/results/sp1kbx-spec-tmp/fwkb5.spec.ts",
+  "wallMs": 62386,
+  "exitCode": 1,
+  "timedOut": false,
+  "costUsd": 0,
+  "stats": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "title": "fwkb5",
+      "status": "unexpected",
+      "ok": false,
+      "durationMs": 60063,
+      "error": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+      "drift": []
+    }
+  ],
+  "drift": [],
+  "driftCount": 0,
+  "logTail": "\nRunning 1 test using 1 worker\n\n  ✘  1 fwkb5.spec.ts:4:1 › fwkb5 (1.0m)\n\n\n  1) fwkb5.spec.ts:4:1 › fwkb5 ─────────────────────────────────────────────────────────────────────\n\n    Test timeout of 60000ms exceeded.\n\n    Error: locator.click: Test timeout of 60000ms exceeded.\n    Call log:\n      - waiting for getByRole('link', { name: 'Edit the task', exact: true })\n        - locator resolved to <a title=\"\" class=\"js-modal-large\" href=\"/?controller=TaskModificationController&action=edit&task_id=4\">…</a>\n      - attempting click action\n        2 × waiting for element to be visible, enabled and stable\n          - element is visible, enabled and stable\n          - scrolling into view if needed\n          - done scrolling\n          - <textarea tabindex=\"2\" name=\"description\" aria-label=\"Description\" placeholder=\"Write your text in Markdown\">Bench task for run sp1kbx</textarea> from <div id=\"modal-overlay\">…</div> subtree intercepts pointer events\n        - retrying click action\n        - waiting 20ms\n        2 × waiting for element to be visible, enabled and stable\n          - element is visible, enabled and stable\n          - scrolling into view if needed\n          - done scrolling\n          - <textarea tabindex=\"2\" name=\"description\" aria-label=\"Description\" placeholder=\"Write your text in Markdown\">Bench task for run sp1kbx</textarea> from <div id=\"modal-overlay\">…</div> subtree intercepts pointer events\n        - retrying click action\n          - waiting 100ms\n        112 × waiting for element to be visible, enabled and stable\n            - element is visible, enabled and stable\n            - scrolling into view if needed\n            - done scrolling\n            - <textarea tabindex=\"2\" name=\"description\" aria-label=\"Description\" placeholder=\"Write your text in Markdown\">Bench task for run sp1kbx</textarea> from <div id=\"modal-overlay\">…</div> subtree intercepts pointer events\n          - retrying click action\n            - waiting 500ms\n\n\n       at fwkb5.flow.ts:2135\n\n      2133 |       page.locator('#task-view > div:nth-of-type(1) > ul:nth-of-type(2) > li:nth-of-type(1) > a'),\n      2134 |     ], '04-open s_1e46d8/8 target');\n    > 2135 |     await el7.click();\n           |               ^\n      2136 |\n      2137 |     // @step 04-open s_1e46d8/9\n      2138 |     await page.goto('http://127.0.0.1:8085/?controller=TaskModificationController&action=edit&task_id=4');\n        at Object.04-open (/home/user/sitelooper/bench/results/sp1kbx-spec-tmp/fwkb5.flow.ts:2135:15)\n        at runFlow (/home/user/sitelooper/bench/results/sp1kbx-spec-tmp/fwkb5.flow.ts:2339:3)\n        at /home/user/sitelooper/bench/results/sp1kbx-spec-tmp/fwkb5.spec.ts:5:19\n\n    Error Context: ../../../test-results/fwkb5-fwkb5/error-context.md\n\n  1 failed\n    fwkb5.spec.ts:4:1 › fwkb5 ──────────────────────────────────────────────────────────────────────\n"
+}

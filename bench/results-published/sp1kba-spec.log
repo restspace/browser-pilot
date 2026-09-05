@@ -1,0 +1,57 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 fwkb5.spec.ts:4:1 › fwkb5 (1.0m)
+
+
+  1) fwkb5.spec.ts:4:1 › fwkb5 ─────────────────────────────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Edit the task', exact: true })
+        - locator resolve[spec-replay] sp1kba: 0/1 passed, exit=1, 63s, 0 drift line(s) — result written
+ler&action=edit&task_id=4">…</a>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <textarea tabindex="2" name="description" aria-label="Description" placeholder="Write your text in Markdown">Bench task for run sp1kba</textarea> from <div id="modal-overlay">…</div> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <textarea tabindex="2" name="description" aria-label="Description" placeholder="Write your text in Markdown">Bench task for run sp1kba</textarea> from <div id="modal-overlay">…</div> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        110 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <textarea tabindex="2" name="description" aria-label="Description" placeholder="Write your text in Markdown">Bench task for run sp1kba</textarea> from <div id="modal-overlay">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+
+
+       at fwkb5.flow.ts:2135
+
+      2133 |       page.locator('#task-view > div:nth-of-type(1) > ul:nth-of-type(2) > li:nth-of-type(1) > a'),
+      2134 |     ], '04-open s_1e46d8/8 target');
+    > 2135 |     await el7.click();
+           |               ^
+      2136 |
+      2137 |     // @step 04-open s_1e46d8/9
+      2138 |     await page.goto('http://127.0.0.1:8085/?controller=TaskModificationController&action=edit&task_id=4');
+        at Object.04-open (/home/user/sitelooper/bench/results/sp1kba-spec-tmp/fwkb5.flow.ts:2135:15)
+        at runFlow (/home/user/sitelooper/bench/results/sp1kba-spec-tmp/fwkb5.flow.ts:2339:3)
+        at /home/user/sitelooper/bench/results/sp1kba-spec-tmp/fwkb5.spec.ts:5:19
+
+    Error Context: ../../../test-results/fwkb5-fwkb5/error-context.md
+
+  1 failed
+    fwkb5.spec.ts:4:1 › fwkb5 ──────────────────────────────────────────────────────────────────────
+EXIT=1
